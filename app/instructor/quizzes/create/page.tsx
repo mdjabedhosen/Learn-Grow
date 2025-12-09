@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Card,
     CardBody,
@@ -16,7 +16,7 @@ import {
     RadioGroup,
     Chip,
 } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FaPlus, FaTrash, FaEdit, FaSave, FaCheck, FaImage } from "react-icons/fa";
 
 interface Question {
@@ -41,11 +41,11 @@ interface Quiz {
 
 export default function CreateQuizPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
     const [quiz, setQuiz] = useState<Quiz>({
-        id: Date.now().toString(),
         type: "quiz",
         title: "",
         course: "",
@@ -53,6 +53,13 @@ export default function CreateQuizPage() {
         questions: [],
         status: "draft",
     });
+
+    useEffect(() => {
+        const courseTitle = searchParams.get("courseTitle");
+        if (courseTitle) {
+            setQuiz(prev => ({ ...prev, course: courseTitle }));
+        }
+    }, [searchParams]);
 
     const [currentQuestion, setCurrentQuestion] = useState<Question>({
         id: "",
@@ -123,7 +130,7 @@ export default function CreateQuizPage() {
             return;
         }
 
-        if (quiz.questions.length === 0) {
+        if (["quiz", "mid-exam", "final-exam"].includes(quiz.type) && quiz.questions.length === 0) {
             alert("Please add at least one question");
             return;
         }
@@ -150,8 +157,8 @@ export default function CreateQuizPage() {
                         type="button"
                         onClick={() => setQuiz({ ...quiz, type })}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${quiz.type === type
-                                ? "bg-primary text-white shadow-md scale-105"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            ? "bg-primary text-white shadow-md scale-105"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                             } capitalize`}
                     >
                         {type.replace("-", " ")}
@@ -223,7 +230,6 @@ export default function CreateQuizPage() {
                 </CardBody>
             </Card>
 
-            {/* Questions List */}
             {/* Questions List - Only for Quizzes/Exams */}
             {["quiz", "mid-exam", "final-exam"].includes(quiz.type) && (
                 <Card className="mb-6">

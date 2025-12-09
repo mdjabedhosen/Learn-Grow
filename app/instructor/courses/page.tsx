@@ -25,6 +25,7 @@ export default function InstructorCoursesPage() {
     const [searchQuery, setSearchQuery] = useState("");
 
     // Mock courses data - replace with API
+    // Mock courses data - replace with API
     const [courses, setCourses] = useState([
         {
             id: "1",
@@ -37,21 +38,30 @@ export default function InstructorCoursesPage() {
         },
         {
             id: "2",
-            title: "Python for Beginners",
+            title: "Python for Kids",
             students: 32,
             status: "published",
             price: 1500,
-            rating: 4.6,
+            rating: 4.9,
             lastUpdated: "2024-11-28",
         },
         {
             id: "3",
-            title: "React Advanced Concepts",
+            title: "Robotics Basics",
             students: 18,
-            status: "draft",
+            status: "published",
             price: 2500,
-            rating: null,
+            rating: 4.7,
             lastUpdated: "2024-12-05",
+        },
+        {
+            id: "4",
+            title: "Game Development with Scratch",
+            students: 60,
+            status: "published",
+            price: 1200,
+            rating: 4.9,
+            lastUpdated: "2024-12-07",
         },
     ]);
 
@@ -215,10 +225,10 @@ export default function InstructorCoursesPage() {
                                 size="sm"
                                 color="primary"
                                 variant="bordered"
-                                startContent={<FaEdit />}
-                                onPress={() => router.push(`/instructor/courses/${course.id}/edit`)}
+                                startContent={<FaChartLine />}
+                                onPress={() => router.push(`/instructor/courses/${course.id}`)}
                             >
-                                Edit
+                                Manage
                             </Button>
                             <Button
                                 size="sm"
