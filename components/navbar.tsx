@@ -1,0 +1,170 @@
+"use client";
+import React from "react";
+import { IoPersonAddSharp } from "react-icons/io5";
+import {
+  Navbar as NextUINavbar,
+  NavbarContent,
+  NavbarMenuToggle,
+  NavbarBrand,
+  NavbarItem,
+} from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
+import { Link } from "@nextui-org/react";
+import NextLink from "next/link";
+import Image from "next/image";
+
+import { siteConfig } from "@/config/site";
+import Logo from "@/public/logo.png";
+
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Avatar,
+  Skeleton
+} from "@nextui-org/react";
+import { getDashboardUrl } from "@/lib/utils/dashboard";
+
+const AuthButtons = () => {
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [user, setUser] = React.useState<any>(null);
+  const [dashboardUrl, setDashboardUrl] = React.useState("/dashboard");
+
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    const userRole = localStorage.getItem("userRole");
+
+    if (token) {
+      setIsAuthenticated(true);
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+      // Set dynamic dashboard URL based on role
+      setDashboardUrl(getDashboardUrl(userRole || undefined));
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
+    setUser(null);
+    window.location.href = "/login";
+  };
+
+  if (isLoading) {
+    return <Skeleton className="rounded-full w-10 h-10" />;
+  }
+
+  if (isAuthenticated) {
+    return (
+      <Dropdown placement="bottom-end">
+        <DropdownTrigger>
+          <Avatar
+            isBordered
+            as="button"
+            className="transition-transform"
+            color="primary"
+            name={user?.name || "User"}
+            size="sm"
+            src={user?.img}
+          />
+        </DropdownTrigger>
+        <DropdownMenu aria-label="Profile Actions" variant="flat">
+          <DropdownItem key="profile" className="h-14 gap-2">
+            <p className="font-semibold">Signed in as</p>
+            <p className="font-semibold">{user?.email || user?.phone || "User"}</p>
+          </DropdownItem>
+          <DropdownItem key="dashboard" href={dashboardUrl}>
+            Dashboard
+          </DropdownItem>
+          <DropdownItem key="settings" href="/profile">
+            My Profile
+          </DropdownItem>
+          <DropdownItem key="logout" color="danger" onPress={handleLogout}>
+            Log Out
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+    );
+  }
+
+  return (
+    <div className="flex gap-3 items-center">
+      <Button
+        as={Link}
+        className="text-sm font-bold text-white border-2 border-white/40 hover:bg-white/10 px-6"
+        style={{ backgroundColor: 'transparent' }}
+        href="/login"
+        size="md"
+        variant="bordered"
+        radius="full"
+      >
+        লগইন
+      </Button>
+      <Button
+        as={Link}
+        className="text-sm font-bold text-[#121064] bg-white hover:bg-white/90 px-6"
+        href="/register"
+        size="md"
+        variant="solid"
+        radius="full"
+      >
+        রেজিস্ট্রেশন
+      </Button>
+    </div>
+  );
+};
+
+export const Navbar = () => {
+  return (
+    <NextUINavbar
+      className="py-3"
+      style={{
+        background: 'linear-gradient(135deg, #121064 0%, #1e1b8f 50%, #2d1ba8 100%)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+      }}
+      height="70px"
+      maxWidth="xl"
+      position="sticky"
+    >
+      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+        <NavbarBrand as="li" className="gap-3 max-w-fit">
+          <NextLink className="flex justify-start items-center gap-3" href="/">
+            <Image priority alt="logo" className="w-11 h-11" src={Logo} />
+            <p className="font-bold text-white text-lg tracking-wide">{siteConfig.name}</p>
+          </NextLink>
+        </NavbarBrand>
+        <ul className="hidden lg:flex gap-8 justify-start ml-16">
+          {siteConfig.navItems.map((item) => (
+            <NavbarItem key={item.href}>
+              <NextLink
+                className="text-white text-[15px] font-semibold hover:text-white/90 transition-all duration-200 px-1"
+                href={item.href}
+              >
+                {item.label}
+              </NextLink>
+            </NavbarItem>
+          ))}
+        </ul>
+      </NavbarContent>
+
+      <NavbarContent
+        className="hidden sm:flex basis-1/5 sm:basis-full"
+        justify="end"
+      >
+        <NavbarItem className="hidden md:flex">
+          <AuthButtons />
+        </NavbarItem>
+      </NavbarContent>
+
+      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
+        <NavbarMenuToggle className="text-white" />
+      </NavbarContent>
+    </NextUINavbar>
+  );
+};
