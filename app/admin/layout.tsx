@@ -17,6 +17,7 @@ export default function AdminLayout({
     { name: "Users", href: "/admin/users", icon: "👥" },
     { name: "Live Classes", href: "/admin/live-classes", icon: "🎥" },
     { name: "Quizzes", href: "/admin/quizzes", icon: "📝" },
+    { name: "Jobs", href: "/admin/jobs", icon: "💼" },
   ];
 
   return (
@@ -36,11 +37,10 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-6 py-4 font-medium transition-colors ${
-                  pathname === item.href
+                className={`px-6 py-4 font-medium transition-colors ${pathname === item.href
                     ? "text-purple-600 border-b-2 border-purple-600 bg-purple-50"
                     : "text-gray-600 hover:text-purple-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <span className="mr-2">{item.icon}</span>
                 {item.name}

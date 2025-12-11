@@ -48,11 +48,11 @@ export default function InstructorDashboard() {
             href: "/instructor/analytics",
         },
         {
-            title: "Upload Content",
-            description: "Add new materials",
-            icon: <FaUpload className="text-3xl" />,
-            color: "from-orange-500 to-orange-600",
-            href: "/instructor/upload",
+            title: "Live Classes",
+            description: "Schedule and manage sessions",
+            icon: <FaVideo className="text-3xl" />,
+            color: "from-red-500 to-red-600",
+            href: "/instructor/live-classes",
         },
     ];
 

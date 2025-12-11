@@ -5,7 +5,22 @@ export function getDashboardUrl(role?: string): string {
     if (!role) {
         // Try to get from localStorage
         if (typeof window !== 'undefined') {
-            role = localStorage.getItem('userRole') || 'student';
+            role = localStorage.getItem('userRole') || undefined;
+
+            // Fallback to user object if role is still missing
+            if (!role) {
+                try {
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        const user = JSON.parse(userStr);
+                        role = user.role;
+                    }
+                } catch (e) {
+                    console.error("Error parsing user for dashboard url", e);
+                }
+            }
+
+            role = role || 'student';
         } else {
             return '/student'; // default to student dashboard
         }

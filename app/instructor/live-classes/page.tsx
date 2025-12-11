@@ -276,13 +276,18 @@ export default function InstructorLiveClassesPage() {
                                         isRequired
                                     />
 
-                                    <Input
+                                    <Select
                                         label="Course"
-                                        placeholder="Select or enter course name"
-                                        value={newClass.course}
-                                        onChange={(e) => setNewClass({ ...newClass, course: e.target.value })}
+                                        placeholder="Select a course"
+                                        selectedKeys={newClass.course ? [newClass.course] : []}
+                                        onSelectionChange={(keys) => setNewClass({ ...newClass, course: Array.from(keys)[0] as string })}
                                         isRequired
-                                    />
+                                    >
+                                        <SelectItem key="Web Development Bootcamp" value="Web Development Bootcamp">Web Development Bootcamp</SelectItem>
+                                        <SelectItem key="Python for Beginners" value="Python for Beginners">Python for Beginners</SelectItem>
+                                        <SelectItem key="React Advanced" value="React Advanced">React Advanced</SelectItem>
+                                        <SelectItem key="Digital Marketing Masterclass" value="Digital Marketing Masterclass">Digital Marketing Masterclass</SelectItem>
+                                    </Select>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <Input

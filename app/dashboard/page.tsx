@@ -8,10 +8,31 @@ export default function DashboardRedirect() {
 
     useEffect(() => {
         // Get user role from localStorage
-        const userRole = localStorage.getItem("userRole");
+        let userRole = localStorage.getItem("userRole");
+
+        // Fallback: Try to get role from 'user' object if 'userRole' is missing
+        if (!userRole) {
+            try {
+                const userStr = localStorage.getItem("user");
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    userRole = user.role;
+                }
+            } catch (e) {
+                console.error("Error parsing user object for role fallback", e);
+            }
+        }
+
+        console.log("Dashboard Redirect: Resolved User Role:", userRole);
 
         // Redirect based on role
-        switch (userRole?.toLowerCase()) {
+        if (!userRole) {
+            console.warn("No user role found, redirecting to login");
+            router.replace("/auth/login");
+            return;
+        }
+
+        switch (userRole.toLowerCase()) {
             case "admin":
                 router.replace("/admin");
                 break;
@@ -24,8 +45,11 @@ export default function DashboardRedirect() {
                 router.replace("/guardian");
                 break;
             case "student":
-            default:
                 router.replace("/student");
+                break;
+            default:
+                console.warn("Unknown role:", userRole, "- Redirecting to home/login");
+                router.replace("/"); // or /login
                 break;
         }
     }, [router]);

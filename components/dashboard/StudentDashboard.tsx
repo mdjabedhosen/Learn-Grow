@@ -204,10 +204,37 @@ export default function StudentDashboard() {
                             <CardHeader>
                                 <h3 className="font-bold">Upcoming Live Classes</h3>
                             </CardHeader>
-                            <CardBody>
-                                <div className="text-center py-8 text-gray-500 text-sm">
-                                    No upcoming classes
-                                </div>
+                            <CardBody className="space-y-4">
+                                {/* Mock Live Classes linked to enrolled courses */}
+                                {[
+                                    {
+                                        id: "lc-1",
+                                        title: "Intro to React Hooks",
+                                        course: "Web Development Bootcamp",
+                                        time: "Today, 6:00 PM",
+                                        platform: "Zoom"
+                                    },
+                                    {
+                                        id: "lc-2",
+                                        title: "Python Data Structures",
+                                        course: "Python for Beginners",
+                                        time: "Tomorrow, 4:00 PM",
+                                        platform: "Google Meet"
+                                    }
+                                ].map((cls) => (
+                                    <div key={cls.id} className="border-b last:border-b-0 pb-3 last:pb-0">
+                                        <p className="font-semibold text-sm line-clamp-1">{cls.title}</p>
+                                        <p className="text-xs text-gray-500 mb-2">{cls.course} • {cls.time}</p>
+                                        <Button
+                                            size="sm"
+                                            color="primary"
+                                            className="w-full"
+                                            variant="flat"
+                                        >
+                                            Join {cls.platform}
+                                        </Button>
+                                    </div>
+                                ))}
                             </CardBody>
                         </Card>
                     </div>

@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { Card, CardBody, Button, Input, Chip } from "@nextui-org/react";
-import { FaVideo, FaClock, FaCalendar, FaUsers, FaCheckCircle, FaBan } from "react-icons/fa";
+import { FaVideo, FaClock, FaCalendar, FaUsers, FaCheckCircle, FaBan, FaPlus } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function AdminLiveClassesPage() {
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
 
     const [classes, setClasses] = useState([
@@ -88,9 +90,19 @@ export default function AdminLiveClassesPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <div className="mb-8">
-                <h1 className="text-4xl font-bold mb-2">Live Classes Management 🎥</h1>
-                <p className="text-gray-600">Monitor and manage all platform live classes</p>
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-4xl font-bold mb-2">Live Classes Management 🎥</h1>
+                    <p className="text-gray-600">Monitor and manage all platform live classes</p>
+                </div>
+                <Button
+                    color="primary"
+                    size="lg"
+                    startContent={<FaPlus />}
+                    onPress={() => router.push("/admin/live-classes/create")}
+                >
+                    Schedule Class
+                </Button>
             </div>
 
             {/* Statistics */}

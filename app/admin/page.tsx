@@ -10,6 +10,7 @@ import {
     FaMoneyBillWave,
     FaCog,
     FaShieldAlt,
+    FaBriefcase,
 } from "react-icons/fa";
 
 export default function AdminDashboard() {
@@ -61,6 +62,13 @@ export default function AdminDashboard() {
             icon: <FaShieldAlt className="text-3xl" />,
             color: "from-pink-500 to-pink-600",
             href: "/admin/content",
+        },
+        {
+            title: "Manage Jobs",
+            description: "Post and manage job openings",
+            icon: <FaBriefcase className="text-3xl" />,
+            color: "from-teal-500 to-teal-600",
+            href: "/admin/jobs",
         },
     ];
 

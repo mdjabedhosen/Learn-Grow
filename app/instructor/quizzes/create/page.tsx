@@ -40,6 +40,14 @@ interface Quiz {
 }
 
 export default function CreateQuizPage() {
+    return (
+        <React.Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+            <CreateQuizContent />
+        </React.Suspense>
+    );
+}
+
+function CreateQuizContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isOpen, onOpen, onClose } = useDisclosure();

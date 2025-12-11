@@ -35,15 +35,27 @@ const AuthButtons = () => {
   React.useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
-    const userRole = localStorage.getItem("userRole");
+    let userRole = localStorage.getItem("userRole");
 
     if (token) {
       setIsAuthenticated(true);
       if (userData) {
-        setUser(JSON.parse(userData));
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          // Fallback: Use role from user object if localStorage 'userRole' is missing
+          if (!userRole && parsedUser.role) {
+            userRole = parsedUser.role;
+          }
+        } catch (e) {
+          console.error("Navbar: Error parsing user data", e);
+        }
       }
+
       // Set dynamic dashboard URL based on role
-      setDashboardUrl(getDashboardUrl(userRole || undefined));
+      const url = getDashboardUrl(userRole || undefined);
+      console.log("Navbar: Determined Dashboard URL:", url, "for role:", userRole);
+      setDashboardUrl(url);
     }
     setIsLoading(false);
   }, []);
