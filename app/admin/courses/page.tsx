@@ -169,7 +169,7 @@ export default function ManageCoursesPage() {
                                                     color="warning"
                                                     variant="flat"
                                                     onPress={() => {
-                                                        router.push(`/admin/courses/edit/${course._id}`)
+                                                        router.push(`/admin/courses/edit-course?id=${course._id}`)
                                                     }}
                                                 >
                                                     Edit

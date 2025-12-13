@@ -43,7 +43,9 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <script src="/env-config.js" />
+      </head>
       <body
         suppressHydrationWarning
         className={clsx(

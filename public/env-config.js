@@ -1,0 +1,3 @@
+window.env = {
+    NEXT_PUBLIC_API_URL: "https://your-render-backend-url.onrender.com/api/v1",
+};

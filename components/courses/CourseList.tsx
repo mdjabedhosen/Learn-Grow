@@ -111,7 +111,7 @@ export default function CourseList() {
                         key={course._id}
                         className={`group cursor-pointer transition-all duration-300 hover:-translate-y-2 ${shadows[index % shadows.length]} shadow-card border-0`}
                         isPressable
-                        onPress={() => router.push(`/courses/${course._id}`)}
+                        onPress={() => router.push(`/courses/view?id=${course._id}`)}
                     >
                         {/* Course Image Header */}
                         <div className="relative h-48 overflow-hidden w-full">
@@ -182,7 +182,7 @@ export default function CourseList() {
                             <Button
                                 className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold shadow-md hover:shadow-lg transition-shadow"
                                 size="lg"
-                                onPress={() => router.push(`/courses/${course._id}`)}
+                                onPress={() => router.push(`/courses/view?id=${course._id}`)}
                             >
                                 <span className={language === "bn" ? "font-siliguri" : ""}>
                                     {language === "en" ? "Enroll Now →" : "বিস্তারিত দেখুন →"}

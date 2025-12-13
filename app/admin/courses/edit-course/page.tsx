@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import RequireAuth from "@/components/Auth/RequireAuth";
 import {
     Card,
@@ -14,13 +14,13 @@ import {
     Switch,
     Spinner,
 } from "@nextui-org/react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGetCourseByIdQuery, useUpdateCourseMutation } from "@/redux/api/courseApi";
 
-export default function EditCoursePage() {
+function EditCourseContent() {
     const router = useRouter();
-    const params = useParams();
-    const courseId = params.id as string;
+    const searchParams = useSearchParams();
+    const courseId = searchParams.get("id");
 
     const { data: courseData, isLoading: isFetching } = useGetCourseByIdQuery(courseId, {
         skip: !courseId,
@@ -57,6 +57,8 @@ export default function EditCoursePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!courseId) return;
+
         try {
             const payload = {
                 id: courseId,
@@ -77,7 +79,7 @@ export default function EditCoursePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    if (isFetching) {
+    if (isFetching || !courseId) {
         return <div className="flex justify-center p-20"><Spinner size="lg" /></div>;
     }
 
@@ -190,5 +192,13 @@ export default function EditCoursePage() {
                 </Card>
             </div>
         </RequireAuth>
+    );
+}
+
+export default function EditCoursePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <EditCourseContent />
+        </Suspense>
     );
 }
