@@ -1,7 +1,0 @@
-[00:00:07.827] Server  LOG      ✓ Ready in 5.6s
-[00:00:11.455] Server  LOG      ○ Compiling /admin/courses ...
-[00:01:55.800] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:57.630] Browser LOG     Navbar: Determined Dashboard URL: /admin for role: admin
-[00:01:57.630] Browser LOG     Navbar: Determined Dashboard URL: /admin for role: admin
-[00:02:52.039] Server  LOG      ✓ Compiled in 3.1s
-[00:03:26.415] Server  LOG      ✓ Compiled in 1205ms
