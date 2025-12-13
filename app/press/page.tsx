@@ -1,23 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, Button, Chip } from "@nextui-org/react";
+import { Card, CardBody, Button, Chip, Spinner } from "@nextui-org/react";
 import { defaultPressData } from "@/lib/pressData";
 import { FaNewspaper, FaDownload } from "react-icons/fa";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function PressPage() {
-    const [data, setData] = useState(defaultPressData);
+    const { data: apiData, isLoading } = useGetSiteContentQuery("press");
 
-    useEffect(() => {
-        const storedData = localStorage.getItem("siteContent_press");
-        if (storedData) {
-            try {
-                setData(JSON.parse(storedData));
-            } catch (e) {
-                console.error("Failed to parse press content", e);
-            }
-        }
-    }, []);
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultPressData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Press Data..." /></div>;
+    }
 
     const { hero, featured, assets } = data;
 

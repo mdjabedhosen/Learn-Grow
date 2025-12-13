@@ -7,6 +7,8 @@ import {
   NavbarMenuToggle,
   NavbarBrand,
   NavbarItem,
+  NavbarMenu,
+  NavbarMenuItem,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Link } from "@nextui-org/react";
@@ -145,10 +147,19 @@ export const Navbar = () => {
       position="sticky"
     >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-3" href="/">
-            <Image priority alt="logo" className="w-11 h-11" src={Logo} />
-            <p className="font-bold text-white text-lg tracking-wide">{siteConfig.name}</p>
+        <NavbarBrand as="li" className="gap-2 sm:gap-3 max-w-fit">
+          <NextLink className="flex justify-start items-center gap-2 sm:gap-3" href="/">
+            <Image
+              priority
+              alt="Learn & Grow Logo"
+              className="w-8 h-8 sm:w-11 sm:h-11 object-contain"
+              src={Logo}
+              width={44}
+              height={44}
+            />
+            <p className="font-bold text-white text-base sm:text-lg tracking-wide">
+              {siteConfig.name}
+            </p>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-8 justify-start ml-16">
@@ -175,8 +186,50 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <NavbarMenuToggle className="text-white" />
+        <AuthButtons />
+        <NavbarMenuToggle className="text-white ml-2" />
       </NavbarContent>
+
+      <NavbarMenu className="pt-6 bg-gradient-to-br from-[#121064] via-[#1e1b8f] to-[#2d1ba8]">
+        {siteConfig.navItems.map((item, index) => (
+          <NavbarMenuItem key={`${item.label}-${index}`}>
+            <Link
+              className="w-full text-white text-lg font-semibold py-2"
+              href={item.href}
+              size="lg"
+            >
+              {item.label}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+        <NavbarMenuItem>
+          <div className="flex flex-col gap-3 mt-4 w-full">
+            <Button
+              as={Link}
+              className="text-sm font-bold text-white border-2 border-white/40 hover:bg-white/10"
+              style={{ backgroundColor: 'transparent' }}
+              href="/login"
+              size="lg"
+              variant="bordered"
+              radius="full"
+              fullWidth
+            >
+              লগইন
+            </Button>
+            <Button
+              as={Link}
+              className="text-sm font-bold text-[#121064] bg-white hover:bg-white/90"
+              href="/register"
+              size="lg"
+              variant="solid"
+              radius="full"
+              fullWidth
+            >
+              রেজিস্ট্রেশন
+            </Button>
+          </div>
+        </NavbarMenuItem>
+      </NavbarMenu>
     </NextUINavbar>
   );
 };

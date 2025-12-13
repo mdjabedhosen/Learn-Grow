@@ -1,24 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, Avatar, Chip } from "@nextui-org/react";
+import { Card, CardBody, Avatar, Chip, Spinner } from "@nextui-org/react";
 import { FaLinkedin, FaTwitter } from "react-icons/fa";
 import { defaultTeamData } from "@/lib/teamData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function TeamPage() {
-    const [data, setData] = useState(defaultTeamData);
+    const { data: apiData, isLoading } = useGetSiteContentQuery("team");
 
-    useEffect(() => {
-        // Check for local storage overrides (CMS feature)
-        const storedData = localStorage.getItem("siteContent_team");
-        if (storedData) {
-            try {
-                setData(JSON.parse(storedData));
-            } catch (e) {
-                console.error("Failed to parse team content", e);
-            }
-        }
-    }, []);
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultTeamData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Team..." /></div>;
+    }
 
     const { hero, leadership, instructors, operations } = data;
 

@@ -1,23 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Input, Textarea, Button, Card, CardBody, Chip } from "@nextui-org/react";
+import { Input, Textarea, Button, Card, CardBody, Chip, Spinner } from "@nextui-org/react";
 import { MdEmail, MdLocationOn, MdPhone } from "react-icons/md";
 import { defaultContactData } from "@/lib/contactData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function ContactPage() {
-    const [data, setData] = useState(defaultContactData);
+    const { data: apiData, isLoading } = useGetSiteContentQuery("contact");
 
-    useEffect(() => {
-        const storedData = localStorage.getItem("siteContent_contact");
-        if (storedData) {
-            try {
-                setData(JSON.parse(storedData));
-            } catch (e) {
-                console.error("Failed to parse contact content", e);
-            }
-        }
-    }, []);
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultContactData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Contact Info..." /></div>;
+    }
 
     const { hero, info, form } = data;
 

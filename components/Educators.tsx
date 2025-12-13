@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { defaultEducatorsData } from "../lib/educatorsData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 type Educator = {
   imageURL: string;
@@ -21,18 +22,14 @@ type Educator = {
 };
 
 const Educators: React.FC = () => {
-  const [educators, setEducators] = useState<Educator[]>(defaultEducatorsData);
+  const { data: apiData, isLoading } = useGetSiteContentQuery("educators");
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("siteContent_educators");
-    if (storedData) {
-      try {
-        setEducators(JSON.parse(storedData));
-      } catch (e) {
-        console.error("Failed to parse educators content", e);
-      }
-    }
-  }, []);
+  // Use API data if available, otherwise default
+  const educators: Educator[] = (apiData?.data?.content && apiData.data.content.length > 0)
+    ? apiData.data.content
+    : defaultEducatorsData;
+
+  if (isLoading) return null; // Or skeleton
 
   return (
     <section className="py-10 px-6 bg-gradient-to-b from-white to-gray-50">

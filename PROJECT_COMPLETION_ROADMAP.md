@@ -9,8 +9,8 @@ This document outlines the strategic steps required to take **Learn & Grow** fro
 
 - [ ] **Initialize Project:** Set up the Node.js/Express/TypeScript environment (Refer to `BACKEND_DEVELOPMENT_GUIDE.md`).
 - [ ] **Database Setup:**
-    - [ ] Create a MongoDB Atlas cluster (Production).
-    - [ ] Configure Mongoose connection.
+    - [ ] **Option A (Recommended):** Install Docker Desktop and run `docker run --name mongo -d -p 27017:27017 mongo`.
+    - [ ] **Option B (Alternative):** Create a MongoDB Atlas cluster and use the connection string.
 - [ ] **Security Protocols:**
     - [ ] Implement Helmet (headers security) and CORS policy.
     - [ ] Set up Rate Limiting to prevent abuse.

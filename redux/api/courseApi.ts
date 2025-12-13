@@ -3,16 +3,16 @@ import { baseApi } from "./baseApi";
 export const courseApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getAllCourses: build.query({
-            query: () => "/course/get-all-courses", // Fixed: matches Postman
+            query: () => "/courses",
             providesTags: ["Course"],
         }),
         getCourseById: build.query({
-            query: (id) => `/course/get-single-course/${id}`, // Fixed: matches Postman
+            query: (id) => `/courses/${id}`,
             providesTags: (result, error, id) => [{ type: "Course", id }],
         }),
         createCourse: build.mutation({
             query: (data) => ({
-                url: "/course/create-course",
+                url: "/courses",
                 method: "POST",
                 body: data,
             }),
@@ -20,7 +20,7 @@ export const courseApi = baseApi.injectEndpoints({
         }),
         updateCourse: build.mutation({
             query: ({ id, ...data }) => ({
-                url: `/course/update-course/${id}`,
+                url: `/courses/${id}`,
                 method: "PATCH",
                 body: data,
             }),
@@ -28,16 +28,8 @@ export const courseApi = baseApi.injectEndpoints({
         }),
         deleteCourse: build.mutation({
             query: (id) => ({
-                url: `/course/delete-course/${id}`,
+                url: `/courses/${id}`,
                 method: "DELETE",
-            }),
-            invalidatesTags: ["Course"],
-        }),
-        updateCourseStatus: build.mutation({
-            query: ({ id, status }) => ({
-                url: `/course/update-status/${id}`,
-                method: "PATCH",
-                body: { status },
             }),
             invalidatesTags: ["Course"],
         }),

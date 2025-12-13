@@ -11,14 +11,14 @@ export const authApi = baseApi.injectEndpoints({
         }),
         verifyOtp: build.mutation({
             query: (data) => ({
-                url: "/user/otp-verification",
+                url: "/user/verify-sms",
                 method: "POST",
                 body: data,
             }),
         }),
         register: build.mutation({
             query: (data) => ({
-                url: "/user/create-user", // Fixed: matches Postman
+                url: "/user/user-create",
                 method: "POST",
                 body: data,
             }),

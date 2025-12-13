@@ -132,6 +132,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             <Image
                                 src={
                                     course.img ||
+                                    course.thumbnail ||
                                     "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"
                                 }
                                 alt={course.title}

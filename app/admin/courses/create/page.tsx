@@ -11,27 +11,43 @@ import {
     Button,
     Select,
     SelectItem,
+    Switch,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { useCreateCourseMutation } from "@/redux/api/courseApi";
 
 export default function CreateCoursePage() {
     const router = useRouter();
+    const [createCourse, { isLoading }] = useCreateCourseMutation();
     const [formData, setFormData] = useState({
         title: "",
         description: "",
         price: "",
         level: "Beginner",
         category: "",
-        img: "",
+        thumbnail: "",
+        isPublished: true,
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // TODO: Replace with actual API call
-        console.log("Creating course:", formData);
-        alert("Course created successfully! (Mock mode)");
-        router.push("/admin");
+        try {
+            const payload = {
+                ...formData,
+                price: Number(formData.price),
+                modules: [], // Start with empty modules
+            };
+
+            console.log("Creating course:", payload);
+            const res = await createCourse(payload).unwrap();
+            console.log("Response:", res);
+            alert("Course created successfully!");
+            router.push("/admin/courses");
+        } catch (error: any) {
+            console.error("Create failed:", error);
+            alert(`Failed to create course: ${error?.data?.message || error?.message}`);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -39,7 +55,7 @@ export default function CreateCoursePage() {
     };
 
     return (
-        <RequireAuth allowedRoles={["admin"]}>
+        <RequireAuth allowedRoles={["admin", "instructor", "superAdmin"]}>
             <div className="container mx-auto px-6 py-8 max-w-4xl">
                 <Button
                     variant="light"
@@ -113,13 +129,22 @@ export default function CreateCoursePage() {
                             />
 
                             <Input
-                                label="Course Image URL"
+                                label="Thumbnail URL"
                                 placeholder="https://example.com/image.jpg"
-                                name="img"
-                                value={formData.img}
+                                name="thumbnail"
+                                value={formData.thumbnail}
                                 onChange={handleChange}
                                 variant="bordered"
+                                description="Direct link to course image"
                             />
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm">Publish Immediately?</span>
+                                <Switch
+                                    isSelected={formData.isPublished}
+                                    onValueChange={(isSelected) => setFormData({ ...formData, isPublished: isSelected })}
+                                />
+                            </div>
 
                             <div className="flex gap-4 pt-4">
                                 <Button
@@ -127,6 +152,7 @@ export default function CreateCoursePage() {
                                     color="primary"
                                     size="lg"
                                     className="flex-1"
+                                    isLoading={isLoading}
                                 >
                                     Create Course
                                 </Button>

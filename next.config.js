@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  output: 'export', // Enable static HTML export
+  output: "standalone",
   trailingSlash: true, // Required for static hosting
 
   typescript: {

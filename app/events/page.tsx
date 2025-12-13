@@ -1,22 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Button, Chip } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Button, Chip, Spinner } from "@nextui-org/react";
 import { defaultEventsData } from "@/lib/eventsData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function EventsPage() {
-    const [data, setData] = useState(defaultEventsData);
+    const { data: apiData, isLoading } = useGetSiteContentQuery("events");
 
-    useEffect(() => {
-        const storedData = localStorage.getItem("siteContent_events");
-        if (storedData) {
-            try {
-                setData(JSON.parse(storedData));
-            } catch (e) {
-                console.error("Failed to parse events content", e);
-            }
-        }
-    }, []);
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultEventsData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Events..." /></div>;
+    }
 
     const { hero, upcomingEvents, pastEvents } = data;
 

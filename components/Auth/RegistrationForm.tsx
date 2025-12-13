@@ -18,6 +18,7 @@ export default function RegistrationForm() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [country, setCountry] = useState("BD"); // BD = Bangladesh, MY = Malaysia, IT = Italy
+    const [serviceSid, setServiceSid] = useState("");
     const [formData, setFormData] = useState({
         phone: "",
         otp: "",
@@ -60,33 +61,32 @@ export default function RegistrationForm() {
                 formattedPhone = selectedCountry.code + formattedPhone;
             }
 
-            console.log('Selected country:', selectedCountry.name, selectedCountry.code);
-            console.log('Sending OTP to:', formattedPhone);
-
             const result = await sendOtp({ phone: formattedPhone }).unwrap();
-            console.log('OTP Response:', result);
+
+            // Store the Service SID for verification
+            if (result.data) {
+                setServiceSid(result.data);
+            }
 
             // Update form with formatted phone
             setFormData({ ...formData, phone: formattedPhone });
 
             alert(`OTP sent successfully to ${formattedPhone} (${selectedCountry.flag} ${selectedCountry.name})! Check your phone.`);
         } catch (error: any) {
-            console.error('Failed to send OTP:', error);
-            console.error('Error details:', {
-                status: error?.status,
-                data: error?.data,
-                message: error?.data?.message || error?.message
-            });
-            alert(`Failed to send OTP: ${error?.data?.message || error?.message || 'Unknown error'}`);
+            const errorMsg = error?.data?.message || error?.error || error?.message || 'Unknown error';
+            alert(`Failed to send OTP: ${errorMsg}`);
         }
     };
 
     const handleVerifyOtp = async () => {
         try {
-            await verifyOtp({ phone: formData.phone, otp: formData.otp }).unwrap();
+            await verifyOtp({
+                phone: formData.phone,
+                otp: formData.otp,
+                verifyServiceSid: serviceSid
+            }).unwrap();
             setStep(2);
         } catch (error: any) {
-            console.error("Invalid OTP", error);
             alert(`Invalid OTP: ${error?.data?.message || error?.message || 'Please try again'}`);
         }
     };

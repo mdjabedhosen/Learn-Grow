@@ -1,36 +1,30 @@
 "use client";
 import React from "react";
-import { Button, Card, CardBody, CardHeader, Chip, Divider } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Spinner } from "@nextui-org/react";
+import { defaultCareersData } from "@/lib/careersData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function CareersPage() {
-    const jobs = [
-        {
-            title: "Senior React Developer",
-            type: "Full-time",
-            location: "Remote / Dhaka",
-            dept: "Engineering"
-        },
-        {
-            title: "Science Content Creator",
-            type: "Contract",
-            location: "Remote",
-            dept: "Content"
-        },
-        {
-            title: "Product Designer (UI/UX)",
-            type: "Full-time",
-            location: "Dhaka",
-            dept: "Design"
-        }
-    ];
+    const { data: apiData, isLoading } = useGetSiteContentQuery("careers");
+
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultCareersData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Careers..." /></div>;
+    }
+
+    const { hero, jobs } = data; // Destructure new data structure
 
     return (
         <div className="container mx-auto px-6 py-16 max-w-5xl">
             <div className="text-center mb-16 space-y-4">
-                <Chip color="secondary" variant="flat" className="mb-2">We are hiring!</Chip>
-                <h1 className="text-4xl md:text-5xl font-bold">Join Our Team</h1>
+                <Chip color="secondary" variant="flat" className="mb-2">{hero.tag}</Chip>
+                <h1 className="text-4xl md:text-5xl font-bold">{hero.title}</h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Help us shape the future of education. We're looking for passionate individuals to join our mission.
+                    {hero.subtitle}
                 </p>
             </div>
 

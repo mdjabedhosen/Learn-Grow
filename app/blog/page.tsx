@@ -1,24 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Image, Chip, Button } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Image, Chip, Button, Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { defaultBlogData } from "@/lib/blogData";
+import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 export default function BlogPage() {
     const router = useRouter();
-    const [data, setData] = useState(defaultBlogData);
+    const { data: apiData, isLoading } = useGetSiteContentQuery("blog");
 
-    useEffect(() => {
-        const storedData = localStorage.getItem("siteContent_blog");
-        if (storedData) {
-            try {
-                setData(JSON.parse(storedData));
-            } catch (e) {
-                console.error("Failed to parse blog content", e);
-            }
-        }
-    }, []);
+    // Use API data if available, otherwise default
+    const data = (apiData?.data?.content && Object.keys(apiData.data.content).length > 0)
+        ? apiData.data.content
+        : defaultBlogData;
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" label="Loading Blog..." /></div>;
+    }
 
     const { hero, featuredPost, posts, categories } = data;
 

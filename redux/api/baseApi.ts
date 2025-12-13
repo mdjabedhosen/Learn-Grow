@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const baseApi = createApi({
     reducerPath: "api",
     baseQuery: fetchBaseQuery({
-        baseUrl: "https://learnandgrow-five.vercel.app/api/v1",
+        baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1",
         prepareHeaders: (headers) => {
             if (typeof window !== "undefined") {
                 const token = localStorage.getItem("token");
@@ -15,6 +15,6 @@ export const baseApi = createApi({
             return headers;
         },
     }),
-    tagTypes: ["User", "Course", "Category"],
+    tagTypes: ["User", "Course", "Category", "SiteContent"],
     endpoints: () => ({}),
 });

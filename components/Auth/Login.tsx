@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
 
 export default function Login() {
     const router = useRouter();
@@ -14,32 +15,51 @@ export default function Login() {
         setError("");
         setIsLoading(true);
 
-        const input = credentials.loginInput.trim();
+        const phone = credentials.loginInput.trim();
         const password = credentials.password;
 
-        console.log("Checking credentials for:", input);
+        console.log("🔐 Attempting login for:", phone);
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        try {
+            // Try real API first
+            const { data } = await api.post('/auth/login', { phone, password });
 
-        // Restored Credentials Logic
-        if (input === "01706276447" && password === "@M.jabed3834") {
-            loginUser("admin", input);
-        } else if (input === "01711111111" && password === "teacher123") {
-            loginUser("instructor", input);
-        } else if (input === "01722222222" && password === "student123") {
-            loginUser("student", input);
-        } else if (input === "01733333333" && password === "guardian123") {
-            loginUser("guardian", input);
-        } else {
-            console.warn("Login failed for:", input);
-            setError("Invalid credentials. Please check your phone number or password.");
+            console.log("✅ API Login successful:", data);
+
+            // Save real data from backend
+            localStorage.setItem("token", data.data.token);
+            localStorage.setItem("user", JSON.stringify(data.data.user));
+            localStorage.setItem("userRole", data.data.user.role);
+
+            // Redirect based on role from backend
+            const role = data.data.user.role;
+            if (role === "admin") router.push("/admin");
+            else if (role === "instructor") router.push("/instructor");
+            else if (role === "guardian") router.push("/guardian");
+            else if (role === "student") router.push("/student");
+
             setIsLoading(false);
+        } catch (apiError: any) {
+            console.warn("⚠️ API unavailable, falling back to mock auth:", apiError.message);
+
+            // FALLBACK: Mock authentication if backend is down
+            if (phone === "01706276447" && password === "@M.jabed3834") {
+                loginUserMock("admin", phone);
+            } else if (phone === "01711111111" && password === "teacher123") {
+                loginUserMock("instructor", phone);
+            } else if (phone === "01722222222" && password === "student123") {
+                loginUserMock("student", phone);
+            } else if (phone === "01733333333" && password === "guardian123") {
+                loginUserMock("guardian", phone);
+            } else {
+                setError("Invalid credentials. Backend may be offline.");
+                setIsLoading(false);
+            }
         }
     };
 
-    const loginUser = (role: string, identifier: string) => {
-        console.log("Logging in as:", role);
+    const loginUserMock = (role: string, identifier: string) => {
+        console.log("📱 Mock login as:", role);
         try {
             localStorage.setItem("userRole", role);
             localStorage.setItem("user", JSON.stringify({ identifier, role }));

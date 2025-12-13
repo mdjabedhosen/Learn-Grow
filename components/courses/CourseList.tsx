@@ -53,7 +53,7 @@ export default function CourseList() {
             title: "কোডারদের জন্য গণিত",
             title_en: "Math for Coders",
             subtitle: "কোডিংয়ের মাধ্যমে গণিত মজাদার করুন",
-            description: "আবিষ্কার করুন কীভাবে গণিত সব প্রযুক্তিকে চালিত করে। ইন্টারঅ্যাক্টিভ কোডিং প্রজেক্টের মাধ্যমে গাণিতিক ধারণা শিখুন...",
+            description: "আবিষ্কার করুন কীভাবে গণিত সব প্রযুক্তিকে চালিত করে। ইন্টার অ্যাক্টিভ কোডিং প্রজেক্টের মাধ্যমে গাণিতিক ধারণা শিখুন...",
             description_en: "Discover how math powers all technology through interactive coding projects",
             price: 2500,
             duration: "6 weeks",
@@ -86,19 +86,8 @@ export default function CourseList() {
         }
     ];
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center p-20">
-                <Spinner size="lg" label="Loading amazing courses..." />
-            </div>
-        );
-    }
-
-    if (error) {
-        console.warn("API Error in CourseList: Using sample courses for display.");
-    }
-
-    const courses = (data?.data || data) ? (data?.data || data) : (error ? sampleCourses : []);
+    // Always show sample courses (don't wait for API in production)
+    const courses = data?.data || sampleCourses;
 
     // Shadows mapping for visual variety (cycling through based on index) - reused from homepage
     const shadows = [
@@ -130,7 +119,7 @@ export default function CourseList() {
                                 removeWrapper
                                 alt={course.title}
                                 className="z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                src={course.img || "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"}
+                                src={course.img || course.thumbnail || "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"}
                             />
                             {/* Gradient Overlay - Fixed Blue Gradient */}
                             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-blue-900/20 to-transparent z-10" />
