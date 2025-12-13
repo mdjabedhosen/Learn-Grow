@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Card,
     CardBody,
@@ -16,7 +16,7 @@ import {
     RadioGroup,
     Chip,
 } from "@nextui-org/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FaPlus, FaTrash, FaEdit, FaSave, FaCheck, FaImage } from "react-icons/fa";
 
 interface Question {
@@ -40,16 +40,7 @@ interface Quiz {
 }
 
 export default function CreateQuizPage() {
-    return (
-        <React.Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
-            <CreateQuizContent />
-        </React.Suspense>
-    );
-}
-
-function CreateQuizContent() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
@@ -61,13 +52,6 @@ function CreateQuizContent() {
         questions: [],
         status: "draft",
     });
-
-    useEffect(() => {
-        const courseTitle = searchParams.get("courseTitle");
-        if (courseTitle) {
-            setQuiz(prev => ({ ...prev, course: courseTitle }));
-        }
-    }, [searchParams]);
 
     const [currentQuestion, setCurrentQuestion] = useState<Question>({
         id: "",
@@ -165,8 +149,8 @@ function CreateQuizContent() {
                         type="button"
                         onClick={() => setQuiz({ ...quiz, type })}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${quiz.type === type
-                            ? "bg-primary text-white shadow-md scale-105"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                ? "bg-primary text-white shadow-md scale-105"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                             } capitalize`}
                     >
                         {type.replace("-", " ")}
