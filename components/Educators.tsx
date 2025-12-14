@@ -11,7 +11,7 @@ import { FaGithub, FaDribbble, FaTwitter } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
-import { defaultEducatorsData } from "../lib/educatorsData";
+import { defaultTeamData } from "@/lib/teamData";
 import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
 
 type Educator = {
@@ -22,12 +22,35 @@ type Educator = {
 };
 
 const Educators: React.FC = () => {
-  const { data: apiData, isLoading } = useGetSiteContentQuery("educators");
+  // Query "team" to ensure we get the same data as the Team Page
+  const { data: apiData, isLoading } = useGetSiteContentQuery("team");
 
-  // Use API data if available, otherwise default
-  const educators: Educator[] = (apiData?.data?.content && apiData.data.content.length > 0)
-    ? apiData.data.content
-    : defaultEducatorsData;
+  let educators: Educator[] = [];
+
+  const content = apiData?.data?.content;
+
+  // Check if we have dynamic data in the expected 'team' structure
+  if (content && (content.leadership || content.instructors)) {
+    const leadership = content.leadership || [];
+    const instructors = content.instructors || [];
+    const teamMembers = [...leadership, ...instructors];
+
+    educators = teamMembers.map((member: any) => ({
+      imageURL: member.img,
+      name: member.name,
+      email: member.email || "contact@learnandgrow.io",
+      designation: member.role
+    }));
+  } else {
+    // Fallback to static defaultTeamData
+    const teamMembers = [...defaultTeamData.leadership, ...defaultTeamData.instructors];
+    educators = teamMembers.map(member => ({
+      imageURL: member.img,
+      name: member.name,
+      email: member.email || "contact@learnandgrow.io",
+      designation: member.role
+    }));
+  }
 
   if (isLoading) return null; // Or skeleton
 
@@ -40,7 +63,7 @@ const Educators: React.FC = () => {
             The Team
           </p>
           <h2 className="text-4xl md:text-5xl font-black text-gray-900">
-            Our Educators
+            Our Experts
           </h2>
         </div>
 
