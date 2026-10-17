@@ -778,12 +778,13 @@ export default function CheckoutPage() {
                                 {language === "bn" ? item.tagBn : item.tagEn}
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-600 leading-snug">
-                              {language === "bn" ? item.descBn : item.descEn}
-                            </p>
+                              <p className="text-[11px] text-slate-600 leading-snug">
+                                {language === "bn" ? item.descBn : item.descEn}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
