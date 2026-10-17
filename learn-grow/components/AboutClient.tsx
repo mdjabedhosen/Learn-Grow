@@ -219,11 +219,12 @@ export default function AboutClient({ content }: AboutClientProps) {
                                 <div className="text-xs sm:text-sm font-bold text-gray-800 mb-1">
                                     {language === "en" ? metric.labelEn : metric.labelBn}
                                 </div>
-                                <p className="text-[11px] sm:text-xs text-gray-500 leading-relaxed line-clamp-2">
-                                    {language === "en" ? metric.descEn : metric.descBn}
-                                </p>
-                            </div>
-                        ))}
+                                    <p className="text-[11px] sm:text-xs text-gray-500 leading-relaxed line-clamp-2">
+                                        {language === "en" ? metric.descEn : metric.descBn}
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
