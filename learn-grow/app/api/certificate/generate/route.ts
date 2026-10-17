@@ -236,11 +236,11 @@ export async function GET(request: NextRequest) {
     </style>
 </head>
 <body>
-    <button class="print-button" onclick="window.print()">🖨️ Print Certificate</button>
+    <button class="print-button" onclick="window.print()">Print Certificate</button>
     
     <div class="certificate">
         <div class="header">
-            <div class="logo">🎓 Learn & Grow</div>
+            <div class="logo">Learn & Grow</div>
             <h1 class="title">CERTIFICATE</h1>
             <p class="subtitle">of Completion</p>
         </div>

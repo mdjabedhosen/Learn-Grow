@@ -215,7 +215,7 @@ export default function AboutPageTab() {
                   ...aboutData,
                   features: [
                     ...aboutData.features,
-                    { title: "", desc: "", icon: "✨" },
+                    { title: "", desc: "", icon: "" },
                   ],
                 });
                 setHasChanges(true);
@@ -234,7 +234,7 @@ export default function AboutPageTab() {
                         <div>
                           <label className="text-sm font-semibold text-gray-700 mb-2 block">Icon/Emoji</label>
                           <Input
-                            placeholder="👨‍🏫 (paste emoji or text)"
+                            placeholder="(paste icon code or text)"
                             value={feature.icon}
                             onChange={(e) => {
                               const newFeatures = [...aboutData.features];

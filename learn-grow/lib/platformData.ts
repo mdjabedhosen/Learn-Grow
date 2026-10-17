@@ -8,63 +8,63 @@ export const platformFeatures = {
   en: [
     {
       id: "auth",
-      icon: "🔐",
+      icon: "Lock",
       title: "Secure Authentication",
       description:
         "JWT-based authentication with mobile OTP verification. Your data is safe and encrypted.",
     },
     {
       id: "dashboards",
-      icon: "📊",
+      icon: "BarChart3",
       title: "Role-Based Dashboards",
       description:
         "Dedicated dashboards for students, parents, instructors, and admins with tailored features.",
     },
     {
       id: "live-classes",
-      icon: "🎥",
+      icon: "Video",
       title: "Interactive Live Classes",
       description:
         "Real-time instructor-led sessions with video, chat, and screen sharing capabilities.",
     },
     {
       id: "recorded",
-      icon: "📹",
+      icon: "PlayCircle",
       title: "Recorded Sessions",
       description:
         "Access class recordings anytime. Review difficult concepts at your own pace.",
     },
     {
       id: "quizzes",
-      icon: "✅",
+      icon: "CheckCircle2",
       title: "Quizzes & Assessments",
       description:
         "Interactive quizzes, assignments, and automated grading to track learning progress.",
     },
     {
       id: "projects",
-      icon: "🛠️",
+      icon: "Wrench",
       title: "Hands-On Projects",
       description:
         "Real robotics and coding projects with step-by-step guidance and mentor support.",
     },
     {
       id: "progress",
-      icon: "📈",
+      icon: "TrendingUp",
       title: "Progress Tracking",
       description:
         "Real-time progress monitoring for students and parents with detailed analytics.",
     },
     {
       id: "certificates",
-      icon: "🏆",
+      icon: "Award",
       title: "Digital Certificates",
       description:
         "Industry-recognized certificates upon course completion with blockchain verification.",
     },
     {
       id: "payment",
-      icon: "💳",
+      icon: "CreditCard",
       title: "Flexible Payments",
       description:
         "Pay via bKash, Nagad, or card. Installment options available for all courses.",
@@ -73,63 +73,63 @@ export const platformFeatures = {
   bn: [
     {
       id: "auth",
-      icon: "🔐",
+      icon: "Lock",
       title: "সুরক্ষিত প্রমাণীকরণ",
       description:
         "মোবাইল OTP যাচাইকরণ সহ JWT-ভিত্তিক প্রমাণীকরণ। আপনার ডেটা নিরাপদ এবং এনক্রিপ্টেড।",
     },
     {
       id: "dashboards",
-      icon: "📊",
+      icon: "BarChart3",
       title: "ভূমিকা-ভিত্তিক ড্যাশবোর্ড",
       description:
         "শিক্ষার্থী, অভিভাবক, ইন্সট্রাক্টর এবং অ্যাডমিনদের জন্য উপযোগী ফিচার সহ ডেডিকেটেড ড্যাশবোর্ড।",
     },
     {
       id: "live-classes",
-      icon: "🎥",
+      icon: "Video",
       title: "ইন্টারেক্টিভ লাইভ ক্লাস",
       description:
         "ভিডিও, চ্যাট এবং স্ক্রিন শেয়ারিং সহ রিয়েল-টাইম ইন্সট্রাক্টর-নেতৃত্বাধীন সেশন।",
     },
     {
       id: "recorded",
-      icon: "📹",
+      icon: "PlayCircle",
       title: "রেকর্ডেড সেশন",
       description:
         "যেকোনো সময় ক্লাস রেকর্ডিং দেখুন। আপনার নিজস্ব গতিতে কঠিন ধারণা পর্যালোচনা করুন।",
     },
     {
       id: "quizzes",
-      icon: "✅",
+      icon: "CheckCircle2",
       title: "কুইজ ও মূল্যায়ন",
       description:
         "শেখার অগ্রগতি ট্র্যাক করতে ইন্টারেক্টিভ কুইজ, অ্যাসাইনমেন্ট এবং স্বয়ংক্রিয় গ্রেডিং।",
     },
     {
       id: "projects",
-      icon: "🛠️",
+      icon: "Wrench",
       title: "হাতে-কলমে প্রজেক্ট",
       description:
         "ধাপে ধাপে গাইডেন্স এবং মেন্টর সাপোর্ট সহ আসল রোবটিক্স ও কোডিং প্রজেক্ট।",
     },
     {
       id: "progress",
-      icon: "📈",
+      icon: "TrendingUp",
       title: "অগ্রগতি ট্র্যাকিং",
       description:
         "বিস্তারিত অ্যানালিটিক্স সহ শিক্ষার্থী ও অভিভাবকদের জন্য রিয়েল-টাইম অগ্রগতি পর্যবেক্ষণ।",
     },
     {
       id: "certificates",
-      icon: "🏆",
+      icon: "Award",
       title: "ডিজিটাল সার্টিফিকেট",
       description:
         "ব্লকচেইন যাচাইকরণ সহ কোর্স সম্পন্নের পরে ইন্ডাস্ট্রি-স্বীকৃত সার্টিফিকেট।",
     },
     {
       id: "payment",
-      icon: "💳",
+      icon: "CreditCard",
       title: "নমনীয় পেমেন্ট",
       description:
         "বিকাশ, নগদ বা কার্ডে পেমেন্ট করুন। সব কোর্সের জন্য কিস্তির সুবিধা উপলব্ধ।",
@@ -147,21 +147,21 @@ export const registrationFlow = {
         title: "Mobile Verification",
         description:
           "Enter your mobile number and verify with OTP code sent to your phone.",
-        icon: "📱",
+        icon: "Smartphone",
       },
       {
         step: 2,
         title: "Fill Information",
         description:
           "Complete student or guardian information form with basic details.",
-        icon: "📝",
+        icon: "FileText",
       },
       {
         step: 3,
         title: "Set Password",
         description:
           "Create a secure password and you're ready to start learning!",
-        icon: "🔒",
+        icon: "Lock",
       },
     ],
     securityTips: [
@@ -178,21 +178,21 @@ export const registrationFlow = {
         title: "মোবাইল যাচাইকরণ",
         description:
           "আপনার মোবাইল নম্বর লিখুন এবং ফোনে পাঠানো OTP কোড দিয়ে যাচাই করুন।",
-        icon: "📱",
+        icon: "Smartphone",
       },
       {
         step: 2,
         title: "তথ্য পূরণ করুন",
         description:
           "মৌলিক বিবরণ সহ শিক্ষার্থী বা অভিভাবকের তথ্য ফর্ম পূরণ করুন।",
-        icon: "📝",
+        icon: "FileText",
       },
       {
         step: 3,
         title: "পাসওয়ার্ড সেট করুন",
         description:
           "একটি সুরক্ষিত পাসওয়ার্ড তৈরি করুন এবং শেখা শুরু করার জন্য প্রস্তুত হন!",
-        icon: "🔒",
+        icon: "Lock",
       },
     ],
     securityTips: [
@@ -613,10 +613,10 @@ export const competitorComparison = {
     title: "Why Choose Learn & Grow?",
     subtitle: "See how we compare to other EdTech platforms in Bangladesh",
     competitors: [
-      { name: "Learn & Grow", logo: "🚀" },
-      { name: "10 Minute School", logo: "📱" },
-      { name: "Shikho", logo: "📚" },
-      { name: "Others", logo: "🏫" },
+      { name: "Learn & Grow", logo: "Rocket" },
+      { name: "10 Minute School", logo: "Smartphone" },
+      { name: "Shikho", logo: "BookOpen" },
+      { name: "Others", logo: "Building2" },
     ],
     features: [
       {
@@ -682,10 +682,10 @@ export const competitorComparison = {
     subtitle:
       "দেখুন বাংলাদেশের অন্যান্য এডটেক প্ল্যাটফর্মের সাথে আমরা কীভাবে তুলনা করি",
     competitors: [
-      { name: "Learn & Grow", logo: "🚀" },
-      { name: "10 Minute School", logo: "📱" },
-      { name: "Shikho", logo: "📚" },
-      { name: "অন্যান্য", logo: "🏫" },
+      { name: "Learn & Grow", logo: "Rocket" },
+      { name: "10 Minute School", logo: "Smartphone" },
+      { name: "Shikho", logo: "BookOpen" },
+      { name: "অন্যান্য", logo: "Building2" },
     ],
     features: [
       {

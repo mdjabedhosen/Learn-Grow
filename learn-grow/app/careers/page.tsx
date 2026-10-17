@@ -8,6 +8,7 @@ import { useState, useMemo, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import RecruitmentProcess from "@/components/RecruitmentProcess";
 import { openRecruitmentModal } from "@/components/RecruitmentModal";
+import { Briefcase, Zap, Globe, MapPin, Banknote, Rocket } from "lucide-react";
 
 const JOBS_PER_PAGE = 6;
 
@@ -79,7 +80,8 @@ export default function CareersPage() {
         {/* HERO */}
         <div className="text-center mb-14 space-y-4">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#EAF4FB] text-[#3B82F6] text-xs font-black rounded-full uppercase tracking-widest border border-[#B3D9F5]">
-            💼 {hero.tag}
+            <Briefcase className="w-3.5 h-3.5 text-[#3B82F6]" />
+            <span>{hero.tag}</span>
           </span>
 
           <h1 className={`text-4xl sm:text-6xl font-black text-[#2C2C2C] tracking-tight leading-tight ${language === "bn" ? "font-siliguri" : ""}`}>
@@ -109,10 +111,11 @@ export default function CareersPage() {
             </div>
 
             <Button
-              className="bg-[#2C2C2C] hover:bg-black text-white font-black rounded-full px-6 py-2 shadow-md cursor-pointer self-start sm:self-auto"
+              className="bg-[#2C2C2C] hover:bg-black text-white font-black rounded-full px-6 py-2 shadow-md cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
               onPress={() => openRecruitmentModal()}
             >
-              {language === "en" ? "⚡ General Application" : "⚡ সরাসরি সিভি ড্রপ করুন"}
+              <Zap className="w-4 h-4 text-[#F59E0B]" />
+              <span>{language === "en" ? "General Application" : "সরাসরি সিভি ড্রপ করুন"}</span>
             </Button>
           </div>
 
@@ -161,8 +164,9 @@ export default function CareersPage() {
                       {job.title}
                     </h3>
                     {job.isRemote && (
-                      <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        🌍 Remote
+                      <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-emerald-700" />
+                        <span>Remote</span>
                       </span>
                     )}
                   </div>
@@ -179,15 +183,16 @@ export default function CareersPage() {
                       </span>
                     )}
                     {job.location && (
-                      <span className="font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-700">
-                        📍 {job.location}
+                      <span className="font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-700 inline-flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-gray-500" />
+                        <span>{job.location}</span>
                       </span>
                     )}
                   </div>
 
                   {job.salaryRange && (
                     <p className="text-sm text-emerald-700 font-extrabold flex items-center gap-1.5 pt-1">
-                      <span>💰</span>
+                      <Banknote className="w-4 h-4 text-emerald-600 inline" />
                       <span>
                         {job.salaryRange.currency} {job.salaryRange.min.toLocaleString()} – {job.salaryRange.max.toLocaleString()}
                       </span>
@@ -218,7 +223,9 @@ export default function CareersPage() {
 
           {/* FALLBACK CTA */}
           <div className="text-center mt-12 p-8 sm:p-10 bg-gradient-to-br from-[#EAF4FB]/50 to-[#FAF5FF]/50 rounded-[32px] border border-blue-100/60 shadow-xs">
-            <span className="text-3xl mb-3 inline-block">🚀</span>
+            <div className="w-12 h-12 rounded-2xl bg-blue-100/80 text-blue-600 flex items-center justify-center mx-auto mb-3">
+              <Rocket className="w-6 h-6 text-blue-600" />
+            </div>
             <h3 className={`text-2xl font-black text-[#2C2C2C] mb-2 ${language === "bn" ? "font-siliguri" : ""}`}>
               {language === "en" ? "Don't see a perfect fit?" : "আপনার পছন্দের পদটি খুঁজে পাননি?"}
             </h3>

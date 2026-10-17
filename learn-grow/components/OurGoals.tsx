@@ -1,14 +1,17 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
+import { Target, GraduationCap, Rocket, Users, Globe } from "lucide-react";
+
+const CARD_ICONS = [GraduationCap, Rocket, Users, Globe];
 
 const goalsData = {
   bn: {
-    pill: "🎯 আমাদের লক্ষ্য",
+    pill: "আমাদের লক্ষ্য",
     title: "কেন Learn & Grow?",
     subtitle: "আমরা প্রতিশ্রুতিবদ্ধ বাংলাদেশের শিক্ষার্থীদের জন্য মানসম্পন্ন রোবটিক্স এবং প্রযুক্তি শিক্ষা নিশ্চিত করতে।",
     cards: [
       {
-        emoji: "🧠",
         title: "শিক্ষার মান উন্নয়ন",
         description:
           "আধুনিক প্রযুক্তি এবং রোবটিক্স শিক্ষার মাধ্যমে শিক্ষার্থীদের দক্ষতা বৃদ্ধি করা এবং তাদের ভবিষ্যৎ ক্যারিয়ারের জন্য প্রস্তুত করা।",
@@ -16,9 +19,9 @@ const goalsData = {
         border: "border-[#B3D9F5]",
         pill: "bg-[#B3D9F5] text-[#1B5C8A]",
         pillLabel: "Education",
+        iconColor: "text-[#1D4ED8]",
       },
       {
-        emoji: "🚀",
         title: "উদ্ভাবনী চিন্তাভাবনা",
         description:
           "শিক্ষার্থীদের মধ্যে সৃজনশীলতা এবং সমস্যা সমাধানের দক্ষতা গড়ে তোলা, যাতে তারা ভবিষ্যতের চ্যালেঞ্জ মোকাবেলা করতে পারে।",
@@ -26,9 +29,9 @@ const goalsData = {
         border: "border-[#D4C0F9]",
         pill: "bg-[#D4C0F9] text-[#5B21B6]",
         pillLabel: "Innovation",
+        iconColor: "text-[#7C3AED]",
       },
       {
-        emoji: "🤝",
         title: "সবার জন্য শিক্ষা",
         description:
           "দেশের প্রতিটি কোণে মানসম্পন্ন রোবটিক্স এবং STEM শিক্ষা পৌঁছে দেওয়া এবং সবার জন্য শেখার সুযোগ সৃষ্টি করা।",
@@ -36,9 +39,9 @@ const goalsData = {
         border: "border-[#BBEED0]",
         pill: "bg-[#BBEED0] text-[#166534]",
         pillLabel: "Inclusion",
+        iconColor: "text-[#166534]",
       },
       {
-        emoji: "🌏",
         title: "আন্তর্জাতিক মানের শিক্ষা",
         description:
           "বাংলাদেশের শিক্ষার্থীদের বিশ্বমানের শিক্ষা প্রদান করা এবং তাদের আন্তর্জাতিক প্রতিযোগিতায় সক্ষম করে তোলা।",
@@ -46,6 +49,7 @@ const goalsData = {
         border: "border-[#FDEFC0]",
         pill: "bg-[#FDEFC0] text-[#92620A]",
         pillLabel: "Global",
+        iconColor: "text-[#B45309]",
       },
     ],
     stats: [
@@ -56,12 +60,11 @@ const goalsData = {
     ],
   },
   en: {
-    pill: "🎯 Our Mission",
+    pill: "Our Mission",
     title: "Why Learn & Grow?",
     subtitle: "We are committed to delivering world-class robotics and technology education for every student in Bangladesh.",
     cards: [
       {
-        emoji: "🧠",
         title: "Quality Education",
         description:
           "Empowering students with modern technology and robotics skills to prepare them for rewarding future careers.",
@@ -69,9 +72,9 @@ const goalsData = {
         border: "border-[#B3D9F5]",
         pill: "bg-[#B3D9F5] text-[#1B5C8A]",
         pillLabel: "Education",
+        iconColor: "text-[#1D4ED8]",
       },
       {
-        emoji: "🚀",
         title: "Innovative Thinking",
         description:
           "Cultivating creativity and computational problem-solving abilities so learners can confidently tackle tomorrow's challenges.",
@@ -79,9 +82,9 @@ const goalsData = {
         border: "border-[#D4C0F9]",
         pill: "bg-[#D4C0F9] text-[#5B21B6]",
         pillLabel: "Innovation",
+        iconColor: "text-[#7C3AED]",
       },
       {
-        emoji: "🤝",
         title: "Education for All",
         description:
           "Taking high-quality STEM & robotics learning to every district, creating open opportunities for all young minds.",
@@ -89,9 +92,9 @@ const goalsData = {
         border: "border-[#BBEED0]",
         pill: "bg-[#BBEED0] text-[#166534]",
         pillLabel: "Inclusion",
+        iconColor: "text-[#166534]",
       },
       {
-        emoji: "🌏",
         title: "Global Standards",
         description:
           "Equipping Bangladeshi students with world-class education to excel in global robotics and coding competitions.",
@@ -99,6 +102,7 @@ const goalsData = {
         border: "border-[#FDEFC0]",
         pill: "bg-[#FDEFC0] text-[#92620A]",
         pillLabel: "Global",
+        iconColor: "text-[#B45309]",
       },
     ],
     stats: [
@@ -135,8 +139,9 @@ export default function OurGoals() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-14">
-          <span className="inline-flex items-center gap-2 px-5 py-2 bg-[#7C3AED] text-white text-xs font-black rounded-full uppercase tracking-widest mb-6">
-            {content.pill}
+          <span className="inline-flex items-center gap-2 px-5 py-2 bg-[#7C3AED] text-white text-xs font-black rounded-full uppercase tracking-widest mb-6 shadow-sm">
+            <Target className="w-3.5 h-3.5 text-white" />
+            <span>{content.pill}</span>
           </span>
           <h2
             className={`text-4xl md:text-6xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4 ${
@@ -156,27 +161,32 @@ export default function OurGoals() {
 
         {/* Goals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {content.cards.map((goal, index) => (
-            <div
-              key={index}
-              className={`${goal.bg} border-2 ${goal.border} rounded-[28px] p-7 flex flex-col hover:-translate-y-2 hover:shadow-xl transition-all duration-300`}
-            >
-              <span className="text-5xl mb-5">{goal.emoji}</span>
-              <span className={`self-start text-xs font-black px-3 py-1 rounded-full mb-4 ${goal.pill}`}>
-                {goal.pillLabel}
-              </span>
-              <h3
-                className={`text-xl font-black text-[#2C2C2C] mb-3 leading-snug ${
-                  language === "bn" ? "font-siliguri" : ""
-                }`}
+          {content.cards.map((goal, index) => {
+            const Icon = CARD_ICONS[index] || GraduationCap;
+            return (
+              <div
+                key={index}
+                className={`${goal.bg} border-2 ${goal.border} rounded-[28px] p-7 flex flex-col hover:-translate-y-2 hover:shadow-xl transition-all duration-300`}
               >
-                {goal.title}
-              </h3>
-              <p className={`text-sm text-gray-600 leading-relaxed ${language === "bn" ? "font-siliguri" : ""}`}>
-                {goal.description}
-              </p>
-            </div>
-          ))}
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-5 border border-black/5 select-none">
+                  <Icon className={`w-7 h-7 ${goal.iconColor}`} />
+                </div>
+                <span className={`self-start text-xs font-black px-3 py-1 rounded-full mb-4 ${goal.pill}`}>
+                  {goal.pillLabel}
+                </span>
+                <h3
+                  className={`text-xl font-black text-[#2C2C2C] mb-3 leading-snug ${
+                    language === "bn" ? "font-siliguri" : ""
+                  }`}
+                >
+                  {goal.title}
+                </h3>
+                <p className={`text-sm text-gray-600 leading-relaxed ${language === "bn" ? "font-siliguri" : ""}`}>
+                  {goal.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Stats Row */}

@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardBody, Button, Chip, Progress } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useCheckActiveSubscriptionQuery } from "@/redux/api/orderApi";
-import { FaCheckCircle, FaClock, FaRedo } from "react-icons/fa";
+import { FaCheckCircle, FaClock, FaRedo, FaExclamationTriangle } from "react-icons/fa";
 
 export function SubscriptionWidget() {
   const router = useRouter();
@@ -76,8 +76,9 @@ export function SubscriptionWidget() {
 
             {daysRemaining <= 7 && (
               <div className="bg-warning/20 p-3 rounded-lg border border-warning">
-                <p className="text-sm text-warning-700">
-                  ⚠️ Your subscription expires soon. Renew to continue learning!
+                <p className="text-sm text-warning-700 flex items-center gap-1.5">
+                  <FaExclamationTriangle className="text-warning-700 shrink-0" />
+                  <span>Your subscription expires soon. Renew to continue learning!</span>
                 </p>
               </div>
             )}

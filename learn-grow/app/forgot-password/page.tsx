@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { Input, Button, Card, CardBody, CardHeader, Link, Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { FaArrowLeft, FaEnvelope } from "react-icons/fa";
+import { FaArrowLeft, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 
 type ForgotPasswordStep = "email" | "otp" | "password";
 
@@ -232,9 +231,10 @@ export default function ForgotPasswordPage() {
                   <button
                     onClick={() => setShowPassword(!showPassword)}
                     type="button"
-                    className="text-gray-400"
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? "🙈" : "👁️"}
+                    {showPassword ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
                   </button>
                 }
               />

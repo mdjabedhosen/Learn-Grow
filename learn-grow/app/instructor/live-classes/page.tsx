@@ -666,7 +666,7 @@ export default function InstructorLiveClassesPage() {
                                                         <div className="flex-1">
                                                             {classItem.recordedLink ? (
                                                                 <div>
-                                                                    <p className="text-xs font-semibold text-gray-700 mb-1">📹 Recording Available</p>
+                                                                    <p className="text-xs font-semibold text-gray-700 mb-1">Recording Available</p>
                                                                     <a
                                                                         href={classItem.recordedLink}
                                                                         target="_blank"

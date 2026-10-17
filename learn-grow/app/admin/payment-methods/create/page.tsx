@@ -59,13 +59,13 @@ export default function CreatePaymentMethodPage() {
   };
 
   const getPaymentIcon = (name: string) => {
-    if (!name) return "💵";
+    if (!name) return "";
     const lowerName = name.toLowerCase();
-    if (lowerName.includes("bkash")) return "💳";
-    if (lowerName.includes("nagad")) return "💰";
-    if (lowerName.includes("rocket")) return "🚀";
-    if (lowerName.includes("bank")) return "🏦";
-    return "💵";
+    if (lowerName.includes("bkash")) return "";
+    if (lowerName.includes("nagad")) return "";
+    if (lowerName.includes("rocket")) return "";
+    if (lowerName.includes("bank")) return "";
+    return "";
   };
 
   const currentName = showCustomName ? (formData.customName || "Custom Payment") : formData.name;
@@ -129,11 +129,11 @@ export default function CreatePaymentMethodPage() {
                 }}
                 description="Choose the payment gateway or bank"
               >
-                <SelectItem key="bKash">💳 bKash</SelectItem>
-                <SelectItem key="Nagad">💰 Nagad</SelectItem>
-                <SelectItem key="Rocket">🚀 Rocket</SelectItem>
-                <SelectItem key="Bank Transfer">🏦 Bank Transfer</SelectItem>
-                <SelectItem key="Other">💵 Other (Custom)</SelectItem>
+                <SelectItem key="bKash">bKash</SelectItem>
+                <SelectItem key="Nagad">Nagad</SelectItem>
+                <SelectItem key="Rocket">Rocket</SelectItem>
+                <SelectItem key="Bank Transfer">Bank Transfer</SelectItem>
+                <SelectItem key="Other">Other (Custom)</SelectItem>
               </Select>
             </div>
 
@@ -231,7 +231,7 @@ export default function CreatePaymentMethodPage() {
             {/* Preview */}
             <div className="border-2 border-dashed border-violet-300 rounded-2xl p-5 sm:p-6 bg-gradient-to-br from-violet-50 to-purple-50">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-violet-900">
-                <span className="text-2xl">👁️</span>
+                
                 Live Preview
               </h3>
               <Card className="shadow-lg border-2 border-violet-200">

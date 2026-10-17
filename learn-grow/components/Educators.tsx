@@ -12,6 +12,7 @@ import "swiper/css/navigation";
 import { useGetHomeTeamMembersQuery } from "@/redux/api/teamApi";
 import { useGetApprovedInstructorsPublicQuery } from "@/redux/api/userApi";
 import { openTrialModal } from "@/components/TrialBookingModal";
+import { GraduationCap, Sparkles, ArrowRight } from "lucide-react";
 
 type TutorCardItem = {
   id: string;
@@ -362,7 +363,8 @@ export default function Educators() {
         {/* Header - Brand-Aligned Professional Kodland Style */}
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-2 px-5 py-2 bg-[#EAF4FB] text-[#3B82F6] text-xs font-black rounded-full uppercase tracking-widest border border-[#B3D9F5] mb-5">
-            👨‍🏫 {language === "en" ? "Our Expert Tutors" : "আমাদের বিশেষজ্ঞ শিক্ষকবৃন্দ"}
+            <GraduationCap className="w-4 h-4 text-[#3B82F6]" />
+            <span>{language === "en" ? "Our Expert Tutors" : "আমাদের বিশেষজ্ঞ শিক্ষকবৃন্দ"}</span>
           </span>
 
           <h2
@@ -618,7 +620,7 @@ export default function Educators() {
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#2C2C2C] hover:bg-black text-white text-base font-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           >
             <span>{language === "en" ? "Meet All Our Tutors" : "সকল শিক্ষক দেখুন"}</span>
-            <span className="text-lg">→</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
 
           <button
@@ -626,7 +628,7 @@ export default function Educators() {
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F59E0B] hover:bg-[#d97706] text-black text-base font-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer"
           >
             <span>{language === "en" ? "Book a Free 1:1 Class" : "ফ্রি ১:১ ট্রায়াল বুক করুন"}</span>
-            <span>✨</span>
+            <Sparkles className="w-4 h-4 text-slate-900" />
           </button>
         </div>
       </div>

@@ -452,7 +452,7 @@ function EditCourseContent() {
                 >
                   {ACCESS_DURATIONS.map((duration) => (
                     <SelectItem key={duration}>
-                      {duration === "lifetime" ? "♾️ Lifetime Access" : `${duration} Month${duration !== "1" ? "s" : ""}` }
+                      {duration === "lifetime" ? "Lifetime Access" : `${duration} Month${duration !== "1" ? "s" : ""}` }
                     </SelectItem>
                   ))}
                 </Select>
@@ -469,9 +469,9 @@ function EditCourseContent() {
                   variant="bordered"
                   startContent={<FaGraduationCap className="text-gray-400" />}
                 >
-                  <SelectItem key="Beginner" startContent={<span className="text-green-500">🌱</span>}>Beginner</SelectItem>
-                  <SelectItem key="Intermediate" startContent={<span className="text-blue-500">🚀</span>}>Intermediate</SelectItem>
-                  <SelectItem key="Advanced" startContent={<span className="text-purple-500">🏆</span>}>Advanced</SelectItem>
+                  <SelectItem key="Beginner" >Beginner</SelectItem>
+                  <SelectItem key="Intermediate" >Intermediate</SelectItem>
+                  <SelectItem key="Advanced" >Advanced</SelectItem>
                 </Select>
               </div>
 
@@ -607,8 +607,8 @@ function EditCourseContent() {
                   const value = Array.from(keys)[0] as string;
                   setFormData({ ...formData, type: value });
                 }} variant="bordered" startContent={<FaVideo className="text-gray-400" />}>
-                  <SelectItem key="live" startContent={<span className="text-red-500">🔴</span>}>Live</SelectItem>
-                  <SelectItem key="recorded" startContent={<span className="text-blue-500">📹</span>}>Recorded</SelectItem>
+                  <SelectItem key="live" >Live</SelectItem>
+                  <SelectItem key="recorded" >Recorded</SelectItem>
                 </Select>
 
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">

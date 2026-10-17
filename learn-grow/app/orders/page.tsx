@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle, Clock, XCircle, ArrowRight, Package } from "lucide-react";
+import { CheckCircle, Clock, XCircle, ArrowRight, Package, BookOpen } from "lucide-react";
 import { API_CONFIG } from "@/config/apiConfig";
 
 interface Order {
@@ -213,8 +213,8 @@ function OrdersContent() {
                               className="object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center text-white text-2xl">
-                              📚
+                            <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center text-white">
+                              <BookOpen className="w-8 h-8 text-white" />
                             </div>
                           )}
                         </div>

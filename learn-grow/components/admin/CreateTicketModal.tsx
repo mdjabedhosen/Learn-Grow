@@ -65,11 +65,11 @@ const priorityOptions = [
 ];
 
 const categoryOptions = [
-  { key: "technical", label: "Technical Issue", icon: "🔧" },
-  { key: "billing", label: "Billing & Payments", icon: "💳" },
-  { key: "course", label: "Course Related", icon: "📚" },
-  { key: "account", label: "Account Issues", icon: "👤" },
-  { key: "other", label: "Other", icon: "📝" },
+  { key: "technical", label: "Technical Issue", icon: "" },
+  { key: "billing", label: "Billing & Payments", icon: "" },
+  { key: "course", label: "Course Related", icon: "" },
+  { key: "account", label: "Account Issues", icon: "" },
+  { key: "other", label: "Other", icon: "" },
 ];
 
 export default function CreateTicketModal({

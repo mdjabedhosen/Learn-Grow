@@ -16,10 +16,10 @@ import {
   CardBody,
   Chip,
   Divider,
-} from "@nextui-org/react";
 import { useApplyForJobMutation } from "@/redux/api/jobApi";
 import { trackEvent } from "@/utils/tracking";
 import { useRef } from "react";
+import { FileText } from "lucide-react";
 
 interface JobApplicationFormProps {
   jobId: string;
@@ -213,8 +213,10 @@ export default function JobApplicationForm({
             <ModalBody className="space-y-4">
               <Card className="bg-blue-50 border border-blue-200">
                 <CardBody className="space-y-3 p-4">
-                  <div className="flex gap-3">
-                    <div className="text-2xl">📝</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5" />
+                    </div>
                     <div>
                       <p className="font-semibold text-sm">No login required!</p>
                       <p className="text-sm text-gray-600">

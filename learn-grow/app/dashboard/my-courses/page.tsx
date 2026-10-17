@@ -167,7 +167,7 @@ export default function MyCoursesPage() {
                                     />
                                     <p className="text-xs text-gray-500">
                                         {course.progress === 100
-                                            ? "Course completed! 🎉"
+                                            ? "Course completed!"
                                             : `${100 - (course.progress || 0)}% remaining`}
                                     </p>
                                 </div>

@@ -87,13 +87,13 @@ export default function AdminPaymentMethodsPage() {
   };
 
   const getPaymentIcon = (name: string) => {
-    if (!name) return "💵";
+    if (!name) return "";
     const lowerName = name.toLowerCase();
-    if (lowerName.includes("bkash")) return "💳";
-    if (lowerName.includes("nagad")) return "💰";
-    if (lowerName.includes("rocket")) return "🚀";
-    if (lowerName.includes("bank")) return "🏦";
-    return "💵";
+    if (lowerName.includes("bkash")) return "";
+    if (lowerName.includes("nagad")) return "";
+    if (lowerName.includes("rocket")) return "";
+    if (lowerName.includes("bank")) return "";
+    return "";
   };
 
   return (

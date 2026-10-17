@@ -15,6 +15,7 @@ import { useGetUserCourseAccessQuery } from "@/redux/api/accessManagementApi";
 import AccessStatusDisplay from "@/components/course/AccessStatusDisplay";
 import { hasValidAccess, getRemainingDays, isExpiringSoon } from "@/lib/access-control";
 import { IEnrollmentAccess } from "@/types/combo.types";
+import { BookOpen, CheckCircle, Clock, XCircle, Sparkles } from "lucide-react";
 
 export default function StudentCourseDashboard() {
   const [userId, setUserId] = React.useState<string>("");
@@ -98,7 +99,9 @@ export default function StudentCourseDashboard() {
               <p className="text-default-500 text-sm">Total Courses</p>
               <p className="text-2xl font-bold text-foreground">{accesses.length}</p>
             </div>
-            <div className="text-4xl">📚</div>
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <BookOpen className="w-6 h-6" />
+            </div>
           </CardBody>
         </Card>
 
@@ -108,7 +111,9 @@ export default function StudentCourseDashboard() {
               <p className="text-default-500 text-sm">Active Courses</p>
               <p className="text-2xl font-bold text-success">{activeCourses.length}</p>
             </div>
-            <div className="text-4xl">✅</div>
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle className="w-6 h-6" />
+            </div>
           </CardBody>
         </Card>
 
@@ -120,7 +125,9 @@ export default function StudentCourseDashboard() {
                 {expiringCount}
               </p>
             </div>
-            <div className="text-4xl">⏰</div>
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Clock className="w-6 h-6" />
+            </div>
           </CardBody>
         </Card>
 
@@ -130,7 +137,9 @@ export default function StudentCourseDashboard() {
               <p className="text-default-500 text-sm">Expired Courses</p>
               <p className="text-2xl font-bold text-danger">{expiredCourses.length}</p>
             </div>
-            <div className="text-4xl">❌</div>
+            <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <XCircle className="w-6 h-6" />
+            </div>
           </CardBody>
         </Card>
       </div>
@@ -287,8 +296,9 @@ export default function StudentCourseDashboard() {
           <CardBody className="py-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-1">
-                  💡 Learn More with Combos
+                <h3 className="text-lg font-semibold text-foreground mb-1 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <span>Learn More with Combos</span>
                 </h3>
                 <p className="text-sm text-default-600">
                   Save up to 40% when you purchase multiple courses together in a combo bundle.

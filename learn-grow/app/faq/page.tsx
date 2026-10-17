@@ -15,6 +15,7 @@ import {
   FaPhoneAlt,
   FaArrowRight,
   FaCheckCircle,
+  FaTimes,
 } from "react-icons/fa";
 
 interface FAQItem {
@@ -247,7 +248,7 @@ export default function FAQPage() {
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3B82F6] text-white text-xs font-black uppercase tracking-wider shadow-xs">
-            <span>❓</span>
+            <FaQuestionCircle className="text-white text-xs" />
             <span>{language === "en" ? "Help & Support Center" : "সাধারণ জিজ্ঞাসা ও উত্তর"}</span>
           </div>
 
@@ -283,8 +284,9 @@ export default function FAQPage() {
               <button
                 onClick={() => setSearchQuery("")}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center cursor-pointer"
+                aria-label="Clear search"
               >
-                ✕
+                <FaTimes className="text-[10px]" />
               </button>
             )}
           </div>
@@ -316,8 +318,8 @@ export default function FAQPage() {
         <div className="space-y-4 mb-14">
           {filteredFaqs.length === 0 ? (
             <div className="bg-white rounded-[28px] border border-gray-100 p-10 text-center space-y-3">
-              <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-500 text-2xl flex items-center justify-center mx-auto">
-                🔍
+              <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto">
+                <FaSearch className="w-5 h-5 text-amber-500" />
               </div>
               <h3 className="text-lg font-black text-gray-900">
                 {language === "en" ? "No matching questions found" : "কোনো প্রশ্ন খুঁজে পাওয়া যায়নি"}

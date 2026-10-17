@@ -385,8 +385,8 @@ export default function ComboManagement() {
                         focus:border-primary-500 focus:outline-none transition-colors bg-white text-sm font-medium"
             >
               <option value="">All Status</option>
-              <option value="active">🟢 Active</option>
-              <option value="inactive">🔴 Inactive</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
 
             {/* Create Button */}
@@ -614,7 +614,7 @@ export default function ComboManagement() {
                                 })
                               }
                             >
-                              ✕
+                              
                             </button>
                           </Badge>
                         );

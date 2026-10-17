@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { completePayment } from "@/redux/slices/paymentSlice";
 import { enrollInCourse } from "@/redux/slices/enrollmentSlice";
-import { FaCheckCircle, FaTimesCircle, FaDownload, FaHome } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaDownload, FaHome, FaBook, FaEnvelope } from "react-icons/fa";
 
 function PaymentConfirmContent() {
     const router = useRouter();
@@ -84,7 +84,7 @@ function PaymentConfirmContent() {
                         {/* Success Message */}
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold text-green-600 mb-2">
-                                Payment Successful! 🎉
+                                Payment Successful!
                             </h1>
                             <p className="text-gray-600">
                                 Your payment has been processed successfully and you're now enrolled in the course.
@@ -127,7 +127,7 @@ function PaymentConfirmContent() {
                         {/* Course Access */}
                         <div className="bg-blue-50 rounded-lg p-4 mb-6">
                             <div className="flex items-start gap-3">
-                                <span className="text-2xl">📚</span>
+                                <FaBook className="text-2xl text-blue-600 mt-1 shrink-0" />
                                 <div>
                                     <p className="font-semibold mb-1">Course Access Granted!</p>
                                     <p className="text-sm text-gray-600">
@@ -160,8 +160,9 @@ function PaymentConfirmContent() {
 
                         {/* Email Confirmation Notice */}
                         <div className="mt-6 text-center text-sm text-gray-500">
-                            <p>
-                                📧 A confirmation email has been sent to your registered email address.
+                            <p className="inline-flex items-center gap-2">
+                                <FaEnvelope className="text-slate-400" />
+                                <span>A confirmation email has been sent to your registered email address.</span>
                             </p>
                         </div>
                     </CardBody>

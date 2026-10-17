@@ -220,7 +220,7 @@ function SortableMemberItem({
                                 size="sm"
                                 className="shadow-sm font-bold text-[10px]"
                             >
-                                {member.showOnHome ? "🌟 On Home Slider" : "Hidden from Slider"}
+                                {member.showOnHome ? "On Home Slider" : "Hidden from Slider"}
                             </Chip>
                             {member.yearsOfExperience && (
                                 <span className="bg-[#2C2C2C] text-white px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
@@ -239,7 +239,7 @@ function SortableMemberItem({
                         {member.domain && (
                             <div className="mb-2">
                                 <span className="text-[11px] font-black uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 inline-block">
-                                    🤖 {member.domain}
+                                    {member.domain}
                                 </span>
                             </div>
                         )}
@@ -1233,7 +1233,7 @@ export default function TeamManagementPage() {
                                         <>
                                             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                                 <p className="text-sm text-yellow-800">
-                                                    ⚠️ Instructors without profile pictures will be marked with a warning icon.
+                                                    Instructors without profile pictures will be marked with a warning icon.
                                                 </p>
                                             </div>
                                             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar border border-gray-200 rounded-xl p-2 mb-4 bg-gray-50/50">
@@ -1288,7 +1288,7 @@ export default function TeamManagementPage() {
                                                                 </span>
                                                                 {!hasProfileImage && (
                                                                     <p className="text-xs text-yellow-600 mt-1">
-                                                                        ⚠️ No profile picture
+                                                                        No profile picture
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -1650,7 +1650,7 @@ export default function TeamManagementPage() {
 
                                             <div className="flex items-center justify-between p-3.5 bg-blue-50/80 border border-blue-200 rounded-xl">
                                                 <div>
-                                                    <p className="font-bold text-sm text-blue-950">🌟 Feature on Home Mentor Slider</p>
+                                                    <p className="font-bold text-sm text-blue-950">Feature on Home Mentor Slider</p>
                                                     <p className="text-xs text-blue-700">Slide this member alongside mentors/tutors in the homepage carousel</p>
                                                 </div>
                                                 <Checkbox

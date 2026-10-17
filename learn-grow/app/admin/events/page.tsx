@@ -83,13 +83,13 @@ export default function AdminEventsPage() {
 
   const getEventIcon = (type: string) => {
     const lower = type?.toLowerCase();
-    if (lower?.includes("workshop")) return "🛠️";
-    if (lower?.includes("seminar")) return "📚";
-    if (lower?.includes("webinar")) return "💻";
-    if (lower?.includes("conference")) return "🎤";
-    if (lower?.includes("competition")) return "🏆";
-    if (lower?.includes("meetup")) return "🤝";
-    return "📅";
+    if (lower?.includes("workshop")) return "";
+    if (lower?.includes("seminar")) return "";
+    if (lower?.includes("webinar")) return "";
+    if (lower?.includes("conference")) return "";
+    if (lower?.includes("competition")) return "";
+    if (lower?.includes("meetup")) return "";
+    return "";
   };
 
   const clearFilters = () => {
@@ -255,13 +255,13 @@ export default function AdminEventsPage() {
               }}
             >
               <SelectItem key="">All Types</SelectItem>
-              <SelectItem key="Workshop">🛠️ Workshop</SelectItem>
-              <SelectItem key="Seminar">📚 Seminar</SelectItem>
-              <SelectItem key="Webinar">💻 Webinar</SelectItem>
-              <SelectItem key="Conference">🎤 Conference</SelectItem>
-              <SelectItem key="Competition">🏆 Competition</SelectItem>
-              <SelectItem key="Meetup">🤝 Meetup</SelectItem>
-              <SelectItem key="Other">📅 Other</SelectItem>
+              <SelectItem key="Workshop">Workshop</SelectItem>
+              <SelectItem key="Seminar">Seminar</SelectItem>
+              <SelectItem key="Webinar">Webinar</SelectItem>
+              <SelectItem key="Conference">Conference</SelectItem>
+              <SelectItem key="Competition">Competition</SelectItem>
+              <SelectItem key="Meetup">Meetup</SelectItem>
+              <SelectItem key="Other">Other</SelectItem>
             </Select>
           </div>
           <div className="space-y-2">

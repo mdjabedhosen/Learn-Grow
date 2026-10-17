@@ -12,7 +12,7 @@ import {
 import { useGetFeaturedCoursesQuery } from "@/redux/api/courseApi";
 import { useRouter } from "next/navigation";
 import { getCourseSlug } from "@/lib/coursesData";
-import { Clock, Users as UsersIcon, PhoneCall, BookOpen, ArrowRight } from "lucide-react";
+import { Clock, Users as UsersIcon, PhoneCall, BookOpen, ArrowRight, Check } from "lucide-react";
 
 const CoursesSection = () => {
   const [language, setLanguage] = useState<"en" | "bn">("bn");
@@ -93,7 +93,10 @@ const CoursesSection = () => {
               size="lg"
               variant="flat"
             >
-              {language === "en" ? "📚 Our Courses" : "📚 আমাদের কোর্সসমূহ"}
+              <span className="flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-primary-600" />
+                <span>{language === "en" ? "Our Courses" : "আমাদের কোর্সসমূহ"}</span>
+              </span>
             </Chip>
           </div>
           <h2
@@ -199,7 +202,7 @@ const CoursesSection = () => {
                           key={idx}
                           className="flex items-start gap-2 text-xs font-medium text-gray-800"
                         >
-                          <span className="text-primary-500 font-bold">✓</span>
+                          <Check className="w-3.5 h-3.5 text-primary-500 shrink-0 mt-0.5" />
                           <span className={language === "bn" ? "font-siliguri" : ""}>
                             {feature}
                           </span>

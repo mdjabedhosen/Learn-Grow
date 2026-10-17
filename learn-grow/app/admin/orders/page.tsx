@@ -139,7 +139,7 @@ export default function OrdersAdminPage() {
     setIsProcessing(true);
     try {
       await approveOrderMutation(selectedOrder._id).unwrap();
-      toast.success("✅ Order approved & email sent!");
+      toast.success("Order approved & email sent!");
       refetch();
       onOpenChange();
     } catch (error: any) {
@@ -154,7 +154,7 @@ export default function OrdersAdminPage() {
     setIsProcessing(true);
     try {
       await rejectOrderMutation({ id: selectedOrder._id }).unwrap();
-      toast.success("❌ Order rejected & notification sent!");
+      toast.success("Order rejected & notification sent!");
       refetch();
       onOpenChange();
     } catch (error: any) {
@@ -178,7 +178,7 @@ export default function OrdersAdminPage() {
     setIsProcessing(true);
     try {
       await deleteOrderMutation(selectedOrder._id).unwrap();
-      toast.success("🗑️ Order deleted successfully");
+      toast.success("Order deleted successfully");
       refetch();
       onOpenChange();
     } catch (error: any) {
@@ -461,7 +461,7 @@ export default function OrdersAdminPage() {
                               <p className="text-xs text-gray-500">Bundle</p>
                             </div>
                           ) : order.planType === "kit" ? (
-                            <p className="text-sm text-gray-600">📦 Delivery Required</p>
+                            <p className="text-sm text-gray-600">Delivery Required</p>
                           ) : (
                             <p className="text-sm text-gray-500">All Courses Access</p>
                           )}
@@ -493,8 +493,8 @@ export default function OrdersAdminPage() {
                             className="font-semibold"
                           >
                             {order.paymentStatus === "pending" && "⏳ Pending"}
-                            {order.paymentStatus === "approved" && "✅ Approved"}
-                            {order.paymentStatus === "rejected" && "❌ Rejected"}
+                            {order.paymentStatus === "approved" && "Approved"}
+                            {order.paymentStatus === "rejected" && "Rejected"}
                           </Chip>
                         </TableCell>
                         <TableCell>
@@ -554,8 +554,8 @@ export default function OrdersAdminPage() {
                               size="sm"
                             >
                               {order.paymentStatus === "pending" && "⏳ Pending"}
-                              {order.paymentStatus === "approved" && "✅ Approved"}
-                              {order.paymentStatus === "rejected" && "❌ Rejected"}
+                              {order.paymentStatus === "approved" && "Approved"}
+                              {order.paymentStatus === "rejected" && "Rejected"}
                             </Chip>
                           </div>
                         </div>
@@ -713,7 +713,7 @@ export default function OrdersAdminPage() {
                     {/* User Info */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                        👤 User Information
+                        User Information
                       </h3>
                       <div className="space-y-2 text-sm">
                         <p><span className="text-gray-600">Name:</span> <span className="font-medium">{selectedOrder.userId?.name || "Unknown User"}</span></p>
@@ -724,7 +724,7 @@ export default function OrdersAdminPage() {
                     {/* Order Info */}
                     <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
                       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                        📋 Order Information
+                        Order Information
                       </h3>
                       <div className="space-y-2 text-sm">
                         <div><span className="text-gray-600">Order ID:</span> <code className="ml-1 bg-white px-2 py-1 rounded text-xs">{selectedOrder._id.slice(-8)}</code></div>
@@ -738,7 +738,7 @@ export default function OrdersAdminPage() {
                     {selectedOrder.courseId && (
                       <div className="bg-gradient-to-br from-green-50 to-teal-50 p-4 rounded-lg border border-green-200">
                         <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                          📚 Course
+                          Course
                         </h3>
                         <div className="space-y-2 text-sm">
                           <p><span className="text-gray-600">Title:</span> <span className="ml-1 font-semibold text-green-900">{selectedOrder.courseId.title}</span></p>
@@ -749,7 +749,7 @@ export default function OrdersAdminPage() {
                     {selectedOrder.comboId && (
                       <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
                         <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                          🧩 Bundle
+                          Bundle
                         </h3>
                         <div className="space-y-2 text-sm">
                           <p><span className="text-gray-600">Name:</span> <span className="ml-1 font-semibold text-purple-900">{selectedOrder.comboId.name}</span></p>
@@ -760,7 +760,7 @@ export default function OrdersAdminPage() {
 
                     {/* Payment Info */}
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold mb-3 text-sm">💳 Payment Information</h3>
+                      <h3 className="font-semibold mb-3 text-sm">Payment Information</h3>
                       <div className="space-y-2 text-sm">
                         <p><span className="text-gray-600">Method:</span> <span className="font-medium">{selectedOrder.paymentMethodId.name}</span></p>
                         <p><span className="text-gray-600">Account:</span> <span className="font-medium">{selectedOrder.paymentMethodId.accountNumber}</span></p>
@@ -773,7 +773,7 @@ export default function OrdersAdminPage() {
                     {selectedOrder.deliveryAddress && (selectedOrder.planType === "kit" || selectedOrder.planType === "quarterly") && (
                       <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200">
                         <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                          📦 Delivery Address
+                          Delivery Address
                         </h3>
                         <div className="space-y-2 text-sm bg-white p-3 rounded">
                           <p><span className="text-gray-600">Name:</span> <span className="ml-1 font-medium">{selectedOrder.deliveryAddress.name}</span></p>
@@ -798,8 +798,8 @@ export default function OrdersAdminPage() {
                           size="sm"
                         >
                           {selectedOrder.paymentStatus === "pending" && "⏳ Pending"}
-                          {selectedOrder.paymentStatus === "approved" && "✅ Approved"}
-                          {selectedOrder.paymentStatus === "rejected" && "❌ Rejected"}
+                          {selectedOrder.paymentStatus === "approved" && "Approved"}
+                          {selectedOrder.paymentStatus === "rejected" && "Rejected"}
                         </Chip>
                       </div>
                       {selectedOrder.startDate && selectedOrder.endDate && (

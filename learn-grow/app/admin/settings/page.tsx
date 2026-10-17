@@ -357,7 +357,7 @@ export default function AdminSettingsPage() {
     }
 
     const confirmed = window.confirm(
-      "⚠️ SECURITY CONFIRMATION:\n\nThis will trigger a full MongoDB database export including all collections, user profiles, and order data. The file will be streamed directly to your browser as an encrypted archive.\n\nDo you want to proceed?"
+      "SECURITY CONFIRMATION:\n\nThis will trigger a full MongoDB database export including all collections, user profiles, and order data. The file will be streamed directly to your browser as an encrypted archive.\n\nDo you want to proceed?"
     );
     if (!confirmed) return;
 
@@ -408,7 +408,7 @@ export default function AdminSettingsPage() {
 
       const now = new Date().toLocaleString();
       setLastBackupTime(now);
-      toast.success("✓ ডাটাবেস ব্যাকআপ সম্পন্ন হয়েছে! | Database export downloaded successfully!");
+      toast.success("ডাটাবেস ব্যাকআপ সম্পন্ন হয়েছে! | Database export downloaded successfully!");
     } catch (error: any) {
       toast.error(error?.message || "Failed to create database backup");
     } finally {
@@ -450,7 +450,7 @@ export default function AdminSettingsPage() {
                     : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                 }`}
               >
-                {isSuperAdmin ? "👑 Super Admin" : "🛡️ Operations Manager"}
+                {isSuperAdmin ? "Super Admin" : "Operations Manager"}
               </span>
             </div>
           </div>
@@ -570,7 +570,7 @@ export default function AdminSettingsPage() {
                     {/* Simulation Calculation */}
                     <div className="mt-4 pt-4 border-t border-purple-100/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
                       <span className="font-medium">
-                        💡 <strong>Real-time Simulation (per ৳ 10,000 Course Enrollment):</strong>
+                        <strong>Real-time Simulation (per ৳ 10,000 Course Enrollment):</strong>
                       </span>
                       <div className="flex items-center gap-4">
                         <span className="text-purple-700 font-bold bg-purple-100/60 px-2.5 py-1 rounded-lg">
@@ -1513,11 +1513,11 @@ export default function AdminSettingsPage() {
                         onChange={(e: any) => setTestPlatform(e.target.value)}
                         className="px-4 py-2.5 rounded-xl text-xs sm:text-sm bg-slate-800 border border-slate-700 text-white font-medium focus:outline-none focus:border-blue-500"
                       >
-                        <option value="all">⚡ All Enabled Ad Networks</option>
-                        <option value="meta">🔵 Meta (Facebook/WhatsApp CAPI) Only</option>
+                        <option value="all">All Enabled Ad Networks</option>
+                        <option value="meta">Meta (Facebook/WhatsApp CAPI) Only</option>
                         <option value="tiktok">⬛ TikTok Events API Only</option>
-                        <option value="google">📊 Google Analytics 4 (MP) Only</option>
-                        <option value="linkedin">💼 LinkedIn Conversions API Only</option>
+                        <option value="google">Google Analytics 4 (MP) Only</option>
+                        <option value="linkedin">LinkedIn Conversions API Only</option>
                       </select>
 
                       <Button

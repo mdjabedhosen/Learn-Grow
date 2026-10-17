@@ -433,7 +433,7 @@ function BatchesContent() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-2">
-                👥 {isBn ? "কোর্স ব্যাচ ও কোহোর্ট ম্যানেজমেন্ট" : "Course Batches & Cohort Control"}
+                {isBn ? "কোর্স ব্যাচ ও কোহোর্ট ম্যানেজমেন্ট" : "Course Batches & Cohort Control"}
               </span>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
                 {isBn ? "ব্যাচ ও শিক্ষক বরাদ্দ ব্যবস্থাপনা" : "Batch & Multi-Teacher Allocation"}
@@ -662,7 +662,7 @@ function BatchesContent() {
                             </p>
                             {batch.instructorId?.qualification?.toLowerCase().includes("ceo") && (
                               <span className="text-[10px] font-black text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.2 rounded-full">
-                                👑 Founder & CEO
+                                Founder & CEO
                               </span>
                             )}
                           </div>
@@ -911,7 +911,7 @@ function BatchesContent() {
                           {ins.name}
                           {ins.qualification?.toLowerCase().includes("ceo") && (
                             <span className="text-[10px] text-amber-800 font-black ml-1.5 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded-full">
-                              👑 CEO
+                              CEO
                             </span>
                           )}
                         </p>
@@ -1061,7 +1061,7 @@ function BatchesContent() {
                           {ins.name}
                           {ins.qualification?.toLowerCase().includes("ceo") && (
                             <span className="text-[10px] text-amber-800 font-black ml-1.5 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded-full">
-                              👑 CEO
+                              CEO
                             </span>
                           )}
                         </p>

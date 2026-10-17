@@ -22,7 +22,7 @@ export default function AdminComboPanel() {
     {
       title: "Combo Management",
       description: "Create, edit, and manage course combos",
-      icon: "📦",
+      icon: "",
       color: "primary",
       href: "/admin/combos",
     },
@@ -36,14 +36,14 @@ export default function AdminComboPanel() {
     {
       title: "Student Access",
       description: "View and modify student access status",
-      icon: "👥",
+      icon: "",
       color: "warning",
       href: "/admin/access-duration",
     },
     {
       title: "Orders",
       description: "View and manage student orders",
-      icon: "📋",
+      icon: "",
       color: "secondary",
       href: "/admin/orders",
     },
@@ -113,7 +113,7 @@ export default function AdminComboPanel() {
                   {/* Combo Management Info */}
                   <Card>
                     <CardHeader className="flex gap-3">
-                      <div className="text-2xl">📦</div>
+                      
                       <div className="flex flex-col">
                         <p className="text-lg font-semibold">Combo Management</p>
                         <p className="text-sm text-default-500">
@@ -184,19 +184,19 @@ export default function AdminComboPanel() {
                   <CardBody className="gap-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-foreground">💰 Flexible Pricing</h4>
+                        <h4 className="font-semibold text-foreground">Flexible Pricing</h4>
                         <p className="text-sm text-default-600">
                           Set original price and optional discount prices for combos
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-foreground">📅 Access Control</h4>
+                        <h4 className="font-semibold text-foreground">Access Control</h4>
                         <p className="text-sm text-default-600">
                           Choose from 1-month, 2-months, 3-months, or lifetime access
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-foreground">👥 Student Management</h4>
+                        <h4 className="font-semibold text-foreground">Student Management</h4>
                         <p className="text-sm text-default-600">
                           Search, view, and manage individual student access
                         </p>
@@ -208,7 +208,7 @@ export default function AdminComboPanel() {
                 {/* Best Practices */}
                 <Card className="bg-warning-50 border border-warning">
                   <CardHeader>
-                    <p className="text-lg font-semibold">💡 Best Practices</p>
+                    <p className="text-lg font-semibold">Best Practices</p>
                   </CardHeader>
                   <Divider />
                   <CardBody className="gap-2">
@@ -347,7 +347,7 @@ export default function AdminComboPanel() {
                         Can I edit a combo after creating it?
                       </p>
                       <p className="text-default-600">
-                        Yes, click the edit icon (✏️) next to the combo in the table.
+                        Yes, click the edit icon () next to the combo in the table.
                       </p>
                     </div>
 

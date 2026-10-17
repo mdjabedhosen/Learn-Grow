@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { bkashPayment } from "@/lib/payment/bkash";
 import { nagadPayment } from "@/lib/payment/nagad";
 import { sslCommerzPayment } from "@/lib/payment/sslcommerz";
+import { Smartphone, CreditCard, Banknote, Check, Lock } from "lucide-react";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -45,21 +46,21 @@ export default function PaymentModal({
         {
             id: "bkash",
             name: "bKash",
-            icon: "📱",
+            icon: <Smartphone className="w-6 h-6 text-white" />,
             description: "Pay with bKash mobile wallet",
             color: "from-pink-500 to-rose-500",
         },
         {
             id: "nagad",
             name: "Nagad",
-            icon: "💳",
+            icon: <CreditCard className="w-6 h-6 text-white" />,
             description: "Pay with Nagad mobile wallet",
             color: "from-orange-500 to-amber-500",
         },
         {
             id: "sslcommerz",
             name: "Card Payment",
-            icon: "💵",
+            icon: <Banknote className="w-6 h-6 text-white" />,
             description: "Pay with Credit/Debit Card or all methods",
             color: "from-blue-500 to-indigo-500",
         },
@@ -153,15 +154,17 @@ export default function PaymentModal({
                                         >
                                             <CardBody className="p-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`text-4xl p-3 bg-gradient-to-r ${method.color} rounded-lg`}>
-                                                        <span className="filter drop-shadow-lg">{method.icon}</span>
+                                                    <div className={`p-3 bg-gradient-to-r ${method.color} rounded-xl text-white flex items-center justify-center flex-shrink-0 shadow-md`}>
+                                                        {method.icon}
                                                     </div>
                                                     <div className="flex-1">
                                                         <p className="font-bold text-lg">{method.name}</p>
                                                         <p className="text-sm text-default-500">{method.description}</p>
                                                     </div>
                                                     {selectedMethod === method.id && (
-                                                        <div className="text-primary text-2xl">✓</div>
+                                                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                                                            <Check className="w-4 h-4 font-bold" />
+                                                        </div>
                                                     )}
                                                 </div>
                                             </CardBody>
@@ -191,8 +194,8 @@ export default function PaymentModal({
 
                             <Card className="bg-default-50 mt-4">
                                 <CardBody className="p-4">
-                                    <div className="flex items-start gap-2 text-sm">
-                                        <span className="text-green-500 text-lg">🔒</span>
+                                    <div className="flex items-start gap-2.5 text-sm">
+                                        <Lock className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                                         <div>
                                             <p className="font-semibold mb-1">Secure Payment</p>
                                             <p className="text-default-600 text-xs">

@@ -65,7 +65,7 @@ export default function InstructorUploadPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="mb-8">
-                <h1 className="text-4xl font-bold mb-2">Upload Course Materials 📤</h1>
+                <h1 className="text-4xl font-bold mb-2">Upload Course Materials</h1>
                 <p className="text-gray-600">Add videos, documents, and resources to your courses</p>
             </div>
 
@@ -199,26 +199,26 @@ export default function InstructorUploadPage() {
 
             <Card className="mt-8 bg-blue-50">
                 <CardBody className="p-6">
-                    <h3 className="font-bold text-lg mb-3">Upload Guidelines 📋</h3>
+                    <h3 className="font-bold text-lg mb-3">Upload Guidelines</h3>
                     <ul className="space-y-2 text-sm text-gray-700">
                         <li className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5 font-bold">•</span>
                             <span>Videos should be in MP4 format for best compatibility (max 500MB)</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5 font-bold">•</span>
                             <span>Use clear, descriptive titles for easy navigation</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5 font-bold">•</span>
                             <span>PDFs should be optimized and text-searchable when possible</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5 font-bold">•</span>
                             <span>Images should be high quality but compressed (max 10MB)</span>
                         </li>
                         <li className="flex items-start gap-2">
-                            <span className="text-primary mt-0.5">✓</span>
+                            <span className="text-primary mt-0.5 font-bold">•</span>
                             <span>Ensure all materials are original or properly licensed</span>
                         </li>
                     </ul>

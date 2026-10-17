@@ -15,6 +15,61 @@ import {
 } from "react-icons/hi2";
 import { openTrialModal } from "@/components/TrialBookingModal";
 import { defaultAboutData } from "@/lib/aboutData";
+import {
+    GraduationCap,
+    Cpu,
+    Users,
+    Star,
+    Bot,
+    Code,
+    Gamepad2,
+    Rocket,
+    Award,
+    ShieldCheck,
+    Package,
+    Check,
+    ArrowRight,
+    Sparkles,
+    BookOpen,
+} from "lucide-react";
+
+const renderPillarIcon = (name: string) => {
+    switch (name) {
+        case "Bot":
+        case "robot":
+            return <Bot className="w-7 h-7 text-[#3B82F6]" />;
+        case "Code":
+        case "python":
+            return <Code className="w-7 h-7 text-[#7C3AED]" />;
+        case "Gamepad2":
+        case "game":
+            return <Gamepad2 className="w-7 h-7 text-[#F59E0B]" />;
+        case "Rocket":
+        case "rocket":
+            return <Rocket className="w-7 h-7 text-[#06B6D4]" />;
+        default:
+            return <Bot className="w-7 h-7 text-[#3B82F6]" />;
+    }
+};
+
+const renderWhyIcon = (name: string) => {
+    switch (name) {
+        case "GraduationCap":
+        case "mentor":
+            return <GraduationCap className="w-8 h-8 text-[#3B82F6]" />;
+        case "Package":
+        case "kit":
+            return <Package className="w-8 h-8 text-[#7C3AED]" />;
+        case "Award":
+        case "certificate":
+            return <Award className="w-8 h-8 text-[#F59E0B]" />;
+        case "ShieldCheck":
+        case "shield":
+            return <ShieldCheck className="w-8 h-8 text-[#10B981]" />;
+        default:
+            return <Award className="w-8 h-8 text-[#3B82F6]" />;
+    }
+};
 
 interface AboutClientProps {
     content?: any;
@@ -118,22 +173,25 @@ export default function AboutClient({ content }: AboutClientProps) {
                     <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                         <Button
                             size="lg"
-                            className="bg-[#2C2C2C] hover:bg-black text-white font-black rounded-full px-8 shadow-xl hover:shadow-2xl transition-all duration-300 text-sm sm:text-base h-12 sm:h-14"
+                            className="bg-[#2C2C2C] hover:bg-black text-white font-black rounded-full px-8 shadow-xl hover:shadow-2xl transition-all duration-300 text-sm sm:text-base h-12 sm:h-14 flex items-center gap-2 cursor-pointer"
                             onPress={() => openTrialModal({ source: "about-hero" })}
                         >
-                            🎯 {language === "en" ? "Book a Free Trial Lesson" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}
+                            <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                            <span>{language === "en" ? "Book a Free Trial Lesson" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}</span>
                         </Button>
                         <Link
                             href="/team"
                             className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 h-12 sm:h-14 rounded-full bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-gray-200 text-sm sm:text-base shadow-sm hover:border-gray-300 transition-all duration-200"
                         >
-                            👥 {language === "en" ? "Meet Our Team" : "আমাদের টিম দেখুন"}
+                            <Users className="w-4 h-4 text-slate-600" />
+                            <span>{language === "en" ? "Meet Our Team" : "আমাদের টিম দেখুন"}</span>
                         </Link>
                         <Link
                             href="/tutors"
                             className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 h-12 sm:h-14 rounded-full bg-blue-50 hover:bg-blue-100 text-[#3B82F6] font-bold border border-blue-200 text-sm sm:text-base transition-all duration-200"
                         >
-                            👨‍🏫 {language === "en" ? "Live Mentors" : "বিশেষজ্ঞ মেন্টর"}
+                            <GraduationCap className="w-4 h-4 text-[#3B82F6]" />
+                            <span>{language === "en" ? "Live Mentors" : "বিশেষজ্ঞ মেন্টর"}</span>
                         </Link>
                     </div>
                 </div>
@@ -143,15 +201,21 @@ export default function AboutClient({ content }: AboutClientProps) {
             <section className="py-12 sm:py-16 bg-white border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                        {metrics.map((metric: any, idx: number) => (
-                            <div
-                                key={idx}
-                                className="group relative p-6 sm:p-8 rounded-[28px] bg-gradient-to-b from-gray-50/80 to-white border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center"
-                            >
-                                <div className="text-3xl sm:text-4xl mb-3 select-none">{metric.icon}</div>
-                                <div className="text-3xl sm:text-5xl font-black text-[#2C2C2C] tracking-tight mb-1 group-hover:text-[#3B82F6] transition-colors">
-                                    {metric.value}
-                                </div>
+                        {metrics.map((metric: any, idx: number) => {
+                            const MetricIcon = idx === 0 ? GraduationCap : idx === 1 ? Cpu : idx === 2 ? Users : Star;
+                            const iconColor = idx === 0 ? "text-blue-600 bg-blue-50" : idx === 1 ? "text-purple-600 bg-purple-50" : idx === 2 ? "text-amber-600 bg-amber-50" : "text-emerald-600 bg-emerald-50";
+
+                            return (
+                                <div
+                                    key={idx}
+                                    className="group relative p-6 sm:p-8 rounded-[28px] bg-gradient-to-b from-gray-50/80 to-white border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-center"
+                                >
+                                    <div className={`w-12 h-12 rounded-2xl ${iconColor} flex items-center justify-center mx-auto mb-3 transition-transform group-hover:scale-110`}>
+                                        <MetricIcon className="w-6 h-6" />
+                                    </div>
+                                    <div className="text-3xl sm:text-5xl font-black text-[#2C2C2C] tracking-tight mb-1 group-hover:text-[#3B82F6] transition-colors">
+                                        {metric.value}
+                                    </div>
                                 <div className="text-xs sm:text-sm font-bold text-gray-800 mb-1">
                                     {language === "en" ? metric.labelEn : metric.labelBn}
                                 </div>
@@ -194,8 +258,8 @@ export default function AboutClient({ content }: AboutClientProps) {
 
                             {/* Floating Decorative Card */}
                             <div className="hidden sm:flex absolute -bottom-6 -right-4 bg-white p-4 rounded-2xl shadow-xl border border-gray-100 items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-[#3B82F6] text-white flex items-center justify-center text-2xl shadow-md">
-                                    🤖
+                                <div className="w-12 h-12 rounded-xl bg-[#3B82F6] text-white flex items-center justify-center text-xl shadow-md">
+                                    <Cpu className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-semibold">{language === "en" ? "Curriculum Designed For" : "কারিকুলাম বয়সসীমা"}</p>
@@ -207,7 +271,8 @@ export default function AboutClient({ content }: AboutClientProps) {
                         {/* Right: Inspiring Narrative */}
                         <div className="lg:col-span-6 space-y-6">
                             <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#EAF4FB] text-[#3B82F6] text-xs font-black rounded-full uppercase tracking-widest border border-[#B3D9F5]">
-                                💡 {language === "en" ? story.badgeEn : story.badgeBn}
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>{language === "en" ? story.badgeEn : story.badgeBn}</span>
                             </span>
 
                             <h2
@@ -231,7 +296,7 @@ export default function AboutClient({ content }: AboutClientProps) {
                                 {story.highlights.map((item: any, i: number) => (
                                     <div key={i} className="flex items-start gap-3 p-3 rounded-2xl bg-white border border-gray-200/70 shadow-xs">
                                         <div className="w-7 h-7 rounded-full bg-blue-100 text-[#3B82F6] flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
-                                            ✓
+                                            <Check className="w-4 h-4 text-[#3B82F6]" />
                                         </div>
                                         <div>
                                             <h4 className="text-xs sm:text-sm font-black text-gray-900">
@@ -253,8 +318,9 @@ export default function AboutClient({ content }: AboutClientProps) {
             <section className="py-16 sm:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-3xl mx-auto mb-14">
-                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-purple-50 text-purple-700 text-xs font-black rounded-full uppercase tracking-widest border border-purple-200 mb-4">
-                            🧠 {language === "en" ? "Pedagogy & Learning Tracks" : "আমাদের ৪টি মূল শিক্ষণ স্তম্ভ"}
+                        <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-50 text-purple-700 text-xs font-black rounded-full uppercase tracking-widest border border-purple-200 mb-4">
+                            <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+                            <span>{language === "en" ? "Pedagogy & Learning Tracks" : "আমাদের ৪টি মূল শিক্ষণ স্তম্ভ"}</span>
                         </span>
                         <h2
                             className={`text-3xl sm:text-5xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4 ${
@@ -286,8 +352,8 @@ export default function AboutClient({ content }: AboutClientProps) {
                                     />
 
                                     <div>
-                                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md border border-white/60 flex items-center justify-center text-3xl mb-5 select-none">
-                                            {pillar.icon}
+                                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md border border-white/60 flex items-center justify-center mb-5 select-none">
+                                            {renderPillarIcon(pillar.icon)}
                                         </div>
 
                                         <h3
@@ -304,8 +370,9 @@ export default function AboutClient({ content }: AboutClientProps) {
                                     </div>
 
                                     <div>
-                                        <span className={`inline-block text-[11px] font-black px-3.5 py-1 rounded-full border shadow-xs ${theme.pill}`}>
-                                            {language === "en" ? "Explore Track →" : "ট্র্যাক বিস্তারিত →"}
+                                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-black px-3.5 py-1 rounded-full border shadow-xs ${theme.pill}`}>
+                                            <span>{language === "en" ? "Explore Track" : "ট্র্যাক বিস্তারিত"}</span>
+                                            <ArrowRight className="w-3 h-3" />
                                         </span>
                                     </div>
                                 </div>
@@ -319,8 +386,9 @@ export default function AboutClient({ content }: AboutClientProps) {
             <section className="py-16 sm:py-24 bg-[#F8F9FA] border-t border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-3xl mx-auto mb-14">
-                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#FFF8E1] text-[#92400E] text-xs font-black rounded-full uppercase tracking-widest border border-[#FFE082] mb-4">
-                            ⭐ {language === "en" ? "Why Parents Trust Us" : "অভিভাবকদের আস্থার কারণ"}
+                        <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FFF8E1] text-[#92400E] text-xs font-black rounded-full uppercase tracking-widest border border-[#FFE082] mb-4">
+                            <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                            <span>{language === "en" ? "Why Parents Trust Us" : "অভিভাবকদের আস্থার কারণ"}</span>
                         </span>
                         <h2
                             className={`text-3xl sm:text-5xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4 ${
@@ -342,7 +410,9 @@ export default function AboutClient({ content }: AboutClientProps) {
                                 key={i}
                                 className="p-7 rounded-[28px] bg-white border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-start"
                             >
-                                <div className="text-4xl mb-4 select-none">{item.icon}</div>
+                                <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-4 select-none">
+                                    {renderWhyIcon(item.icon)}
+                                </div>
                                 <h3
                                     className={`text-base sm:text-lg font-black text-gray-900 tracking-tight mb-2 ${
                                         language === "bn" ? "font-siliguri" : ""
@@ -371,7 +441,8 @@ export default function AboutClient({ content }: AboutClientProps) {
 
                         <div className="relative z-10 max-w-3xl">
                             <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 backdrop-blur-md text-white text-xs font-black rounded-full uppercase tracking-widest mb-6 border border-white/20">
-                                🚀 {language === "en" ? "Ready To Get Started?" : "আপনার সন্তানের যাত্রা শুরু করুন"}
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>{language === "en" ? "Ready To Get Started?" : "আপনার সন্তানের যাত্রা শুরু করুন"}</span>
                             </span>
 
                             <h2
@@ -393,16 +464,19 @@ export default function AboutClient({ content }: AboutClientProps) {
                             <div className="flex flex-wrap items-center gap-4">
                                 <Button
                                     size="lg"
-                                    className="bg-white hover:bg-gray-100 text-[#1D4ED8] font-black rounded-full px-8 sm:px-10 shadow-2xl text-sm sm:text-base h-12 sm:h-14 transition-all duration-300"
+                                    className="bg-white hover:bg-gray-100 text-[#1D4ED8] font-black rounded-full px-8 sm:px-10 shadow-2xl text-sm sm:text-base h-12 sm:h-14 transition-all duration-300 flex items-center gap-2"
                                     onPress={() => openTrialModal({ source: "about-cta-banner" })}
                                 >
-                                    🎯 {language === "en" ? "Book 1-on-1 Free Trial" : "১:১ ফ্রি ট্রায়াল বুক করুন"}
+                                    <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                                    <span>{language === "en" ? "Book 1-on-1 Free Trial" : "১:১ ফ্রি ট্রায়াল বুক করুন"}</span>
                                 </Button>
                                 <Link
                                     href="/team"
                                     className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 h-12 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold border border-white/30 text-sm sm:text-base transition-all duration-200"
                                 >
-                                    👥 {language === "en" ? "Meet Our Team →" : "আমাদের টিম সম্পর্কে জানুন →"}
+                                    <Users className="w-4 h-4 text-white" />
+                                    <span>{language === "en" ? "Meet Our Team" : "আমাদের টিম সম্পর্কে জানুন"}</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </div>
                         </div>

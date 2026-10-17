@@ -27,7 +27,7 @@ export function AuthGuard({
     }
 
 
-    // 🚨 FIRST: Clear logout flag when user reaches login page
+    // FIRST: Clear logout flag when user reaches login page
     const isLoggingOut = sessionStorage.getItem("loggingOut") === "1";
 
     if (isLoggingOut) {

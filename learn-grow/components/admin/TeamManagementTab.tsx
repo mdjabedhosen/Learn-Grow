@@ -228,7 +228,7 @@ export default function TeamManagementTab() {
         <div className="space-y-6 py-6">
             <Tabs color="primary" aria-label="Team Management Tabs">
                 {/* Add Member Tab */}
-                <Tab key="add" title="➕ Add Manual Member">
+                <Tab key="add" title="Add Manual Member">
                     <Card>
                         <CardHeader className="flex gap-3">
                             <div>
@@ -295,7 +295,7 @@ export default function TeamManagementTab() {
                             />
                             <div className="flex items-center justify-between p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl">
                                 <div>
-                                    <p className="font-bold text-sm text-blue-950">🌟 Feature on Home Mentor Slider</p>
+                                    <p className="font-bold text-sm text-blue-950">Feature on Home Mentor Slider</p>
                                     <p className="text-xs text-blue-800">Show this person sliding along with mentors/tutors on the homepage carousel</p>
                                 </div>
                                 <Switch
@@ -340,7 +340,7 @@ export default function TeamManagementTab() {
                 </Tab>
 
                 {/* Import Instructors Tab */}
-                <Tab key="import" title="📥 Import from Instructors">
+                <Tab key="import" title="Import from Instructors">
                     <Card>
                         <CardHeader className="flex gap-3">
                             <div>
@@ -403,7 +403,7 @@ export default function TeamManagementTab() {
                 </Tab>
 
                 {/* Team Members List Tab */}
-                <Tab key="list" title={`📋 Team Members (${teamMembers.length})`}>
+                <Tab key="list" title={`Team Members (${teamMembers.length})`}>
                     <Card>
                         <CardHeader className="flex gap-3">
                             <div>
@@ -435,7 +435,7 @@ export default function TeamManagementTab() {
                                                         size="sm"
                                                         className="font-bold text-xs"
                                                     >
-                                                        {member.showOnHome ? "🌟 On Home Slider" : "Hidden from Slider"}
+                                                        {member.showOnHome ? "On Home Slider" : "Hidden from Slider"}
                                                     </Chip>
                                                 </div>
 
@@ -456,7 +456,7 @@ export default function TeamManagementTab() {
 
                                                 {member.domain && (
                                                     <div className="flex items-center gap-2 text-xs font-semibold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-md">
-                                                        <span>🤖 {member.domain}</span>
+                                                        <span>{member.domain}</span>
                                                         {member.yearsOfExperience && <span className="text-gray-500">• {member.yearsOfExperience}</span>}
                                                     </div>
                                                 )}
@@ -497,7 +497,7 @@ export default function TeamManagementTab() {
                                                             variant="light"
                                                             className="text-black"
                                                         >
-                                                            𝕏
+                                                            X
                                                         </Button>
                                                     )}
                                                 </div>
@@ -612,7 +612,7 @@ export default function TeamManagementTab() {
                                         />
                                         <div className="flex items-center justify-between p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl">
                                             <div>
-                                                <p className="font-bold text-sm text-blue-950">🌟 Feature on Home Mentor Slider</p>
+                                                <p className="font-bold text-sm text-blue-950">Feature on Home Mentor Slider</p>
                                                 <p className="text-xs text-blue-800">Show this person sliding along with mentors/tutors on the homepage carousel</p>
                                             </div>
                                             <Switch

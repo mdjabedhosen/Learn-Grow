@@ -319,7 +319,7 @@ export default function InstructorCoursesPage() {
             {!isApproved && (
                 <Card className="mb-6 rounded-[24px] border border-amber-200 bg-amber-50/80">
                     <CardBody className="p-4 sm:p-5 flex flex-row items-center gap-3 text-amber-800">
-                        <span className="text-xl">⚠️</span>
+                        <span className="text-xl font-bold text-amber-500">!</span>
                         <p className="text-sm font-medium">
                             {lang === "bn"
                                 ? "আপনার শিক্ষক প্রোফাইলটি অ্যাডমিন অনুমোদনের অপেক্ষায় রয়েছে। অনুমোদন পাওয়ার পর নতুন কোর্স তৈরি করতে পারবেন।"
@@ -431,7 +431,7 @@ export default function InstructorCoursesPage() {
                                 </div>
                                 <div className="text-sm text-gray-600">
                                     <span className="font-semibold text-blue-600">
-                                      {course.accessDuration === "lifetime" ? "♾️ Lifetime" : `${course.accessDuration || "N/A"} Mo`}
+                                      {course.accessDuration === "lifetime" ? "Lifetime" : `${course.accessDuration || "N/A"} Mo`}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-gray-500 col-span-2 mt-1">

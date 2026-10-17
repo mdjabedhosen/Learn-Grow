@@ -41,7 +41,67 @@ import {
     FaChevronRight,
     FaStar,
 } from "react-icons/fa";
+import {
+    Sparkles,
+    Check,
+    X,
+    Clock,
+    Users,
+    Award,
+    Shield,
+    Code,
+    Bot,
+    Laptop,
+    Calendar,
+    GraduationCap,
+    ChevronRight,
+    Star,
+    Video,
+    Flame,
+    CreditCard,
+    Lock,
+    Wrench,
+    Radio,
+    Zap,
+    Cpu,
+    BookOpen,
+    HelpCircle,
+    FileText,
+    Target,
+    AlertTriangle,
+} from "lucide-react";
 import "@/styles/prose.css";
+
+const renderToolIcon = (name: string) => {
+    switch (name) {
+        case "Python 3.12":
+            return <Code className="w-4 h-4 text-blue-600" />;
+        case "VS Code":
+            return <Laptop className="w-4 h-4 text-indigo-600" />;
+        case "Google Colab":
+            return <Zap className="w-4 h-4 text-amber-600" />;
+        case "Pygame":
+            return <Bot className="w-4 h-4 text-purple-600" />;
+        case "OpenAI API":
+            return <Sparkles className="w-4 h-4 text-emerald-600" />;
+        case "Git & GitHub":
+            return <Code className="w-4 h-4 text-slate-700" />;
+        case "Arduino Uno R3":
+            return <Cpu className="w-4 h-4 text-cyan-600" />;
+        case "Arduino IDE":
+            return <Laptop className="w-4 h-4 text-teal-600" />;
+        case "Tinkercad Circuits":
+            return <Zap className="w-4 h-4 text-amber-600" />;
+        case "Ultrasonic Sensor":
+            return <Radio className="w-4 h-4 text-blue-600" />;
+        case "L298N Motor Driver":
+            return <Wrench className="w-4 h-4 text-indigo-600" />;
+        case "IR Line Sensors":
+            return <Zap className="w-4 h-4 text-purple-600" />;
+        default:
+            return <Code className="w-4 h-4 text-blue-600" />;
+    }
+};
 
 interface CourseDetailsProps {
     courseId: string;
@@ -280,28 +340,28 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
     const toolsList = useMemo(() => {
         if (isPython) {
             return [
-                { name: "Python 3.12", icon: "🐍", color: "bg-blue-50 text-blue-700 border-blue-200" },
-                { name: "VS Code", icon: "💻", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-                { name: "Google Colab", icon: "☁️", color: "bg-amber-50 text-amber-700 border-amber-200" },
-                { name: "Pygame", icon: "🎮", color: "bg-purple-50 text-purple-700 border-purple-200" },
-                { name: "OpenAI API", icon: "🤖", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                { name: "Git & GitHub", icon: "🐙", color: "bg-slate-50 text-slate-700 border-slate-200" },
+                { name: "Python 3.12", color: "bg-blue-50 text-blue-700 border-blue-200" },
+                { name: "VS Code", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+                { name: "Google Colab", color: "bg-amber-50 text-amber-700 border-amber-200" },
+                { name: "Pygame", color: "bg-purple-50 text-purple-700 border-purple-200" },
+                { name: "OpenAI API", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                { name: "Git & GitHub", color: "bg-slate-50 text-slate-700 border-slate-200" },
             ];
         }
         if (isRobotics) {
             return [
-                { name: "Arduino Uno R3", icon: "🤖", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
-                { name: "Arduino IDE", icon: "💻", color: "bg-teal-50 text-teal-700 border-teal-200" },
-                { name: "Tinkercad Circuits", icon: "⚡", color: "bg-amber-50 text-amber-700 border-amber-200" },
-                { name: "Ultrasonic Sensor", icon: "📡", color: "bg-blue-50 text-blue-700 border-blue-200" },
-                { name: "L298N Motor Driver", icon: "⚙️", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-                { name: "IR Line Sensors", icon: "🔋", color: "bg-purple-50 text-purple-700 border-purple-200" },
+                { name: "Arduino Uno R3", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
+                { name: "Arduino IDE", color: "bg-teal-50 text-teal-700 border-teal-200" },
+                { name: "Tinkercad Circuits", color: "bg-amber-50 text-amber-700 border-amber-200" },
+                { name: "Ultrasonic Sensor", color: "bg-blue-50 text-blue-700 border-blue-200" },
+                { name: "L298N Motor Driver", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+                { name: "IR Line Sensors", color: "bg-purple-50 text-purple-700 border-purple-200" },
             ];
         }
         return [
-            { name: "Interactive IDE", icon: "💻", color: "bg-blue-50 text-blue-700 border-blue-200" },
-            { name: "Live Class Tools", icon: "🔴", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-            { name: "STEM Simulator", icon: "⚡", color: "bg-amber-50 text-amber-700 border-amber-200" },
+            { name: "Interactive IDE", color: "bg-blue-50 text-blue-700 border-blue-200" },
+            { name: "Live Class Tools", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+            { name: "STEM Simulator", color: "bg-amber-50 text-amber-700 border-amber-200" },
         ];
     }, [isPython, isRobotics]);
 
@@ -480,8 +540,8 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
     if (error && !course) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center">
-                <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-2xl font-bold">
-                    ⚠️
+                <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center font-bold">
+                    <AlertTriangle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">
                     {language === "en" ? "Course Not Found" : "কোর্সটি পাওয়া যায়নি"}
@@ -512,8 +572,8 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
     if (!isAvailable) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl">
-                    ⏳
+                <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <Clock className="w-8 h-8 text-amber-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">
                     {language === "en" ? "Course Under Review" : "কোর্সটি বর্তমানে পর্যালোচনায় রয়েছে"}
@@ -561,10 +621,20 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             {/* Badges row */}
                             <div className="flex flex-wrap items-center gap-2 mb-4">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-[#3B82F6] text-xs font-bold rounded-full border border-blue-100">
-                                    {isPython ? "💻 Programming & AI" : "🤖 Robotics & STEM"}
+                                    {isPython ? (
+                                        <>
+                                            <Code className="w-3.5 h-3.5" />
+                                            <span>Programming & AI</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Bot className="w-3.5 h-3.5" />
+                                            <span>Robotics & STEM</span>
+                                        </>
+                                    )}
                                 </span>
                                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-[#92620A] text-xs font-bold rounded-full border border-amber-200">
-                                    <FaStar className="text-[#F59E0B]" /> 4.9 (120+ {language === "en" ? "reviews" : "রিভিউ"})
+                                    <Star className="w-3.5 h-3.5 text-[#F59E0B] fill-[#F59E0B]" /> 4.9 (120+ {language === "en" ? "reviews" : "রিভিউ"})
                                 </span>
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -599,14 +669,15 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                         alt={displayTitle}
                                         className="absolute inset-0 w-full h-full object-cover"
                                         onError={(e) => {
-                                            const img = e.currentTarget;
+                                             const img = e.currentTarget;
                                             img.onerror = null;
                                             img.src = "/logo.png";
                                         }}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4 sm:p-6">
                                         <div className="flex items-center gap-2 text-white text-xs sm:text-sm font-semibold bg-black/40 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20">
-                                            <span>🔴 {language === "en" ? "Live Sessions with Screen Share & Mentoring" : "লাইভ ক্লাস • স্ক্রিন শেয়ার ও মেন্টরিং"}</span>
+                                            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                                            <span>{language === "en" ? "Live Sessions with Screen Share & Mentoring" : "লাইভ ক্লাস • স্ক্রিন শেয়ার ও মেন্টরিং"}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -643,8 +714,9 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                 <CardHeader className="flex items-center gap-3 p-6 pb-2">
                                     <FaTrophy className="text-3xl text-emerald-600" />
                                     <div>
-                                        <h3 className="font-black text-lg text-emerald-950">
-                                            {language === "en" ? "Congratulations! Course Completed 🎉" : "অভিনন্দন! কোর্স সফলভাবে সম্পন্ন হয়েছে 🎉"}
+                                        <h3 className="font-black text-lg text-emerald-950 flex items-center gap-1.5">
+                                            <span>{language === "en" ? "Congratulations! Course Completed" : "অভিনন্দন! কোর্স সফলভাবে সম্পন্ন হয়েছে"}</span>
+                                            <Sparkles className="w-5 h-5 text-emerald-600" />
                                         </h3>
                                         <p className="text-xs text-emerald-800">
                                             {language === "en" ? "Your verifiable certificate of completion is ready." : "আপনার অফিসিয়াল ভেরিফায়েড সার্টিফিকেট প্রস্তুত।"}
@@ -659,7 +731,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                         className="font-black text-white shadow-md"
                                         startContent={<FaDownload />}
                                         onPress={() => {
-                                            const certificateUrl = `/api/certificate/generate?courseId=${actualCourseId}&courseName=${encodeURIComponent(course.title)}`;
+                                             const certificateUrl = `/api/certificate/generate?courseId=${actualCourseId}&courseName=${encodeURIComponent(course.title)}`;
                                             window.open(certificateUrl, "_blank");
                                         }}
                                     >
@@ -689,7 +761,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     key="overview"
                                     title={
                                         <div className="flex items-center gap-2">
-                                            <span>📖</span>
+                                            <BookOpen className="w-4 h-4" />
                                             <span>{language === "en" ? "Course Overview" : "কোর্স বিবরণ"}</span>
                                         </div>
                                     }
@@ -698,7 +770,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     key="curriculum"
                                     title={
                                         <div className="flex items-center gap-2">
-                                            <span>📚</span>
+                                            <BookOpen className="w-4 h-4" />
                                             <span>{language === "en" ? "Curriculum & Modules" : "সিলেবাস ও পাঠ্যসূচি"}</span>
                                         </div>
                                     }
@@ -707,7 +779,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     key="instructor"
                                     title={
                                         <div className="flex items-center gap-2">
-                                            <span>👨‍🏫</span>
+                                            <Users className="w-4 h-4" />
                                             <span>
                                                 {instructorsList.length > 1
                                                     ? (language === "en" ? `Meet Mentors (${instructorsList.length})` : `ইন্সট্রাক্টরবৃন্দ (${instructorsList.length})`)
@@ -721,7 +793,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                         key="assessments"
                                         title={
                                             <div className="flex items-center gap-2">
-                                                <span>📝</span>
+                                                <FileText className="w-4 h-4" />
                                                 <span>{language === "en" ? "Assessments" : "অ্যাসাইনমেন্ট ও কুইজ"}</span>
                                             </div>
                                         }
@@ -736,7 +808,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* About Section */}
                                     <div>
                                         <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] mb-3 flex items-center gap-2">
-                                            <span>💡</span>
+                                            <Sparkles className="w-5 h-5 text-amber-500" />
                                             <span>{language === "en" ? "About This Course" : "কোর্সটি কেন বিশেষ?"}</span>
                                         </h3>
                                         <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
@@ -758,7 +830,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* What You Will Learn (6 Core Outcomes) */}
                                     <div>
                                         <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] mb-4 flex items-center gap-2">
-                                            <span>🎯</span>
+                                            <Target className="w-5 h-5 text-blue-600" />
                                             <span>{language === "en" ? "What You Will Learn" : "এই কোর্সে যা যা শিখবেন"}</span>
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -768,7 +840,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                     className="flex items-start gap-3 p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 hover:border-blue-200 transition-colors"
                                                 >
                                                     <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-xs">
-                                                        <FaCheck />
+                                                        <Check className="w-3.5 h-3.5" />
                                                     </div>
                                                     <p className="text-xs sm:text-sm font-semibold text-gray-800 leading-snug">
                                                         {outcome}
@@ -781,7 +853,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* Tools & Tech Stack */}
                                     <div>
                                         <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] mb-4 flex items-center gap-2">
-                                            <span>🛠️</span>
+                                            <Wrench className="w-5 h-5 text-indigo-600" />
                                             <span>{language === "en" ? "Tools & Technologies You'll Master" : "যেসব সফটওয়্যার ও টুলস শেখানো হবে"}</span>
                                         </h3>
                                         <div className="flex flex-wrap gap-2.5">
@@ -790,7 +862,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                     key={idx}
                                                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border ${tool.color}`}
                                                 >
-                                                    <span>{tool.icon}</span>
+                                                    <span>{renderToolIcon(tool.name)}</span>
                                                     <span>{tool.name}</span>
                                                 </div>
                                             ))}
@@ -800,7 +872,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* Who Is This Course For */}
                                     <div>
                                         <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] mb-4 flex items-center gap-2">
-                                            <span>👥</span>
+                                            <Users className="w-5 h-5 text-purple-600" />
                                             <span>{language === "en" ? "Who Is This Course For?" : "কোর্সটি কাদের জন্য উপযুক্ত?"}</span>
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -809,7 +881,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                     key={idx}
                                                     className="flex items-start gap-3 p-3.5 rounded-xl bg-blue-50/50 border border-blue-100/60"
                                                 >
-                                                    <span className="text-[#3B82F6] font-bold mt-0.5">✦</span>
+                                                    <Check className="w-4 h-4 text-[#3B82F6] flex-shrink-0 mt-0.5" />
                                                     <p className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
                                                         {item}
                                                     </p>
@@ -821,13 +893,13 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* Prerequisites */}
                                     <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200/80">
                                         <h4 className="text-base font-black text-[#92620A] mb-2 flex items-center gap-2">
-                                            <span>📋</span>
+                                            <FileText className="w-4 h-4 text-[#92620A]" />
                                             <span>{language === "en" ? "Prerequisites & Requirements" : "পূর্বপ্রস্তুতি ও প্রয়োজনীয় উপকরণ"}</span>
                                         </h4>
                                         <ul className="space-y-1.5 text-xs sm:text-sm text-gray-700">
                                             {prerequisites.map((req: string, idx: number) => (
                                                 <li key={idx} className="flex items-center gap-2 font-medium">
-                                                    <span className="text-amber-600 font-bold">✓</span>
+                                                    <Check className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
                                                     <span>{req}</span>
                                                 </li>
                                             ))}
@@ -837,13 +909,13 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {/* Kodland Differentiator Cards */}
                                     <div className="pt-4 border-t border-gray-100">
                                         <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] mb-4 flex items-center gap-2">
-                                            <span>⭐</span>
+                                            <Award className="w-5 h-5 text-[#3B82F6]" />
                                             <span>{language === "en" ? "The Learn & Grow Advantage" : "লার্ন অ্যান্ড গ্রোর বিশেষ সুবিধাসমূহ"}</span>
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                             <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 text-center">
                                                 <div className="w-10 h-10 rounded-full bg-blue-100 text-[#3B82F6] flex items-center justify-center mx-auto mb-2 text-lg">
-                                                    🔴
+                                                    <Video className="w-5 h-5 text-[#3B82F6]" />
                                                 </div>
                                                 <h5 className="font-black text-sm text-gray-900 mb-1">
                                                     {language === "en" ? "Live, Not Recorded" : "১০০% লাইভ ক্লাস"}
@@ -856,7 +928,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                             </div>
                                             <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 text-center">
                                                 <div className="w-10 h-10 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center mx-auto mb-2 text-lg">
-                                                    🤝
+                                                    <Users className="w-5 h-5 text-[#7C3AED]" />
                                                 </div>
                                                 <h5 className="font-black text-sm text-gray-900 mb-1">
                                                     {language === "en" ? "1-on-1 Mentorship" : "ব্যক্তিগত মেন্টরিং"}
@@ -869,7 +941,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                             </div>
                                             <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 text-center">
                                                 <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-2 text-lg">
-                                                    🏆
+                                                    <Award className="w-5 h-5 text-emerald-600" />
                                                 </div>
                                                 <h5 className="font-black text-sm text-gray-900 mb-1">
                                                     {language === "en" ? "Global Credential" : "ভেরিফায়েড সার্টিফিকেট"}
@@ -912,7 +984,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     {enrichedDetail && enrichedDetail[language]?.syllabus && (
                                         <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
                                             <h4 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                                                <span>🗺️</span>
+                                                <Calendar className="w-5 h-5 text-[#3B82F6]" />
                                                 <span>{language === "en" ? "Weekly Learning Milestones" : "সাপ্তাহিক শিখন মাইলফলক"}</span>
                                             </h4>
                                             <div className="space-y-3">
@@ -979,12 +1051,13 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                                 : "bg-purple-50 text-purple-700 border-purple-200"
                                                         }`}>
                                                             {index === 0 
-                                                                ? (language === "en" ? "★ Lead Instructor" : "★ প্রধান শিক্ষক")
-                                                                : (language === "en" ? "👥 Co-Instructor" : "👥 সহযোগী শিক্ষক")}
+                                                                ? (language === "en" ? "Lead Instructor" : "প্রধান শিক্ষক")
+                                                                : (language === "en" ? "Co-Instructor" : "সহযোগী শিক্ষক")}
                                                         </span>
                                                     )}
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-                                                        ✓ {language === "en" ? "Verified Mentor" : "ভেরিফায়েড শিক্ষক"}
+                                                        <Check className="w-3 h-3 text-emerald-600 inline mr-0.5" />
+                                                        {language === "en" ? "Verified Mentor" : "ভেরিফায়েড শিক্ষক"}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm font-bold text-[#3B82F6] mb-1">
@@ -1005,8 +1078,8 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                     onPress={() => openTrialModal({ program: `${displayTitle} (${inst.name})`, source: "instructor-tab" })}
                                                 >
                                                     {language === "en" 
-                                                        ? `🎯 Book Trial with ${inst.name.split(" ")[0]}` 
-                                                        : `🎯 ${inst.name}-এর সাথে ট্রায়াল বুক করুন`}
+                                                        ? `Book Trial with ${inst.name.split(" ")[0]}` 
+                                                        : `${inst.name}-এর সাথে ট্রায়াল বুক করুন`}
                                                 </Button>
                                             </div>
                                         </div>
@@ -1029,7 +1102,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             
                             {/* Top Batch Alert Ribbon */}
                             <div className="bg-gradient-to-r from-[#3B82F6] to-[#7C3AED] text-white py-2 px-3.5 rounded-xl text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm">
-                                <span>🔥</span>
+                                <Flame className="w-4 h-4 text-amber-300" />
                                 <span>{language === "en" ? "Live Cohort • Limited Seats" : "সীমিত আসন • পরবর্তী ব্যাচ শিগগিরই"}</span>
                             </div>
 
@@ -1109,31 +1182,31 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                 </p>
                                 <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "100% Live Interactive Classes (2x/week)" : "১০০% লাইভ ইন্টারঅ্যাক্টিভ ক্লাস (সপ্তাহে ২ দিন)"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "Batch Size (10-15 Students per Cohort)" : "ব্যাচ সাইজ (১০-১৫ জন শিক্ষার্থী)"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "1-on-1 Live Doubt Solving & Support" : "ক্লাসেই সরাসরি ১-অন-১ ডাউট সলভিং"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "5+ Hands-on Portfolio Projects" : "৫+ বাস্তব প্রজেক্ট পোর্টফোলিও"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "Verifiable STEM Completion Certificate" : "ভেরিফায়েড কোর্স সমাপন সার্টিফিকেট"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "Lifetime Access to Recordings & Notes" : "রেকর্ডিং ও রিসোর্সে লাইফটাইম অ্যাক্সেস"}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
-                                        <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                                         <span className="leading-snug">{language === "en" ? "Continuous Parent Progress Updates" : "অভিভাবকদের নিয়মিত অগ্রগতি রিপোর্ট"}</span>
                                     </li>
                                 </ul>
@@ -1159,9 +1232,9 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                         radius="full"
                                         className="w-full font-black text-white shadow-lg shadow-emerald-500/25 py-6 text-base"
                                         onPress={() => router.push(`/student/course/${actualCourseId}/dashboard`)}
-                                        startContent={<FaGraduationCap className="text-xl" />}
+                                        startContent={<GraduationCap className="w-5 h-5" />}
                                     >
-                                        {language === "en" ? "Start Learning Now" : "ক্লাস শুরু করুন 🎓"}
+                                        {language === "en" ? "Start Learning Now" : "ক্লাস শুরু করুন"}
                                     </Button>
                                 ) : isFree ? (
                                     <Button
@@ -1170,8 +1243,9 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                         radius="full"
                                         className="w-full font-black text-white shadow-lg py-6 text-base"
                                         onPress={handleEnrollClick}
+                                        startContent={<GraduationCap className="w-5 h-5" />}
                                     >
-                                        {language === "en" ? "Enroll for Free 🎓" : "ফ্রিতে এনরোল করুন 🎓"}
+                                        {language === "en" ? "Enroll for Free" : "ফ্রিতে এনরোল করুন"}
                                     </Button>
                                 ) : (
                                     <>
@@ -1191,7 +1265,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                             className="w-full font-extrabold text-[#3B82F6] border-2 border-[#3B82F6] hover:bg-blue-50 py-5 text-sm rounded-2xl transition-all"
                                             onPress={() => openTrialModal({ program: displayTitle, source: "course_sidebar" })}
                                         >
-                                            🎯 {language === "en" ? "Book Free Trial Class" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}
+                                            {language === "en" ? "Book Free Trial Class" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}
                                         </Button>
                                     </>
                                 )}
@@ -1202,15 +1276,15 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             {/* Trust Guarantees */}
                             <div className="space-y-2 pt-1 text-[11px] text-gray-500">
                                 <div className="flex items-center gap-2">
-                                    <FaShieldAlt className="text-emerald-500 text-sm flex-shrink-0" />
+                                    <Shield className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                     <span>{language === "en" ? "7-Day 100% Money-Back Guarantee" : "৭ দিনের ১০০% মানি-ব্যাক গ্যারান্টি"}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm">💳</span>
+                                    <CreditCard className="w-4 h-4 text-gray-500 flex-shrink-0" />
                                     <span>{language === "en" ? "bKash, Nagad, Rocket & Cards accepted" : "বিকাশ, নগদ, রকেট ও কার্ডে পেমেন্ট গ্রহণযোগ্য"}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm">🔒</span>
+                                    <Lock className="w-4 h-4 text-gray-500 flex-shrink-0" />
                                     <span>{language === "en" ? "256-Bit SSL Encrypted Safe Checkout" : "নিরাপদ ও এনক্রিপ্টেড পেমেন্ট গেটওয়ে"}</span>
                                 </div>
                             </div>

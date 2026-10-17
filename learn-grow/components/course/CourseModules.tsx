@@ -15,7 +15,8 @@ import {
     FaBook,
     FaExpand,
     FaDownload,
-    FaChevronDown
+    FaChevronDown,
+    FaTimes
 } from "react-icons/fa";
 
 interface LessonFromApi {
@@ -523,7 +524,7 @@ export default function CourseModules({ courseId, isEnrolled, modulesFromApi, ha
                                 style={{ touchAction: 'manipulation' }}
                                 aria-label="Close"
                             >
-                                ✕
+                                <FaTimes className="text-sm" />
                             </button>
                         </div>
 

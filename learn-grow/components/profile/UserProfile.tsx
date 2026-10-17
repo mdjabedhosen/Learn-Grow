@@ -30,6 +30,19 @@ import {
     useVerifyPasswordChangeOtpMutation,
     useUpdatePhoneNumberMutation
 } from "@/redux/api/userApi";
+import { 
+    GraduationCap, 
+    Users, 
+    Briefcase, 
+    Settings, 
+    Mail, 
+    FileText, 
+    Target, 
+    ShieldCheck, 
+    Lock, 
+    LogOut,
+    Phone
+} from "lucide-react";
 
 export default function UserProfile() {
     const router = useRouter();
@@ -314,10 +327,10 @@ export default function UserProfile() {
 
     // Badge colors based on role
     const roleConfig = {
-        student: { color: "primary" as const, icon: "🎓", label: "Student" },
-        guardian: { color: "success" as const, icon: "👨‍👩‍👧", label: "Guardian/Parent" },
-        instructor: { color: "secondary" as const, icon: "👨‍🏫", label: "Instructor" },
-        admin: { color: "danger" as const, icon: "⚙️", label: "Administrator" },
+        student: { color: "primary" as const, icon: <GraduationCap className="w-3.5 h-3.5" />, label: "Student" },
+        guardian: { color: "success" as const, icon: <Users className="w-3.5 h-3.5" />, label: "Guardian/Parent" },
+        instructor: { color: "secondary" as const, icon: <Briefcase className="w-3.5 h-3.5" />, label: "Instructor" },
+        admin: { color: "danger" as const, icon: <Settings className="w-3.5 h-3.5" />, label: "Administrator" },
     };
 
     const config = roleConfig[userRole as keyof typeof roleConfig] || roleConfig.student;
@@ -356,8 +369,8 @@ export default function UserProfile() {
                     <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
                         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-2">
                             <h1 className="text-xl sm:text-2xl font-bold truncate max-w-full">{formData.name || "User"}</h1>
-                            <Chip color={config.color} variant="flat" size="sm" className="text-xs">
-                                {config.icon} {config.label}
+                            <Chip color={config.color} variant="flat" size="sm" className="text-xs inline-flex items-center gap-1" startContent={config.icon}>
+                                {config.label}
                             </Chip>
                         </div>
 
@@ -433,7 +446,8 @@ export default function UserProfile() {
                     {/* Contact Information */}
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                            📧 Contact Information
+                            <Mail className="w-4 h-4 text-blue-600" />
+                            <span>Contact Information</span>
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <Input
@@ -471,7 +485,8 @@ export default function UserProfile() {
                     {/* Bio Section */}
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                            📝 About You
+                            <FileText className="w-4 h-4 text-indigo-600" />
+                            <span>About You</span>
                         </h2>
                         <Textarea
                             label="Bio"
@@ -491,7 +506,8 @@ export default function UserProfile() {
                             <Divider />
                             <div>
                                 <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                                    🎯 Professional Information
+                                    <Target className="w-4 h-4 text-purple-600" />
+                                    <span>Professional Information</span>
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <Input
@@ -541,7 +557,10 @@ export default function UserProfile() {
                         <>
                             <Divider />
                             <div className="bg-red-50 border-l-4 border-red-500 p-4 sm:p-6 rounded">
-                                <h3 className="font-semibold text-red-800 text-base sm:text-lg">🔐 Administrator Account</h3>
+                                <h3 className="font-semibold text-red-800 text-base sm:text-lg flex items-center gap-2">
+                                    <ShieldCheck className="w-5 h-5 text-red-600" />
+                                    <span>Administrator Account</span>
+                                </h3>
                                 <p className="text-xs sm:text-sm text-red-700 mt-2">
                                     You have full access to the admin control panel. Use it responsibly.
                                 </p>
@@ -563,7 +582,8 @@ export default function UserProfile() {
                     {/* Security Settings */}
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                            🔐 Security Settings
+                            <Lock className="w-4 h-4 text-amber-600" />
+                            <span>Security Settings</span>
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <Button
@@ -594,7 +614,8 @@ export default function UserProfile() {
                     {/* Logout Section */}
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
-                            🚪 Session
+                            <LogOut className="w-4 h-4 text-rose-600" />
+                            <span>Session</span>
                         </h2>
                         <Button
                             color="danger"
@@ -637,8 +658,18 @@ export default function UserProfile() {
                                             We'll send an OTP to your {user?.email ? "email" : "phone"} to verify it's you.
                                         </p>
                                         <div className="bg-blue-50 p-3 rounded-lg">
-                                            <p className="text-sm font-semibold text-blue-800">
-                                                {user?.email ? `📧 ${user.email}` : `📱 ${user?.phone}`}
+                                            <p className="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                                                {user?.email ? (
+                                                    <>
+                                                        <Mail className="w-4 h-4 text-blue-600" />
+                                                        <span>{user.email}</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Phone className="w-4 h-4 text-blue-600" />
+                                                        <span>{user?.phone}</span>
+                                                    </>
+                                                )}
                                             </p>
                                         </div>
                                     </div>

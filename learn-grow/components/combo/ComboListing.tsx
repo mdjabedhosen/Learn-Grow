@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useGetActiveCombosQuery } from "@/redux/api/comboApi";
 import { getDurationLabel } from "@/lib/access-control";
 import { ICombo } from "@/types/combo.types";
+import { BookOpen } from "lucide-react";
 
 export default function ComboListing() {
   const [page, setPage] = useState(1);
@@ -105,7 +106,7 @@ export default function ComboListing() {
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-slate-100 via-slate-200 to-slate-100 flex items-center justify-center">
-                      <span className="text-3xl">📚</span>
+                      <BookOpen className="w-8 h-8 text-slate-400" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
@@ -144,7 +145,8 @@ export default function ComboListing() {
                       ? "bg-green-100 text-green-700"
                       : "bg-blue-100 text-blue-700"
                   }`}>
-                    {combo.duration === "lifetime" ? "🟢 Lifetime Access" : `🔵 ${getDurationLabel(combo.duration)} Access`}
+                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${combo.duration === "lifetime" ? "bg-emerald-500" : "bg-blue-500"}`} />
+                    {combo.duration === "lifetime" ? "Lifetime Access" : `${getDurationLabel(combo.duration)} Access`}
                   </span>
                 </div>
 

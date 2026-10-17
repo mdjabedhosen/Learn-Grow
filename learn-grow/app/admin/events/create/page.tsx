@@ -155,13 +155,13 @@ export default function CreateEventPage() {
                   trigger: "border-2 border-gray-200 hover:border-indigo-400 focus:border-indigo-500 transition-all duration-300",
                 }}
               >
-                <SelectItem key="Workshop">🛠️ Workshop</SelectItem>
-                <SelectItem key="Seminar">📚 Seminar</SelectItem>
-                <SelectItem key="Webinar">💻 Webinar</SelectItem>
-                <SelectItem key="Conference">🎤 Conference</SelectItem>
-                <SelectItem key="Competition">🏆 Competition</SelectItem>
-                <SelectItem key="Meetup">🤝 Meetup</SelectItem>
-                <SelectItem key="Other">📅 Other</SelectItem>
+                <SelectItem key="Workshop">Workshop</SelectItem>
+                <SelectItem key="Seminar">Seminar</SelectItem>
+                <SelectItem key="Webinar">Webinar</SelectItem>
+                <SelectItem key="Conference">Conference</SelectItem>
+                <SelectItem key="Competition">Competition</SelectItem>
+                <SelectItem key="Meetup">Meetup</SelectItem>
+                <SelectItem key="Other">Other</SelectItem>
               </Select>
 
               <Textarea
@@ -360,8 +360,8 @@ export default function CreateEventPage() {
                   trigger: "border-2 border-gray-200 hover:border-indigo-400 focus:border-indigo-500 transition-all duration-300",
                 }}
               >
-                <SelectItem key="Online">💻 Online</SelectItem>
-                <SelectItem key="Offline">🏢 Offline</SelectItem>
+                <SelectItem key="Online">Online</SelectItem>
+                <SelectItem key="Offline">Offline</SelectItem>
               </Select>
 
               {formData.mode === "Offline" ? (
@@ -423,10 +423,10 @@ export default function CreateEventPage() {
                     trigger: "border-2 border-gray-200 hover:border-indigo-400 focus:border-indigo-500 transition-all duration-300",
                   }}
                 >
-                  <SelectItem key="Zoom">📹 Zoom</SelectItem>
-                  <SelectItem key="Google Meet">🎥 Google Meet</SelectItem>
-                  <SelectItem key="Microsoft Teams">💼 Microsoft Teams</SelectItem>
-                  <SelectItem key="Custom">🎬 Custom</SelectItem>
+                  <SelectItem key="Zoom">Zoom</SelectItem>
+                  <SelectItem key="Google Meet">Google Meet</SelectItem>
+                  <SelectItem key="Microsoft Teams">Microsoft Teams</SelectItem>
+                  <SelectItem key="Custom">Custom</SelectItem>
                 </Select>
               )}
             </div>

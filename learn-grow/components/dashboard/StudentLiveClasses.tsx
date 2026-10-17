@@ -13,7 +13,8 @@ import {
     Sparkles, 
     MessageCircle, 
     CheckCircle2, 
-    BookOpen 
+    BookOpen,
+    GraduationCap
 } from "lucide-react";
 import { useGetUpcomingClassesQuery } from "@/redux/api/liveClassApi";
 import { useGetMyOrdersQuery } from "@/redux/api/orderApi";
@@ -251,8 +252,9 @@ export default function StudentLiveClasses() {
                             <Radio className="w-7 h-7 text-blue-600 animate-pulse" />
                         </div>
                         
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full mb-3">
-                            {isBn ? "📅 সাপ্তাহিক লাইভ ক্লাস সময়সূচী" : "📅 Weekly Live Batch Schedule"}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full mb-3">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{isBn ? "সাপ্তাহিক লাইভ ক্লাস সময়সূচী" : "Weekly Live Batch Schedule"}</span>
                         </span>
 
                         <h4 className="text-base sm:text-lg font-bold text-[#2C2C2C] mb-2">
@@ -313,8 +315,9 @@ export default function StudentLiveClasses() {
                                                         {cls.platform || "Google Meet"}
                                                     </span>
                                                     <span className="text-xs text-slate-400">•</span>
-                                                    <span className="text-xs text-slate-500 font-medium truncate">
-                                                        👨‍🏫 {instructorName}
+                                                    <span className="text-xs text-slate-500 font-medium truncate inline-flex items-center gap-1">
+                                                        <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                                                        {instructorName}
                                                     </span>
                                                 </div>
                                                 <h4 className="font-bold text-sm text-[#2C2C2C] group-hover:text-blue-600 transition-colors line-clamp-1">

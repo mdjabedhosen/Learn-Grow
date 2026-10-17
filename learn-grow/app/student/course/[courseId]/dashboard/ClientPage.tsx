@@ -733,8 +733,9 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                             {batchData && (
                                 <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2.5">
                                     <div className="flex items-center gap-2 text-xs">
-                                        <span className="font-bold text-blue-900">
-                                            📅 {batchData.schedule || "Regular Class Schedule"}
+                                        <span className="font-bold text-blue-900 inline-flex items-center gap-1.5">
+                                            <FaCalendar className="text-blue-600 text-xs" />
+                                            {batchData.schedule || "Regular Class Schedule"}
                                         </span>
                                     </div>
 
@@ -773,7 +774,7 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                                     size="sm"
                                     className="font-semibold"
                                 >
-                                    {isCompleted ? "✓ Completed" : "In Progress"}
+                                    {isCompleted ? "Completed" : "In Progress"}
                                 </Chip>
                                 <Divider orientation="vertical" className="h-4 hidden sm:block" />
                                 <span className="text-xs sm:text-sm text-gray-600 font-medium">
@@ -917,7 +918,7 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                                 <FaAward className="text-4xl md:text-6xl text-green-600" />
                             </div>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-700 via-emerald-600 to-teal-600 mb-3">
-                                🎉 Congratulations!
+                                Congratulations!
                             </h2>
                             <p className="text-base sm:text-lg md:text-xl text-green-800 font-semibold mb-2">
                                 You've Successfully Completed This Course
@@ -962,7 +963,7 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                                     <FaAward className="text-3xl md:text-5xl text-amber-600" />
                                 </div>
                                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-yellow-600 to-orange-600 mb-2">
-                                    🏆 Your Certificate is Ready!
+                                    Your Certificate is Ready!
                                 </h2>
                                 <p className="text-sm md:text-base text-amber-800 font-semibold mb-1">
                                     Download and share your achievement
@@ -1141,7 +1142,7 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                         ) : (
                             <div className="text-center py-8 text-gray-500">
                                 <FaCheckCircle className="text-5xl mx-auto mb-3 text-green-500" />
-                                <p className="text-lg">All lessons completed! Great job! 🎉</p>
+                                <p className="text-lg font-bold text-emerald-700">All lessons completed! Great job!</p>
                             </div>
                         )}
                     </CardBody>

@@ -3,6 +3,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader, Spinner, Alert, Button, Badge, Divider, Image } from "@nextui-org/react";
 import { useGetComboByIdQuery } from "@/redux/api/comboApi";
 import Link from "next/link";
+import { Check } from "lucide-react";
 
 interface ComboCheckoutProps {
   onCheckout?: (comboId: string, comboData: any) => void;
@@ -98,7 +99,9 @@ export default function ComboCheckoutSummary() {
                     <p className="text-xs text-default-500">{course.level}</p>
                   )}
                 </div>
-                <Badge>✓</Badge>
+                <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
               </div>
             ))}
           </div>

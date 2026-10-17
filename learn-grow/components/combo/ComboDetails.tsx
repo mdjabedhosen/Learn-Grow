@@ -19,6 +19,21 @@ import {
   HiArrowRight,
   HiOutlineCheckCircle,
 } from "react-icons/hi2";
+import {
+  Cpu,
+  Radio,
+  RotateCw,
+  Grid,
+  Layers,
+  Wind,
+  Lightbulb,
+  Bell,
+  BatteryCharging,
+  Cable,
+  AlertTriangle,
+  Package,
+  Flame,
+} from "lucide-react";
 import { useGetComboByIdQuery, useGetUserComboPurchasesQuery } from "@/redux/api/comboApi";
 import { IComboOrder } from "@/types/combo.types";
 
@@ -74,8 +89,8 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
   if (!safeComboId || !combo) {
     return (
       <div className="text-center py-20 max-w-md mx-auto">
-        <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-3xl mx-auto mb-4">
-          ⚠️
+        <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+          <AlertTriangle className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           {language === "en" ? "Bundle Not Found" : "বান্ডেলটি খুঁজে পাওয়া যায়নি"}
@@ -132,16 +147,16 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
 
   // Hardware kit inventory
   const kitItems = [
-    { name: "Arduino UNO R3 Microcontroller Board", qty: "1 Pc", icon: "⚡" },
-    { name: "Ultrasonic Distance Sensor (HC-SR04)", qty: "1 Pc", icon: "📡" },
-    { name: "Micro Servo Motor (SG90)", qty: "1 Pc", icon: "🔄" },
-    { name: "400-Point Solderless Breadboard", qty: "1 Pc", icon: "🔌" },
-    { name: "65-Piece Multi-Color Jumper Wires", qty: "1 Set", icon: "🌈" },
-    { name: "5V DC Toy Motor with Fan Blade", qty: "1 Pc", icon: "💨" },
-    { name: "High-Brightness LEDs & Resistors Set", qty: "15 Pcs", icon: "💡" },
-    { name: "Piezo Buzzer & Push Tactile Buttons", qty: "4 Pcs", icon: "🔔" },
-    { name: "9V Battery Snap Connector with DC Jack", qty: "1 Pc", icon: "🔋" },
-    { name: "High-Speed USB Programming Cable", qty: "1 Pc", icon: "💻" },
+    { name: "Arduino UNO R3 Microcontroller Board", qty: "1 Pc", icon: <Cpu className="w-4 h-4 text-cyan-600" /> },
+    { name: "Ultrasonic Distance Sensor (HC-SR04)", qty: "1 Pc", icon: <Radio className="w-4 h-4 text-blue-600" /> },
+    { name: "Micro Servo Motor (SG90)", qty: "1 Pc", icon: <RotateCw className="w-4 h-4 text-purple-600" /> },
+    { name: "400-Point Solderless Breadboard", qty: "1 Pc", icon: <Grid className="w-4 h-4 text-amber-600" /> },
+    { name: "65-Piece Multi-Color Jumper Wires", qty: "1 Set", icon: <Layers className="w-4 h-4 text-emerald-600" /> },
+    { name: "5V DC Toy Motor with Fan Blade", qty: "1 Pc", icon: <Wind className="w-4 h-4 text-teal-600" /> },
+    { name: "High-Brightness LEDs & Resistors Set", qty: "15 Pcs", icon: <Lightbulb className="w-4 h-4 text-amber-500" /> },
+    { name: "Piezo Buzzer & Push Tactile Buttons", qty: "4 Pcs", icon: <Bell className="w-4 h-4 text-rose-500" /> },
+    { name: "9V Battery Snap Connector with DC Jack", qty: "1 Pc", icon: <BatteryCharging className="w-4 h-4 text-green-600" /> },
+    { name: "High-Speed USB Programming Cable", qty: "1 Pc", icon: <Cable className="w-4 h-4 text-indigo-600" /> },
   ];
 
   const resolveBannerImage = (imgUrl?: string, title?: string): string => {
@@ -192,8 +207,8 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
         <Alert color="success" className="mb-8 rounded-2xl border border-green-200">
           <p className="font-bold">
             {language === "en"
-              ? "🎉 You already own this bundle! Head to your dashboard to access your classes."
-              : "🎉 আপনি ইতিমধ্যেই এই বান্ডেলটি কিনেছেন! ক্লাসে অংশ নিতে ড্যাশবোর্ডে যান।"}
+              ? "You already own this bundle! Head to your dashboard to access your classes."
+              : "আপনি ইতিমধ্যেই এই বান্ডেলটি কিনেছেন! ক্লাসে অংশ নিতে ড্যাশবোর্ডে যান।"}
           </p>
         </Alert>
       )}
@@ -355,7 +370,7 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
                       language === "bn" ? "font-siliguri" : ""
                     }`}
                   >
-                    {language === "en" ? "Included Robotics Hardware Kit" : "🎁 রোবটিক্স কিটে যা যা থাকছে"}
+                    {language === "en" ? "Included Robotics Hardware Kit" : "রোবটিক্স কিটে যা যা থাকছে"}
                   </h2>
                   <p className="text-xs text-gray-500">
                     {language === "en"
@@ -379,7 +394,7 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
                   className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-100 shadow-sm"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg">{item.icon}</span>
+                    <span className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">{item.icon}</span>
                     <span className="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-1">
                       {item.name}
                     </span>
@@ -392,7 +407,7 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
             </div>
 
             <div className="p-4 rounded-2xl bg-amber-100/60 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-center gap-3">
-              <span className="text-2xl">📦</span>
+              <Package className="w-6 h-6 text-amber-700 flex-shrink-0" />
               <p className="leading-relaxed">
                 {language === "en"
                   ? "Orders are dispatched within 24-48 hours via premium courier. You will receive an SMS tracking code."
@@ -509,7 +524,7 @@ export default function ComboDetails({ comboId }: ComboDetailsProps) {
               </div>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-xs font-black text-[#B45309] bg-[#FFF8E1] px-2.5 py-1 rounded-md border border-[#FFE082]">
-                  {language === "en" ? `Save ৳${savings.toLocaleString()}` : `🔥 ৳${savings.toLocaleString()} সাশ্রয়!`}
+                  {language === "en" ? `Save ৳${savings.toLocaleString()}` : `৳${savings.toLocaleString()} সাশ্রয়!`}
                 </span>
                 <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
                   {language === "en" ? "One-time payment" : "এককালীন পরিশোধ"}

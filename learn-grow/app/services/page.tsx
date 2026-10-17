@@ -3,6 +3,7 @@
 import React from "react";
 import { Card, CardBody, CardHeader, Button, Chip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { BookOpen, Video, Laptop, Bot, GraduationCap, Building2, Check } from "lucide-react";
 
 export default function ServicesPage() {
     const router = useRouter();
@@ -11,44 +12,44 @@ export default function ServicesPage() {
         {
             title: "Online Courses",
             description: "Self-paced courses with video lectures, quizzes, and certificates.",
-            icon: "📚",
+            icon: BookOpen,
             features: ["100+ Courses", "Expert Instructors", "Lifetime Access", "Certificates"],
-            color: "bg-blue-500"
+            color: "bg-blue-600"
         },
         {
             title: "Live Classes",
             description: "Interactive live sessions with instructors and real-time Q&A.",
-            icon: "🎥",
+            icon: Video,
             features: ["Interactive Learning", "Small Groups", "Recorded Sessions", "Direct Support"],
-            color: "bg-purple-500"
+            color: "bg-purple-600"
         },
         {
             title: "Coding Bootcamps",
             description: "Intensive programs to master in-demand tech skills quickly.",
-            icon: "💻",
+            icon: Laptop,
             features: ["Job-Ready Skills", "Portfolio Projects", "Career Support", "Industry Mentors"],
-            color: "bg-green-500"
+            color: "bg-emerald-600"
         },
         {
             title: "Robotics Workshops",
             description: "Hands-on workshops to build and program real robots.",
-            icon: "🤖",
+            icon: Bot,
             features: ["Arduino & Raspberry Pi", "Real Hardware", "Team Projects", "Competition Prep"],
-            color: "bg-orange-500"
+            color: "bg-amber-600"
         },
         {
             title: "One-on-One Tutoring",
             description: "Personalized learning sessions tailored to your pace and goals.",
-            icon: "👨‍🏫",
+            icon: GraduationCap,
             features: ["Custom Curriculum", "Flexible Schedule", "Progress Tracking", "Dedicated Mentor"],
-            color: "bg-pink-500"
+            color: "bg-indigo-600"
         },
         {
             title: "Corporate Training",
             description: "Upskill your teams with customized training programs.",
-            icon: "🏢",
+            icon: Building2,
             features: ["Custom Content", "Group Discounts", "Progress Reports", "Flexible Delivery"],
-            color: "bg-teal-500"
+            color: "bg-cyan-600"
         },
     ];
 
@@ -75,35 +76,38 @@ export default function ServicesPage() {
             {/* Services Grid */}
             <div className="container mx-auto max-w-7xl px-6 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {services.map((service, index) => (
-                        <Card key={index} className="shadow-lg hover:-translate-y-2 transition-transform duration-300">
-                            <CardHeader className="flex-col items-start p-6 pb-0">
-                                <div className={`${service.color} w-16 h-16 rounded-2xl flex items-center justify-center text-4xl mb-4`}>
-                                    {service.icon}
-                                </div>
-                                <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
-                                <p className="text-gray-600">{service.description}</p>
-                            </CardHeader>
-                            <CardBody className="pt-4">
-                                <ul className="space-y-2 mb-6">
-                                    {service.features.map((feature, idx) => (
-                                        <li key={idx} className="flex items-center text-sm">
-                                            <span className="text-green-500 mr-2">✓</span>
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Button
-                                    color="primary"
-                                    variant="flat"
-                                    className="w-full"
-                                    onPress={() => router.push("/contact")}
-                                >
-                                    Learn More
-                                </Button>
-                            </CardBody>
-                        </Card>
-                    ))}
+                    {services.map((service, index) => {
+                        const IconComponent = service.icon;
+                        return (
+                            <Card key={index} className="shadow-lg hover:-translate-y-2 transition-transform duration-300 rounded-[28px] border border-gray-100">
+                                <CardHeader className="flex-col items-start p-6 pb-0">
+                                    <div className={`${service.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-4 shadow-md`}>
+                                        <IconComponent className="w-8 h-8 text-white" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-2 text-[#2C2C2C]">{service.title}</h3>
+                                    <p className="text-gray-600">{service.description}</p>
+                                </CardHeader>
+                                <CardBody className="pt-4 p-6">
+                                    <ul className="space-y-2.5 mb-6">
+                                        {service.features.map((feature, idx) => (
+                                            <li key={idx} className="flex items-center text-sm font-medium text-gray-700">
+                                                <Check className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0" />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <Button
+                                        color="primary"
+                                        variant="flat"
+                                        className="w-full font-bold rounded-full"
+                                        onPress={() => router.push("/contact")}
+                                    >
+                                        Learn More
+                                    </Button>
+                                </CardBody>
+                            </Card>
+                        );
+                    })}
                 </div>
 
                 {/* CTA Section */}

@@ -408,7 +408,7 @@ function InstructorStudentDetailContent() {
                           </div>
                           {order.deliveryAddress && (
                             <p className="text-xs text-gray-500 mt-1">
-                              📦 Delivery: {order.deliveryAddress.city}
+                              Delivery: {order.deliveryAddress.city}
                             </p>
                           )}
                         </div>

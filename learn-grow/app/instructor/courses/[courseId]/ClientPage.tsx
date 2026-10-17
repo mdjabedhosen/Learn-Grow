@@ -52,6 +52,7 @@ import {
     FaLayerGroup,
     FaExternalLinkAlt,
     FaCrown,
+    FaSyncAlt,
 } from "react-icons/fa";
 import {
     useGetCourseByIdQuery,
@@ -549,7 +550,7 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
 
                             {courseData?.level && (
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-200 border border-purple-500/30">
-                                    🎯 {courseData.level}
+                                    {courseData.level}
                                 </span>
                             )}
                         </div>
@@ -652,14 +653,14 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
                 <Card className="mb-6 border border-warning-200 bg-warning-50/60 rounded-2xl shadow-xs">
                     <CardBody className="p-5">
                         <div className="flex items-start gap-4">
-                            <div className="text-warning text-2xl">⚠️</div>
+                            <div className="text-warning text-2xl font-bold">!</div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-base mb-1 text-warning-800">Pending Admin Approval</h3>
                                 <p className="text-xs sm:text-sm text-slate-700 mb-2">
                                     Your course is currently under review by our admin team. Once approved, it will be visible to students on the public course directory.
                                 </p>
                                 <p className="text-xs text-slate-500">
-                                    💡 <strong>Tip:</strong> You can continue to add modules, lessons, and assignments while waiting for approval.
+                                    <strong>Tip:</strong> You can continue to add modules, lessons, and assignments while waiting for approval.
                                 </p>
                             </div>
                         </div>
@@ -937,7 +938,7 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
                                     onPress={() => refetchCourse()}
                                     title="Refresh curriculum"
                                 >
-                                    🔄
+                                    <FaSyncAlt className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     color="primary"
@@ -1668,7 +1669,7 @@ function EnrolledStudentsList({ courseId }: { courseId: string }) {
                                         <p className="font-semibold text-lg">{student.name}</p>
                                         <p className="text-sm text-gray-500">{student.email}</p>
                                         {student.phone && (
-                                            <p className="text-sm text-gray-400">📱 {student.phone}</p>
+                                            <p className="text-sm text-gray-400">{student.phone}</p>
                                         )}
                                     </div>
                                 </div>

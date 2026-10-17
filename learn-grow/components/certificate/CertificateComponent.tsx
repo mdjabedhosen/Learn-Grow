@@ -106,10 +106,10 @@ export default function CertificateComponent({ certificate }: CertificateProps) 
         .toLowerCase()}.pdf`;
 
       pdf.save(fileName);
-      toast.success("✅ Certificate downloaded successfully!");
+      toast.success("Certificate downloaded successfully!");
 
     } catch (error) {
-      toast.error("❌ Failed to download. Please try again.");
+      toast.error("Failed to download. Please try again.");
     } finally {
       setDownloading(false);
     }

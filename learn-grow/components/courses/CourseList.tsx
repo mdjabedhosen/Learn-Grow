@@ -23,6 +23,7 @@ import {
   FaCheck,
   FaArrowRight,
 } from "react-icons/fa";
+import { Sparkles, Code, Bot, Search as SearchIcon } from "lucide-react";
 
 // Skeleton Loader Component
 const CourseCardSkeleton = () => (
@@ -125,7 +126,7 @@ export default function CourseList() {
         duration: "10 Weeks",
         price: course.price || 2999,
         regularPrice: 4999,
-        badge: "💻 Programming & AI",
+        badge: "Programming & AI",
         features: language === "bn" 
           ? ["১০০% লাইভ ক্লাস (সপ্তাহে ২ দিন)", "৫+ বাস্তব প্রজেক্ট পোর্টফোলিও", "ভেরিফায়েড কোর্স সমাপন সনদ"]
           : ["100% Live Classes (2x/week)", "5+ Real-world Projects", "Verified Completion Certificate"]
@@ -142,7 +143,7 @@ export default function CourseList() {
         duration: "8 Weeks",
         price: course.price || 3499,
         regularPrice: 5499,
-        badge: "🤖 Robotics & STEM",
+        badge: "Robotics & STEM",
         features: language === "bn" 
           ? ["১০০% লাইভ ক্লাস ও হার্ডওয়্যার গাইড", "অবস্ট্যাকল ও লাইন-ফলোয়ার রোবট", "ভেরিফায়েড কোর্স সমাপন সনদ"]
           : ["100% Live Sessions & Hardware Kit", "Build 2 Autonomous Robots", "Verified Completion Certificate"]
@@ -213,33 +214,36 @@ export default function CourseList() {
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => { setSelectedFilter("all"); setPage(1); }}
-            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
               selectedFilter === "all"
                 ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
                 : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
             }`}
           >
-            {language === "en" ? "✨ All Courses" : "✨ সকল প্রোগ্রাম"}
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{language === "en" ? "All Courses" : "সকল প্রোগ্রাম"}</span>
           </button>
           <button
             onClick={() => { setSelectedFilter("python"); setPage(1); }}
-            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
               selectedFilter === "python"
                 ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
                 : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
             }`}
           >
-            🐍 {language === "en" ? "Python & AI Programming" : "পাইথন ও এআই কোডিং"}
+            <Code className="w-3.5 h-3.5" />
+            <span>{language === "en" ? "Python & AI Programming" : "পাইথন ও এআই কোডিং"}</span>
           </button>
           <button
             onClick={() => { setSelectedFilter("robotics"); setPage(1); }}
-            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
               selectedFilter === "robotics"
                 ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
                 : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
             }`}
           >
-            🤖 {language === "en" ? "Junior Robotics & Arduino" : "জুনিয়র রোবটিক্স"}
+            <Bot className="w-3.5 h-3.5" />
+            <span>{language === "en" ? "Junior Robotics & Arduino" : "জুনিয়র রোবটিক্স"}</span>
           </button>
         </div>
 
@@ -281,7 +285,9 @@ export default function CourseList() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {courses.length === 0 ? (
           <div className="col-span-full bg-white rounded-[28px] border border-gray-100 text-center py-16 px-4">
-            <div className="text-6xl mb-4">🔍</div>
+            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4 text-slate-400">
+              <SearchIcon className="w-8 h-8" />
+            </div>
             <h3 className="text-xl font-black text-gray-800 mb-2">
               {language === "en" ? "No courses found" : "কোনো কোর্স পাওয়া যায়নি"}
             </h3>

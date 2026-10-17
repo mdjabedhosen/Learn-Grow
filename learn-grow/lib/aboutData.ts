@@ -14,7 +14,7 @@ export const defaultAboutData = {
             labelBn: "হাতে-কলমে শিক্ষার্থী",
             descEn: "Trained across nationwide STEM workshops and live cohorts",
             descBn: "সরাসরি ওয়ার্কশপ ও অনলাইন লাইভ ব্যাচে অংশগ্রহণকারী",
-            icon: "🎓"
+            icon: "GraduationCap"
         },
         {
             value: "50+",
@@ -22,7 +22,7 @@ export const defaultAboutData = {
             labelBn: "রোবোটিক্স কিট ও প্রজেক্ট",
             descEn: "Custom-engineered Arduino and IoT kits delivered to homes",
             descBn: "শিশুদের উপযোগী কাস্টম হার্ডওয়্যার কিট ও পার্টস",
-            icon: "🤖"
+            icon: "Bot"
         },
         {
             value: "15:1",
@@ -30,7 +30,7 @@ export const defaultAboutData = {
             labelBn: "ক্ষুদ্র ব্যাচে নিবিড় যত্ন",
             descEn: "Personal attention, live code debugging, and instant mentor feedback",
             descBn: "প্রতিটি শিশুর ব্যক্তিগত ডাউট ক্লিয়ারিং ও মেন্টর গাইডেন্স",
-            icon: "👥"
+            icon: "Users"
         },
         {
             value: "98%",
@@ -38,7 +38,7 @@ export const defaultAboutData = {
             labelBn: "অভিভাবকদের আস্থা",
             descEn: "Consistently rated 5 stars for student engagement and safety",
             descBn: "শিশুদের স্ক্রিন টাইমকে সৃষ্টিশীল ক্ষমতায় রূপান্তরের রেটিং",
-            icon: "⭐"
+            icon: "Star"
         }
     ],
     story: {
@@ -74,7 +74,7 @@ export const defaultAboutData = {
     },
     pillars: [
         {
-            icon: "🤖",
+            icon: "Bot",
             titleEn: "Hands-on Robotics & Arduino",
             titleBn: "হ্যান্ডস-অন রোবটিক্স ও আর্দুইনো",
             descEn: "Building real obstacle-avoiding cars, smart irrigation systems, and Bluetooth-controlled rovers from scratch.",
@@ -82,7 +82,7 @@ export const defaultAboutData = {
             color: "blue"
         },
         {
-            icon: "🐍",
+            icon: "Code",
             titleEn: "Python Programming & AI",
             titleBn: "পাইথন কোডিং ও আর্টিফিশিয়াল ইন্টেলিজেন্স",
             descEn: "Teaching core algorithmic logic, math simulations, automated mini-bots, and foundations of machine learning.",
@@ -90,7 +90,7 @@ export const defaultAboutData = {
             color: "purple"
         },
         {
-            icon: "🎮",
+            icon: "Gamepad2",
             titleEn: "Scratch & Game Development",
             titleBn: "স্ক্র্যাচ ও ক্রিয়েটিভ গেম ডিজাইন",
             descEn: "Visual block-based logic for ages 6–11. Designing animated stories, physics puzzles, and arcade games.",
@@ -98,7 +98,7 @@ export const defaultAboutData = {
             color: "amber"
         },
         {
-            icon: "🚀",
+            icon: "Rocket",
             titleEn: "Problem-Solving & Tech Leadership",
             titleBn: "সমস্যা সমাধান ও ভবিষ্যৎ নেতৃত্ব",
             descEn: "Nurturing resilience, systematic debugging mindset, collaborative teamwork, and presentation confidence.",
@@ -108,28 +108,28 @@ export const defaultAboutData = {
     ],
     whyChooseUs: [
         {
-            icon: "👨‍🏫",
+            icon: "GraduationCap",
             titleEn: "Top-Tier Certified Mentors",
             titleBn: "শীর্ষ বিশ্ববিদ্যালয়ের দক্ষ মেন্টর",
             descEn: "Mentors from DIU, DU, CRP & leading tech institutes trained specifically in child pedagogy.",
             descBn: "ডিআইইউ, ঢাকা বিশ্ববিদ্যালয় ও সিআরপি-র মতো সেরা প্রতিষ্ঠানের দক্ষ প্রকৌশলী ও প্রশিক্ষকবৃন্দ।"
         },
         {
-            icon: "📦",
+            icon: "Package",
             titleEn: "No Hardware Hunting Hassle",
             titleBn: "হার্ডওয়্যার কিট খোঁজার কোনো ঝামেলা নেই",
             descEn: "We ship all authentic microcontrollers, sensors, and cables directly. Parents never need to run around market stalls.",
             descBn: "দোকানে দোকানে ঘুরে পার্টস কেনার ঝামেলা ছাড়াই সম্পূর্ণ প্রি-টেস্টেড কিট চলে আসে বাসায়।"
         },
         {
-            icon: "🏆",
+            icon: "Award",
             titleEn: "Verified Certificate & Portfolio",
             titleBn: "ভেরিফায়েড সার্টিফিকেট ও পোর্টফোলিও",
             descEn: "Students graduate with verifiable project certificates and working GitHub / Tinkercad project portfolios.",
             descBn: "কোর্স সমাপ্তিতে আন্তর্জাতিক মানের ভেরিফায়েড সার্টিফিকেট ও প্রজেক্ট পোর্টফোলিও প্রদান করা হয়।"
         },
         {
-            icon: "🛡️",
+            icon: "ShieldCheck",
             titleEn: "100% Satisfaction Guarantee",
             titleBn: "নিশ্চিন্ত অভিভাবকত্ব ও মান নিশ্চিত",
             descEn: "Risk-free trial classes and complete support. We ensure every single child succeeds at their own learning pace.",

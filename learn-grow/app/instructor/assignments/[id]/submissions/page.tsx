@@ -197,7 +197,7 @@ export default function AssignmentSubmissionsPage({
                 )}
                 {assignment.maxScore && (
                   <div className="flex items-center gap-2">
-                    <span>📊</span>
+                    
                     <span>Max Score: {assignment.maxScore}</span>
                   </div>
                 )}

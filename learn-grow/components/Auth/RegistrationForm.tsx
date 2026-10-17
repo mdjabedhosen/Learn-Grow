@@ -312,8 +312,9 @@ export default function RegistrationForm() {
             {/* Header */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                  ✨ {language === "bn" ? "নতুন অ্যাকাউন্ট" : "New Account"}
+                <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                  <span>{language === "bn" ? "নতুন অ্যাকাউন্ট" : "New Account"}</span>
                 </span>
 
                 {/* Step indicator */}

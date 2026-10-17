@@ -17,6 +17,7 @@ import { useGetAllTeamMembersQuery } from "@/redux/api/teamApi";
 import { openTrialModal } from "@/components/TrialBookingModal";
 import { openRecruitmentModal } from "@/components/RecruitmentModal";
 import RecruitmentProcess from "@/components/RecruitmentProcess";
+import { GraduationCap, Sparkles, Rocket, Globe, Clock, Star, Award, ArrowRight } from "lucide-react";
 
 const resolveImageSrc = (value?: string) => {
   if (!value || value === "placeholder" || value.trim() === "") return "";
@@ -394,7 +395,8 @@ export default function TutorsPage() {
         <div className="mb-12 animate-fadeIn">
           <div className="inline-block mb-4">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#EAF4FB] text-[#3B82F6] text-xs font-black rounded-full uppercase tracking-widest border border-[#B3D9F5]">
-              👨‍🏫 {language === "en" ? "Live Mentors" : "আমাদের শিক্ষকবৃন্দ"}
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>{language === "en" ? "Live Mentors" : "আমাদের শিক্ষকবৃন্দ"}</span>
             </span>
           </div>
 
@@ -519,8 +521,9 @@ export default function TutorsPage() {
                     />
 
                     {/* Floating sparkles */}
-                    <div className="absolute top-10 right-6 text-white/80 text-base select-none pointer-events-none">✦</div>
-                    <div className="absolute bottom-12 left-5 text-white/60 text-xs select-none pointer-events-none">✧</div>
+                    <div className="absolute top-10 right-6 text-white/60 pointer-events-none">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
 
                     {/* Rating Badge */}
                     <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black text-[#2C2C2C] shadow-md flex items-center gap-1">
@@ -589,7 +592,8 @@ export default function TutorsPage() {
             {/* Left Content Column */}
             <div className="lg:col-span-7 text-left">
               <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-black uppercase tracking-wider mb-5 border border-white/30">
-                🚀 {language === "en" ? "We Are Hiring Tutors" : "আমরা শিক্ষক খুঁজছি"}
+                <Rocket className="w-3.5 h-3.5 text-amber-300" />
+                <span>{language === "en" ? "We Are Hiring Tutors" : "আমরা শিক্ষক খুঁজছি"}</span>
               </span>
 
               <h2
@@ -627,7 +631,7 @@ export default function TutorsPage() {
                 className="bg-[#18181B] hover:bg-black text-white font-black px-9 py-4 sm:py-4.5 rounded-full text-base sm:text-lg shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer inline-flex items-center gap-3 group"
               >
                 <span>{language === "en" ? "Apply now" : "এখনই আবেদন করুন"}</span>
-                <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
@@ -653,11 +657,13 @@ export default function TutorsPage() {
 
               {/* Mobile Info Badges */}
               <div className="flex flex-wrap gap-2 lg:hidden mt-2">
-                <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                  ⏰ {language === "en" ? "Flexible hours" : "সুবিধাজনক সময়"}
+                <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{language === "en" ? "Flexible hours" : "সুবিধাজনক সময়"}</span>
                 </span>
-                <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                  🌍 {language === "en" ? "100% Remote" : "১০০% রিমোট"}
+                <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1">
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>{language === "en" ? "100% Remote" : "১০০% রিমোট"}</span>
                 </span>
               </div>
             </div>
@@ -668,7 +674,8 @@ export default function TutorsPage() {
         <div className="mt-20 mb-12 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] rounded-[38px] sm:rounded-[48px] p-8 sm:p-14 lg:p-16 text-white relative overflow-hidden shadow-2xl border border-slate-700/50 flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="relative z-10 max-w-2xl text-left">
             <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#F59E0B] text-black text-xs font-black uppercase tracking-wider mb-4">
-              ✨ {language === "en" ? "1-On-1 Interactive Trial" : "১:১ সরাসরি ট্রায়াল ক্লাস"}
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{language === "en" ? "1-On-1 Interactive Trial" : "১:১ সরাসরি ট্রায়াল ক্লাস"}</span>
             </span>
 
             <h2
@@ -709,8 +716,12 @@ export default function TutorsPage() {
                   alt="Shakil"
                 />
               </div>
-              <div className="text-xs sm:text-sm font-bold text-gray-300">
-                <span className="text-[#F59E0B]">★★★★★</span>{" "}
+              <div className="text-xs sm:text-sm font-bold text-gray-300 flex items-center gap-2">
+                <span className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
+                  ))}
+                </span>
                 <span>{language === "en" ? "4.9/5 from 1,200+ parents" : "৪.৯/৫ রেটিং (১২০০+ অভিভাবক)"}</span>
               </div>
             </div>
@@ -813,7 +824,9 @@ export default function TutorsPage() {
                           {selectedTutor.rating} (Top Rated)
                         </p>
                       </div>
-                      <span className="text-3xl">🏅</span>
+                      <div className="w-12 h-12 rounded-xl bg-[#FFE082]/60 flex items-center justify-center text-[#92620A]">
+                        <Award className="w-6 h-6 text-[#92620A]" />
+                      </div>
                     </div>
                   </div>
                 </ModalBody>

@@ -12,6 +12,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { recordAttendance } from "@/redux/slices/liveClassSlice";
+import { GraduationCap, Video, Calendar, Clock, PlayCircle, Radio } from "lucide-react";
 
 interface LiveClassListProps {
     courseId: string;
@@ -100,23 +101,31 @@ export default function LiveClassList({ courseId }: LiveClassListProps) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <p className="text-sm text-default-500">Instructor</p>
-                                <p className="font-semibold">👨‍🏫 {classItem.instructor}</p>
+                                <p className="font-semibold flex items-center gap-1.5 mt-0.5">
+                                    <GraduationCap className="w-4 h-4 text-primary" />
+                                    <span>{classItem.instructor}</span>
+                                </p>
                             </div>
                             <div>
                                 <p className="text-sm text-default-500">Platform</p>
-                                <p className="font-semibold capitalize">
-                                    {classItem.platform === "zoom" && "📹 Zoom"}
-                                    {classItem.platform === "google-meet" && "📞 Google Meet"}
-                                    {classItem.platform === "teams" && "💼 MS Teams"}
+                                <p className="font-semibold capitalize flex items-center gap-1.5 mt-0.5">
+                                    <Video className="w-4 h-4 text-blue-500" />
+                                    <span>{classItem.platform}</span>
                                 </p>
                             </div>
                             <div>
                                 <p className="text-sm text-default-500">Scheduled</p>
-                                <p className="font-semibold">🕒 {formatDate(classItem.scheduledAt)}</p>
+                                <p className="font-semibold flex items-center gap-1.5 mt-0.5">
+                                    <Calendar className="w-4 h-4 text-purple-500" />
+                                    <span>{formatDate(classItem.scheduledAt)}</span>
+                                </p>
                             </div>
                             <div>
                                 <p className="text-sm text-default-500">Duration</p>
-                                <p className="font-semibold">⏱️ {classItem.duration} minutes</p>
+                                <p className="font-semibold flex items-center gap-1.5 mt-0.5">
+                                    <Clock className="w-4 h-4 text-amber-500" />
+                                    <span>{classItem.duration} minutes</span>
+                                </p>
                             </div>
                         </div>
 
@@ -141,7 +150,7 @@ export default function LiveClassList({ courseId }: LiveClassListProps) {
                                     color="secondary"
                                     variant="flat"
                                     onPress={() => window.open(classItem.recordingUrl, "_blank")}
-                                    startContent={<span>📼</span>}
+                                    startContent={<PlayCircle className="w-4 h-4" />}
                                 >
                                     Watch Recording
                                 </Button>
@@ -151,7 +160,7 @@ export default function LiveClassList({ courseId }: LiveClassListProps) {
                                     size="lg"
                                     onPress={() => handleJoinClass(classItem)}
                                     className="animate-pulse"
-                                    startContent={<span>🔴</span>}
+                                    startContent={<Radio className="w-4 h-4" />}
                                 >
                                     Join Live Class
                                 </Button>
@@ -159,7 +168,7 @@ export default function LiveClassList({ courseId }: LiveClassListProps) {
                                 <Button
                                     color="primary"
                                     onPress={() => handleJoinClass(classItem)}
-                                    startContent={<span>📅</span>}
+                                    startContent={<Calendar className="w-4 h-4" />}
                                 >
                                     Join Class
                                 </Button>

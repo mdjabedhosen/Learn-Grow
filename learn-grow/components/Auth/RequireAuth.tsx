@@ -48,7 +48,7 @@ export default function RequireAuth({ children, allowedRoles }: RequireAuthProps
         if (hasChecked.current) return;
         
         async function checkAuth() {
-            // 🚨 Check if logout is in progress - if so, don't redirect yet
+            // Check if logout is in progress - if so, don't redirect yet
             const loggingOut = sessionStorage.getItem("loggingOut") === "1";
             if (loggingOut) {
                 hasChecked.current = true;

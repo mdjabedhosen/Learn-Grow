@@ -230,13 +230,13 @@ export default function EditEventPage() {
                   variant="bordered"
                   startContent={<FaInfoCircle className="text-gray-400" />}
                 >
-                  <SelectItem key="Workshop" startContent={<span className="text-xl">🛠️</span>}>Workshop</SelectItem>
-                  <SelectItem key="Seminar" startContent={<span className="text-xl">📚</span>}>Seminar</SelectItem>
-                  <SelectItem key="Webinar" startContent={<span className="text-xl">💻</span>}>Webinar</SelectItem>
-                  <SelectItem key="Conference" startContent={<span className="text-xl">🎤</span>}>Conference</SelectItem>
-                  <SelectItem key="Competition" startContent={<span className="text-xl">🏆</span>}>Competition</SelectItem>
-                  <SelectItem key="Meetup" startContent={<span className="text-xl">🤝</span>}>Meetup</SelectItem>
-                  <SelectItem key="Other" startContent={<span className="text-xl">📅</span>}>Other</SelectItem>
+                  <SelectItem key="Workshop" >Workshop</SelectItem>
+                  <SelectItem key="Seminar" >Seminar</SelectItem>
+                  <SelectItem key="Webinar" >Webinar</SelectItem>
+                  <SelectItem key="Conference" >Conference</SelectItem>
+                  <SelectItem key="Competition" >Competition</SelectItem>
+                  <SelectItem key="Meetup" >Meetup</SelectItem>
+                  <SelectItem key="Other" >Other</SelectItem>
                 </Select>
 
                 <Textarea

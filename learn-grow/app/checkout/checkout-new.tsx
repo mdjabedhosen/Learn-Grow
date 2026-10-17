@@ -28,6 +28,12 @@ import {
   Gift,
   Star,
   Clock,
+  Zap,
+  Radio,
+  RotateCw,
+  Grid,
+  Cable,
+  Lightbulb,
 } from "lucide-react";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useGetCommissionQuery } from "@/redux/api/settingsApi";
@@ -84,7 +90,7 @@ const KIT_COMPONENTS = [
     descBn: "অরিজিনাল ATmega328P চিপ ও ইউএসবি প্রোগ্রামিং ক্যাবলসহ",
     tagEn: "Main Brain",
     tagBn: "মূল মস্তিষ্ক",
-    icon: "🔌",
+    icon: Cpu,
   },
   {
     nameEn: "4WD Smart Robot Car Chassis",
@@ -93,7 +99,7 @@ const KIT_COMPONENTS = [
     descBn: "৪টি ডিসি গিয়ার মোটর, হাই-গ্রিপ রাবার চাকা ও অ্যাক্রিলিক বডি",
     tagEn: "Drive Unit",
     tagBn: "ড্রাইভ ইউনিট",
-    icon: "🏎️",
+    icon: RotateCw,
   },
   {
     nameEn: "HC-SR04 Ultrasonic Distance Sensor",
@@ -102,7 +108,7 @@ const KIT_COMPONENTS = [
     descBn: "বাধা শনাক্তকরণ ও স্বয়ংক্রিয় টার্নিং সোনার সেন্সর ও মাউন্ট",
     tagEn: "Eyes / Sonar",
     tagBn: "সোনার চোখ",
-    icon: "🦇",
+    icon: Radio,
   },
   {
     nameEn: "L298N Dual Motor Driver Module",
@@ -111,7 +117,7 @@ const KIT_COMPONENTS = [
     descBn: "হাই-পাওয়ার মোটর স্পিড ও ডিরেকশন কন্ট্রোলার মডিউল",
     tagEn: "Motor Control",
     tagBn: "মোটর কন্ট্রোল",
-    icon: "⚡",
+    icon: Zap,
   },
   {
     nameEn: "400-Point Solderless Breadboard",
@@ -120,7 +126,7 @@ const KIT_COMPONENTS = [
     descBn: "ঝালাই ছাড়াই নিরাপদ সার্কিট তৈরির প্রোটোটাইপিং বোর্ড",
     tagEn: "Safe Prototyping",
     tagBn: "নিরাপদ সার্কিট",
-    icon: "🍞",
+    icon: Grid,
   },
   {
     nameEn: "40x Premium Jumper Wires Pack",
@@ -129,7 +135,7 @@ const KIT_COMPONENTS = [
     descBn: "রঙিন মেল-টু-মেল এবং মেল-টু-ফিমেল কানেক্টিং ওয়্যার",
     tagEn: "Cables",
     tagBn: "কানেক্টিং ওয়্যার",
-    icon: "🌈",
+    icon: Cable,
   },
   {
     nameEn: "Electronics & Sensor Lab Pack",
@@ -138,7 +144,7 @@ const KIT_COMPONENTS = [
     descBn: "১০টি এলইডি, বাজার, এলডিআর আলোক সেন্সর, পুশ বাটন ও রেজিস্টর",
     tagEn: "Lab Elements",
     tagBn: "ল্যাব উপাদান",
-    icon: "💡",
+    icon: Lightbulb,
   },
   {
     nameEn: "Project Manual & Dual Battery Box",
@@ -147,7 +153,7 @@ const KIT_COMPONENTS = [
     descBn: "সচিত্র গাইড বুক + অন/অফ সুইচসহ পাওয়ার ব্যাটারি কেস",
     tagEn: "Guide & Power",
     tagBn: "গাইড ও পাওয়ার",
-    icon: "📖",
+    icon: BookOpen,
   },
 ];
 
@@ -554,10 +560,13 @@ export default function CheckoutPage() {
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
             {language === "bn" ? "আপনার অর্ডার সম্পন্ন করুন" : "Complete Your Purchase"}
           </h1>
-          <p className="text-slate-600 mt-2 font-medium">
-            {language === "bn"
-              ? "🔒 সুরক্ষিত চেকআউট • দ্রুত পেমেন্ট অনুমোদন • নির্ভরযোগ্য ডেলিভারি"
-              : "🔒 Secure checkout • Instant payment verification • Reliable delivery"}
+          <p className="text-slate-600 mt-2 font-medium flex items-center gap-2">
+            <Lock size={15} className="text-emerald-600 inline" />
+            <span>
+              {language === "bn"
+                ? "সুরক্ষিত চেকআউট • দ্রুত পেমেন্ট অনুমোদন • নির্ভরযোগ্য ডেলিভারি"
+                : "Secure checkout • Instant payment verification • Reliable delivery"}
+            </span>
           </p>
         </div>
 
@@ -573,7 +582,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-green-900 mb-2">
-                      🎉 Subscription Extension / সাবস্ক্রিপশন এক্সটেনশন
+                      Subscription Extension / সাবস্ক্রিপশন এক্সটেনশন
                     </h3>
                     <p className="text-sm text-green-800 mb-3">
                       You already have an active quarterly subscription! This purchase will extend your subscription by 3 more months.
@@ -636,8 +645,9 @@ export default function CheckoutPage() {
                         </span>
                       </div>
                       <div className="pt-2 border-t border-slate-200">
-                        <p className="text-xs text-slate-600">
-                          ✓ Your subscription will be automatically extended after payment approval
+                        <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                          <Check size={14} className="text-emerald-600 inline flex-shrink-0" />
+                          <span>Your subscription will be automatically extended after payment approval</span>
                         </p>
                       </div>
                     </div>
@@ -749,13 +759,17 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {KIT_COMPONENTS.map((item, idx) => (
-                        <div 
-                          key={idx}
-                          className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/70 transition"
-                        >
-                          <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
-                          <div className="flex-1 min-w-0">
+                      {KIT_COMPONENTS.map((item, idx) => {
+                        const IconComponent = item.icon;
+                        return (
+                          <div 
+                            key={idx}
+                            className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/70 transition"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 text-blue-600">
+                              <IconComponent className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-1 mb-0.5">
                               <h5 className="text-xs md:text-sm font-bold text-slate-900 truncate">
                                 {language === "bn" ? item.nameBn : item.nameEn}
@@ -856,8 +870,8 @@ export default function CheckoutPage() {
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
-                          <span className="text-white text-2xl">📚</span>
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                          <BookOpen className="w-7 h-7 text-white" />
                         </div>
                       )}
                     </div>
@@ -1292,7 +1306,7 @@ export default function CheckoutPage() {
                   <div className="mt-4 p-3 bg-blue-50/80 rounded-xl border border-blue-100 flex items-center gap-2.5 text-xs text-blue-800">
                     <Truck size={16} className="text-blue-600 flex-shrink-0" />
                     <span>
-                      {language === "bn" ? "🚚 এক্সপ্রেস ডেলিভারি: ৪৮-৭২ ঘণ্টার মধ্যে" : "🚚 Express Delivery: Within 48-72 hours"}
+                      {language === "bn" ? "এক্সপ্রেস ডেলিভারি: ৪৮-৭২ ঘণ্টার মধ্যে" : "Express Delivery: Within 48-72 hours"}
                     </span>
                   </div>
                 )}
@@ -1333,12 +1347,13 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <p className="text-xs text-slate-500 text-center">
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-1.5 text-xs text-slate-500 text-center">
+                  <Lock size={12} className="text-slate-400 inline" />
+                  <span>
                     {language === "bn" 
-                      ? "🔒 আপনার তথ্য সম্পূর্ণ সুরক্ষিত ও এনক্রিপ্টেড।" 
-                      : "🔒 This is a secure page. Your information is protected."}
-                  </p>
+                      ? "আপনার তথ্য সম্পূর্ণ সুরক্ষিত ও এনক্রিপ্টেড।" 
+                      : "This is a secure page. Your information is protected."}
+                  </span>
                 </div>
               </div>
 

@@ -509,10 +509,10 @@ function TrialsContent() {
             >
               <SelectItem key="all">{isBn ? "সকল স্ট্যাটাস (All)" : "All Statuses"}</SelectItem>
               <SelectItem key="pending">{isBn ? "⏳ নতুন রিকোয়েস্ট (Pending)" : "Pending"}</SelectItem>
-              <SelectItem key="contacted">{isBn ? "📞 যোগাযোগ সম্পন্ন (Contacted)" : "Contacted"}</SelectItem>
-              <SelectItem key="scheduled">{isBn ? "📅 শিডিউল্ড (Scheduled)" : "Scheduled"}</SelectItem>
-              <SelectItem key="completed">{isBn ? "✅ সম্পন্ন / ভর্তি (Completed)" : "Completed"}</SelectItem>
-              <SelectItem key="cancelled">{isBn ? "❌ বাতিল (Cancelled)" : "Cancelled"}</SelectItem>
+              <SelectItem key="contacted">{isBn ? "যোগাযোগ সম্পন্ন (Contacted)" : "Contacted"}</SelectItem>
+              <SelectItem key="scheduled">{isBn ? "শিডিউল্ড (Scheduled)" : "Scheduled"}</SelectItem>
+              <SelectItem key="completed">{isBn ? "সম্পন্ন / ভর্তি (Completed)" : "Completed"}</SelectItem>
+              <SelectItem key="cancelled">{isBn ? "বাতিল (Cancelled)" : "Cancelled"}</SelectItem>
             </Select>
           </div>
         </CardBody>
@@ -585,8 +585,8 @@ function TrialsContent() {
                     // Pre-filled WhatsApp schedule confirmation to Parent
                     const waParentScheduleMsg = encodeURIComponent(
                       isBn
-                        ? `আসসালামু আলাইকুম ${booking.parentName}, Learn & Grow-তে আপনার ফ্রি ট্রায়াল ক্লাস নিশ্চিত হয়েছে!🎉\n\n📌 বিষয়: ${booking.trackInterest}\n🧒 শিক্ষার্থী বয়স: ${booking.studentAge}\n📅 ক্লাসের তারিখ: ${booking.scheduledDate}\n⏰ সময়: ${booking.scheduledTime || "07:00 PM"}\n👨‍🏫 শিক্ষক/মেন্টর: ${insName || "Learn & Grow Expert"}\n🔗 ক্লাস মিটিং লিংক: ${booking.meetingLink || "শীঘ্রই পাঠানো হবে"}\n\nক্লাস শুরুর ১০ মিনিট পূর্বে জয়েন করার অনুরোধ রইল। কোনো প্রয়োজনে আমাদের সাথে যোগাযোগ করতে পারেন। ধন্যবাদ!`
-                        : `Hello ${booking.parentName}, your free trial booking at Learn & Grow is confirmed!🎉\n\n📌 Track: ${booking.trackInterest}\n🧒 Student Age: ${booking.studentAge}\n📅 Date: ${booking.scheduledDate}\n⏰ Time: ${booking.scheduledTime || "07:00 PM"}\n👨‍🏫 Mentor: ${insName || "Learn & Grow Expert"}\n🔗 Meeting Link: ${booking.meetingLink || "Will be shared shortly"}\n\nPlease join 10 minutes prior to class time. Thank you!`
+                        ? `আসসালামু আলাইকুম ${booking.parentName}, Learn & Grow-তে আপনার ফ্রি ট্রায়াল ক্লাস নিশ্চিত হয়েছে!\n\nবিষয়: ${booking.trackInterest}\nশিক্ষার্থী বয়স: ${booking.studentAge}\nক্লাসের তারিখ: ${booking.scheduledDate}\nসময়: ${booking.scheduledTime || "07:00 PM"}\nশিক্ষক/মেন্টর: ${insName || "Learn & Grow Expert"}\nক্লাস মিটিং লিংক: ${booking.meetingLink || "শীঘ্রই পাঠানো হবে"}\n\nক্লাস শুরুর ১০ মিনিট পূর্বে জয়েন করার অনুরোধ রইল। কোনো প্রয়োজনে আমাদের সাথে যোগাযোগ করতে পারেন। ধন্যবাদ!`
+                        : `Hello ${booking.parentName}, your free trial booking at Learn & Grow is confirmed!\n\nTrack: ${booking.trackInterest}\nStudent Age: ${booking.studentAge}\nDate: ${booking.scheduledDate}\nTime: ${booking.scheduledTime || "07:00 PM"}\nMentor: ${insName || "Learn & Grow Expert"}\nMeeting Link: ${booking.meetingLink || "Will be shared shortly"}\n\nPlease join 10 minutes prior to class time. Thank you!`
                     );
                     const waParentScheduleUrl = `https://wa.me/${waPhone}?text=${waParentScheduleMsg}`;
 
@@ -594,8 +594,8 @@ function TrialsContent() {
                     const waInsPhoneClean = cleanPhoneForWhatsApp(insPhone);
                     const waInstructorScheduleMsg = encodeURIComponent(
                       isBn
-                        ? `নোটিফিকেশন: নতুন ফ্রি ট্রায়াল ক্লাস বরাদ্দ!\n\n👨‍🏫 হ্যালো ${insName},\nআপনার একটি নতুন ফ্রি ট্রায়াল সেশন শিডিউল করা হয়েছে:\n\n📌 বিষয়: ${booking.trackInterest}\n👤 অভিভাবক: ${booking.parentName} (${booking.parentPhone})\n🧒 শিক্ষার্থী বয়স: ${booking.studentAge}\n📅 তারিখ: ${booking.scheduledDate}\n⏰ সময়: ${booking.scheduledTime || "07:00 PM"}\n🔗 ক্লাস লিংক: ${booking.meetingLink || "N/A"}\n\nঅনুগ্রহ করে ক্লাসের প্রস্তুতি নিন। ধন্যবাদ!`
-                        : `Notification: New Free Trial Class Assigned!\n\n👨‍🏫 Hello ${insName},\nYou have been scheduled for a free trial class:\n\n📌 Track: ${booking.trackInterest}\n👤 Parent: ${booking.parentName} (${booking.parentPhone})\n🧒 Age: ${booking.studentAge}\n📅 Date: ${booking.scheduledDate}\n⏰ Time: ${booking.scheduledTime || "07:00 PM"}\n🔗 Link: ${booking.meetingLink || "N/A"}\n\nPlease prepare accordingly. Thank you!`
+                        ? `নোটিফিকেশন: নতুন ফ্রি ট্রায়াল ক্লাস বরাদ্দ!\n\nহ্যালো ${insName},\nআপনার একটি নতুন ফ্রি ট্রায়াল সেশন শিডিউল করা হয়েছে:\n\nবিষয়: ${booking.trackInterest}\nঅভিভাবক: ${booking.parentName} (${booking.parentPhone})\nশিক্ষার্থী বয়স: ${booking.studentAge}\nতারিখ: ${booking.scheduledDate}\nসময়: ${booking.scheduledTime || "07:00 PM"}\nক্লাস লিংক: ${booking.meetingLink || "N/A"}\n\nঅনুগ্রহ করে ক্লাসের প্রস্তুতি নিন। ধন্যবাদ!`
+                        : `Notification: New Free Trial Class Assigned!\n\nHello ${insName},\nYou have been scheduled for a free trial class:\n\nTrack: ${booking.trackInterest}\nParent: ${booking.parentName} (${booking.parentPhone})\nAge: ${booking.studentAge}\nDate: ${booking.scheduledDate}\nTime: ${booking.scheduledTime || "07:00 PM"}\nLink: ${booking.meetingLink || "N/A"}\n\nPlease prepare accordingly. Thank you!`
                     );
                     const waInstructorScheduleUrl = waInsPhoneClean
                       ? `https://wa.me/${waInsPhoneClean}?text=${waInstructorScheduleMsg}`
@@ -607,7 +607,7 @@ function TrialsContent() {
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-slate-900 text-sm">{booking.parentName}</div>
                           <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mt-0.5">
-                            <span className="text-purple-600 font-bold">🧒 {isBn ? "বয়স/শ্রেণি:" : "Age:"}</span>
+                            <span className="text-purple-600 font-bold">{isBn ? "বয়স/শ্রেণি:" : "Age:"}</span>
                             <span>{booking.studentAge || "10 years"}</span>
                           </div>
                           {booking.notes && (
@@ -718,10 +718,10 @@ function TrialsContent() {
                             aria-label="Change Status"
                           >
                             <SelectItem key="pending">⏳ Pending</SelectItem>
-                            <SelectItem key="contacted">📞 Contacted</SelectItem>
-                            <SelectItem key="scheduled">📅 Scheduled</SelectItem>
-                            <SelectItem key="completed">✅ Completed</SelectItem>
-                            <SelectItem key="cancelled">❌ Cancelled</SelectItem>
+                            <SelectItem key="contacted">Contacted</SelectItem>
+                            <SelectItem key="scheduled">Scheduled</SelectItem>
+                            <SelectItem key="completed">Completed</SelectItem>
+                            <SelectItem key="cancelled">Cancelled</SelectItem>
                           </Select>
                         </td>
 
@@ -856,9 +856,9 @@ function TrialsContent() {
                     {selectedBookingForSchedule.parentName}
                   </div>
                   <div className="text-slate-500 flex items-center gap-2 mt-0.5">
-                    <span>📞 {selectedBookingForSchedule.parentPhone}</span>
+                    <span>{selectedBookingForSchedule.parentPhone}</span>
                     <span>•</span>
-                    <span>🧒 {isBn ? "শিক্ষার্থী বয়স:" : "Student Age:"} {selectedBookingForSchedule.studentAge}</span>
+                    <span>{isBn ? "শিক্ষার্থী বয়স:" : "Student Age:"} {selectedBookingForSchedule.studentAge}</span>
                   </div>
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-100 text-purple-700 font-bold">

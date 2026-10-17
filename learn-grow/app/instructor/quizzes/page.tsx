@@ -138,7 +138,7 @@ export default function InstructorQuizzesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">My Quizzes 📝</h1>
+            <h1 className="text-4xl font-bold mb-2">My Quizzes</h1>
             <p className="text-gray-600">Create and manage course quizzes</p>
           </div>
           <Button

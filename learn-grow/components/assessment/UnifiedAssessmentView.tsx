@@ -142,7 +142,7 @@ export default function UnifiedAssessmentView({ courseId, hasAccess = false }: U
                         )}
                         {assignment.maxScore && (
                           <div className="flex items-center gap-1">
-                            <span>📊</span>
+                            
                             <span>Max Score: {assignment.maxScore}</span>
                           </div>
                         )}
@@ -186,7 +186,7 @@ export default function UnifiedAssessmentView({ courseId, hasAccess = false }: U
           key="all" 
           title={
             <span className="flex items-center gap-1 text-xs sm:text-sm">
-              <span>📚</span>
+              
               <span className="hidden xs:inline">All Assessments</span>
               <span className="xs:hidden">All</span>
             </span>
@@ -195,14 +195,14 @@ export default function UnifiedAssessmentView({ courseId, hasAccess = false }: U
           <div className="space-y-6">
             <div>
               <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
-                <span>📝</span> Quizzes & Exams
+                Quizzes & Exams
               </h3>
               <QuizList courseId={courseId} hasAccess={hasAccess} />
             </div>
 
             <div>
               <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
-                <span>📄</span> Assignments & Projects
+                Assignments & Projects
               </h3>
               <AssignmentsList />
             </div>
@@ -213,7 +213,7 @@ export default function UnifiedAssessmentView({ courseId, hasAccess = false }: U
           key="quizzes" 
           title={
             <span className="flex items-center gap-1 text-xs sm:text-sm">
-              <span>📝</span>
+              
               <span className="hidden xs:inline">Quizzes & Exams</span>
               <span className="xs:hidden">Quizzes</span>
             </span>
@@ -226,7 +226,7 @@ export default function UnifiedAssessmentView({ courseId, hasAccess = false }: U
           key="assignments" 
           title={
             <span className="flex items-center gap-1 text-xs sm:text-sm">
-              <span>📄</span>
+              
               <span className="hidden xs:inline">Assignments & Projects</span>
               <span className="xs:hidden">Assignments</span>
             </span>

@@ -35,22 +35,22 @@ export default function AdminDashboard() {
                 size="lg"
                 className="mb-6"
             >
-                <Tab key="overview" title="📊 Overview">
+                <Tab key="overview" title="Overview">
                     <OverviewTab />
                 </Tab>
-                <Tab key="users" title="👥 Users">
+                <Tab key="users" title="Users">
                     <UsersTab />
                 </Tab>
-                <Tab key="courses" title="📚 Courses">
+                <Tab key="courses" title="Courses">
                     <CoursesTab />
                 </Tab>
-                <Tab key="quizzes" title="📝 Quizzes">
+                <Tab key="quizzes" title="Quizzes">
                     <QuizzesTab />
                 </Tab>
-                <Tab key="live-classes" title="🎥 Live Classes">
+                <Tab key="live-classes" title="Live Classes">
                     <LiveClassesTab />
                 </Tab>
-                <Tab key="content" title="📄 Pages">
+                <Tab key="content" title="Pages">
                     <ContentTab />
                 </Tab>
             </Tabs>

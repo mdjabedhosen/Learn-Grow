@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardBody, Progress, Chip } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { FaTrophy, FaClock, FaFire, FaChartLine } from "react-icons/fa";
+import { FaTrophy, FaClock, FaFire, FaChartLine, FaStar, FaRocket } from "react-icons/fa";
 
 export default function ProgressPage() {
     const enrolledCourses = useSelector((state: RootState) => state.enrollment.enrolledCourses);
@@ -176,13 +176,18 @@ export default function ProgressPage() {
 
             {/* Achievements Section (Mock) */}
             <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">Recent Achievements 🏆</h2>
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <span>Recent Achievements</span>
+                    <FaTrophy className="text-amber-500" />
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {completedCourses > 0 ? (
                         <>
                             <Card className="bg-gradient-to-br from-yellow-100 to-yellow-200">
                                 <CardBody className="p-6 text-center">
-                                    <div className="text-4xl mb-2">🌟</div>
+                                    <div className="w-12 h-12 rounded-xl bg-amber-400 text-white flex items-center justify-center mx-auto mb-2 text-2xl shadow-sm">
+                                        <FaStar />
+                                    </div>
                                     <h3 className="font-bold mb-1">First Course Complete</h3>
                                     <p className="text-sm text-gray-600">Completed your first course!</p>
                                 </CardBody>
@@ -190,7 +195,9 @@ export default function ProgressPage() {
                             {completedCourses >= 3 && (
                                 <Card className="bg-gradient-to-br from-blue-100 to-blue-200">
                                     <CardBody className="p-6 text-center">
-                                        <div className="text-4xl mb-2">🚀</div>
+                                        <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center mx-auto mb-2 text-2xl shadow-sm">
+                                            <FaRocket />
+                                        </div>
                                         <h3 className="font-bold mb-1">Fast Learner</h3>
                                         <p className="text-sm text-gray-600">Completed 3 courses!</p>
                                     </CardBody>
@@ -199,7 +206,9 @@ export default function ProgressPage() {
                             {stats.streak >= 5 && (
                                 <Card className="bg-gradient-to-br from-orange-100 to-orange-200">
                                     <CardBody className="p-6 text-center">
-                                        <div className="text-4xl mb-2">🔥</div>
+                                        <div className="w-12 h-12 rounded-xl bg-orange-500 text-white flex items-center justify-center mx-auto mb-2 text-2xl shadow-sm">
+                                            <FaFire />
+                                        </div>
                                         <h3 className="font-bold mb-1">On Fire!</h3>
                                         <p className="text-sm text-gray-600">5-day learning streak!</p>
                                     </CardBody>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Input, Textarea, Button, Card, CardBody, Chip, Spinner } from "@nextui-org/react";
 import { MdEmail, MdLocationOn, MdAccessTime, MdSecurity } from "react-icons/md";
 import { FaWhatsapp, FaPhoneVolume, FaChevronRight } from "react-icons/fa";
+import { Target, BookOpen, Bot, HelpCircle, Phone, MessageSquare } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface ContactClientProps {
@@ -54,10 +55,10 @@ export default function ContactClient({ content }: ContactClientProps) {
     const rawWhatsapp = "8801706276447";
 
     const topics = [
-        { id: "trial", labelEn: "🎯 Free Trial Class", labelBn: "🎯 ফ্রি ট্রায়াল ক্লাস", defaultSubjectEn: "Free Trial Class Inquiry", defaultSubjectBn: "ফ্রি ট্রায়াল ক্লাস সংক্রান্ত তথ্য" },
-        { id: "admission", labelEn: "📚 Course Admission", labelBn: "📚 কোর্স ভর্তি সংক্রান্ত", defaultSubjectEn: "Course Admission Details", defaultSubjectBn: "কোর্স ভর্তি সংক্রান্ত প্রশ্ন" },
-        { id: "robotics", labelEn: "🤖 Robotics Kit & Hardware", labelBn: "🤖 রোবটিক্স কিট ডেলিভারি", defaultSubjectEn: "Robotics Kit Delivery Question", defaultSubjectBn: "রোবটিক্স কিট ও ডেলিভারি তথ্য" },
-        { id: "general", labelEn: "💡 Other Questions", labelBn: "💡 সাধারণ জিজ্ঞাসা", defaultSubjectEn: "General Question", defaultSubjectBn: "সাধারণ তথ্য জানতে চাই" },
+        { id: "trial", labelEn: "Free Trial Class", labelBn: "ফ্রি ট্রায়াল ক্লাস", icon: Target, defaultSubjectEn: "Free Trial Class Inquiry", defaultSubjectBn: "ফ্রি ট্রায়াল ক্লাস সংক্রান্ত তথ্য" },
+        { id: "admission", labelEn: "Course Admission", labelBn: "কোর্স ভর্তি সংক্রান্ত", icon: BookOpen, defaultSubjectEn: "Course Admission Details", defaultSubjectBn: "কোর্স ভর্তি সংক্রান্ত প্রশ্ন" },
+        { id: "robotics", labelEn: "Robotics Kit & Hardware", labelBn: "রোবটিক্স কিট ডেলিভারি", icon: Bot, defaultSubjectEn: "Robotics Kit Delivery Question", defaultSubjectBn: "রোবটিক্স কিট ও ডেলিভারি তথ্য" },
+        { id: "general", labelEn: "Other Questions", labelBn: "সাধারণ জিজ্ঞাসা", icon: HelpCircle, defaultSubjectEn: "General Question", defaultSubjectBn: "সাধারণ তথ্য জানতে চাই" },
     ];
 
     const handleTopicSelect = (topic: typeof topics[0]) => {
@@ -165,7 +166,7 @@ export default function ContactClient({ content }: ContactClientProps) {
                     {/* Pill Badge */}
                     <div className="flex justify-center mb-4">
                         <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FFF8E1] border border-[#FFE082] rounded-full shadow-xs">
-                            <span>💬</span>
+                            <MessageSquare className="w-3.5 h-3.5 text-[#92620A]" />
                             <span className="text-xs font-bold text-[#92620A] uppercase tracking-wider">
                                 {language === "en" ? "We're Here to Help • Admission & Support" : "আমরা সাহায্য করতে প্রস্তুত • অ্যাডমিশন ও সাপোর্ট"}
                             </span>
@@ -191,10 +192,12 @@ export default function ContactClient({ content }: ContactClientProps) {
                             {language === "en" ? "Avg. Response: 15 Mins" : "গড় রিপ্লাই টাইম: ১৫ মিনিট"}
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-full shadow-xs border border-gray-200">
-                            📞 {language === "en" ? "Hotline: 10 AM - 10 PM Everyday" : "হটলাইন: প্রতিদিন সকাল ১০টা - রাত ১০টা"}
+                            <Phone className="w-3.5 h-3.5 text-blue-500" />
+                            <span>{language === "en" ? "Hotline: 10 AM - 10 PM Everyday" : "হটলাইন: প্রতিদিন সকাল ১০টা - রাত ১০টা"}</span>
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-full shadow-xs border border-gray-200">
-                            🟢 {language === "en" ? "Live WhatsApp Support" : "হোয়াটসঅ্যাপে তাৎক্ষণিক সহায়তা"}
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>{language === "en" ? "Live WhatsApp Support" : "হোয়াটসঅ্যাপে তাৎক্ষণিক সহায়তা"}</span>
                         </span>
                     </div>
                 </div>
@@ -329,7 +332,8 @@ export default function ContactClient({ content }: ContactClientProps) {
                             {/* Form Header */}
                             <div className="mb-6">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-[#3B82F6] text-xs font-bold rounded-full mb-3">
-                                    ✉️ {language === "en" ? "Quick Message" : "দ্রুত বার্তা পাঠান"}
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    <span>{language === "en" ? "Quick Message" : "দ্রুত বার্তা পাঠান"}</span>
                                 </span>
                                 <h2 className="text-2xl sm:text-3xl font-black text-[#1E1E1E] tracking-tight">
                                     {language === "en" ? "Send us a Message" : "আমাদের একটি বার্তা পাঠান"}
@@ -347,20 +351,24 @@ export default function ContactClient({ content }: ContactClientProps) {
                                     {language === "en" ? "What is your inquiry about?" : "আপনার অনুসন্ধানের বিষয় কোনটি?"}
                                 </label>
                                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
-                                    {topics.map((topic) => (
-                                        <button
-                                            key={topic.id}
-                                            type="button"
-                                            onClick={() => handleTopicSelect(topic)}
-                                            className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-all border ${
-                                                selectedTopic === topic.id
-                                                    ? "bg-[#3B82F6] text-white border-[#3B82F6] shadow-sm"
-                                                    : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border-gray-200"
-                                            }`}
-                                        >
-                                            {language === "en" ? topic.labelEn : topic.labelBn}
-                                        </button>
-                                    ))}
+                                    {topics.map((topic) => {
+                                        const TopicIcon = topic.icon;
+                                        return (
+                                            <button
+                                                key={topic.id}
+                                                type="button"
+                                                onClick={() => handleTopicSelect(topic)}
+                                                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-all border ${
+                                                    selectedTopic === topic.id
+                                                        ? "bg-[#3B82F6] text-white border-[#3B82F6] shadow-sm"
+                                                        : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border-gray-200"
+                                                }`}
+                                            >
+                                                <TopicIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                                                <span>{language === "en" ? topic.labelEn : topic.labelBn}</span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -505,7 +513,8 @@ export default function ContactClient({ content }: ContactClientProps) {
                 <div className="mt-16 sm:mt-20 pt-12 border-t border-gray-200">
                     <div className="text-center max-w-2xl mx-auto mb-10">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-[#92620A] text-xs font-bold rounded-full mb-3 border border-amber-200">
-                            ❓ {language === "en" ? "Frequently Asked Questions" : "সাধারণ প্রশ্নোত্তর"}
+                            <HelpCircle className="w-3.5 h-3.5 text-[#92620A]" />
+                            <span>{language === "en" ? "Frequently Asked Questions" : "সাধারণ প্রশ্নোত্তর"}</span>
                         </span>
                         <h2 className="text-2xl sm:text-3xl font-black text-[#1E1E1E] tracking-tight">
                             {language === "en" ? "Quick Answers Before You Reach Out" : "যোগাযোগের আগে জেনে নিন"}

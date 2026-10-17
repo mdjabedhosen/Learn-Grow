@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button, Card, CardBody, CardHeader } from "@nextui-org/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { FaArrowLeft, FaHome, FaShieldAlt, FaExclamationTriangle } from "react-icons/fa";
+import { FaArrowLeft, FaHome, FaShieldAlt, FaExclamationTriangle, FaClock } from "react-icons/fa";
 import { useEffect, useState, Suspense } from "react";
 
 function UnauthorizedContent() {
@@ -80,8 +80,9 @@ function UnauthorizedContent() {
         <CardBody className="p-6 space-y-4">
           {sessionExpired ? (
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-300">
-              <p className="text-gray-700 font-semibold">
-                🕐 Your session has expired after being logged in for an extended period.
+              <p className="text-gray-700 font-semibold flex items-center gap-2">
+                <FaClock className="text-amber-600 shrink-0" />
+                <span>Your session has expired after being logged in for an extended period.</span>
               </p>
               <p className="text-sm text-gray-600 mt-2">
                 For security reasons, you need to login again to continue using the platform.

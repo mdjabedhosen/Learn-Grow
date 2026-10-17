@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardBody, Button, Chip } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { FaCertificate, FaDownload, FaShare, FaCheck } from "react-icons/fa";
+import { FaCertificate, FaDownload, FaShare, FaCheck, FaGraduationCap } from "react-icons/fa";
 
 export default function CertificatesPage() {
     const enrolledCourses = useSelector((state: RootState) => state.enrollment.enrolledCourses);
@@ -35,7 +35,10 @@ export default function CertificatesPage() {
         <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-4xl font-bold mb-2">My Certificates 🎓</h1>
+                <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+                    <span>My Certificates</span>
+                    <FaGraduationCap className="text-blue-600" />
+                </h1>
                 <p className="text-gray-600">Download and share your course completion certificates</p>
             </div>
 

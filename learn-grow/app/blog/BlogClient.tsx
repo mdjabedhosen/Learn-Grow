@@ -25,6 +25,7 @@ import {
   Share2,
   TrendingUp,
   GraduationCap,
+  Newspaper,
 } from "lucide-react";
 
 // Helper function to decode HTML entities
@@ -127,7 +128,8 @@ export default function BlogClient() {
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#7C3AED] text-white text-xs font-black rounded-full uppercase tracking-widest shadow-md shadow-purple-500/20 mb-5">
-            📰 {language === "bn" ? "লার্ন অ্যান্ড গ্রো ব্লগ ও রিসোর্স" : "Learn & Grow Blog & Articles"}
+            <Newspaper className="w-3.5 h-3.5 text-white" />
+            <span>{language === "bn" ? "লার্ন অ্যান্ড গ্রো ব্লগ ও রিসোর্স" : "Learn & Grow Blog & Articles"}</span>
           </span>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4">
@@ -272,8 +274,8 @@ export default function BlogClient() {
         ) : blogs.length === 0 ? (
           /* Empty State */
           <div className="bg-white rounded-[28px] border-2 border-dashed border-slate-200 p-12 sm:p-16 text-center max-w-xl mx-auto shadow-sm">
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
-              🔍
+            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-blue-600" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">
               {language === "bn" ? "কোনো ব্লগ খুঁজে পাওয়া যায়নি" : "No articles found"}
@@ -500,7 +502,8 @@ export default function BlogClient() {
 
           <div className="max-w-2xl relative z-10">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-black rounded-full mb-4">
-              ✨ {language === "bn" ? "ভবিষ্যৎ বিনির্মাণ" : "Future-Ready STEM"}
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>{language === "bn" ? "ভবিষ্যৎ বিনির্মাণ" : "Future-Ready STEM"}</span>
             </span>
 
             <h3 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight mb-4">

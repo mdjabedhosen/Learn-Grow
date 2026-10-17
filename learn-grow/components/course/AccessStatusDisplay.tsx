@@ -10,6 +10,7 @@ import {
   Link,
   Tooltip,
 } from "@nextui-org/react";
+import { AlertTriangle, XCircle, CheckCircle2 } from "lucide-react";
 import {
   hasValidAccess,
   getRemainingDays,
@@ -112,8 +113,9 @@ export default function AccessStatusDisplay({
             {/* Warning if expiring soon */}
             {expiringIn7Days && isValid && (
               <div className="bg-warning-50 border border-warning rounded-lg p-3">
-                <p className="text-sm text-warning font-semibold">
-                  ⚠️ Access expiring in {remaining} day{remaining !== 1 ? "s" : ""}
+                <p className="text-sm text-warning font-semibold flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>Access expiring in {remaining} day{remaining !== 1 ? "s" : ""}</span>
                 </p>
                 {showExtendButton && (
                   <Button
@@ -132,8 +134,9 @@ export default function AccessStatusDisplay({
             {/* Expired message */}
             {!isValid && (
               <div className="bg-danger-50 border border-danger rounded-lg p-3">
-                <p className="text-sm text-danger font-semibold">
-                  ❌ Access Expired on {formatDate(new Date(access.accessEndDate))}
+                <p className="text-sm text-danger font-semibold flex items-center gap-1.5">
+                  <XCircle className="w-4 h-4 shrink-0" />
+                  <span>Access Expired on {formatDate(new Date(access.accessEndDate))}</span>
                 </p>
                 <Button
                   size="sm"
@@ -151,8 +154,9 @@ export default function AccessStatusDisplay({
         ) : (
           /* Lifetime Access */
           <div className="bg-success-50 border border-success rounded-lg p-3">
-            <p className="text-success font-semibold">
-              ✅ Lifetime Access
+            <p className="text-success font-semibold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>Lifetime Access</span>
             </p>
             <p className="text-sm text-default-600 mt-1">
               You have permanent access to this course

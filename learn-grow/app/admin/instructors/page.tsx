@@ -484,7 +484,7 @@ export default function InstructorApprovalPage() {
                             <ModalBody>
                                 <div className="space-y-4">
                                     <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-                                        <p className="text-sm text-red-800 font-semibold mb-2">⚠️ Warning: This action cannot be undone!</p>
+                                        <p className="text-sm text-red-800 font-semibold mb-2">Warning: This action cannot be undone!</p>
                                         <p className="text-sm text-red-700">
                                             You are about to permanently delete <span className="font-bold">{instructorToDelete?.name}</span> and all their associated data.
                                         </p>

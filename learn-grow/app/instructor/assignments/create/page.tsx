@@ -132,7 +132,7 @@ function CreateAssignmentContent() {
           Back
         </Button>
         <h1 className="text-4xl font-bold mb-2">
-          {formData.assessmentType === "project" ? "Create Project 🎯" : formData.assessmentType === "mid-term" ? "Create Mid-Term Exam 📝" : formData.assessmentType === "final-exam" ? "Create Final Exam 🏆" : "Create Assignment 📄"}
+          {formData.assessmentType === "project" ? "Create Project" : formData.assessmentType === "mid-term" ? "Create Mid-Term Exam" : formData.assessmentType === "final-exam" ? "Create Final Exam" : "Create Assignment"}
         </h1>
         <p className="text-gray-600">
           {formData.assessmentType === "project" 
@@ -249,7 +249,7 @@ function CreateAssignmentContent() {
             {/* Info Box */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                <strong>📌 Note:</strong> Students will submit their work via Google Drive links. 
+                <strong>Note:</strong> Students will submit their work via Google Drive links. 
                 Make sure to provide clear instructions on what format and content you expect.
               </p>
             </div>

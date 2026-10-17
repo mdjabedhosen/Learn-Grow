@@ -14,7 +14,8 @@ import {
     BookOpen,
     Radio,
     Sparkles,
-    MessageCircle
+    MessageCircle,
+    GraduationCap
 } from "lucide-react";
 import { useGetAllLiveClassesQuery } from "@/redux/api/liveClassApi";
 import { useGetMyOrdersQuery } from "@/redux/api/orderApi";
@@ -340,8 +341,9 @@ export default function AllLiveClassesPage() {
                                                         {cls.platform || "Google Meet"}
                                                     </span>
                                                     <span className="text-[11px] text-slate-400">•</span>
-                                                    <span className="text-[11px] text-slate-500 font-medium truncate">
-                                                        👨‍🏫 {instructorName}
+                                                    <span className="text-[11px] text-slate-500 font-medium truncate inline-flex items-center gap-1">
+                                                        <GraduationCap className="w-3 h-3 text-slate-400" />
+                                                        {instructorName}
                                                     </span>
                                                 </div>
                                                 <h4 className="font-extrabold text-sm text-[#2C2C2C] line-clamp-1">

@@ -35,7 +35,9 @@ import {
     Calendar,
     ChevronRight,
     Headphones,
-    Star
+    Star,
+    Users,
+    Check
 } from "lucide-react";
 import StudentLiveClasses from "./StudentLiveClasses";
 
@@ -263,7 +265,8 @@ export default function StudentDashboard() {
                                         {isBn ? "লার্ন অ্যান্ড গ্রো শিক্ষার্থী পোর্টাল" : "Student Learning Portal"}
                                     </span>
                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                                        👥 {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batch"}
+                                        <Users className="w-3 h-3 text-amber-300" />
+                                        {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batch"}
                                     </span>
                                 </div>
 
@@ -273,7 +276,7 @@ export default function StudentDashboard() {
                                 
                                 <p className="text-sm text-slate-300 mt-1 max-w-xl">
                                     {hasAllAccess 
-                                        ? (isBn ? "🎉 আপনার সকল কোর্সে অল-অ্যাক্সেস সক্রিয় রয়েছে! নতুন লাইভ ব্যাচ ও প্রোজেক্ট অন্বেষণ করুন।" : "🎉 You have full All Access to all interactive live courses & projects!")
+                                        ? (isBn ? "আপনার সকল কোর্সে অল-অ্যাক্সেস সক্রিয় রয়েছে! নতুন লাইভ ব্যাচ ও প্রোজেক্ট অন্বেষণ করুন।" : "You have full All Access to all interactive live courses & projects!")
                                         : (isBn ? "আপনার ভবিষ্যৎ কোডিং ও রোবোটিক্স স্কিল তৈরির যাত্রা সফল হোক।" : "Empower your future with hands-on coding, robotics & AI skills.")}
                                 </p>
                             </div>
@@ -364,8 +367,8 @@ export default function StudentDashboard() {
                                                 {activeSubscription.daysRemaining} {isBn ? "দিন বাকি রয়েছে" : "days remaining"}
                                             </Chip>
                                         </div>
-                                        <div className="text-4xl sm:text-5xl opacity-80 shrink-0">
-                                            🎓
+                                        <div className="text-4xl sm:text-5xl opacity-80 shrink-0 text-white">
+                                            <GraduationCap className="w-12 h-12" />
                                         </div>
                                     </div>
                                 </CardBody>
@@ -477,7 +480,10 @@ export default function StudentDashboard() {
                                                                 : "Build intelligent robots with Arduino, ultrasonic sensors & motor drivers."}
                                                         </p>
                                                         <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
-                                                            <span className="text-slate-500 font-medium">👥 10-15 Micro-Batch</span>
+                                                            <span className="text-slate-500 font-medium inline-flex items-center gap-1.5">
+                                                                <Users className="w-3.5 h-3.5 text-slate-400" />
+                                                                <span>10-15 Micro-Batch</span>
+                                                            </span>
                                                             <span className="text-blue-600 font-bold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
                                                                 {isBn ? "বিস্তারিত দেখুন" : "View Details"} →
                                                             </span>
@@ -513,7 +519,10 @@ export default function StudentDashboard() {
                                                                 : "Master Python fundamentals, build arcade games & deploy intelligent chatbots."}
                                                         </p>
                                                         <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
-                                                            <span className="text-slate-500 font-medium">👥 10-15 Micro-Batch</span>
+                                                            <span className="text-slate-500 font-medium inline-flex items-center gap-1.5">
+                                                                <Users className="w-3.5 h-3.5 text-slate-400" />
+                                                                <span>10-15 Micro-Batch</span>
+                                                            </span>
                                                             <span className="text-purple-600 font-bold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
                                                                 {isBn ? "বিস্তারিত দেখুন" : "View Details"} →
                                                             </span>
@@ -548,16 +557,19 @@ export default function StudentDashboard() {
                                                             
                                                             <div className="absolute top-2.5 right-2.5">
                                                                 {item?.accessType === "combo" ? (
-                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-600 text-white shadow">
-                                                                        🎁 {isBn ? "বান্ডেল" : "Bundle"}
+                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-600 text-white shadow inline-flex items-center gap-1">
+                                                                        <Package className="w-3 h-3" />
+                                                                        <span>{isBn ? "বান্ডেল" : "Bundle"}</span>
                                                                     </span>
                                                                 ) : item?.accessType === "quarterly" ? (
-                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow">
-                                                                        ⭐ {isBn ? "অল অ্যাক্সেস" : "All Access"}
+                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow inline-flex items-center gap-1">
+                                                                        <Star className="w-3 h-3" />
+                                                                        <span>{isBn ? "অল অ্যাক্সেস" : "All Access"}</span>
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white shadow">
-                                                                        📚 {isBn ? "সিঙ্গেল" : "Single"}
+                                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white shadow inline-flex items-center gap-1">
+                                                                        <BookOpen className="w-3 h-3" />
+                                                                        <span>{isBn ? "সিঙ্গেল" : "Single"}</span>
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -580,8 +592,9 @@ export default function StudentDashboard() {
                                                             </h3>
 
                                                             <div className="pt-2 flex items-center justify-between border-t border-slate-100">
-                                                                <span className="text-xs font-semibold text-slate-500">
-                                                                    👥 {isBn ? "১০-১৫ জন ব্যাচ" : "10-15 Batch"}
+                                                                <span className="text-xs font-semibold text-slate-500 inline-flex items-center gap-1">
+                                                                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                                                                    <span>{isBn ? "১০-১৫ জন ব্যাচ" : "10-15 Batch"}</span>
                                                                 </span>
                                                                 <Button
                                                                     size="sm"
@@ -692,8 +705,14 @@ export default function StudentDashboard() {
                             </Button>
 
                             <div className="pt-2 border-t border-emerald-100 flex items-center justify-between text-[11px] text-emerald-800 font-semibold">
-                                <span>✓ {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-batch"}</span>
-                                <span>✓ {isBn ? "১০০% লাইভ ক্লাস" : "100% Live Classes"}</span>
+                                <span className="inline-flex items-center gap-1">
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                    <span>{isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-batch"}</span>
+                                </span>
+                                <span className="inline-flex items-center gap-1">
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                    <span>{isBn ? "১০০% লাইভ ক্লাস" : "100% Live Classes"}</span>
+                                </span>
                             </div>
                         </div>
 
@@ -736,7 +755,7 @@ export default function StudentDashboard() {
                                                                 : order.planType === "quarterly"
                                                                     ? (isBn ? "কোয়ার্টারলি অল অ্যাক্সেস" : "Quarterly All Access")
                                                                     : order.planType === "combo" && order.comboId
-                                                                        ? `🎁 ${order.comboId.name || (isBn ? "কোর্স বান্ডেল" : "Course Bundle")}`
+                                                                        ? (order.comboId.name || (isBn ? "কোর্স বান্ডেল" : "Course Bundle"))
                                                                         : order.planType === "kit"
                                                                             ? (isBn ? "রোবোটিক্স কিট" : "Robotics Kit")
                                                                             : "Order"}

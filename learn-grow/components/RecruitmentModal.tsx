@@ -254,8 +254,8 @@ export default function RecruitmentModal() {
                       {lang === "bn" ? "ফোন বা হোয়াটসঅ্যাপ নম্বর" : "Phone / WhatsApp"}
                     </label>
                     <div className="flex gap-2">
-                      <span className="inline-flex items-center gap-1 bg-white px-3 py-3 rounded-2xl border-2 border-black/10 text-xs font-black text-[#2C2C2C] shadow-sm select-none">
-                        🇧🇩 +880
+                      <span className="inline-flex items-center gap-1 bg-white px-3.5 py-3 rounded-2xl border-2 border-black/10 text-xs font-black text-[#2C2C2C] shadow-sm select-none">
+                        +880
                       </span>
                       <input
                         type="tel"
@@ -307,10 +307,10 @@ export default function RecruitmentModal() {
                       onChange={(e) => setFormData({ ...formData, contactMethod: e.target.value })}
                       className="w-full bg-white text-[#2C2C2C] font-bold text-sm px-4 py-3 rounded-2xl border-2 border-black/10 focus:border-[#3B82F6] focus:outline-none shadow-sm cursor-pointer"
                     >
-                      <option value="whatsapp">💬 WhatsApp</option>
-                      <option value="phone">📞 Phone Call</option>
-                      <option value="telegram">✈️ Telegram</option>
-                      <option value="email">✉️ Email</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="phone">Phone Call</option>
+                      <option value="telegram">Telegram</option>
+                      <option value="email">Email</option>
                     </select>
                   </div>
 

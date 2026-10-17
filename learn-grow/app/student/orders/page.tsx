@@ -19,7 +19,9 @@ import {
   Building2, 
   ShieldCheck, 
   MessageCircle,
-  HelpCircle
+  HelpCircle,
+  Users,
+  Gift
 } from "lucide-react";
 
 export default function StudentOrdersPage() {
@@ -224,7 +226,10 @@ export default function StudentOrdersPage() {
                         <p className="text-[11px] font-bold text-slate-400 uppercase">{isBn ? "কোর্স শিরোনাম" : "Course"}</p>
                         <p className="font-bold text-sm text-[#2C2C2C] truncate">{order.courseId.title}</p>
                       </div>
-                      <span className="text-xs font-bold text-slate-500 shrink-0">👥 10-15 Batch</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 shrink-0">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        10-15 Batch
+                      </span>
                     </div>
                   )}
 
@@ -234,7 +239,10 @@ export default function StudentOrdersPage() {
                         <p className="text-[11px] font-bold text-purple-600 uppercase">{isBn ? "বান্ডেল শিরোনাম" : "Bundle"}</p>
                         <p className="font-bold text-sm text-purple-950 truncate">{order.comboId.name}</p>
                       </div>
-                      <span className="text-xs font-bold text-purple-700 shrink-0">🎁 All Included</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-700 shrink-0">
+                        <Gift className="w-3.5 h-3.5 text-purple-600" />
+                        All Included
+                      </span>
                     </div>
                   )}
 
@@ -261,7 +269,8 @@ export default function StudentOrdersPage() {
                   {order.deliveryAddress && (
                     <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1">
                       <p className="font-bold text-slate-700 flex items-center gap-1.5">
-                        📦 {isBn ? "কিট ডেলিভারি ঠিকানা:" : "Hardware Kit Delivery Address:"}
+                        <Package className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{isBn ? "কিট ডেলিভারি ঠিকানা:" : "Hardware Kit Delivery Address:"}</span>
                       </p>
                       <p className="font-semibold text-[#2C2C2C]">{order.deliveryAddress.name} • {order.deliveryAddress.phone}</p>
                       <p className="text-slate-500">{order.deliveryAddress.city}</p>

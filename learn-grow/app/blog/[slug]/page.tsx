@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useGetBlogBySlugQuery } from "@/redux/api/blogApi";
-import { FaArrowLeft, FaEdit, FaCalendarAlt, FaClock, FaEye, FaShareAlt } from "react-icons/fa";
+import { FaArrowLeft, FaEdit, FaCalendarAlt, FaClock, FaEye, FaShareAlt, FaSearch, FaMapMarkerAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 // Helper function to decode HTML entities & replace non-breaking spaces with standard spaces
@@ -107,7 +107,9 @@ export default function BlogDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center border-2 border-red-200 shadow-xl">
-          <div className="text-5xl mb-4">🔍</div>
+          <div className="w-16 h-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+            <FaSearch />
+          </div>
           <h2 className="text-2xl font-black text-gray-900 mb-2 font-siliguri">
             ব্লগটি পাওয়া যায়নি
           </h2>
@@ -294,7 +296,10 @@ export default function BlogDetailPage() {
                 বাংলাদেশের তরুণ প্রজন্মকে রোবটিক্স, প্রোগ্রামিং এবং বাস্তবমুখী STEM শিক্ষায় দক্ষ করে গড়ে তোলার জাতীয় প্ল্যাটফর্ম।
               </p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold text-gray-500">
-                <span>📍 লেভেল ৪, ৩৫ গ্রিন রোড, ধানমন্ডি, ঢাকা</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <FaMapMarkerAlt className="text-blue-500" />
+                  <span>লেভেল ৪, ৩৫ গ্রিন রোড, ধানমন্ডি, ঢাকা</span>
+                </span>
                 <span>•</span>
                 <a
                   href="https://learnandgrow.io"

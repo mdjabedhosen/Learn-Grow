@@ -16,6 +16,21 @@ import {
   FaCheck,
   FaArrowRight,
 } from "react-icons/fa";
+import {
+  Trophy,
+  Laptop,
+  Wrench,
+  Mic,
+  Globe,
+  MapPin,
+  Video,
+  Sparkles,
+  Rocket,
+  FileText,
+  Users,
+  Calendar,
+  Flame,
+} from "lucide-react";
 import { Spinner } from "@nextui-org/react";
 
 export default function EventsPage() {
@@ -59,18 +74,18 @@ export default function EventsPage() {
   const totalPages = pagination?.totalPages || Math.max(1, Math.ceil((pagination?.total || events.length) / 12));
 
   const typeFilters = [
-    { id: "All", labelEn: "✨ All Events", labelBn: "✨ সকল ইভেন্ট" },
-    { id: "Competition", labelEn: "🏆 Competitions", labelBn: "🏆 প্রতিযোগিতা" },
-    { id: "Bootcamp", labelEn: "💻 Bootcamps", labelBn: "💻 কোডিং বুটক্যাম্প" },
-    { id: "Workshop", labelEn: "🛠️ Workshops", labelBn: "🛠️ প্র্যাকটিক্যাল কর্মশালা" },
-    { id: "Seminar", labelEn: "🎙️ Seminars", labelBn: "🎙️ সেমিনার" },
-    { id: "Webinar", labelEn: "🌐 Webinars", labelBn: "🌐 লাইভ ওয়েবিনার" },
+    { id: "All", labelEn: "All Events", labelBn: "সকল ইভেন্ট" },
+    { id: "Competition", labelEn: "Competitions", labelBn: "প্রতিযোগিতা" },
+    { id: "Bootcamp", labelEn: "Bootcamps", labelBn: "কোডিং বুটক্যাম্প" },
+    { id: "Workshop", labelEn: "Workshops", labelBn: "প্র্যাকটিক্যাল কর্মশালা" },
+    { id: "Seminar", labelEn: "Seminars", labelBn: "সেমিনার" },
+    { id: "Webinar", labelEn: "Webinars", labelBn: "লাইভ ওয়েবিনার" },
   ];
 
   const modeFilters = [
     { id: "All", labelEn: "All Modes", labelBn: "সকল মোড" },
-    { id: "Offline", labelEn: "📍 In-Person (Dhaka)", labelBn: "📍 সরাসরি ভেন্যুতে" },
-    { id: "Online", labelEn: "🔴 Online (Live Zoom)", labelBn: "🔴 অনলাইন লাইভ" },
+    { id: "Offline", labelEn: "In-Person (Dhaka)", labelBn: "সরাসরি ভেন্যুতে" },
+    { id: "Online", labelEn: "Online (Live Zoom)", labelBn: "অনলাইন লাইভ" },
   ];
 
   // Fallback banner generator
@@ -111,7 +126,7 @@ export default function EventsPage() {
           {/* Pill Badge */}
           <div className="flex justify-center mb-4">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FFF8E1] border border-[#FFE082] rounded-full shadow-xs">
-              <span>🚀</span>
+              <Rocket className="w-3.5 h-3.5 text-[#92620A]" />
               <span className="text-xs font-bold text-[#92620A] uppercase tracking-wider">
                 {language === "en" ? "STEM Events, Competitions & Maker Labs" : "স্টেম ইভেন্টস, অলিম্পিয়াড ও মেকার ল্যাব"}
               </span>
@@ -133,16 +148,20 @@ export default function EventsPage() {
           {/* Quick Value Badges */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-bold text-gray-700">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-              🏆 {language === "en" ? "National Olympiad & Trophies" : "জাতীয় অলিম্পিয়াড ও প্রাইজপুল"}
+              <Trophy className="w-3.5 h-3.5 text-amber-500" />
+              <span>{language === "en" ? "National Olympiad & Trophies" : "জাতীয় অলিম্পিয়াড ও প্রাইজপুল"}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-              🛠️ {language === "en" ? "Hands-on Hardware Lab" : "হাতে-কলমে হার্ডওয়্যার ল্যাব"}
+              <Wrench className="w-3.5 h-3.5 text-blue-500" />
+              <span>{language === "en" ? "Hands-on Hardware Lab" : "হাতে-কলমে হার্ডওয়্যার ল্যাব"}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-              📜 {language === "en" ? "Verified Certificate" : "ভেরিফায়েড সার্টিফিকেট"}
+              <FileText className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{language === "en" ? "Verified Certificate" : "ভেরিফায়েড সার্টিফিকেট"}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-              👥 {language === "en" ? "Mentors from DIU & Top Universities" : "ডিআইইউ ও শীর্ষ বিশ্ববিদ্যালয়ের মেন্টর"}
+              <Users className="w-3.5 h-3.5 text-purple-500" />
+              <span>{language === "en" ? "Mentors from DIU & Top Universities" : "ডিআইইউ ও শীর্ষ বিশ্ববিদ্যালয়ের মেন্টর"}</span>
             </span>
           </div>
         </div>
@@ -216,8 +235,8 @@ export default function EventsPage() {
           </div>
         ) : events.length === 0 ? (
           <div className="bg-white rounded-[28px] border-2 border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto my-12">
-            <div className="w-16 h-16 rounded-full bg-blue-50 text-[#3B82F6] text-2xl flex items-center justify-center mx-auto mb-4">
-              📅
+            <div className="w-16 h-16 rounded-full bg-blue-50 text-[#3B82F6] flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-8 h-8 text-[#3B82F6]" />
             </div>
             <h3 className="text-xl font-black text-gray-900 mb-2">
               {language === "en" ? "No matching events found" : "কোনো ইভেন্ট পাওয়া যায়নি"}
@@ -272,11 +291,11 @@ export default function EventsPage() {
                     {/* Top Floating Badges */}
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/95 backdrop-blur-md text-[#1E1E1E] text-[11px] font-black rounded-full shadow-sm">
-                        {event.type === "Competition" && "🏆"}
-                        {event.type === "Bootcamp" && "💻"}
-                        {event.type === "Workshop" && "🛠️"}
-                        {event.type === "Seminar" && "🎙️"}
-                        {event.type === "Webinar" && "🌐"}
+                        {event.type === "Competition" && <Trophy className="w-3 h-3 text-amber-500 inline" />}
+                        {event.type === "Bootcamp" && <Laptop className="w-3 h-3 text-blue-500 inline" />}
+                        {event.type === "Workshop" && <Wrench className="w-3 h-3 text-emerald-500 inline" />}
+                        {event.type === "Seminar" && <Mic className="w-3 h-3 text-purple-500 inline" />}
+                        {event.type === "Webinar" && <Globe className="w-3 h-3 text-cyan-500 inline" />}
                         <span>{event.type}</span>
                       </span>
 
@@ -366,10 +385,15 @@ export default function EventsPage() {
                       {/* Seat Progress Bar */}
                       <div>
                         <div className="flex items-center justify-between text-[11px] font-bold mb-1">
-                          <span className={isFull ? "text-red-500 font-black" : "text-emerald-600 font-black"}>
-                            {isFull
-                              ? (language === "en" ? "Sold Out / Full" : "আসন পূর্ণ")
-                              : (language === "en" ? `🔥 ${seatsAvailable} seats left` : `🔥 মাত্র ${seatsAvailable}টি আসন বাকি`)}
+                          <span className={isFull ? "text-red-500 font-black" : "text-emerald-600 font-black flex items-center gap-1"}>
+                            {isFull ? (
+                              <span>{language === "en" ? "Sold Out / Full" : "আসন পূর্ণ"}</span>
+                            ) : (
+                              <>
+                                <Flame className="w-3.5 h-3.5 text-amber-500 inline flex-shrink-0" />
+                                <span>{language === "en" ? `${seatsAvailable} seats left` : `মাত্র ${seatsAvailable}টি আসন বাকি`}</span>
+                              </>
+                            )}
                           </span>
                           <span className="text-gray-400">
                             {event.registeredCount || 0} / {event.maxSeats}

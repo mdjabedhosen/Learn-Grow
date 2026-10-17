@@ -4,6 +4,7 @@ import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner, Card, CardBody, Button } from "@nextui-org/react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { completePayment } from "@/redux/slices/paymentSlice";
 import type { RootState } from "@/redux/store";
 
@@ -64,7 +65,7 @@ function NagadCallbackContent() {
                     {status === "success" && (
                         <>
                             <div className="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-2">
-                                <span className="text-4xl">✅</span>
+                                <CheckCircle className="w-10 h-10 text-orange-600" />
                             </div>
                             <h2 className="text-2xl font-bold text-orange-600">Payment Successful!</h2>
                             <p className="text-default-500">{message}</p>
@@ -80,7 +81,7 @@ function NagadCallbackContent() {
                     {status === "failed" && (
                         <>
                             <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center mb-2">
-                                <span className="text-4xl">❌</span>
+                                <XCircle className="w-10 h-10 text-red-600" />
                             </div>
                             <h2 className="text-2xl font-bold text-red-600">Payment Failed</h2>
                             <p className="text-default-500">{message}</p>

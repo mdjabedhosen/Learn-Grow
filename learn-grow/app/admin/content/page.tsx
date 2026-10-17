@@ -45,25 +45,25 @@ const SECTION_COLORS: Record<string, any> = {
     bg: "from-blue-50 to-indigo-50",
     border: "border-blue-200",
     text: "text-blue-700",
-    icon: "🛡️",
+    icon: "",
   },
   "Terms & Conditions": {
     bg: "from-purple-50 to-pink-50",
     border: "border-purple-200",
     text: "text-purple-700",
-    icon: "📜",
+    icon: "",
   },
   "Refund Policy": {
     bg: "from-green-50 to-emerald-50",
     border: "border-green-200",
     text: "text-green-700",
-    icon: "💸",
+    icon: "",
   },
   "Cookie Policy": {
     bg: "from-amber-50 to-yellow-50",
     border: "border-amber-200",
     text: "text-amber-700",
-    icon: "🍪",
+    icon: "",
   },
 };
 
@@ -89,7 +89,7 @@ export default function ContentManagerPage() {
     bg: "from-gray-50 to-slate-50",
     border: "border-gray-200",
     text: "text-gray-700",
-    icon: "📄",
+    icon: "",
   };
 
   // Fetch content from API
@@ -173,7 +173,7 @@ export default function ContentManagerPage() {
     } else {
       setRichValue("<p>No default content available for this section.</p>");
     }
-    toast("Reset to defaults. Click 'Save' to apply.", { icon: "⚠️" });
+    toast("Reset to defaults. Click 'Save' to apply.");
   };
 
   return (
@@ -240,7 +240,7 @@ export default function ContentManagerPage() {
                       {Object.keys(SECTIONS).map((section) => {
                         const sectionColors = SECTION_COLORS[
                           section as keyof typeof SECTION_COLORS
-                        ] || { text: "text-gray-700", icon: "📄" };
+                        ] || { text: "text-gray-700", icon: "" };
                         const isSelected = selectedSection === section;
                         return (
                           <button
@@ -373,7 +373,7 @@ export default function ContentManagerPage() {
                         )}
 
                         <p className="mt-4 text-xs text-gray-500 inline-flex items-center gap-2 bg-white/50 p-2 rounded-lg border border-gray-200">
-                          💡 <strong>Tip:</strong> Use the toolbar to add
+                          <strong>Tip:</strong> Use the toolbar to add
                           formatted text, images, and links. Content is saved as
                           HTML.
                         </p>

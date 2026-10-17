@@ -313,8 +313,9 @@ function GuardianDashboardContent() {
                                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
                                         {isBn ? "অভিভাবক পোর্টাল" : "Guardian Portal"}
                                     </span>
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                                        👥 {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ মনিটরিং" : "10-15 Micro-Batch Track"}
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                        <Users className="w-3 h-3 text-amber-300" />
+                                        <span>{isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ মনিটরিং" : "10-15 Micro-Batch Track"}</span>
                                     </span>
                                 </div>
 
@@ -725,8 +726,14 @@ function GuardianDashboardContent() {
                                     </Button>
 
                                     <div className="pt-2 border-t border-emerald-100 flex items-center justify-between text-[11px] text-emerald-800 font-semibold">
-                                        <span>✓ {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-batch"}</span>
-                                        <span>✓ {isBn ? "সার্বক্ষণিক মেন্টরিং" : "Personalized Mentor"}</span>
+                                        <span className="inline-flex items-center gap-1">
+                                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                            <span>{isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-batch"}</span>
+                                        </span>
+                                        <span className="inline-flex items-center gap-1">
+                                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                            <span>{isBn ? "সার্বক্ষণিক মেন্টরিং" : "Personalized Mentor"}</span>
+                                        </span>
                                     </div>
                                 </div>
 

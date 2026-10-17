@@ -14,7 +14,7 @@ import {
 } from "@nextui-org/react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import { FaEnvelope, FaUser, FaPaperPlane, FaTimes, FaCheckCircle } from "react-icons/fa";
+import { FaEnvelope, FaUser, FaPaperPlane, FaTimes, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(
@@ -101,8 +101,8 @@ export default function SendEmailModal({
             <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300">
               <CardBody className="p-4">
                 <p className="text-red-700 font-semibold text-sm flex items-center gap-2">
-                  <span className="text-lg">⚠️</span>
-                  {error}
+                  <FaExclamationTriangle className="text-red-500 shrink-0 text-base" />
+                  <span>{error}</span>
                 </p>
               </CardBody>
             </Card>

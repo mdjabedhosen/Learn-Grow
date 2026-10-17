@@ -21,6 +21,15 @@ import { siteConfig } from "@/config/site";
 import Logo from "@/public/logo.png";
 import { LearnGrowBrand } from "@/components/LearnGrowBrand";
 import { openTrialModal } from "@/components/TrialBookingModal";
+import {
+  ChevronDown,
+  BookOpen,
+  Bot,
+  Code,
+  Gamepad2,
+  GraduationCap,
+  Target,
+} from "lucide-react";
 
 import {
   Dropdown,
@@ -352,7 +361,7 @@ export const Navbar = () => {
                 )}
               >
                 <span>{language === "en" ? "Courses" : "কোর্সসমূহ"}</span>
-                <span className="text-xs opacity-60">⌄</span>
+                <ChevronDown className="w-3.5 h-3.5 opacity-60" />
               </button>
             </DropdownTrigger>
             <DropdownMenu 
@@ -366,29 +375,33 @@ export const Navbar = () => {
                 key="/courses" 
                 onPress={() => router.push("/courses")} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<BookOpen className="w-4 h-4 text-blue-500" />}
               >
-                {language === "en" ? "📚 All Courses" : "📚 সকল কোর্সসমূহ"}
+                {language === "en" ? "All Courses" : "সকল কোর্সসমূহ"}
               </DropdownItem>
               <DropdownItem 
                 key="/courses?search=robotics" 
                 onPress={() => router.push("/courses?search=robotics")} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<Bot className="w-4 h-4 text-purple-500" />}
               >
-                {language === "en" ? "🤖 Robotics & Arduino" : "🤖 রোবটিক্স ও আর্ডুইনো"}
+                {language === "en" ? "Robotics & Arduino" : "রোবটিক্স ও আর্ডুইনো"}
               </DropdownItem>
               <DropdownItem 
                 key="/courses?search=python" 
                 onPress={() => router.push("/courses?search=python")} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<Code className="w-4 h-4 text-emerald-500" />}
               >
-                {language === "en" ? "🐍 Python & AI" : "🐍 পাইথন ও এআই"}
+                {language === "en" ? "Python & AI" : "পাইথন ও এআই"}
               </DropdownItem>
               <DropdownItem 
                 key="/courses?search=game" 
                 onPress={() => router.push("/courses?search=game")} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<Gamepad2 className="w-4 h-4 text-amber-500" />}
               >
-                {language === "en" ? "🎮 Game Coding" : "🎮 গেম ডেভেলপমেন্ট"}
+                {language === "en" ? "Game Coding" : "গেম ডেভেলপমেন্ট"}
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -435,7 +448,7 @@ export const Navbar = () => {
                 )}
               >
                 <span>{language === "en" ? "About" : "আমাদের সম্পর্কে"}</span>
-                <span className="text-xs opacity-60">⌄</span>
+                <ChevronDown className="w-3.5 h-3.5 opacity-60" />
               </button>
             </DropdownTrigger>
             <DropdownMenu 
@@ -459,8 +472,9 @@ export const Navbar = () => {
                 key="/about" 
                 onPress={() => router.push("/about")} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<GraduationCap className="w-4 h-4 text-blue-500" />}
               >
-                {language === "en" ? "🏫 About Academy" : "🏫 একাডেমি পরিচিতি"}
+                {language === "en" ? "About Academy" : "একাডেমি পরিচিতি"}
               </DropdownItem>
               <DropdownItem 
                 key="/#goals" 
@@ -473,8 +487,9 @@ export const Navbar = () => {
                   }
                 }} 
                 className="rounded-xl font-bold py-2.5 cursor-pointer"
+                startContent={<Target className="w-4 h-4 text-purple-500" />}
               >
-                {language === "en" ? "🎯 Our Mission" : "🎯 আমাদের লক্ষ্য ও উদ্দেশ্য"}
+                {language === "en" ? "Our Mission" : "আমাদের লক্ষ্য ও উদ্দেশ্য"}
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>

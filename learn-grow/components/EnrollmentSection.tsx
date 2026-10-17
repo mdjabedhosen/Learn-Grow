@@ -4,6 +4,7 @@ import React from "react";
 import { Card, CardBody, CardHeader, Button, Chip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { FaCheck, FaRobot, FaStar, FaBook } from "react-icons/fa";
+import { Check, X, Sparkles } from "lucide-react";
 
 export default function EnrollmentSection() {
   const router = useRouter();
@@ -182,8 +183,9 @@ export default function EnrollmentSection() {
               {/* Additional Info */}
               {plan.id === "quarterly" && (
                 <div className="px-6 py-4 bg-green-50 border-t border-green-200">
-                  <p className="text-sm text-green-800 font-semibold">
-                    ✓ রোবোটিক্স কিট অন্তর্ভুক্ত | Kit Included
+                  <p className="text-sm text-green-800 font-semibold flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-green-700 shrink-0" />
+                    <span>রোবোটিক্স কিট অন্তর্ভুক্ত | Kit Included</span>
                   </p>
                 </div>
               )}
@@ -201,46 +203,49 @@ export default function EnrollmentSection() {
                 <tr className="border-b-2 border-gray-300">
                   <th className="text-left py-3 px-3 font-semibold text-gray-900">বৈশিষ্ট্য</th>
                   <th className="py-3 px-3 font-semibold text-gray-900">একক কোর্স</th>
-                  <th className="py-3 px-3 font-semibold text-green-600">সাবস্ক্রিপশন ⭐</th>
+                  <th className="py-3 px-3 font-semibold text-green-600 inline-flex items-center gap-1 justify-center">
+                    <span>সাবস্ক্রিপশন</span>
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                  </th>
                   <th className="py-3 px-3 font-semibold text-gray-900">শুধু কিট</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-left py-3 px-3">কোর্স অ্যাক্সেস</td>
-                  <td className="py-3 px-3">✓ (১টি)</td>
-                  <td className="py-3 px-3 bg-green-50">✓ সব</td>
-                  <td className="py-3 px-3">✗</td>
+                  <td className="py-3 px-3"><span className="inline-flex items-center gap-1 justify-center"><Check className="w-4 h-4 text-emerald-600" /> (১টি)</span></td>
+                  <td className="py-3 px-3 bg-green-50"><span className="inline-flex items-center gap-1 justify-center"><Check className="w-4 h-4 text-emerald-600" /> সব</span></td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
                 </tr>
                 <tr className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-left py-3 px-3">রোবোটিক্স কিট</td>
-                  <td className="py-3 px-3">✗</td>
-                  <td className="py-3 px-3 bg-green-50">✓</td>
-                  <td className="py-3 px-3">✓</td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
+                  <td className="py-3 px-3 bg-green-50"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
                 </tr>
                 <tr className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-left py-3 px-3">লাইভ ক্লাস</td>
-                  <td className="py-3 px-3">✗</td>
-                  <td className="py-3 px-3 bg-green-50">✓</td>
-                  <td className="py-3 px-3">✗</td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
+                  <td className="py-3 px-3 bg-green-50"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
                 </tr>
                 <tr className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-left py-3 px-3">মেন্টর সাপোর্ট</td>
-                  <td className="py-3 px-3">✗</td>
-                  <td className="py-3 px-3 bg-green-50">✓</td>
-                  <td className="py-3 px-3">✗</td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
+                  <td className="py-3 px-3 bg-green-50"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
                 </tr>
                 <tr className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-left py-3 px-3">সার্টিফিকেট</td>
-                  <td className="py-3 px-3">✓</td>
-                  <td className="py-3 px-3 bg-green-50">✓</td>
-                  <td className="py-3 px-3">✗</td>
+                  <td className="py-3 px-3"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3 bg-green-50"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
                 </tr>
                 <tr className="hover:bg-gray-50">
                   <td className="text-left py-3 px-3">কমিউনিটি অ্যাক্সেস</td>
-                  <td className="py-3 px-3">✗</td>
-                  <td className="py-3 px-3 bg-green-50">✓</td>
-                  <td className="py-3 px-3">✗</td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
+                  <td className="py-3 px-3 bg-green-50"><Check className="w-4 h-4 text-emerald-600 inline-block" /></td>
+                  <td className="py-3 px-3"><X className="w-4 h-4 text-gray-300 inline-block" /></td>
                 </tr>
               </tbody>
             </table>

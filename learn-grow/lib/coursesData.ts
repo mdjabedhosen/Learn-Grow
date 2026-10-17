@@ -52,7 +52,7 @@ export const courses: Course[] = [
     duration: "8 weeks",
     ageRange: "10-16 years",
     level: "Beginner to Intermediate",
-    icon: "🤖",
+    icon: "Bot",
     color: "from-blue-500 to-cyan-500",
     en: {
       title: "Robotics with Arduino",
@@ -304,7 +304,7 @@ export const courses: Course[] = [
     duration: "10 weeks",
     ageRange: "12-18 years",
     level: "Beginner to Advanced",
-    icon: "🐍",
+    icon: "Code",
     color: "from-green-500 to-emerald-500",
     en: {
       title: "Coding with Python & AI",
@@ -596,7 +596,7 @@ export const courses: Course[] = [
     duration: "6 weeks",
     ageRange: "10-15 years",
     level: "Beginner",
-    icon: "🔢",
+    icon: "Binary",
     color: "from-purple-500 to-pink-500",
     en: {
       title: "Math for Coders",
@@ -806,7 +806,7 @@ export const courses: Course[] = [
     duration: "4 weeks",
     ageRange: "8-14 years",
     level: "Beginner",
-    icon: "🔬",
+    icon: "Atom",
     color: "from-orange-500 to-red-500",
     en: {
       title: "Science Lab at Home",

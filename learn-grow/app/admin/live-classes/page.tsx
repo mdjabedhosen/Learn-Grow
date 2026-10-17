@@ -103,10 +103,10 @@ export default function AdminLiveClassesPage() {
 
     const getPlatformIcon = (platform: string) => {
         const lower = platform?.toLowerCase();
-        if (lower?.includes("zoom")) return "📹";
-        if (lower?.includes("meet")) return "🎥";
-        if (lower?.includes("teams")) return "💼";
-        return "🎬";
+        if (lower?.includes("zoom")) return "";
+        if (lower?.includes("meet")) return "";
+        if (lower?.includes("teams")) return "";
+        return "";
     };
 
     const clearFilters = () => {
@@ -159,7 +159,7 @@ export default function AdminLiveClassesPage() {
                     </div>
                     <div>
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                            Pending Live Classes 🎥
+                            Pending Live Classes
                         </h1>
                         <p className="text-sm sm:text-base text-white/90 mt-1">
                             Review and approve instructor live class requests
@@ -293,9 +293,9 @@ export default function AdminLiveClassesPage() {
                                 }}
                             >
                                 <SelectItem key="all">All Platforms</SelectItem>
-                                <SelectItem key="zoom">📹 Zoom</SelectItem>
-                                <SelectItem key="meet">🎥 Meet</SelectItem>
-                                <SelectItem key="teams">💼 Teams</SelectItem>
+                                <SelectItem key="zoom">Zoom</SelectItem>
+                                <SelectItem key="meet">Meet</SelectItem>
+                                <SelectItem key="teams">Teams</SelectItem>
                             </Select>
                         </div>
                         {hasActiveFilters && (

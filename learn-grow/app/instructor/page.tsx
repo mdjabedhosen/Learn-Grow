@@ -26,7 +26,9 @@ import {
     Award,
     CalendarCheck,
     MessageCircle,
-    ExternalLink
+    ExternalLink,
+    Users,
+    User
 } from "lucide-react";
 import { useGetInstructorCoursesQuery } from "@/redux/api/courseApi";
 import { useGetInstructorStatsQuery } from "@/redux/api/userApi";
@@ -236,16 +238,27 @@ function InstructorDashboardContent() {
                                         <GraduationCap className="w-3.5 h-3.5 text-indigo-300" />
                                         {isBn ? "শিক্ষক ও মেন্টর স্টুডিও" : "Educator & Mentor Studio"}
                                     </span>
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                                        👥 {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batch"}
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                        <Users className="w-3 h-3 text-amber-300" />
+                                        <span>{isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batch"}</span>
                                     </span>
                                     {isApproved !== null && (
-                                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                                             isApproved 
                                                 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30" 
                                                 : "bg-amber-500/20 text-amber-300 border border-amber-400/30"
                                         }`}>
-                                            {isApproved ? (isBn ? "✓ অনুমোদিত শিক্ষক" : "✓ Verified Educator") : (isBn ? "⏳ অনুমোদন প্রক্রিয়াধীন" : "⏳ Pending Review")}
+                                            {isApproved ? (
+                                                <>
+                                                    <CheckCircle2 className="w-3 h-3 text-emerald-300" />
+                                                    <span>{isBn ? "অনুমোদিত শিক্ষক" : "Verified Educator"}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Clock className="w-3 h-3 text-amber-300" />
+                                                    <span>{isBn ? "অনুমোদন প্রক্রিয়াধীন" : "Pending Review"}</span>
+                                                </>
+                                            )}
                                         </span>
                                     )}
                                 </div>
@@ -467,8 +480,9 @@ function InstructorDashboardContent() {
                                                 <h4 className="font-extrabold text-sm text-[#2C2C2C] mt-1">
                                                     {booking.parentName}
                                                 </h4>
-                                                <p className="text-[11px] font-semibold text-slate-500">
-                                                    🧒 {isBn ? "বয়স:" : "Age:"} {booking.studentAge} {isBn ? "বছর" : "yrs"}
+                                                <p className="text-[11px] font-semibold text-slate-500 inline-flex items-center gap-1">
+                                                    <User className="w-3 h-3 text-slate-400" />
+                                                    <span>{isBn ? "বয়স:" : "Age:"} {booking.studentAge} {isBn ? "বছর" : "yrs"}</span>
                                                 </p>
                                             </div>
                                             <Chip

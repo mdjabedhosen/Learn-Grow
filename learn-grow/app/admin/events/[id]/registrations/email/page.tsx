@@ -76,7 +76,7 @@ export default function SendRegistrationEmailPage() {
 
   const templates = [
     {
-      name: "🎉 Event Invitation",
+      name: "Event Invitation",
       subject: "You're Invited: {{event}}",
       body: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -85,7 +85,7 @@ export default function SendRegistrationEmailPage() {
           <p>We are delighted to invite you to <strong style="color: #2563eb;">{{event}}</strong>. Your participation would mean a lot to us, and we can't wait to see you there!</p>
           
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1f2937; margin-top: 0;">📅 Event Details</h3>
+            <h3 style="color: #1f2937; margin-top: 0;">Event Details</h3>
             <p style="margin: 8px 0;"><strong>Date:</strong> {{date}}</p>
             <p style="margin: 8px 0;"><strong>Location/Platform:</strong> {{location}}</p>
             <p style="margin: 8px 0;"><strong>Time:</strong> {{time}}</p>
@@ -96,7 +96,7 @@ export default function SendRegistrationEmailPage() {
       `
     },
     {
-      name: "🔗 Class/Workshop Access",
+      name: "Class/Workshop Access",
       subject: "Your Access Link: {{event}}",
       body: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -105,14 +105,14 @@ export default function SendRegistrationEmailPage() {
           <p>Thank you for registering for <strong style="color: #059669;">{{event}}</strong>. Here's everything you need to join:</p>
           
           <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #059669;">
-            <h3 style="color: #065f46; margin-top: 0;">🎓 Access Information</h3>
+            <h3 style="color: #065f46; margin-top: 0;">Access Information</h3>
             <p style="margin: 8px 0;"><strong>Meeting Link:</strong> <a href="{{link}}" style="color: #059669;">{{link}}</a></p>
             <p style="margin: 8px 0;"><strong>Start Time:</strong> {{time}}</p>
             <p style="margin: 8px 0;"><strong>Date:</strong> {{date}}</p>
           </div>
           
           <p style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-            <strong>💡 Pro Tip:</strong> Join 5-10 minutes early to test your audio and video setup.
+            <strong>Pro Tip:</strong> Join 5-10 minutes early to test your audio and video setup.
           </p>
         </div>
       `
@@ -127,7 +127,7 @@ export default function SendRegistrationEmailPage() {
           <p>This is a friendly reminder that <strong style="color: #dc2626;">{{event}}</strong> is coming up soon!</p>
           
           <div style="background: #fee2e2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-            <h3 style="color: #991b1b; margin-top: 0;">📍 Quick Details</h3>
+            <h3 style="color: #991b1b; margin-top: 0;">Quick Details</h3>
             <p style="margin: 8px 0;"><strong>Date:</strong> {{date}}</p>
             <p style="margin: 8px 0;"><strong>Time:</strong> {{time}}</p>
             <p style="margin: 8px 0;"><strong>Join Link:</strong> <a href="{{link}}" style="color: #dc2626;">Click here to join</a></p>
@@ -138,16 +138,16 @@ export default function SendRegistrationEmailPage() {
       `
     },
     {
-      name: "📢 Marketing Update",
+      name: "Marketing Update",
       subject: "Exciting Updates: {{event}}",
       body: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #7c3aed; margin-bottom: 20px;">📢 Special Updates!</h2>
+          <h2 style="color: #7c3aed; margin-bottom: 20px;">Special Updates!</h2>
           <p>Greetings,</p>
           <p>We're thrilled to share some exciting updates about <strong style="color: #7c3aed;">{{event}}</strong>!</p>
           
           <div style="background: #f5f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7c3aed;">
-            <h3 style="color: #5b21b6; margin-top: 0;">✨ Highlights</h3>
+            <h3 style="color: #5b21b6; margin-top: 0;">Highlights</h3>
             <ul style="margin: 10px 0; padding-left: 20px;">
               <li>Enhanced learning materials and resources</li>
               <li>Interactive sessions with industry experts</li>
@@ -161,16 +161,16 @@ export default function SendRegistrationEmailPage() {
       `
     },
     {
-      name: "📋 General Information",
+      name: "General Information",
       subject: "Important Information: {{event}}",
       body: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #0891b2; margin-bottom: 20px;">📋 Latest Information</h2>
+          <h2 style="color: #0891b2; margin-bottom: 20px;">Latest Information</h2>
           <p>Dear Attendee,</p>
           <p>Here's the latest information regarding <strong style="color: #0891b2;">{{event}}</strong>:</p>
           
           <div style="background: #ecfeff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0891b2;">
-            <h3 style="color: #155e75; margin-top: 0;">📌 Key Information</h3>
+            <h3 style="color: #155e75; margin-top: 0;">Key Information</h3>
             <p style="margin: 8px 0;"><strong>Event Date:</strong> {{date}}</p>
             <p style="margin: 8px 0;"><strong>Start Time:</strong> {{time}}</p>
             <p style="margin: 8px 0;"><strong>Venue:</strong> {{location}}</p>
@@ -295,7 +295,7 @@ export default function SendRegistrationEmailPage() {
 
               {/* Template Selection Section */}
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">📋 Email Templates</h3>
+                <h3 className="text-lg font-semibold mb-4">Email Templates</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {templates.map((tpl) => (
                     <Button
@@ -352,7 +352,7 @@ export default function SendRegistrationEmailPage() {
 
               {/* Signature Section */}
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-3">✍️ Email Signature</h3>
+                <h3 className="text-lg font-semibold mb-3">Email Signature</h3>
                 <p className="text-sm text-gray-600 mb-4">This signature will be automatically added to the bottom of every email</p>
                 
                 <div className="space-y-3">
@@ -376,7 +376,7 @@ export default function SendRegistrationEmailPage() {
                 <Card className="bg-gradient-to-br from-blue-50 to-purple-50 mt-4 border-2 border-dashed border-blue-200">
                   <CardBody className="space-y-3">
                     <p className="text-gray-700 font-semibold flex items-center gap-2">
-                      <span className="text-lg">👁️</span> Signature Preview:
+                      Signature Preview:
                     </p>
                     <hr className="border-gray-300" />
                     <div className="bg-white p-4 rounded-lg shadow-sm">

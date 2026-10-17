@@ -89,7 +89,7 @@ export default function TicketCard({ ticket, onDelete }: TicketCardProps) {
     setIsDeleting(true);
     try {
       await deleteTicket(ticket._id).unwrap();
-      toast.success("✓ Ticket deleted successfully");
+      toast.success("Ticket deleted successfully");
       onDelete?.();
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to delete ticket");
@@ -123,7 +123,7 @@ export default function TicketCard({ ticket, onDelete }: TicketCardProps) {
     return "Just now";
   };
 
-  // ✅ SAFE DATA EXTRACTION
+  // SAFE DATA EXTRACTION
   const userName = ticket?.createdBy?.name || "Unknown User";
   const userRole = ticket?.createdBy?.role || "User";
   const profileImage =

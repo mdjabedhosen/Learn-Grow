@@ -4,8 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Cookies from "js-cookie";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Lock, Check } from "lucide-react";
 import { API_CONFIG } from "@/config/apiConfig";
 
 interface ProcessingState {
@@ -101,8 +100,8 @@ function PaymentProcessingContent() {
               <div className="relative w-16 h-16 sm:w-20 sm:h-20">
                 <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
                 <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-600 border-r-blue-600 animate-spin" />
-                <div className="absolute inset-3 sm:inset-4 rounded-full border-2 border-blue-50 flex items-center justify-center text-lg sm:text-xl animate-pulse">
-                  🔒
+                <div className="absolute inset-3 sm:inset-4 rounded-full border-2 border-blue-50 flex items-center justify-center animate-pulse">
+                  <Lock className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
             </div>
@@ -118,7 +117,9 @@ function PaymentProcessingContent() {
             {/* Processing Steps - compact */}
             <ul className="space-y-2 mb-5 text-left text-xs">
               <li className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-600 text-white text-[10px]">✓</span>
+                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-600 text-white">
+                  <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                </span>
                 <span className="text-slate-700">Order verified / অর্ডার যাচাই</span>
               </li>
               <li className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg animate-pulse">
@@ -145,7 +146,7 @@ function PaymentProcessingContent() {
             </div>
 
             <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-1">
-              Order Submitted Successfully! ✓ / অর্ডার সফলভাবে সাবমিট হয়েছে!
+              Order Submitted Successfully! / অর্ডার সফলভাবে সাবমিট হয়েছে!
             </h1>
 
             <p className="text-slate-600 mb-4 text-sm">

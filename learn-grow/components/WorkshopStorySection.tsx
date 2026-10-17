@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaArrowRight, FaRobot, FaUsers, FaCheckCircle, FaQuoteLeft } from "react-icons/fa";
+import { Trophy, MapPin } from "lucide-react";
 
 export default function WorkshopStorySection() {
   const [language, setLanguage] = useState<"en" | "bn">("bn");
@@ -25,7 +26,7 @@ export default function WorkshopStorySection() {
 
   const content = {
     bn: {
-      pill: "🏆 মাঠপর্যায়ের সাফল্য ও কর্মশালা",
+      pill: "মাঠপর্যায়ের সাফল্য ও কর্মশালা",
       titlePrefix: "স্ক্রিন টাইম থেকে প্রোগ্রামিং: ",
       titleHighlight: "৩০০ শিক্ষার্থীর প্রথম রোবট",
       subtitle:
@@ -42,7 +43,7 @@ export default function WorkshopStorySection() {
       cta: "সম্পূর্ণ গল্প ও গ্যালারি পড়ুন",
     },
     en: {
-      pill: "🏆 Flagship Workshop & Success Story",
+      pill: "Flagship Workshop & Success Story",
       titlePrefix: "Screen Time to Programming: ",
       titleHighlight: "300 Students Build Their First Robot",
       subtitle:
@@ -66,7 +67,8 @@ export default function WorkshopStorySection() {
         {/* Header */}
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-2 px-5 py-2 bg-[#F59E0B] text-white text-xs font-black rounded-full uppercase tracking-widest mb-5">
-            {content.pill}
+            <Trophy className="w-3.5 h-3.5 text-white" />
+            <span>{content.pill}</span>
           </span>
           <h2
             className={`text-3xl md:text-5xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4 ${
@@ -98,8 +100,9 @@ export default function WorkshopStorySection() {
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-              <span className="text-white text-xs md:text-sm font-bold bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-                📍 {content.venue}
+              <span className="text-white text-xs md:text-sm font-bold bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 inline-flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-white/90" />
+                <span>{content.venue}</span>
               </span>
             </div>
           </div>

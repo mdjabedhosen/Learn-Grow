@@ -5,6 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { openTrialModal } from "@/components/TrialBookingModal";
 import { FaChevronRight } from "react-icons/fa";
+import {
+  Sparkles,
+  Clock,
+  Users,
+  Wrench,
+  Award,
+  Code,
+  Bot,
+  ArrowRight,
+} from "lucide-react";
 
 export default function CoursesHero() {
   const [language, setLanguage] = useState<"bn" | "en">("bn");
@@ -54,7 +64,7 @@ export default function CoursesHero() {
             
             {/* Pill Tag */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FFF8E1] border border-[#FFE082] rounded-full shadow-xs">
-              <span className="text-xs">⚡</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#92620A]" />
               <span className="text-xs font-bold text-[#92620A] uppercase tracking-wider">
                 {language === "en" ? "Live Interactive STEM Programs" : "লাইভ ইন্টারঅ্যাক্টিভ স্টেম প্রোগ্রাম"}
               </span>
@@ -89,11 +99,11 @@ export default function CoursesHero() {
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#1E1E1E] hover:bg-black text-white text-base font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
               >
                 <span>{language === "en" ? "Sign up for a free trial class" : "ফ্রি ট্রায়াল ক্লাসের জন্য সাইন আপ করুন"}</span>
-                <span>→</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
               </button>
 
               <div className="flex items-center gap-2 text-xs font-medium text-gray-500 px-2">
-                <span>⏱️</span>
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
                 <span>{language === "en" ? "45-min live 1-on-1 session • Free kit consultation" : "৪৫ মিনিটের লাইভ ট্রায়াল • সম্পূর্ণ ফ্রি"}</span>
               </div>
             </div>
@@ -105,13 +115,16 @@ export default function CoursesHero() {
                 {language === "en" ? "100% Live Classes" : "১০০% লাইভ ক্লাস"}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-                👥 {language === "en" ? "Batch Size: 10-15" : "ব্যাচ সাইজ: ১০-১৫ জন"}
+                <Users className="w-3.5 h-3.5 text-blue-500" />
+                <span>{language === "en" ? "Batch Size: 10-15" : "ব্যাচ সাইজ: ১০-১৫ জন"}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-                🛠️ {language === "en" ? "Hands-on Projects" : "বাস্তব প্রজেক্ট পোর্টফোলিও"}
+                <Wrench className="w-3.5 h-3.5 text-purple-500" />
+                <span>{language === "en" ? "Hands-on Projects" : "বাস্তব প্রজেক্ট পোর্টফোলিও"}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white rounded-full shadow-xs border border-gray-200">
-                🏆 {language === "en" ? "Verified Certificate" : "ভেরিফায়েড সার্টিফিকেট"}
+                <Award className="w-3.5 h-3.5 text-amber-500" />
+                <span>{language === "en" ? "Verified Certificate" : "ভেরিফায়েড সার্টিফিকেট"}</span>
               </span>
             </div>
           </div>
@@ -123,23 +136,25 @@ export default function CoursesHero() {
             <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
               <button
                 onClick={() => setActiveTab("coding")}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeTab === "coding"
                     ? "bg-[#3B82F6] text-white shadow-sm"
                     : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
                 }`}
               >
-                🐍 {language === "en" ? "Coding Track" : "পাইথন ট্র্যাক"}
+                <Code className="w-3.5 h-3.5" />
+                <span>{language === "en" ? "Coding Track" : "পাইথন ট্র্যাক"}</span>
               </button>
               <button
                 onClick={() => setActiveTab("robotics")}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeTab === "robotics"
                     ? "bg-[#F59E0B] text-white shadow-sm"
                     : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
                 }`}
               >
-                🤖 {language === "en" ? "Robotics Track" : "রোবটিক্স ট্র্যাক"}
+                <Bot className="w-3.5 h-3.5" />
+                <span>{language === "en" ? "Robotics Track" : "রোবটিক্স ট্র্যাক"}</span>
               </button>
             </div>
 

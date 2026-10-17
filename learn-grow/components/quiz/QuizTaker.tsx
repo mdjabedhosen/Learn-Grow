@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { submitQuizAttempt, type Quiz, type QuizAttempt } from "@/redux/slices/quizAssignmentSlice";
 import type { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
+import { Check, X } from "lucide-react";
 
 interface QuizTakerProps {
     quiz: Quiz;
@@ -128,8 +129,9 @@ export default function QuizTaker({ quiz }: QuizTakerProps) {
                         size="lg"
                         variant="flat"
                         className="text-xl font-bold px-6 py-4"
+                        startContent={result.passed ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
                     >
-                        {result.passed ? "✓ Passed" : "✗ Failed"}
+                        {result.passed ? "Passed" : "Failed"}
                     </Chip>
                 </CardHeader>
                 <CardBody className="p-8">
@@ -180,8 +182,13 @@ export default function QuizTaker({ quiz }: QuizTakerProps) {
                                             <p className="font-semibold">
                                                 {idx + 1}. {question.question}
                                             </p>
-                                            <Chip color={isCorrect ? "success" : "danger"} size="sm" variant="flat">
-                                                {isCorrect ? "✓" : "✗"} {question.points} pts
+                                            <Chip
+                                                color={isCorrect ? "success" : "danger"}
+                                                size="sm"
+                                                variant="flat"
+                                                startContent={isCorrect ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                                            >
+                                                {question.points} pts
                                             </Chip>
                                         </div>
                                         <div className="ml-4 space-y-1">

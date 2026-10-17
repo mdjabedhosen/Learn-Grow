@@ -25,6 +25,7 @@ import {
   FaCheckCircle,
   FaExclamationCircle,
   FaLink,
+  FaChartBar,
 } from "react-icons/fa";
 import {
   useGetAssignmentByIdQuery,
@@ -241,7 +242,7 @@ export default function AssignmentDetailsPage({
                 )}
                 {assignment.maxScore && (
                   <div className="flex items-center gap-2">
-                    <span>📊</span>
+                    <FaChartBar className="text-gray-500" />
                     <span>Max Score: {assignment.maxScore}</span>
                   </div>
                 )}
@@ -423,8 +424,9 @@ export default function AssignmentDetailsPage({
                 isRequired
               />
               <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-900 font-semibold mb-2">
-                  ⚠️ Important:
+                <p className="text-sm text-blue-900 font-semibold mb-2 flex items-center gap-1.5">
+                  <FaExclamationCircle className="text-amber-600" />
+                  <span>Important:</span>
                 </p>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• You can only submit once</li>

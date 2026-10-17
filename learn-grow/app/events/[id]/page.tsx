@@ -25,6 +25,22 @@ import {
   FaQuestionCircle,
   FaShareAlt,
 } from "react-icons/fa";
+import {
+  Sparkles,
+  Rocket,
+  Flame,
+  CheckCircle2,
+  AlertTriangle,
+  Lock,
+  Mail,
+  Headphones,
+  Laptop as LucideLaptop,
+  Globe,
+  Radio,
+  MapPin,
+  ClipboardList,
+  GraduationCap,
+} from "lucide-react";
 import { Spinner } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -111,8 +127,8 @@ export default function EventDetailPage() {
 
       toast.success(
         language === "en"
-          ? "🎉 Registration successful! Live meeting details have been confirmed."
-          : "🎉 রেজিস্ট্রেশন সফল হয়েছে! ক্লাসরুম লিংক ও বিস্তারিত তথ্য কনফার্ম করা হয়েছে।"
+          ? "Registration successful! Live meeting details have been confirmed."
+          : "রেজিস্ট্রেশন সফল হয়েছে! ক্লাসরুম লিংক ও বিস্তারিত তথ্য কনফার্ম করা হয়েছে।"
       );
     } catch (error: any) {
       toast.error(error?.data?.message || (language === "en" ? "Registration failed" : "রেজিস্ট্রেশন সম্পন্ন করা যায়নি"));
@@ -163,8 +179,8 @@ export default function EventDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
         <div className="bg-white rounded-[28px] border border-gray-100 p-8 sm:p-12 text-center max-w-lg shadow-lg">
-          <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 text-2xl flex items-center justify-center mx-auto mb-4">
-            ⚠️
+          <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
           <h2 className="text-2xl font-black text-gray-900 mb-2">
             {language === "en" ? "Event Not Found" : "ইভেন্টটি খুঁজে পাওয়া যায়নি"}
@@ -243,7 +259,7 @@ export default function EventDetailPage() {
                   event.mode === "Online" ? "bg-emerald-500/95" : "bg-blue-600/95"
                 }`}>
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                  {event.mode === "Online" ? "🔴 Live Online Workshop" : "📍 In-Person STEM Event"}
+                  <span>{event.mode === "Online" ? (language === "en" ? "Live Online Workshop" : "অনলাইন লাইভ কর্মশালা") : (language === "en" ? "In-Person STEM Event" : "সরাসরি ভেন্যুতে ইভেন্ট")}</span>
                 </span>
                 <span className="px-3 py-1 bg-[#F59E0B] text-white text-xs font-black rounded-full shadow-sm">
                   {language === "en" ? "Free Registration" : "ফ্রি রেজিস্ট্রেশন"}
@@ -322,7 +338,7 @@ export default function EventDetailPage() {
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-xs sm:text-sm font-bold text-blue-950 flex items-center gap-2">
-                      <span>{language === "en" ? "Private Live Classroom Access" : "🔒 সিকিউর লাইভ ক্লাসরুম লিংক"}</span>
+                      <span>{language === "en" ? "Private Live Classroom Access" : "সিকিউর লাইভ ক্লাসরুম লিংক"}</span>
                       <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-200/70 text-blue-800">
                         {event.platformType || "Google Meet"}
                       </span>
@@ -340,7 +356,7 @@ export default function EventDetailPage() {
               {event.mode === "Offline" && event.venueAddress && (
                 <div className="p-4 bg-amber-50/60 rounded-2xl border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-base">📍</span>
+                    <MapPin className="w-4 h-4 text-amber-600 flex-shrink-0" />
                     <div>
                       <p className="font-bold text-gray-900">{event.venueName}</p>
                       <p className="text-gray-600">{event.venueAddress}</p>
@@ -401,7 +417,7 @@ export default function EventDetailPage() {
             <div className="bg-white rounded-[28px] border border-gray-100 p-6 sm:p-8 shadow-sm space-y-5">
               <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                 <h2 className="text-lg sm:text-xl font-black text-[#1E1E1E] flex items-center gap-2.5">
-                  <span>📋</span>
+                  <ClipboardList className="w-5 h-5 text-blue-600 inline" />
                   <span>{language === "en" ? "About This Event & Program Structure" : "ইভেন্ট বিস্তারিত ও কারিকুলাম"}</span>
                 </h2>
                 <span className="text-xs font-bold px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
@@ -418,13 +434,15 @@ export default function EventDetailPage() {
             {/* Prerequisites & Requirements */}
             <div className="bg-white rounded-[28px] border border-gray-100 p-6 sm:p-8 shadow-sm space-y-4">
               <h2 className="text-lg sm:text-xl font-black text-[#1E1E1E] flex items-center gap-2.5">
-                <span>🎒</span>
+                <Sparkles className="w-5 h-5 text-amber-500 inline" />
                 <span>{language === "en" ? "Class Preparation & Requirements" : "ক্লাসের প্রয়োজনীয় প্রস্তুতি"}</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                 <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 flex items-start gap-3">
-                  <span className="text-xl">💻</span>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <LucideLaptop className="w-4 h-4 text-blue-600" />
+                  </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">{language === "en" ? "Laptop or Desktop Computer" : "ল্যাপটপ বা কম্পিউটার"}</h4>
                     <p className="text-[11px] text-gray-600 mt-0.5">{language === "en" ? "Windows, Mac, or Linux with Google Chrome browser." : "উইন্ডোজ, ম্যাক বা লিনাক্স পিসিতে ক্রোম ব্রাউজার।"}</p>
@@ -432,7 +450,9 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 flex items-start gap-3">
-                  <span className="text-xl">🌐</span>
+                  <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Globe className="w-4 h-4 text-cyan-600" />
+                  </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">{language === "en" ? "Stable Internet Connection" : "স্থিতিশীল ইন্টারনেট সংযোগ"}</h4>
                     <p className="text-[11px] text-gray-600 mt-0.5">{language === "en" ? "At least 2-5 Mbps connection for seamless video." : "লাইভ স্ক্রিন শেয়ার দেখার জন্য ন্যূনতম ইন্টারনেট সংযোগ।"}</p>
@@ -440,7 +460,9 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 flex items-start gap-3">
-                  <span className="text-xl">🎧</span>
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Headphones className="w-4 h-4 text-purple-600" />
+                  </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">{language === "en" ? "Headphone with Microphone" : "হেডফোন ও মাইক্রোফোন"}</h4>
                     <p className="text-[11px] text-gray-600 mt-0.5">{language === "en" ? "Recommended for speaking directly with the mentor." : "মেন্টরের সাথে কথা বলে সরাসরি প্রশ্ন করার জন্য বাঞ্ছনীয়।"}</p>
@@ -448,7 +470,9 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 flex items-start gap-3">
-                  <span className="text-xl">✨</span>
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="w-4 h-4 text-amber-600" />
+                  </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">{language === "en" ? "No Prior Coding Needed" : "কোনো পূর্ব অভিজ্ঞতার প্রয়োজন নেই"}</h4>
                     <p className="text-[11px] text-gray-600 mt-0.5">{language === "en" ? "Designed for absolute beginners from scratch." : "একদম শুরু থেকে হাতে-কলমে শেখানো হবে।"}</p>
@@ -461,7 +485,7 @@ export default function EventDetailPage() {
             {event.guests && event.guests.length > 0 && (
               <div className="bg-white rounded-[28px] border border-gray-100 p-6 sm:p-8 shadow-sm space-y-4">
                 <h2 className="text-lg sm:text-xl font-black text-[#1E1E1E] flex items-center gap-2.5">
-                  <span>👥</span>
+                  <FaUsers className="text-purple-600 text-lg" />
                   <span>{language === "en" ? "Featured Guests & Lead Mentors" : "আমন্ত্রিত বিচারক ও লিড মেন্টরবৃন্দ"}</span>
                 </h2>
                 
@@ -559,8 +583,9 @@ export default function EventDetailPage() {
                     <div className="w-12 h-12 rounded-full bg-emerald-500 text-white text-xl flex items-center justify-center mx-auto shadow-md">
                       <FaCheck />
                     </div>
-                    <h3 className="text-base font-black text-emerald-950">
-                      {language === "en" ? "🎉 Registration Confirmed!" : "🎉 রেজিস্ট্রেশন সফল হয়েছে!"}
+                    <h3 className="text-base font-black text-emerald-950 flex items-center justify-center gap-1.5">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 inline" />
+                      <span>{language === "en" ? "Registration Confirmed!" : "রেজিস্ট্রেশন সফল হয়েছে!"}</span>
                     </h3>
                     <p className="text-xs text-emerald-800 font-medium">
                       {language === "en" ? "Your seat has been reserved." : "আপনার আসনটি নিশ্চিত করা হয়েছে।"}
@@ -603,7 +628,8 @@ export default function EventDetailPage() {
                         rel="noopener noreferrer"
                         className="w-full py-3 bg-[#3B82F6] hover:bg-blue-600 text-white font-black text-xs rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer text-center"
                       >
-                        <span>{language === "en" ? "🚀 Join Live Meeting Now" : "🚀 সরাসরি ক্লাসে যোগ দিন"}</span>
+                        <Rocket className="w-4 h-4 text-white inline" />
+                        <span>{language === "en" ? "Join Live Meeting Now" : "সরাসরি ক্লাসে যোগ দিন"}</span>
                         <FaExternalLinkAlt className="text-[10px]" />
                       </a>
 
@@ -621,10 +647,13 @@ export default function EventDetailPage() {
                         </span>
                       </button>
 
-                      <p className="text-[11px] text-blue-900/80 text-center leading-snug">
-                        {language === "en"
-                          ? "📩 We have also emailed this meeting link to your email address."
-                          : "📩 এই লিংকটি আপনার দেওয়া ইমেইলেও পাঠিয়ে দেওয়া হয়েছে।"}
+                      <p className="text-[11px] text-blue-900/80 text-center leading-snug flex items-center justify-center gap-1">
+                        <Mail className="w-3.5 h-3.5 text-blue-600 inline flex-shrink-0" />
+                        <span>
+                          {language === "en"
+                            ? "We have also emailed this meeting link to your email address."
+                            : "এই লিংকটি আপনার দেওয়া ইমেইলেও পাঠিয়ে দেওয়া হয়েছে।"}
+                        </span>
                       </p>
                     </div>
                   )}
@@ -657,7 +686,7 @@ export default function EventDetailPage() {
                 <div className="space-y-4">
                   {/* Header Ribbon */}
                   <div className="bg-gradient-to-r from-[#3B82F6] to-[#7C3AED] text-white py-2 px-3.5 rounded-xl text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-xs">
-                    <span>🔥</span>
+                    <Flame className="w-3.5 h-3.5 text-amber-300 inline" />
                     <span>{language === "en" ? "Live Registration Open" : "লাইভ রেজিস্ট্রেশন চলছে"}</span>
                   </div>
 
@@ -757,10 +786,13 @@ export default function EventDetailPage() {
                         )}
                       </button>
 
-                      <p className="text-[11px] text-gray-400 text-center leading-snug">
-                        {language === "en"
-                          ? "🔒 Safe & secure. Meeting link sent instantly upon registration."
-                          : "🔒 সম্পূর্ণ নিরাপদ। রেজিস্ট্রেশন করার সাথে সাথেই মিটিং লিংক পাবেন।"}
+                      <p className="text-[11px] text-gray-400 text-center leading-snug flex items-center justify-center gap-1">
+                        <Lock size={12} className="text-gray-400 inline" />
+                        <span>
+                          {language === "en"
+                            ? "Safe & secure. Meeting link sent instantly upon registration."
+                            : "সম্পূর্ণ নিরাপদ। রেজিস্ট্রেশন করার সাথে সাথেই মিটিং লিংক পাবেন।"}
+                        </span>
                       </p>
                     </form>
                   ) : (

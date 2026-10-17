@@ -4,6 +4,7 @@ import React from "react";
 import { Card, CardBody, Button, Chip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle, FaRocket, FaBoxOpen, FaBuilding } from "react-icons/fa";
+import { Lock, CheckCircle2, Package, Sparkles } from "lucide-react";
 
 export default function PricingClient() {
   const pricingPlans = [
@@ -181,26 +182,39 @@ export default function PricingClient() {
 
         {/* Additional Info */}
         <div className="mt-16 text-center">
-          <Card className="bg-blue-50 border-none">
-            <CardBody className="p-8">
-              <h3 className="text-2xl font-bold mb-4">💡 সাবস্ক্রিপশন কেনার আগে জেনে নিন</h3>
+          <Card className="bg-[#EAF4FB]/70 border border-[#B3D9F5] shadow-none rounded-[28px]">
+            <CardBody className="p-8 sm:p-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white text-blue-700 text-xs font-black uppercase tracking-wider mb-4 border border-blue-200">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                <span>সাবস্ক্রিপশন গাইড</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-[#2C2C2C] mb-8">সাবস্ক্রিপশন কেনার আগে জেনে নিন</h3>
               <div className="grid md:grid-cols-3 gap-6 text-left">
-                <div>
-                  <h4 className="font-semibold text-lg mb-2">🔐 লগইন প্রয়োজন</h4>
-                  <p className="text-gray-700">
-                    অর্ডার করতে হলে অবশ্যই লগইন করতে হবে। নতুন ইউজার হলে রেজিস্ট্রেশন করুন।
+                <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                    <Lock className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h4 className="font-bold text-lg text-[#2C2C2C] mb-1">লগইন প্রয়োজন</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    অর্ডার করতে হলে অবশ্যই লগইন করতে হবে। নতুন ইউজার হলে এক ক্লিকেই রেজিস্ট্রেশন করুন।
                   </p>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-lg mb-2">✅ ম্যানুয়াল অ্যাপ্রুভাল</h4>
-                  <p className="text-gray-700">
-                    পেমেন্ট সাবমিট করার পর অ্যাডমিন অ্যাপ্রুভ করলে আপনি কোর্স এক্সেস পাবেন।
+                <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <h4 className="font-bold text-lg text-[#2C2C2C] mb-1">ম্যানুয়াল ভেরিফিকেশন</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    পেমেন্ট সাবমিট করার পর দ্রুত ভেরিফিকেশন সম্পন্ন হলে আপনি কোর্সের ফুল এক্সেস পাবেন।
                   </p>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-lg mb-2">📦 ডেলিভারি অ্যাড্রেস</h4>
-                  <p className="text-gray-700">
-                    Quarterly Subscription এবং Robotics Kit-এর জন্য ডেলিভারি অ্যাড্রেস দিতে হবে।
+                <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+                    <Package className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <h4 className="font-bold text-lg text-[#2C2C2C] mb-1">ডেলিভারি অ্যাড্রেস</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Quarterly Subscription এবং Robotics Kit-এর জন্য সঠিক ডেলিভারি ঠিকানা প্রদান করুন।
                   </p>
                 </div>
               </div>

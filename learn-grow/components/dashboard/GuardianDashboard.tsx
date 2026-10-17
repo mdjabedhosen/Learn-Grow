@@ -3,6 +3,7 @@
 import React from "react";
 import { Card, CardBody, CardHeader, Button, Avatar, Chip, Progress } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { Users, BookOpen, Video, CreditCard, User, BarChart3, ShieldCheck } from "lucide-react";
 
 export default function GuardianDashboard() {
     const router = useRouter();
@@ -36,10 +37,10 @@ export default function GuardianDashboard() {
     ];
 
     const stats = [
-        { label: "Total Children", value: children.length, color: "bg-blue-500", icon: "👨‍👩‍👧" },
-        { label: "Active Courses", value: 3, color: "bg-green-500", icon: "📚" },
-        { label: "Upcoming Classes", value: 2, color: "bg-orange-500", icon: "🎥" },
-        { label: "Pending Payments", value: 0, color: "bg-purple-500", icon: "💳" },
+        { label: "Total Children", value: children.length, color: "bg-blue-500", icon: <Users className="w-6 h-6 text-white" /> },
+        { label: "Active Courses", value: 3, color: "bg-green-500", icon: <BookOpen className="w-6 h-6 text-white" /> },
+        { label: "Upcoming Classes", value: 2, color: "bg-orange-500", icon: <Video className="w-6 h-6 text-white" /> },
+        { label: "Pending Payments", value: 0, color: "bg-purple-500", icon: <CreditCard className="w-6 h-6 text-white" /> },
     ];
 
     return (
@@ -58,8 +59,8 @@ export default function GuardianDashboard() {
                         <div>
                             <h1 className="text-3xl font-bold">Welcome, {user?.guardian_name || user?.name || "Guardian"}!</h1>
                             <p className="text-green-100 mt-2">Monitor your children's learning progress</p>
-                            <Chip className="mt-2" color="success" variant="flat">
-                                👨‍👩‍👧 Guardian/Parent
+                            <Chip className="mt-2 inline-flex items-center gap-1" color="success" variant="flat" startContent={<ShieldCheck className="w-3.5 h-3.5" />}>
+                                Guardian / Parent
                             </Chip>
                         </div>
                     </div>
@@ -157,19 +158,19 @@ export default function GuardianDashboard() {
                             </CardHeader>
                             <CardBody className="grid grid-cols-2 gap-3">
                                 <Button className="h-20 flex-col" variant="flat" color="primary" onPress={() => router.push("/profile")}>
-                                    <span className="text-2xl mb-1">👤</span>
+                                    <User className="w-5 h-5 mb-1" />
                                     <span className="text-xs">My Profile</span>
                                 </Button>
                                 <Button className="h-20 flex-col" variant="flat" color="success" onPress={() => router.push("/courses")}>
-                                    <span className="text-2xl mb-1">📚</span>
+                                    <BookOpen className="w-5 h-5 mb-1" />
                                     <span className="text-xs">Browse Courses</span>
                                 </Button>
                                 <Button className="h-20 flex-col" variant="flat" color="warning">
-                                    <span className="text-2xl mb-1">💳</span>
+                                    <CreditCard className="w-5 h-5 mb-1" />
                                     <span className="text-xs">Payments</span>
                                 </Button>
                                 <Button className="h-20 flex-col" variant="flat" color="secondary">
-                                    <span className="text-2xl mb-1">📊</span>
+                                    <BarChart3 className="w-5 h-5 mb-1" />
                                     <span className="text-xs">Reports</span>
                                 </Button>
                             </CardBody>

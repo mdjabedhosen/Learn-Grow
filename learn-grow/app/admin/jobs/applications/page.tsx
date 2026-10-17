@@ -222,14 +222,14 @@ export default function ApplicationsPage() {
 
         <Card className="shadow-md border border-amber-200 hover:shadow-lg transition-all rounded-2xl">
           <CardBody className="p-4 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl">
-            <p className="text-xs opacity-90 font-semibold mb-1">📄 Direct CVs</p>
+            <p className="text-xs opacity-90 font-semibold mb-1">Direct CVs</p>
             <p className="text-2xl sm:text-3xl font-black">{directCvCount}</p>
           </CardBody>
         </Card>
 
         <Card className="shadow-md border border-teal-200 hover:shadow-lg transition-all rounded-2xl">
           <CardBody className="p-4 bg-gradient-to-br from-teal-500 to-emerald-600 text-white rounded-2xl">
-            <p className="text-xs opacity-90 font-semibold mb-1">💼 Job Post Apps</p>
+            <p className="text-xs opacity-90 font-semibold mb-1">Job Post Apps</p>
             <p className="text-2xl sm:text-3xl font-black">{jobPostCount}</p>
           </CardBody>
         </Card>
@@ -243,7 +243,7 @@ export default function ApplicationsPage() {
 
         <Card className="shadow-md border border-purple-200 hover:shadow-lg transition-all rounded-2xl col-span-2 lg:col-span-1">
           <CardBody className="p-4 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-2xl">
-            <p className="text-xs opacity-90 font-semibold mb-1">✨ Shortlisted / Won</p>
+            <p className="text-xs opacity-90 font-semibold mb-1">Shortlisted / Won</p>
             <p className="text-2xl sm:text-3xl font-black">{shortlistedCount + acceptedCount}</p>
           </CardBody>
         </Card>
@@ -366,11 +366,11 @@ export default function ApplicationsPage() {
                             <div className="space-y-1">
                               {isDirectCv ? (
                                 <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                                  ⚡ Direct CV
+                                  Direct CV
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                  💼 Job Post
+                                  Job Post
                                 </span>
                               )}
                               <p className="text-sm font-bold text-gray-800">{getRoleDisplay(app)}</p>
@@ -474,11 +474,11 @@ export default function ApplicationsPage() {
                             <div className="flex items-center gap-2 mb-1">
                               {isDirectCv ? (
                                 <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                                  ⚡ Direct CV
+                                  Direct CV
                                 </span>
                               ) : (
                                 <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                                  💼 Job Post
+                                  Job Post
                                 </span>
                               )}
                               <Chip size="sm" color={statusColors[app.status] || "default"} variant="flat" className="text-[10px] uppercase font-bold">

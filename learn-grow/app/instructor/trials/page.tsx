@@ -325,7 +325,7 @@ function InstructorTrialsContent() {
                           {booking.parentName}
                         </h3>
                         <p className="text-xs font-semibold text-slate-500">
-                          🧒 {isBn ? "শিক্ষার্থীর বয়স:" : "Student Age:"} {booking.studentAge} {isBn ? "বছর" : "years"}
+                          {isBn ? "শিক্ষার্থীর বয়স:" : "Student Age:"} {booking.studentAge} {isBn ? "বছর" : "years"}
                         </p>
                       </div>
 
@@ -356,7 +356,7 @@ function InstructorTrialsContent() {
                       </div>
                       {booking.assignedBatchName && (
                         <p className="text-[11px] text-slate-500 font-medium">
-                          👥 {isBn ? "ব্যাচ:" : "Cohort:"} {booking.assignedBatchName}
+                          {isBn ? "ব্যাচ:" : "Cohort:"} {booking.assignedBatchName}
                         </p>
                       )}
                       {booking.meetingLink ? (
@@ -378,7 +378,7 @@ function InstructorTrialsContent() {
                         </div>
                       ) : (
                         <p className="text-[11px] text-amber-600 font-medium italic">
-                          ⚠️ {isBn ? "এখনও কোনো মিটিং লিংক যোগ করা হয়নি" : "No meeting link assigned yet"}
+                          {isBn ? "এখনও কোনো মিটিং লিংক যোগ করা হয়নি" : "No meeting link assigned yet"}
                         </p>
                       )}
                     </div>
@@ -386,7 +386,7 @@ function InstructorTrialsContent() {
                     {/* Notes if any */}
                     {booking.notes && (
                       <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-100/80 text-[11px] text-slate-600">
-                        <span className="font-bold text-amber-800">📝 {isBn ? "নোট:" : "Note:"}</span>{" "}
+                        <span className="font-bold text-amber-800">{isBn ? "নোট:" : "Note:"}</span>{" "}
                         {booking.notes}
                       </div>
                     )}

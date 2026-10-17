@@ -84,7 +84,7 @@ export default function InstructorAnalyticsPage() {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Analytics & Performance 📊</h1>
+        <h1 className="text-4xl font-bold mb-2">Analytics & Performance</h1>
         <p className="text-gray-600">Track your teaching performance and student engagement</p>
       </div>
 
@@ -184,11 +184,11 @@ export default function InstructorAnalyticsPage() {
                       <div className="flex-1">
                         <h3 className="font-bold text-lg mb-2">{course.title}</h3>
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          <span>👥 {course.enrolled || 0} students</span>
-                          <span>💰 ৳{((course.price || 0) * (course.enrolled || 0)).toLocaleString()}</span>
+                          <span>{course.enrolled || 0} students</span>
+                          <span>৳{((course.price || 0) * (course.enrolled || 0)).toLocaleString()}</span>
                           <span>⭐ {course.rating || 0}</span>
                           <span className={`px-2 py-1 rounded ${course.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {course.isPublished ? '✅ Published' : '⏸️ Draft'}
+                            {course.isPublished ? 'Published' : 'Draft'}
                           </span>
                         </div>
                       </div>

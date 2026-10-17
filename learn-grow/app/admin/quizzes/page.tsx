@@ -89,7 +89,7 @@ export default function AdminQuizzesPage() {
                         Back
                     </Button>
                     <div>
-                    <h1 className="text-4xl font-bold mb-2">Quiz Management 📝</h1>
+                    <h1 className="text-4xl font-bold mb-2">Quiz Management</h1>
                     <p className="text-gray-600">Manage and review all platform quizzes</p>
                     </div>
                 </div>

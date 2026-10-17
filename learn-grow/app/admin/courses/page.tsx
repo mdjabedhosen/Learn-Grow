@@ -824,9 +824,9 @@ export default function ManageCoursesPage() {
                                           ) : lesson.type === "pdf" ? (
                                             <FaFileAlt className="text-red-500" />
                                           ) : lesson.type === "quiz" ? (
-                                            <span className="text-purple-500">📝</span>
+                                            <span className="text-purple-500 font-semibold text-xs">Quiz</span>
                                           ) : (
-                                            <span className="text-green-500">📄</span>
+                                            <span className="text-green-500 font-semibold text-xs">Assignment</span>
                                           )}
                                           <div>
                                             <p className="font-medium">

@@ -4,7 +4,7 @@ import React from "react";
 import { Card, CardBody, CardHeader, Button, Chip, Progress, Spinner } from "@nextui-org/react";
 import { useGetQuizzesByCourseQuery } from "@/redux/api/quizApi";
 import { useRouter } from "next/navigation";
-import { FaLock } from "react-icons/fa";
+import { FaLock, FaFileAlt, FaBullseye, FaClock } from "react-icons/fa";
 
 interface QuizListProps {
     courseId: string;
@@ -69,15 +69,15 @@ export default function QuizList({ courseId, hasAccess = false }: QuizListProps)
                                     </div>
                                     <p className="text-sm text-default-600 mb-3">{quiz.description}</p>
                                     <div className="flex flex-wrap gap-2">
-                                        <Chip size="sm" variant="flat">
-                                            📝 {quiz.questions?.length || 0} Questions
+                                        <Chip size="sm" variant="flat" startContent={<FaFileAlt className="text-xs" />}>
+                                            {quiz.questions?.length || 0} Questions
                                         </Chip>
-                                        <Chip size="sm" variant="flat">
-                                            🎯 {quiz.passingScore || 60}% to Pass
+                                        <Chip size="sm" variant="flat" startContent={<FaBullseye className="text-xs text-amber-500" />}>
+                                            {quiz.passingScore || 60}% to Pass
                                         </Chip>
                                         {quiz.duration && (
-                                            <Chip size="sm" variant="flat">
-                                                ⏱️ {quiz.duration} min
+                                            <Chip size="sm" variant="flat" startContent={<FaClock className="text-xs text-blue-500" />}>
+                                                {quiz.duration} min
                                             </Chip>
                                         )}
                                         {isLocked && (

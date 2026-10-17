@@ -19,6 +19,7 @@ import {
   AlertCircle,
   GraduationCap,
   Video,
+  Target,
 } from "lucide-react";
 
 export default function LoginForm() {
@@ -229,8 +230,9 @@ export default function LoginForm() {
           <div className="max-w-md w-full mx-auto">
             {/* Header */}
             <div className="mb-6">
-              <span className="inline-block text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full mb-3">
-                👋 {language === "bn" ? "স্বাগতম" : "Welcome Back"}
+              <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                <span>{language === "bn" ? "স্বাগতম" : "Welcome Back"}</span>
               </span>
               <h1 className="text-2xl sm:text-3xl font-black text-[#2C2C2C] tracking-tight leading-tight">
                 {language === "bn" ? "লগইন করুন" : "Sign in to your account"}
@@ -244,7 +246,7 @@ export default function LoginForm() {
               {/* Redirect notice pill */}
               {redirectParam && (
                 <div className="mt-3 p-2.5 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-2 text-xs text-blue-800 font-semibold">
-                  <span className="text-base">🎯</span>
+                  <Target className="w-4 h-4 text-blue-600 shrink-0" />
                   <span>
                     {language === "bn"
                       ? "লগইন সম্পন্ন হওয়ার পর আপনাকে সরাসরি কোর্সে নিয়ে যাওয়া হবে।"

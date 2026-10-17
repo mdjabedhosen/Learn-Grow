@@ -34,6 +34,7 @@ import {
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $getNearestNodeOfType, mergeRegister } from "@lexical/utils";
+import { Link as LinkIcon, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 
 type RichTextEditorProps = {
   value?: string;
@@ -346,13 +347,13 @@ function ToolbarPlugin() {
 
       <button
         type="button"
-        className={`px-2.5 py-1 border rounded hover:bg-gray-100 ${
+        className={`px-2.5 py-1 border rounded hover:bg-gray-100 flex items-center justify-center ${
           isLink ? "bg-gray-200" : "bg-white"
         }`}
         onClick={insertLink}
         title="Insert Link"
       >
-        🔗
+        <LinkIcon className="w-3.5 h-3.5" />
       </button>
 
       <Divider />
@@ -383,38 +384,38 @@ function ToolbarPlugin() {
 
       <button
         type="button"
-        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100"
+        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100 flex items-center justify-center"
         onClick={() => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left")}
         title="Align Left"
       >
-        ⬅
+        <AlignLeft className="w-3.5 h-3.5" />
       </button>
 
       <button
         type="button"
-        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100"
+        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100 flex items-center justify-center"
         onClick={() => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center")}
         title="Align Center"
       >
-        ↔
+        <AlignCenter className="w-3.5 h-3.5" />
       </button>
 
       <button
         type="button"
-        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100"
+        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100 flex items-center justify-center"
         onClick={() => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right")}
         title="Align Right"
       >
-        ➡
+        <AlignRight className="w-3.5 h-3.5" />
       </button>
 
       <button
         type="button"
-        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100"
+        className="px-2.5 py-1 border rounded bg-white hover:bg-gray-100 flex items-center justify-center"
         onClick={() => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify")}
         title="Justify"
       >
-        ⬌
+        <AlignJustify className="w-3.5 h-3.5" />
       </button>
 
       <Divider />

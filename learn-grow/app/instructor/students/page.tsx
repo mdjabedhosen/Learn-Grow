@@ -255,7 +255,7 @@ function InstructorStudentsContent() {
                     onChange={(e) => setSelectedBatchId(e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm font-medium rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                   >
-                    <option value="">{isBn ? "🌟 সকল ব্যাচ (All Batches)" : "🌟 All Batches"}</option>
+                    <option value="">{isBn ? "সকল ব্যাচ (All Batches)" : "All Batches"}</option>
                     {batches.map((b: any) => (
                       <option key={b._id} value={b._id}>
                         {b.batchName} ({b.courseId?.title ? b.courseId.title.slice(0, 24) + "..." : "Course"})

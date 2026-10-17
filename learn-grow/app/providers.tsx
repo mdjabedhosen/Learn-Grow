@@ -54,16 +54,16 @@ function DevToolsWarning() {
         margin: 5px 0;
       `;
 
-      const warningIcon = "🚨 ";
+      const warningIcon = "[SECURITY] ";
 
       // Main warning messages
       console.log(
-        `%c${warningIcon}SECURITY WARNING - DO NOT EDIT!${warningIcon}`,
+        `%c${warningIcon}WARNING - DO NOT EDIT!`,
         bannerStyle
       );
 
       console.log(
-        "%c⚠️ THIS IS A BROWSER FEATURE INTENDED FOR DEVELOPERS",
+        "%cTHIS IS A BROWSER FEATURE INTENDED FOR DEVELOPERS",
         redBigStyle
       );
 
@@ -88,7 +88,7 @@ function DevToolsWarning() {
       );
 
       console.log(
-        "%c✅ For help, visit: https://learnandgrow.io/support",
+        "%cFor help, visit: https://learnandgrow.io/support",
         "color: #2e7d32; font-size: 14px; font-weight: bold;"
       );
     };

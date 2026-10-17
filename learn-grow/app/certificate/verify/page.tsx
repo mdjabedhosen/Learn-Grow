@@ -111,8 +111,8 @@ export default function CertificateVerificationPage() {
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold text-green-800">Valid Certificate</h2>
-                      <Chip color="success" variant="flat" size="lg" className="mt-2">
-                        ✓ Verified
+                      <Chip color="success" variant="flat" size="lg" className="mt-2 font-semibold">
+                        Verified
                       </Chip>
                     </div>
                   </div>
@@ -235,8 +235,8 @@ export default function CertificateVerificationPage() {
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold text-red-800">Invalid Certificate</h2>
-                      <Chip color="danger" variant="flat" size="lg" className="mt-2">
-                        ✗ Not Verified
+                      <Chip color="danger" variant="flat" size="lg" className="mt-2 font-semibold">
+                        Not Verified
                       </Chip>
                     </div>
                   </div>
