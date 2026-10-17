@@ -31,6 +31,7 @@ import {
 } from "@/redux/api/liveClassApi";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import RequireAuth from "@/components/Auth/RequireAuth";
+import Cookies from "js-cookie";
 
 export default function InstructorLiveClassesPage() {
     const router = useRouter();
@@ -39,9 +40,21 @@ export default function InstructorLiveClassesPage() {
     const [instructorId, setInstructorId] = React.useState<string | null>(null);
     const [formError, setFormError] = React.useState<string | null>(null);
 
+    // Language sync
+    const [lang, setLang] = useState<"en" | "bn">("bn");
+    useEffect(() => {
+        const currentLang = (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn";
+        setLang(currentLang);
+        const handleLangChange = (e: any) => {
+            setLang(e.detail?.language || (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn");
+        };
+        window.addEventListener("languageChange", handleLangChange);
+        return () => window.removeEventListener("languageChange", handleLangChange);
+    }, []);
+
     React.useEffect(() => {
         if (typeof window === "undefined") return;
-        const token = localStorage.getItem("token") || (require("js-cookie")).default.get("accessToken");
+        const token = localStorage.getItem("token") || Cookies.get("accessToken") || Cookies.get("token");
         setIsAuthed(!!token);
 
         const storedUser = localStorage.getItem("user");
@@ -370,31 +383,49 @@ export default function InstructorLiveClassesPage() {
 
     return (
         <RequireAuth allowedRoles={["instructor"]}>
-            <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-4">
-                        <Button
-                            isIconOnly
-                            variant="light"
-                            onPress={() => router.push("/instructor")}
-                            className="text-gray-600"
-                        >
-                            <FaArrowLeft className="text-lg" />
-                        </Button>
-                        <div>
-                            <h1 className="text-4xl font-bold mb-2">My Live Classes 🎥</h1>
-                            <p className="text-gray-600">Schedule and manage live sessions with your students</p>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
+                {/* Ambient Kodland Hero */}
+                <div className="relative mb-8 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#312E81] p-6 sm:p-10 text-white shadow-2xl border border-white/10">
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-500/20 text-rose-300 border border-rose-400/30">
+                                    <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
+                                    {lang === "bn" ? "লাইভ স্টুডিও কন্ট্রোল" : "Live Studio Control"}
+                                </span>
+                                <span className="text-xs text-white/50 font-medium">
+                                    {lang === "bn" ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batches"}
+                                </span>
+                            </div>
+                            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+                                {lang === "bn" ? "আমার লাইভ ক্লাস ম্যানেজমেন্ট" : "Interactive Live Class Hub"}
+                            </h1>
+                            <p className="text-sm sm:text-base text-indigo-200/80 max-w-2xl">
+                                {lang === "bn"
+                                    ? "শিক্ষার্থীদের জন্য শুক্রবার ও শনিবারের লাইভ সেশন শিডিউল করুন এবং জুম বা গুগল মিট লিংক পরিচালনা করুন।"
+                                    : "Schedule live Friday & Saturday hands-on sessions, launch Zoom/Meet classes, and share class recordings."}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <Button
+                                variant="flat"
+                                onPress={() => router.push("/instructor")}
+                                className="bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 min-h-[44px]"
+                            >
+                                {lang === "bn" ? "ড্যাশবোর্ডে ফিরুন" : "Back to Hub"}
+                            </Button>
+                            <Button
+                                color="primary"
+                                startContent={<FaPlus />}
+                                onPress={onOpen}
+                                isDisabled={instructorCourses.length === 0}
+                                className="bg-[#3B82F6] hover:bg-blue-600 font-bold rounded-xl shadow-lg min-h-[44px]"
+                            >
+                                {lang === "bn" ? "নতুন লাইভ ক্লাস শিডিউল করুন" : "Schedule New Class"}
+                            </Button>
                         </div>
                     </div>
-                    <Button
-                        color="primary"
-                        size="lg"
-                        startContent={<FaPlus />}
-                        onPress={onOpen}
-                        isDisabled={instructorCourses.length === 0}
-                    >
-                        Schedule New Class
-                    </Button>
                 </div>
 
                 {/* Search and Filters */}

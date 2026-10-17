@@ -3,6 +3,7 @@ import { EventGuest } from "../model/event-guest.model";
 import { EventRegistration } from "../model/event-registration.model";
 import { Types } from "mongoose";
 import { parsePagination } from "@/utils/pagination";
+import { escapeRegex } from "@/utils/sanitizeSearch";
 
 // ===== EVENT SERVICES =====
 
@@ -13,9 +14,16 @@ export const createEvent = async (data: Partial<IEvent>) => {
 export const getAllEvents = async (filters: any = {}) => {
   const query: any = {};
   
-  // Search by title
+  // Search by title or description
   if (filters.search) {
-    query.$text = { $search: filters.search };
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { title: { $regex: safeSearch, $options: "i" } },
+        { shortDescription: { $regex: safeSearch, $options: "i" } },
+        { venueName: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
   
   // Filter by type
@@ -47,6 +55,7 @@ export const getAllEvents = async (filters: any = {}) => {
   const { page, limit, skip } = parsePagination(filters, { defaultLimit: 10, maxLimit: 10 });
   
   const events = await Event.find(query)
+    .select("-meetingLink")
     .populate("guests", "fullName role profileImage organization")
     .populate("createdBy", "name email")
     .sort({ eventDate: -1, createdAt: -1 })
@@ -67,10 +76,16 @@ export const getAllEvents = async (filters: any = {}) => {
   };
 };
 
-export const getEventById = async (id: string) => {
-  return Event.findById(id)
+export const getEventById = async (id: string, includeMeetingLink = false) => {
+  const query = Event.findById(id)
     .populate("guests")
     .populate("createdBy", "name email");
+  
+  if (!includeMeetingLink) {
+    query.select("-meetingLink");
+  }
+  
+  return query;
 };
 
 export const updateEvent = async (id: string, data: Partial<IEvent>) => {
@@ -131,10 +146,13 @@ export const getAllGuests = async (filters: any = {}) => {
   
   // Search by name
   if (filters.search) {
-    query.$or = [
-      { fullName: { $regex: filters.search, $options: "i" } },
-      { organization: { $regex: filters.search, $options: "i" } },
-    ];
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { fullName: { $regex: safeSearch, $options: "i" } },
+        { organization: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
   
   // Filter by role
@@ -231,11 +249,14 @@ export const getEventRegistrations = async (eventId: string, filters: any = {}) 
   
   // Search by name, email, or phone
   if (filters.search) {
-    query.$or = [
-      { fullName: { $regex: filters.search, $options: "i" } },
-      { email: { $regex: filters.search, $options: "i" } },
-      { phoneNumber: { $regex: filters.search, $options: "i" } },
-    ];
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { fullName: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
+        { phoneNumber: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
   
   const { page, limit, skip } = parsePagination(filters, { defaultLimit: 10, maxLimit: 10 });
@@ -264,11 +285,14 @@ export const getAllRegistrations = async (filters: any = {}) => {
   
   // Search
   if (filters.search) {
-    query.$or = [
-      { fullName: { $regex: filters.search, $options: "i" } },
-      { email: { $regex: filters.search, $options: "i" } },
-      { phoneNumber: { $regex: filters.search, $options: "i" } },
-    ];
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { fullName: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
+        { phoneNumber: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
   
   const page = Math.max(1, parseInt(filters.page || "1"));
@@ -327,10 +351,13 @@ export const getEmailHistory = async (eventId: string, filters: any = {}) => {
 
   // Search by name or email
   if (filters.search) {
-    query.$or = [
-      { fullName: { $regex: filters.search, $options: "i" } },
-      { email: { $regex: filters.search, $options: "i" } },
-    ];
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { fullName: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
 
   const page = Math.max(1, parseInt(filters.page || "1"));

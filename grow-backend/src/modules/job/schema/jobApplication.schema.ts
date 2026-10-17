@@ -2,19 +2,22 @@ import { z } from "zod";
 
 export const applyForJobSchema = z.object({
   body: z.object({
-    jobId: z.string().length(24, "Invalid job ID"),
+    jobId: z.string().optional().nullable(),
+    applicationType: z.enum(["job", "general_cv"]).optional(),
+    positionOfInterest: z.string().optional().nullable(),
     email: z.string().email("Invalid email"),
-    fullName: z.string().min(2).max(100),
-    phone: z.string().min(7).max(20),
-    resumeUrl: z.string().url("Invalid resume URL"),
-    linkedinProfile: z.string().url("Invalid LinkedIn URL").optional(),
-    additionalInfo: z.string().max(2000).optional(),
+    fullName: z.string().min(2, "Name must be at least 2 characters").max(100),
+    phone: z.string().min(6, "Phone number is too short").max(25),
+    resumeUrl: z.string().min(1, "Resume link is required"),
+    linkedinProfile: z.string().optional().nullable(),
+    additionalInfo: z.string().max(2500).optional().nullable(),
   }),
 });
 
 export const getApplicationsSchema = z.object({
   query: z.object({
     jobId: z.string().optional(),
+    applicationType: z.enum(["job", "general_cv"]).optional(),
     status: z.enum(["pending", "reviewed", "shortlisted", "rejected", "accepted"]).optional(),
     page: z.string().optional(),
     limit: z.string().optional(),

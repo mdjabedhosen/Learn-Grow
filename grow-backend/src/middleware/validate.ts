@@ -22,9 +22,12 @@ export const validate =
       if (req.path.includes('login')) {
       }
       
+      const firstMessage = errorDetails.length > 0 ? errorDetails[0].message : "Validation failed";
+      console.log(`[Validation Error] ${req.method} ${req.path}`, { body: req.body, errors: errorDetails });
+      
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: firstMessage,
         errors: errorDetails,
       });
     }

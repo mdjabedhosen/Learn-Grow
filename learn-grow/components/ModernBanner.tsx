@@ -2,187 +2,145 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@nextui-org/react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay, Pagination, EffectFade } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/bundle";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-import "@/styles/banner-fix.css";
 import Image from "next/image";
-
-import { content } from "@/lib/content";
+import toast from "react-hot-toast";
+import { openTrialModal } from "@/components/TrialBookingModal";
 
 const ModernBanner = () => {
   const router = useRouter();
   const [language, setLanguage] = useState<"en" | "bn">("bn");
-  const heroContent = content.hero[language];
 
-  const slides = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop",
-      title:
-        language === "en"
-          ? "Learn Robotics & Arduino"
-          : "রোবটিক্স ও Arduino শিখুন",
-      highlight: language === "en" ? "Build Real Robots" : "আসল রোবট তৈরি করুন",
-      gradient: "from-blue-600/70 via-cyan-600/60 to-transparent",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1555255707-c07966088b7b?q=80&w=2032&auto=format&fit=crop",
-      title:
-        language === "en" ? "Master Python & AI" : "Python ও AI তে দক্ষ হোন",
-      highlight: language === "en" ? "Code the Future" : "ভবিষ্যৎ কোড করুন",
-      gradient: "from-green-600/70 via-emerald-600/60 to-transparent",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop",
-      title: language === "en" ? "STEM Education" : "STEM শিক্ষা",
-      highlight:
-        language === "en" ? "For Young Innovators" : "তরুণ উদ্ভাবকদের জন্য",
-      gradient: "from-purple-600/70 via-pink-600/60 to-transparent",
-    },
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedLang = localStorage.getItem("language") as "en" | "bn";
+      if (storedLang) {
+        setLanguage(storedLang);
+      }
 
-  ];
+      const handleLangChange = () => {
+        const updatedLang = localStorage.getItem("language") as "en" | "bn";
+        if (updatedLang) {
+          setLanguage(updatedLang);
+        }
+      };
+
+      window.addEventListener("languageChange", handleLangChange);
+      return () => window.removeEventListener("languageChange", handleLangChange);
+    }
+  }, []);
 
   return (
-    <div className="relative w-full">
-      <Swiper
-        autoplay={{
-          delay: 50000,
-          disableOnInteraction: false,
-        }}
-        className="h-[120vh]"
-        effect="fade"
-        loop={true}
-        modules={[Autoplay, Navigation, Pagination, EffectFade]}
-        navigation={true}
-        pagination={{
-          clickable: true,
-          dynamicBullets: true,
-        }}
-      >
-        {slides.map((slide, index) => (
-          <SwiperSlide key={index}>
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              {/* Background Image */}
-              <div className="absolute inset-0">
-                <Image
-                  fill
-                  alt={slide.title}
-                  className="object-cover"
-                  priority={index === 0}
-                  src={slide.image}
-                />
-                {/* Gradient Overlay */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r ${slide.gradient}`}
-                />
-              </div>
+    <div className="relative w-full min-h-[95vh] pt-32 pb-16 flex items-center justify-center bg-gradient-to-br from-[#EAF4FB]/70 via-[#F5F0FF]/30 to-[#FFF8E1]/70 overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-20 left-[-10%] w-[40%] h-[40%] rounded-full bg-[#EAF4FB] blur-[80px] opacity-60 pointer-events-none" />
+      <div className="absolute bottom-10 right-[-10%] w-[40%] h-[40%] rounded-full bg-[#FFF8E1] blur-[80px] opacity-60 pointer-events-none" />
 
-              {/* Content */}
-              <div className="relative z-20 container mx-auto px-4 md:px-6 lg:px-8">
-                <div className="max-w-6xl mx-auto text-center">
-                  {/* Animated Badge */}
-                  <div className="inline-block mb-10 mt-6 px-2 animate-slideDown">
-                    <span className="inline-flex items-center px-4 sm:px-6 py-3 bg-white/20 backdrop-blur-md rounded-full text-white text-base sm:text-lg font-semibold border border-white/30 whitespace-nowrap">
-                      {language === "en"
-                        ? "🚀 Future-Ready Education"
-                        : "🚀 ভবিষ্যৎমুখী শিক্ষা"}
-                    </span>
-                  </div>
 
-                  {/* Main Heading */}
-                  <h1
-                    className={`text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 animate-slideUp ${language === "bn" ? "font-siliguri" : ""}`}
-                  >
-                    <span className="block mb-2">{slide.title}</span>
-                    <span className="block text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-                      {slide.highlight}
-                    </span>
-                  </h1>
 
-                  {/* Description */}
-                  <p
-                    className={`text-lg md:text-xl lg:text-2xl text-white/90 mb-10 max-w-4xl mx-auto animate-fadeIn ${language === "bn" ? "font-siliguri" : ""}`}
-                  >
-                    {heroContent.description}
-                  </p>
+      <div className="container mx-auto px-6 md:px-12 lg:px-16 max-w-7xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column: Text & CTAs */}
+          <div className="flex flex-col text-left">
+            {/* Pill Badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-6 animate-slideDown">
+              <span className="inline-flex items-center px-4 py-2 bg-[#7C3AED] text-white text-xs sm:text-sm font-black rounded-full uppercase tracking-wider border border-[#6D28D9] shadow-sm">
+                {language === "en" ? "Future skills platform" : "ভবিষ্যৎ দক্ষতা শিক্ষার প্ল্যাটফর্ম"}
+              </span>
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-600 text-xs sm:text-sm font-black rounded-full uppercase tracking-wider shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                {language === "en" ? "100% Live Classes • Not Recorded" : "১০০% সরাসরি লাইভ ক্লাস • কোনো রেকর্ডেড ভিডিও নয়"}
+              </span>
+            </div>
 
-                  {/* CTA Buttons */}
-                  <div
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scaleIn"
-                    style={{ animationDelay: "200ms" }}
-                  >
-                    <Button
-                      className="bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold px-8 py-6 text-lg rounded-2xl shadow-glow-primary hover:scale-105 transition-transform"
-                      size="lg"
-                      onClick={() => router.push("/courses")}
-                    >
-                      {heroContent.cta.primary} →
-                    </Button>
-                    <Button
-                      className="border-2 border-white text-white font-bold px-8 py-6 text-lg rounded-2xl hover:bg-white/10 backdrop-blur-sm transition-all"
-                      size="lg"
-                      variant="bordered"
-                      onClick={() => router.push("/pricing")}
-                    >
-                      {heroContent.cta.secondary}
-                    </Button>
-                  </div>
+            {/* Main Heading */}
+            <h1
+              className={`text-5xl md:text-7xl font-black text-[#2C2C2C] mb-6 tracking-tight leading-[1.02] animate-slideUp ${language === "bn" ? "font-siliguri" : ""}`}
+            >
+              {language === "en" ? (
+                <>
+                  Turn curiosity
+                  <br />
+                  into <span className="text-[#3b82f6]">real skills</span>
+                  <br />
+                  for kids ages 8–17
+                </>
+              ) : (
+                <>
+                  জিজ্ঞাসাকে রূপান্তর
+                  <br />
+                  করুন <span className="text-[#7c3aed]">বাস্তব দক্ষতায়</span>
+                  <br />
+                  বয়স ৮-১৭ বছরের জন্য
+                </>
+              )}
+            </h1>
 
-                  {/* Stats */}
-                  <div
-                    className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto animate-fadeIn"
-                    style={{ animationDelay: "400ms" }}
-                  >
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl font-black text-white mb-1">
-                        500+
-                      </div>
-                      <div
-                        className={`text-sm md:text-base text-white/80 ${language === "bn" ? "font-siliguri" : ""}`}
-                      >
-                        {language === "en" ? "Students" : "শিক্ষার্থী"}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl font-black text-white mb-1">
-                        50+
-                      </div>
-                      <div
-                        className={`text-sm md:text-base text-white/80 ${language === "bn" ? "font-siliguri" : ""}`}
-                      >
-                        {language === "en" ? "Projects" : "প্রজেক্ট"}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl md:text-4xl font-black text-white mb-1">
-                        95%
-                      </div>
-                      <div
-                        className={`text-sm md:text-base text-white/80 ${language === "bn" ? "font-siliguri" : ""}`}
-                      >
-                        {language === "en" ? "Satisfaction" : "সন্তুষ্টি"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Subtitle / Description */}
+            <p
+              className={`text-lg md:text-xl text-gray-600 mb-8 max-w-xl leading-relaxed animate-fadeIn ${language === "bn" ? "font-siliguri" : ""}`}
+            >
+              {language === "en"
+                ? "Kids learn coding, math, and digital media through live lessons, hands-on practice, and real projects."
+                : "আমাদের লাইভ ক্লাসে হাতে-কলমে প্রজেক্ট এবং মজার কোডিংয়ের মাধ্যমে শিশুরা সহজে শিখবে প্রোগ্রামিং ও ডিজিটাল লজিক।"}
+            </p>
 
-              {/* Floating Elements */}
-              <div className="absolute bottom-10 left-10 w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl animate-float hidden lg:block" />
-              <div
-                className="absolute top-20 right-10 w-16 h-16 bg-white/10 backdrop-blur-md rounded-full animate-float hidden lg:block"
-                style={{ animationDelay: "1s" }}
+            {/* CTA Button Block */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center animate-scaleIn">
+              {/* Kodland style trial button */}
+              <button
+                onClick={() => openTrialModal({ source: "hero_banner" })}
+                className="group bg-[#2C2C2C] hover:bg-black text-white font-black pl-8 pr-2 py-2 rounded-full flex items-center justify-between gap-4 transition-all w-full sm:w-[320px] shadow-lg shadow-black/10 cursor-pointer"
+              >
+                <span className={`text-base tracking-wide ${language === "bn" ? "font-siliguri" : ""}`}>
+                  {language === "en" ? "Book a free trial class" : "ফ্রি ট্রায়াল বুক করুন"}
+                </span>
+                <span className="w-11 h-11 bg-[#F59E0B] rounded-full flex items-center justify-center text-black font-extrabold group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </button>
+
+              <Button
+                className="border-2 border-[#2C2C2C] text-[#2C2C2C] font-extrabold px-8 py-6 rounded-full hover:bg-[#2C2C2C]/5 transition-all w-full sm:w-auto text-base"
+                variant="bordered"
+                onClick={() => router.push("/courses")}
+              >
+                <span className={language === "bn" ? "font-siliguri" : ""}>
+                  {language === "en" ? "Browse Courses" : "কোর্সসমূহ দেখুন"}
+                </span>
+              </Button>
+            </div>
+
+            {/* Bullet Tags */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-6 text-xs text-gray-500 font-bold tracking-wider uppercase">
+              <span className="text-red-600 font-black flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+                {language === "en" ? "LIVE INTERACTIVE" : "সরাসরি লাইভ ক্লাস"}
+              </span>
+              <span>•</span>
+              <span>✓ {language === "en" ? "FREE TRIAL" : "ফ্রি ট্রায়াল"}</span>
+              <span>•</span>
+              <span>✓ {language === "en" ? "UP TO 60 MIN" : "৬০ মিনিট ডেমো"}</span>
+              <span>•</span>
+              <span>✓ {language === "en" ? "1-TO-1 DEMO" : "১:১ গাইডেন্স"}</span>
+            </div>
+          </div>
+
+          {/* Right Column: Generated Mascot Illustration */}
+          <div className="relative flex justify-center items-center animate-fadeIn">
+            {/* Soft decorative back drop card */}
+            <div className="absolute w-[95%] h-[95%] bg-white/40 rounded-[44px] rotate-3 -z-10 border border-white/50 backdrop-blur-sm" />
+            <div className="relative w-full max-w-[420px] aspect-[3/4] rounded-[44px] overflow-hidden shadow-2xl border-4 border-white">
+              <Image
+                fill
+                priority
+                alt="Young student with tablet and coding symbols"
+                className="object-cover"
+                src="/hero-illustration.jpg"
               />
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

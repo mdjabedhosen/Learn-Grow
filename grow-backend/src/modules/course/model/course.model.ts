@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, models, Model, Types } from "mongoose";
 
 export interface ICourse {
   title: string;
@@ -16,6 +16,8 @@ export interface ICourse {
   ratingsCount?: number;
   studentsEnrolled?: number;
   instructorId: Types.ObjectId;
+  instructorIds?: Types.ObjectId[];
+  maxBatchSize?: number;
   isPublished: boolean;
   isFeatured?: boolean;
   isAdminApproved?: boolean; // For admin approval of published courses
@@ -24,6 +26,7 @@ export interface ICourse {
   tags?: string[];
   learningOutcomes?: string[];
   prerequisites?: string[];
+  slug?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -99,6 +102,17 @@ const courseSchema = new Schema<ICourse>(
       ref: "User",
       required: true,
     },
+    instructorIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    maxBatchSize: {
+      type: Number,
+      default: 15,
+      min: 1,
+    },
     isPublished: {
       type: Boolean,
       default: false,
@@ -122,12 +136,18 @@ const courseSchema = new Schema<ICourse>(
     tags: [String],
     learningOutcomes: [String],
     prerequisites: [String],
+    slug: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
   },
   { timestamps: true }
 );
 
+courseSchema.index({ slug: 1 });
 courseSchema.index({ instructorId: 1 });
 courseSchema.index({ category: 1 });
 courseSchema.index({ isPublished: 1, isFeatured: -1 });
 
-export const Course = model<ICourse>("Course", courseSchema);
+export const Course = (models.Course as Model<ICourse>) || model<ICourse>("Course", courseSchema);

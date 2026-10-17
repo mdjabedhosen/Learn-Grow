@@ -140,7 +140,7 @@ export default function AccessStatusDisplay({
                   color="danger"
                   variant="light"
                   as={Link}
-                  href={`/courses/${access.course._id || ""}`}
+                  href={`/courses/${access.course?._id || access.courseId?._id || ""}`}
                   className="mt-2 font-semibold"
                 >
                   Renew Access
@@ -164,7 +164,7 @@ export default function AccessStatusDisplay({
         {isValid && (
           <Button
             as={Link}
-            href={`/courses/${access.course._id || ""}`}
+            href={`/courses/${access.course?._id || access.courseId?._id || ""}`}
             color="primary"
             variant="flat"
             fullWidth

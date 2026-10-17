@@ -4,7 +4,7 @@ import { requireAuth, requireRoles } from "@/middleware/auth";
 
 const router = express.Router();
 
-// ===== COMBO ROUTES (Admin only for most operations) =====
+// ===== COMBO ROUTES (Admin & Manager) =====
 
 /**
  * Create a new combo
@@ -13,69 +13,69 @@ const router = express.Router();
 router.post(
   "/create",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.createCombo
 );
 
 /**
- * Get all active combos
+ * Get all active combos (Public)
  * GET /api/combo/list
  */
 router.get("/list", controller.getActiveCombos);
 
 /**
- * Get all combos (admin panel - includes inactive)
+ * Get all combos (Admin & Manager panel - includes inactive)
  * GET /api/combo/all
  */
-router.get("/all", requireAuth, requireRoles("admin"), controller.getAllCombos);
+router.get("/all", requireAuth, requireRoles("admin", "manager"), controller.getAllCombos);
 
 /**
- * Get combo by ID
+ * Get combo by ID (Public)
  * GET /api/combo/:comboId
  */
 router.get("/:comboId", controller.getComboById);
 
 /**
- * Update combo (Admin only)
+ * Update combo (Admin & Manager)
  * PATCH /api/course/combo/:comboId
  */
 router.patch(
   "/:comboId",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.updateCombo
 );
 
 /**
- * Disable/Delete combo (Admin only)
+ * Disable/Delete combo (Admin & Manager)
  * DELETE /api/course/combo/:comboId
  */
 router.delete(
   "/:comboId",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.disableCombo
 );
 
 /**
- * Toggle combo active status (Admin only)
+ * Toggle combo active status (Admin & Manager)
  * PATCH /api/combo/:comboId/toggle-status
  */
 router.patch(
   "/:comboId/toggle-status",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.toggleComboStatus
 );
 
 /**
- * Delete combo permanently (Admin only)
+ * Delete combo permanently (Admin & Manager)
  * DELETE /api/combo/:comboId/permanent
  */
 router.delete(
   "/:comboId/permanent",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.deleteCombo
 );
 
@@ -90,19 +90,19 @@ router.post(
 );
 
 /**
- * Extend user's combo access (Admin only)
+ * Extend user's combo access (Admin & Manager)
  * POST /api/course/combo/extend-access
  */
 router.post(
   "/extend-access",
   requireAuth,
-  requireRoles("admin"),
+  requireRoles("admin", "manager"),
   controller.extendComboAccess
 );
 
 /**
  * Get user's combo purchases
- * GET /api/course/combo/my-combos
+ * GET /api/course/combo/my/purchases
  */
 router.get(
   "/my/purchases",

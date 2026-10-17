@@ -1,5 +1,6 @@
 import { Blog, IBlog } from "../model/blog.model";
 import { BlogCategory } from "../model/blog-category.model";
+import { escapeRegex } from "@/utils/sanitizeSearch";
 
 // Generate slug from title
 const generateSlug = (title: string): string => {
@@ -71,10 +72,13 @@ export const getAllBlogs = async (filters: any = {}) => {
 
   // Search by title or excerpt
   if (filters.search) {
-    query.$or = [
-      { title: { $regex: filters.search, $options: "i" } },
-      { excerpt: { $regex: filters.search, $options: "i" } },
-    ];
+    const safeSearch = escapeRegex(filters.search);
+    if (safeSearch) {
+      query.$or = [
+        { title: { $regex: safeSearch, $options: "i" } },
+        { excerpt: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
   }
 
   const page = Math.max(1, parseInt(filters.page || "1"));

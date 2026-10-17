@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-
 // Combo Types
 export interface ICourse {
   _id: string;
@@ -43,6 +41,13 @@ export interface IComboOrder {
 export interface IEnrollmentAccess {
   _id: string;
   courseId: {
+    _id: string;
+    title: string;
+    description?: string;
+    thumbnail?: string;
+    price: number;
+  };
+  course?: {
     _id: string;
     title: string;
     description?: string;

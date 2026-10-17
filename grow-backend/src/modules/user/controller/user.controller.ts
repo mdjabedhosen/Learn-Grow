@@ -430,11 +430,13 @@ export const getInstructorStudents = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: "User not authenticated" });
     }
 
-    const { page, limit, search } = req.query;
+    const { page, limit, search, batchId, courseId } = req.query;
     const result = await service.getInstructorStudents(userId, {
       page: Number(page) || 1,
       limit: Number(limit) || 20,
       search: (search as string) || undefined,
+      batchId: (batchId as string) || undefined,
+      courseId: (courseId as string) || undefined,
     });
 
     return res.status(result.success ? 200 : 400).json(result);
@@ -598,7 +600,9 @@ export const updateProfile = async (req: Request, res: Response) => {
       });
     }
 
+    console.log("[updateProfile controller] userId:", userId, "body:", req.body);
     const result = await service.updateProfile(userId, req.body);
+    console.log("[updateProfile controller] result:", result);
 
     if (result.success) {
       return res.status(200).json(result);

@@ -3,6 +3,9 @@ import mongoose, { Schema, Document } from "mongoose";
 interface ITeamMember extends Document {
     name: string;
     role: string;
+    domain?: string;
+    yearsOfExperience?: string | number;
+    expertise?: string[];
     image: string; // Image URL
     imagePublicId?: string;
     imageSize: number; // Size in bytes (deprecated, kept for backward compatibility)
@@ -27,6 +30,19 @@ const TeamMemberSchema = new Schema<ITeamMember>(
             type: String,
             required: [true, "Role is required"],
             trim: true,
+        },
+        domain: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+        yearsOfExperience: {
+            type: Schema.Types.Mixed,
+            default: "",
+        },
+        expertise: {
+            type: [String],
+            default: [],
         },
         image: {
             type: String,

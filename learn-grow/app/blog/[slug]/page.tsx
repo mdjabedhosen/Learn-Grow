@@ -2,35 +2,38 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Card,
-  CardBody,
-  Image,
   Chip,
   Button,
   Spinner,
   Divider,
 } from "@nextui-org/react";
+import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
 import { useGetBlogBySlugQuery } from "@/redux/api/blogApi";
-import { FaArrowLeft, FaEdit, FaTrash, FaImage } from "react-icons/fa";
+import { FaArrowLeft, FaEdit, FaCalendarAlt, FaClock, FaEye, FaShareAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
 
-// Helper function to decode HTML entities
-const decodeHtmlEntities = (html: string): string => {
-  if (typeof document === "undefined") {
-    // Server-side fallback
-    return html
-      .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&#39;/g, "'");
+// Helper function to decode HTML entities & replace non-breaking spaces with standard spaces
+const cleanHtmlString = (html: string): string => {
+  if (!html) return "";
+  let clean = html
+    .replace(/&nbsp;/g, " ")
+    .replace(/\u00A0/g, " ")
+    .replace(/\u200B/g, "") // strip zero-width space
+    .replace(/\u00AD/g, "") // strip soft hyphens causing word splits
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\u00A0/g, " ");
+
+  if (typeof document !== "undefined") {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = clean;
+    clean = textarea.value.replace(/\u00A0/g, " ");
   }
-  const textarea = document.createElement("textarea");
-  textarea.innerHTML = html;
-  return textarea.value;
+
+  return clean;
 };
 
 export default function BlogDetailPage() {
@@ -39,6 +42,7 @@ export default function BlogDetailPage() {
   const blogSlug = params.slug as string;
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [displayContent, setDisplayContent] = useState<string>("");
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -47,8 +51,7 @@ export default function BlogDetailPage() {
         const user = JSON.parse(userStr);
         setUserId(user._id || user.id);
         setUserRole(user.role);
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }, []);
 
@@ -58,200 +61,252 @@ export default function BlogDetailPage() {
 
   const blog = blogResponse?.data;
 
-  // Check if user can edit/delete
+  useEffect(() => {
+    if (blog?.content) {
+      const raw = cleanHtmlString(blog.content);
+      // Dynamically load dompurify in the browser safely
+      import("dompurify")
+        .then((mod) => {
+          const DOMPurify = mod.default || mod;
+          if (DOMPurify && typeof DOMPurify.sanitize === "function") {
+            const sanitized = DOMPurify.sanitize(raw, {
+              ADD_TAGS: ["iframe", "img", "figure", "figcaption"],
+              ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src", "alt", "class", "style", "target", "rel"],
+            });
+            setDisplayContent(sanitized);
+          } else {
+            setDisplayContent(raw);
+          }
+        })
+        .catch(() => {
+          setDisplayContent(raw);
+        });
+    }
+  }, [blog?.content]);
+
   const isOwner = blog && userId && (blog.author?._id === userId || blog.author?.id === userId);
   const isAdmin = userRole === "admin";
   const canManage = isOwner || isAdmin;
 
+  const handleShare = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("ব্লগের লিংক কপি করা হয়েছে!");
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" label="Loading blog..." />
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA]">
+        <Spinner size="lg" label="ব্লগ লোড হচ্ছে..." />
       </div>
     );
   }
 
   if (!blog) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="border-2 border-red-500">
-          <CardBody className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">
-              Blog Not Found
-            </h2>
-            <p className="text-gray-600 mb-6">
-              The blog you're looking for doesn't exist or has been deleted.
-            </p>
-            <Button color="primary" onPress={() => router.push("/blog")}>
-              Back to Blogs
-            </Button>
-          </CardBody>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FA] px-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center border-2 border-red-200 shadow-xl">
+          <div className="text-5xl mb-4">🔍</div>
+          <h2 className="text-2xl font-black text-gray-900 mb-2 font-siliguri">
+            ব্লগটি পাওয়া যায়নি
+          </h2>
+          <p className="text-gray-500 mb-6 text-sm font-siliguri">
+            আপনার কাঙ্ক্ষিত ব্লগ পোস্টটি সরানো হয়েছে অথবা লিঙ্কটি ভুল।
+          </p>
+          <Button
+            className="bg-[#2C2C2C] text-white font-bold rounded-full px-6"
+            onPress={() => router.push("/blog")}
+          >
+            সকল ব্লগে ফিরে যান
+          </Button>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto max-w-4xl px-6">
-        <Button
-          variant="light"
-          startContent={<FaArrowLeft />}
-          onPress={() => router.push("/blog")}
-          className="mb-6"
-        >
-          Back to Blogs
-        </Button>
+  const isBangla = /[\u0980-\u09FF]/.test(blog.title);
 
-        <article>
-          {/* Featured Image */}
-          <div className="mb-8 rounded-lg overflow-hidden">
-            {blog.image ? (
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] py-10 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-4xl">
+        {/* Navigation Bar */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => router.push("/blog")}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-full shadow-sm hover:shadow transition-all cursor-pointer"
+          >
+            <FaArrowLeft className="text-xs" />
+            <span>ব্লগ তালিকায় ফিরে যান</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-full shadow-sm transition-all cursor-pointer"
+              title="শেয়ার করুন"
+            >
+              <FaShareAlt className="text-xs text-primary" />
+              <span className="hidden sm:inline">শেয়ার</span>
+            </button>
+
+            {canManage && (
+              <button
+                onClick={() => router.push(`/blog/${blogSlug}/edit`)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold rounded-full shadow-md transition-all cursor-pointer"
+              >
+                <FaEdit className="text-xs" />
+                <span>এডিট</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Main Article Container */}
+        <article className="bg-white rounded-[32px] border border-gray-100 shadow-xl overflow-hidden p-6 sm:p-12 md:p-16">
+          {/* Category & Tags Header */}
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            {blog.category && (
+              <span className="px-4 py-1.5 bg-[#EAF4FB] text-[#1B5C8A] border border-[#B3D9F5] text-xs font-black rounded-full uppercase tracking-wider">
+                {blog.category.name}
+              </span>
+            )}
+            {blog.metaTags &&
+              blog.metaTags.map((tag: string, index: number) => (
+                <span
+                  key={`${tag}-${index}`}
+                  className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+          </div>
+
+          {/* Main Title */}
+          <h1
+            className={`text-3xl sm:text-4xl md:text-5xl font-black text-[#2C2C2C] tracking-tight leading-tight sm:leading-snug mb-6 ${
+              isBangla ? "font-siliguri" : ""
+            }`}
+            style={{ wordBreak: "normal", overflowWrap: "break-word" }}
+          >
+            {blog.title}
+          </h1>
+
+          {/* Author & Publication Meta Bar */}
+          <div className="flex flex-wrap items-center gap-6 text-gray-500 text-sm py-5 border-y border-gray-100 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-[#EAF4FB] border border-[#B3D9F5] flex items-center justify-center overflow-hidden flex-shrink-0 text-[#1B5C8A] font-black text-base">
+                {blog.author?.profileImage ? (
+                  <img
+                    src={blog.author.profileImage}
+                    alt={blog.author.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{blog.author?.name?.charAt(0).toUpperCase() || "L"}</span>
+                )}
+              </div>
+              <div>
+                <p className="font-bold text-[#2C2C2C] leading-snug">
+                  {blog.author?.name || "Learn & Grow Team"}
+                </p>
+                <p className="text-xs text-gray-400">অফিসিয়াল পাবলিকেশন</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-500 ml-auto">
+              <span className="flex items-center gap-1.5">
+                <FaCalendarAlt className="text-gray-400" />
+                {new Date(blog.createdAt).toLocaleDateString("bn-BD", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <FaClock className="text-gray-400" />
+                {blog.readTime || 5} মিনিট পড়ার সময়
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <FaEye className="text-gray-400" />
+                {blog.viewCount || 1} ভিউ
+              </span>
+            </div>
+          </div>
+
+          {/* Hero Featured Image */}
+          {blog.image && (
+            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-[24px] overflow-hidden shadow-lg border border-gray-100 mb-10 group">
               <Image
                 src={blog.image}
                 alt={blog.title}
-                className="w-full h-96 object-cover"
-                fallbackSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400'%3E%3Crect fill='%23e5e7eb' width='800' height='400'/%3E%3C/svg%3E"
-                onError={(e: any) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.image-placeholder')) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'image-placeholder w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center';
-                    placeholder.innerHTML = '<svg class="w-20 h-20 text-gray-400 mb-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg><span class="text-base text-gray-500 font-medium">No Image Available</span>';
-                    parent.appendChild(placeholder);
-                  }
-                }}
+                fill
+                className="object-cover group-hover:scale-102 transition-transform duration-500"
+                priority
+                sizes="(max-width: 1024px) 100vw, 900px"
               />
-            ) : (
-              <div className="w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center rounded-lg">
-                <FaImage className="w-20 h-20 text-gray-400 mb-3" />
-                <span className="text-base text-gray-500 font-medium">No Image Available</span>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Header */}
-          <Card className="mb-8">
-            <CardBody className="p-8">
-              {/* Category and Meta */}
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                {blog.category && (
-                  <Chip color="primary" variant="flat">
-                    {blog.category.name}
-                  </Chip>
-                )}
-                {blog.metaTags && blog.metaTags.length > 0 && (
-                  blog.metaTags.map((tag: string, index: number) => (
-                    <Chip key={`${tag}-${index}`} size="sm" variant="bordered">
-                      #{tag}
-                    </Chip>
-                  ))
-                )}
-              </div>
+          {/* Excerpt Lead Box */}
+          {blog.excerpt && (
+            <div className="bg-[#FFF8E1] border-l-4 border-[#F59E0B] p-6 rounded-r-2xl mb-10">
+              <p
+                className={`text-lg sm:text-xl font-medium text-gray-800 leading-relaxed ${
+                  isBangla ? "font-siliguri" : ""
+                }`}
+                style={{ wordBreak: "normal", overflowWrap: "break-word" }}
+              >
+                {blog.excerpt}
+              </p>
+            </div>
+          )}
 
-              {/* Title */}
-              <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+          {/* Article Rich Body Content */}
+          <div
+            className={`prose prose-lg max-w-none text-gray-800 leading-relaxed font-normal ${
+              isBangla ? "font-siliguri" : ""
+            }`}
+            style={{
+              wordBreak: "normal",
+              overflowWrap: "break-word",
+              lineHeight: "1.9",
+            }}
+            dangerouslySetInnerHTML={{
+              __html: displayContent || cleanHtmlString(blog.content),
+            }}
+          />
 
-              {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    {blog.author?.profileImage ? (
-                      <Image
-                        src={blog.author.profileImage}
-                        alt={blog.author.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    ) : (
-                      <span className="text-sm font-semibold">
-                        {blog.author?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <p 
-                      className="font-medium text-primary cursor-pointer hover:underline"
-                      onClick={() => router.push(`/blog/author/${blog.author?._id || blog.author?.id}`)}
-                    >
-                      {blog.author?.name || "Anonymous"}
-                    </p>
-                    <p className="text-sm">
-                      {new Date(blog.createdAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
+          <Divider className="my-10" />
+
+          {/* Author Sign-off & Footer */}
+          <div className="bg-[#F8F9FA] border border-gray-100 rounded-[24px] p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#7C3AED] text-white flex items-center justify-center font-black text-2xl shadow-md flex-shrink-0">
+              LG
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <h4 className="text-xl font-black text-[#2C2C2C] mb-1 font-siliguri">
+                Learn & Grow
+              </h4>
+              <p className="text-sm text-gray-600 mb-3 font-siliguri leading-relaxed">
+                বাংলাদেশের তরুণ প্রজন্মকে রোবটিক্স, প্রোগ্রামিং এবং বাস্তবমুখী STEM শিক্ষায় দক্ষ করে গড়ে তোলার জাতীয় প্ল্যাটফর্ম।
+              </p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold text-gray-500">
+                <span>📍 লেভেল ৪, ৩৫ গ্রিন রোড, ধানমন্ডি, ঢাকা</span>
                 <span>•</span>
-                <span>{blog.readTime || 5} min read</span>
-                <span>•</span>
-                <span>{blog.viewCount || 0} views</span>
-              </div>
-
-              {/* Excerpt */}
-              <p className="text-lg text-gray-700 italic mb-4">{blog.excerpt}</p>
-
-              {/* Approval Status */}
-              {!blog.isApproved && (
-                <Chip
-                  color="warning"
-                  variant="flat"
-                  className="mb-4"
+                <a
+                  href="https://learnandgrow.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#3B82F6] hover:underline"
                 >
-                  Pending Admin Approval
-                </Chip>
-              )}
-            </CardBody>
-          </Card>
-
-          {/* Content */}
-          <Card className="mb-8">
-            <CardBody className="p-8">
-              <div
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(decodeHtmlEntities(blog.content)),
-                }}
-              />
-            </CardBody>
-          </Card>
-
-          {/* Footer */}
-          <Card>
-            <CardBody className="p-8">
-              <Divider className="mb-6" />
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <p className="text-gray-600">
-                    Last updated:{" "}
-                    {new Date(blog.updatedAt).toLocaleDateString()}
-                  </p>
-                </div>
-                {canManage && (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="bordered"
-                      startContent={<FaEdit />}
-                      onPress={() => router.push(`/blog/${blogSlug}/edit`)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      color="danger"
-                      variant="bordered"
-                      startContent={<FaTrash />}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                )}
+                  learnandgrow.io
+                </a>
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </div>
         </article>
       </div>
     </div>

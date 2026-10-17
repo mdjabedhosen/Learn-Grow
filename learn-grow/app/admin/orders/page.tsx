@@ -84,6 +84,18 @@ export default function OrdersAdminPage() {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  // Language state & listener
+  const [lang, setLang] = useState<"en" | "bn">("bn");
+  React.useEffect(() => {
+    const currentLang = (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn";
+    setLang(currentLang);
+    const handleLangChange = (e: any) => {
+      setLang(e.detail?.language || (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn");
+    };
+    window.addEventListener("languageChange", handleLangChange);
+    return () => window.removeEventListener("languageChange", handleLangChange);
+  }, []);
+
   const [userRole, setUserRole] = React.useState<string>("");
   const [autoRefreshInterval, setAutoRefreshInterval] = React.useState<number>(0);
 
@@ -215,73 +227,87 @@ export default function OrdersAdminPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
-      {/* Header with Gradient */}
-      <div className="mb-6 sm:mb-8 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
-        <div className="flex flex-col gap-4">
-          <Button
-            variant="light"
-            startContent={<FaArrowLeft />}
-            onPress={() => router.push(userRole === "manager" ? "/manager" : "/admin")}
-            className="self-start text-white hover:bg-white/20 min-h-[44px]"
-            size="lg"
-          >
-            Back to Dashboard
-          </Button>
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="bg-white/20 p-3 sm:p-4 rounded-xl backdrop-blur-sm">
-              <FaShoppingCart className="text-3xl sm:text-4xl" />
+      {/* Ambient Kodland Hero */}
+      <div className="relative mb-8 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#0F172A] via-[#1E293B] to-[#047857] p-6 sm:p-10 text-white shadow-2xl border border-white/10">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                {lang === "bn" ? "অর্ডার ও পেমেন্ট সেন্টার" : "Transactions Hub"}
+              </span>
+              <span className="text-xs text-white/50 font-medium">
+                {lang === "bn" ? "বিকাশ ও নগদ ভেরিফিকেশন" : "bKash & Nagad Verification"}
+              </span>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                Order Management
-              </h1>
-              <p className="text-sm sm:text-base text-white/90 mt-1">
-                Approve and manage pending orders
-              </p>
-            </div>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+              {lang === "bn" ? "অর্ডার ও পেমেন্ট ব্যবস্থাপনা" : "Order & Payment Gateway"}
+            </h1>
+            <p className="text-sm sm:text-base text-emerald-100/80 max-w-2xl">
+              {lang === "bn"
+                ? "শিক্ষার্থীদের কোর্স ও রোবোটিক্স কিটের অর্ডার, ট্রানজেকশন আইডি এবং ডেলিভারি অ্যাড্রেস যাচাই করে অনুমোদন দিন।"
+                : "Verify transaction IDs, approve course enrollments, and track hardware kit delivery addresses."}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="flat"
+              onPress={() => router.push(userRole === "manager" ? "/manager" : "/admin")}
+              className="bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 min-h-[44px]"
+              startContent={<FaArrowLeft />}
+            >
+              {lang === "bn" ? "ড্যাশবোর্ডে ফিরুন" : "Back to Hub"}
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 mb-5 sm:mb-6">
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-emerald-200">
-          <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
+        <Card className="rounded-[24px] border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+          <CardBody className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Total Orders</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.total}</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  {lang === "bn" ? "সর্বমোট অর্ডার" : "Total Orders"}
+                </p>
+                <p className="text-3xl font-black text-[#2C2C2C]">{stats.total}</p>
               </div>
-              <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2">
-                <FaShoppingCart className="text-2xl sm:text-3xl lg:text-4xl" />
+              <div className="bg-emerald-50 text-emerald-600 p-3.5 rounded-2xl flex-shrink-0 ml-2">
+                <FaShoppingCart className="text-2xl" />
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-yellow-200">
-          <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-yellow-500 to-orange-500 text-white">
+        <Card className="rounded-[24px] border border-amber-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+          <CardBody className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Pending</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.pending}</p>
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">
+                  {lang === "bn" ? "অপেক্ষমাণ অর্ডার" : "Pending Approval"}
+                </p>
+                <p className="text-3xl font-black text-amber-600">{stats.pending}</p>
               </div>
-              <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2 animate-pulse">
-                <FaClock className="text-2xl sm:text-3xl lg:text-4xl" />
+              <div className="bg-amber-50 text-amber-600 p-3.5 rounded-2xl flex-shrink-0 ml-2 animate-pulse">
+                <FaClock className="text-2xl" />
               </div>
             </div>
           </CardBody>
         </Card>
 
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-green-200 xs:col-span-2 lg:col-span-1">
-          <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+        <Card className="rounded-[24px] border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white xs:col-span-2 lg:col-span-1">
+          <CardBody className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Approved</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.approved}</p>
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+                  {lang === "bn" ? "অনুমোদিত ও সচল" : "Approved Orders"}
+                </p>
+                <p className="text-3xl font-black text-blue-600">{stats.approved}</p>
               </div>
-              <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2">
-                <FaCheckCircle className="text-2xl sm:text-3xl lg:text-4xl" />
+              <div className="bg-blue-50 text-blue-600 p-3.5 rounded-2xl flex-shrink-0 ml-2">
+                <FaCheckCircle className="text-2xl" />
               </div>
             </div>
           </CardBody>

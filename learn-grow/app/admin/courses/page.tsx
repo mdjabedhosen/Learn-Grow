@@ -36,11 +36,34 @@ import {
   useGetModulesQuery,
 } from "@/redux/api/courseApi";
 import { useGetAllCategoriesQuery } from "@/redux/api/categoryApi";
-import { FaSearch, FaCheck, FaTimes, FaEye, FaVideo, FaFileAlt, FaTrash, FaEdit, FaArrowLeft, FaBook, FaClock, FaStar } from "react-icons/fa";
+import { FaSearch, FaCheck, FaTimes, FaEye, FaVideo, FaFileAlt, FaTrash, FaEdit, FaArrowLeft, FaBook, FaClock, FaStar, FaUsers } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 export default function ManageCoursesPage() {
   const router = useRouter();
+
+  // Language state & listener
+  const [lang, setLang] = useState<"en" | "bn">("bn");
+  React.useEffect(() => {
+    const currentLang = (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn";
+    setLang(currentLang);
+    const handleLangChange = (e: any) => {
+      setLang(e.detail?.language || (localStorage.getItem("preferredLanguage") as "en" | "bn") || "bn");
+    };
+    window.addEventListener("languageChange", handleLangChange);
+    return () => window.removeEventListener("languageChange", handleLangChange);
+  }, []);
+
+  const resolveCourseBanner = (url?: string, title?: string) => {
+    if (url && (url.startsWith("http") || url.startsWith("/")) && !url.includes("placeholder") && !url.includes("via.placeholder")) {
+      return url;
+    }
+    const t = (title || "").toLowerCase();
+    if (t.includes("robot") || t.includes("arduino") || t.includes("stem")) {
+      return "/courses/robotics-course-banner.jpg";
+    }
+    return "/courses/python-course-banner.jpg";
+  };
 
   // Get user role
   const [userRole, setUserRole] = React.useState<string>("");
@@ -180,94 +203,113 @@ export default function ManageCoursesPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl">
-      {/* Header with Gradient */}
-      <div className="mb-6 sm:mb-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
-        <div className="flex flex-col gap-4">
-          <Button
-            variant="light"
-            startContent={<FaArrowLeft />}
-            onPress={() => router.push(userRole === "manager" ? "/manager" : "/admin")}
-            className="self-start text-white hover:bg-white/20 min-h-[44px]"
-            size="lg"
-          >
-            Back to Dashboard
-          </Button>
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="bg-white/20 p-3 sm:p-4 rounded-xl backdrop-blur-sm">
-              <FaBook className="text-3xl sm:text-4xl" />
+      {/* Ambient Kodland Hero */}
+      <div className="relative mb-8 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#312E81] p-6 sm:p-10 text-white shadow-2xl border border-white/10">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                {lang === "bn" ? "কোর্স কন্ট্রোল সেন্টার" : "Curriculum Hub"}
+              </span>
+              <span className="text-xs text-white/50 font-medium">
+                {lang === "bn" ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batches"}
+              </span>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                Course Management
-              </h1>
-              <p className="text-sm sm:text-base text-white/90 mt-1">
-                Manage all courses, approve or reject submissions
-              </p>
-            </div>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+              {lang === "bn" ? "কোর্স ব্যবস্থাপনা ও অনুমোদন" : "Course Catalog & Approvals"}
+            </h1>
+            <p className="text-sm sm:text-base text-indigo-200/80 max-w-2xl">
+              {lang === "bn"
+                ? "সকল লাইভ ও প্র্যাকটিক্যাল কোর্সের কোয়ালিটি রিভিউ, অনুমোদন ও ফিচার স্ট্যাটাস পরিচালনা করুন।"
+                : "Review, approve, feature, and oversee live interactive courses for young innovators."}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="flat"
+              onPress={() => router.push(userRole === "manager" ? "/manager" : "/admin")}
+              className="bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 min-h-[44px]"
+              startContent={<FaArrowLeft />}
+            >
+              {lang === "bn" ? "ড্যাশবোর্ডে ফিরুন" : "Back to Hub"}
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mb-5 sm:mb-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} className="shadow-md">
-              <CardBody className="p-4 sm:p-5 lg:p-6">
-                <Skeleton className="h-20 w-full rounded-lg" />
+            <Card key={i} className="shadow-md rounded-[24px]">
+              <CardBody className="p-5">
+                <Skeleton className="h-20 w-full rounded-xl" />
               </CardBody>
             </Card>
           ))
         ) : (
           <>
-            <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-200">
-              <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <Card className="rounded-[24px] border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+              <CardBody className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Total Courses</p>
-                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.total}</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                      {lang === "bn" ? "মোট কোর্স" : "Total Courses"}
+                    </p>
+                    <p className="text-3xl font-black text-[#2C2C2C]">{stats.total}</p>
                   </div>
-                  <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2">
-                    <FaBook className="text-2xl sm:text-3xl lg:text-4xl" />
+                  <div className="bg-blue-50 text-[#3B82F6] p-3.5 rounded-2xl flex-shrink-0 ml-2">
+                    <FaBook className="text-2xl" />
                   </div>
                 </div>
               </CardBody>
             </Card>
-            <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-yellow-200">
-              <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-yellow-500 to-orange-500 text-white">
+
+            <Card className="rounded-[24px] border border-amber-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+              <CardBody className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Pending Approval</p>
-                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.pending}</p>
+                    <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">
+                      {lang === "bn" ? "অনুমোদনের অপেক্ষায়" : "Pending Approval"}
+                    </p>
+                    <p className="text-3xl font-black text-amber-600">{stats.pending}</p>
                   </div>
-                  <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2 animate-pulse">
-                    <FaClock className="text-2xl sm:text-3xl lg:text-4xl" />
+                  <div className="bg-amber-50 text-amber-600 p-3.5 rounded-2xl flex-shrink-0 ml-2 animate-pulse">
+                    <FaClock className="text-2xl" />
                   </div>
                 </div>
               </CardBody>
             </Card>
-            <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-green-200">
-              <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+
+            <Card className="rounded-[24px] border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+              <CardBody className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Approved</p>
-                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.approved}</p>
+                    <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                      {lang === "bn" ? "অনুমোদিত কোর্স" : "Approved"}
+                    </p>
+                    <p className="text-3xl font-black text-emerald-600">{stats.approved}</p>
                   </div>
-                  <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2">
-                    <FaCheck className="text-2xl sm:text-3xl lg:text-4xl" />
+                  <div className="bg-emerald-50 text-emerald-600 p-3.5 rounded-2xl flex-shrink-0 ml-2">
+                    <FaCheck className="text-2xl" />
                   </div>
                 </div>
               </CardBody>
             </Card>
-            <Card className="shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-purple-200">
-              <CardBody className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+
+            <Card className="rounded-[24px] border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
+              <CardBody className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm opacity-90 mb-1 truncate font-medium">Live & Published</p>
-                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{stats.published}</p>
+                    <p className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">
+                      {lang === "bn" ? "প্রকাশিত কোর্স" : "Live & Published"}
+                    </p>
+                    <p className="text-3xl font-black text-purple-600">{stats.published}</p>
                   </div>
-                  <div className="bg-white/20 p-3 rounded-full flex-shrink-0 ml-2">
-                    <FaStar className="text-2xl sm:text-3xl lg:text-4xl" />
+                  <div className="bg-purple-50 text-purple-600 p-3.5 rounded-2xl flex-shrink-0 ml-2">
+                    <FaStar className="text-2xl" />
                   </div>
                 </div>
               </CardBody>
@@ -339,7 +381,7 @@ export default function ManageCoursesPage() {
       </Card>
 
       {/* Filter Tabs */}
-      <Card className="mb-5 sm:mb-6 shadow-lg border border-gray-200">
+      <Card className="mb-6 rounded-[24px] border border-gray-100 shadow-sm">
         <CardBody className="p-3 sm:p-4 overflow-x-auto">
           <Tabs
             selectedKey={filterStatus}
@@ -351,14 +393,14 @@ export default function ManageCoursesPage() {
             variant="underlined"
             classNames={{
               tabList: "gap-4 sm:gap-6 w-full",
-              cursor: "w-full bg-gradient-to-r from-primary-500 to-blue-500",
+              cursor: "w-full bg-[#3B82F6]",
               tab: "min-h-[44px] px-3 sm:px-4",
-              tabContent: "text-sm sm:text-base font-semibold"
+              tabContent: "text-sm sm:text-base font-bold text-gray-700"
             }}
           >
-            <Tab key="all" title="All Courses" />
-            <Tab key="pending" title="Pending Approval" />
-            <Tab key="approved" title="Approved" />
+            <Tab key="all" title={lang === "bn" ? "সকল কোর্স" : "All Courses"} />
+            <Tab key="pending" title={lang === "bn" ? "অনুমোদনের অপেক্ষায়" : "Pending Approval"} />
+            <Tab key="approved" title={lang === "bn" ? "অনুমোদিত কোর্স" : "Approved"} />
           </Tabs>
         </CardBody>
       </Card>
@@ -372,12 +414,12 @@ export default function ManageCoursesPage() {
 
       {/* Courses Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="shadow-md">
+            <Card key={i} className="rounded-[24px] shadow-sm">
               <CardBody className="p-0">
-                <Skeleton className="h-48 w-full rounded-t-lg" />
-                <div className="p-4 space-y-3">
+                <Skeleton className="h-48 w-full rounded-t-[24px]" />
+                <div className="p-5 space-y-3">
                   <Skeleton className="h-6 w-3/4 rounded-lg" />
                   <Skeleton className="h-4 w-full rounded-lg" />
                   <Skeleton className="h-4 w-2/3 rounded-lg" />
@@ -387,42 +429,50 @@ export default function ManageCoursesPage() {
           ))}
         </div>
       ) : filteredCourses.length === 0 ? (
-        <Card className="shadow-xl border-2 border-gray-200">
-          <CardBody className="p-10 sm:p-12 lg:p-16 text-center">
-            <div className="bg-gradient-to-br from-indigo-100 to-purple-200 w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FaBook className="text-4xl sm:text-5xl text-indigo-600" />
+        <Card className="rounded-[28px] border border-dashed border-gray-300 shadow-none bg-slate-50/50">
+          <CardBody className="p-12 sm:p-16 text-center">
+            <div className="bg-blue-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaBook className="text-4xl text-[#3B82F6]" />
             </div>
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">
-              No courses found
+            <h3 className="text-xl sm:text-2xl font-black text-gray-800 mb-2">
+              {lang === "bn" ? "কোন কোর্স পাওয়া যায়নি" : "No courses found"}
             </h3>
             <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto">
               {searchTerm || selectedCategory || filterStatus !== "all"
-                ? "Try adjusting your search or filter criteria"
-                : "No courses available yet"}
+                ? (lang === "bn" ? "সার্চ বা ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।" : "Try adjusting your search or filter criteria.")
+                : (lang === "bn" ? "এখনও কোন কোর্স যুক্ত করা হয়নি।" : "No courses have been created yet.")}
             </p>
           </CardBody>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
-            <Card key={course._id} className="hover:shadow-xl transition-all duration-300 border border-gray-200">
+            <Card key={course._id} className="rounded-[24px] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-white">
               <CardBody className="p-0">
-                {course.thumbnail && (
-                  <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-                    <img
-                      src={course.thumbnail}
-                      alt={course.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                    {course.isFeatured && (
-                      <div className="absolute top-2 right-2">
-                        <Chip color="warning" variant="solid" size="sm" startContent={<FaStar />}>
-                          Featured
-                        </Chip>
-                      </div>
-                    )}
+                <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={resolveCourseBanner(course.thumbnail, course.title)}
+                    alt={course.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = course.title?.toLowerCase().includes("robot")
+                        ? "/courses/robotics-course-banner.jpg"
+                        : "/courses/python-course-banner.jpg";
+                    }}
+                  />
+                  {course.isFeatured && (
+                    <div className="absolute top-3 right-3">
+                      <Chip color="warning" variant="solid" size="sm" startContent={<FaStar />} className="font-bold">
+                        {lang === "bn" ? "ফিচার্ড" : "Featured"}
+                      </Chip>
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/60 backdrop-blur-md text-white border border-white/20">
+                      {lang === "bn" ? "১০-১৫ ব্যাচ" : "10-15 Batch"}
+                    </span>
                   </div>
-                )}
+                </div>
                 <div className="p-4 sm:p-5">
                   <div className="flex items-start justify-between mb-2 gap-2">
                     <h3 className="font-bold text-base sm:text-lg line-clamp-2 flex-1">{course.title}</h3>
@@ -486,6 +536,20 @@ export default function ManageCoursesPage() {
                       className="flex-1"
                     >
                       Edit
+                    </Button>
+                  </div>
+
+                  {/* Batches & Cohorts Management */}
+                  <div className="mb-2">
+                    <Button
+                      size="sm"
+                      color="secondary"
+                      variant="flat"
+                      onPress={() => router.push(`/admin/batches?courseId=${course._id}`)}
+                      startContent={<FaUsers />}
+                      className="w-full font-bold"
+                    >
+                      {lang === "bn" ? "কোর্স ব্যাচ ও শিক্ষকবৃন্দ" : "Batches & Teachers"}
                     </Button>
                   </div>
                   

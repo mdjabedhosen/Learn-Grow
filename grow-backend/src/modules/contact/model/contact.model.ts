@@ -4,6 +4,7 @@ export interface IContact {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
   subject: string;
   message: string;
   isRead?: boolean;
@@ -16,6 +17,7 @@ const contactSchema = new Schema<IContact>(
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true },
+    phone: { type: String, trim: true },
     subject: { type: String, required: true, trim: true },
     message: { type: String, required: true },
     isRead: { type: Boolean, default: false },

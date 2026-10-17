@@ -228,4 +228,46 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
   }
+
+  /* Bengali Typography & Safe Word Spacing */
+  .font-siliguri {
+    font-family: var(--font-hind-siliguri), 'Hind Siliguri', 'SolaimanLipi', system-ui, sans-serif !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.85 !important;
+  }
+
+  .font-siliguri h1,
+  .font-siliguri h2,
+  .font-siliguri h3,
+  .font-siliguri h4,
+  .font-siliguri h5,
+  .font-siliguri h6 {
+    font-family: var(--font-hind-siliguri), 'Hind Siliguri', 'SolaimanLipi', system-ui, sans-serif !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .blog-article-content p {
+    margin-bottom: 1.5rem !important;
+    line-height: 1.85 !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .blog-article-content h2 {
+    margin-top: 2.25rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.4 !important;
+    word-break: normal !important;
+  }
+
+  .blog-article-content figure {
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+  }
 }

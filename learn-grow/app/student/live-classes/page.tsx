@@ -7,13 +7,14 @@ import { FaVideo, FaClock, FaCalendar, FaArrowLeft } from "react-icons/fa";
 import { useGetAllLiveClassesQuery } from "@/redux/api/liveClassApi";
 import { useGetMyOrdersQuery } from "@/redux/api/orderApi";
 import RequireAuth from "@/components/Auth/RequireAuth";
+import Cookies from "js-cookie";
 
 export default function StudentLiveClassesPage() {
     const router = useRouter();
     const [isAuthed, setIsAuthed] = React.useState(false);
 
     React.useEffect(() => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") || (require("js-cookie")).default.get("accessToken") : null;
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") || Cookies.get("accessToken") || Cookies.get("token") : null;
         setIsAuthed(!!token);
     }, []);
 

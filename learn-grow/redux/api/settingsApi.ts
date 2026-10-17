@@ -46,6 +46,19 @@ export const settingsApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+
+    // Server-Side Tracking & Conversions API (Meta, TikTok, Google Ads)
+    getTrackingConfig: build.query<{ success: boolean; data?: any; message?: string }, void>({
+      query: () => ({ url: "/tracking/admin/config", method: "GET" }),
+      providesTags: ["Settings"],
+    }),
+    updateTrackingConfig: build.mutation<{ success: boolean; message?: string; data?: any }, any>({
+      query: (body) => ({ url: "/tracking/admin/config", method: "PUT", body }),
+      invalidatesTags: ["Settings"],
+    }),
+    testTrackingEvent: build.mutation<{ success: boolean; message: string; results?: any }, { platform?: string; testCode?: string }>({
+      query: (body) => ({ url: "/tracking/test", method: "POST", body }),
+    }),
   }),
 });
 
@@ -56,4 +69,7 @@ export const {
   useUpdateSMTPConfigMutation,
   useTestSMTPConnectionMutation,
   useBackupDatabaseMutation,
+  useGetTrackingConfigQuery,
+  useUpdateTrackingConfigMutation,
+  useTestTrackingEventMutation,
 } = settingsApi;

@@ -12,12 +12,15 @@ export const createCourseSchema = z.object({
     level: z.enum(["Beginner", "Intermediate", "Advanced"]),
     language: z.string().optional().default("English"),
     duration: z.number().min(0),
+    accessDuration: z.string().optional(),
     isRegistrationOpen: z.boolean().optional().default(false),
     registrationDeadline: z.string().optional(),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.array(z.string()).optional(),
     prerequisites: z.array(z.string()).optional(),
     instructorId: z.string().length(24, "Invalid instructor ID").optional(),
+    instructorIds: z.array(z.string()).optional(),
+    maxBatchSize: z.number().min(1).optional(),
     isPublished: z.boolean().optional().default(false),
     isFeatured: z.boolean().optional().default(false),
   }),
@@ -25,7 +28,7 @@ export const createCourseSchema = z.object({
 
 export const updateCourseSchema = z.object({
   params: z.object({
-    id: z.string().length(24, "Invalid course ID"),
+    id: z.string().min(1, "Invalid course ID"),
   }),
   body: z.object({
     title: z.string().min(5).max(200).optional(),
@@ -38,11 +41,15 @@ export const updateCourseSchema = z.object({
     level: z.enum(["Beginner", "Intermediate", "Advanced"]).optional(),
     language: z.string().optional(),
     duration: z.number().min(0).optional(),
+    accessDuration: z.string().optional(),
     isRegistrationOpen: z.boolean().optional(),
     registrationDeadline: z.string().optional().nullable(),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.array(z.string()).optional(),
     prerequisites: z.array(z.string()).optional(),
+    instructorId: z.string().optional().nullable(),
+    instructorIds: z.array(z.string()).optional(),
+    maxBatchSize: z.number().min(1).optional(),
     isPublished: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
   }),
@@ -50,7 +57,7 @@ export const updateCourseSchema = z.object({
 
 export const courseIdSchema = z.object({
   params: z.object({
-    id: z.string().length(24, "Invalid course ID"),
+    id: z.string().min(1, "Course ID or slug is required").max(100),
   }),
 });
 

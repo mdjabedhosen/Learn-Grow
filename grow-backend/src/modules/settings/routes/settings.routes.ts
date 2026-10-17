@@ -7,14 +7,14 @@ import { requireAuth, requireRoles } from "@/middleware/auth";
 const router = express.Router();
 
 router.get("/commission", controller.getCommission);
-router.patch("/commission", requireAuth, requireRoles("admin"), controller.updateCommission);
+router.patch("/commission", requireAuth, requireRoles("admin", "manager"), controller.updateCommission);
 
-// SMTP settings (admin only)
-router.get("/smtp", requireAuth, requireRoles("admin"), smtpController.getSMTPConfig);
-router.put("/smtp", requireAuth, requireRoles("admin"), smtpController.updateSMTPConfig);
-router.post("/smtp/test", requireAuth, requireRoles("admin"), smtpController.testSMTPConnection);
+// SMTP settings (admin & manager)
+router.get("/smtp", requireAuth, requireRoles("admin", "manager"), smtpController.getSMTPConfig);
+router.put("/smtp", requireAuth, requireRoles("admin", "manager"), smtpController.updateSMTPConfig);
+router.post("/smtp/test", requireAuth, requireRoles("admin", "manager"), smtpController.testSMTPConnection);
 
-// Database backup (admin only)
+// Database backup (Super Admin only for data privacy and security)
 router.post("/backup/database", requireAuth, requireRoles("admin"), backupController.backupDatabase);
 
 export default router;

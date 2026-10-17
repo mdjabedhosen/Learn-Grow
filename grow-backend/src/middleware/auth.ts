@@ -56,6 +56,7 @@ export const requireAuth = async (
     req.userRole = user.role;
     req.userEmail = user.email;
     (req as any).user = {
+      _id: user._id.toString(),
       id: user._id.toString(),
       role: user.role,
       email: user.email,

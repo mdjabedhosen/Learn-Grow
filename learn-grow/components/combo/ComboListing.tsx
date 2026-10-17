@@ -50,6 +50,33 @@ export default function ComboListing() {
     );
   }
 
+  const resolveBannerImage = (imgUrl?: string, title?: string): string => {
+    if (
+      !imgUrl ||
+      imgUrl.includes("gemini.google.com") ||
+      imgUrl.includes("course-69ca5603e9e96ed80529474a") ||
+      imgUrl.includes("daq7v0wmf/image/upload")
+    ) {
+      const lower = (title || "").toLowerCase();
+      if (lower.includes("python") || lower.includes("পাইথন")) {
+        return "/courses/python-course-banner.jpg";
+      }
+      return "/courses/robotics-course-banner.jpg";
+    }
+
+    const lower = (title || "").toLowerCase();
+    if (
+      lower.includes("robotics") ||
+      lower.includes("রোবটিক্স") ||
+      lower.includes("arduino") ||
+      lower.includes("আর্ডুইনো")
+    ) {
+      return "/courses/robotics-course-banner.jpg";
+    }
+
+    return imgUrl;
+  };
+
   return (
     <div className="w-full">
       {/* Combos Grid */}
@@ -60,6 +87,7 @@ export default function ComboListing() {
           );
           const displayTitles = titles.slice(0, 3).join(" • ");
           const extraCount = titles.length > 3 ? titles.length - 3 : 0;
+          const thumbnailSrc = resolveBannerImage(combo.thumbnail, combo.name);
 
           return (
             <Card
@@ -69,9 +97,9 @@ export default function ComboListing() {
               {/* Thumbnail with gradient overlay */}
               <CardHeader className="p-0">
                 <div className="relative w-full h-40 overflow-hidden rounded-t-xl">
-                  {combo.thumbnail ? (
+                  {thumbnailSrc ? (
                     <Image
-                      src={combo.thumbnail}
+                      src={thumbnailSrc}
                       alt={combo.name}
                       className="w-full h-full object-cover"
                     />

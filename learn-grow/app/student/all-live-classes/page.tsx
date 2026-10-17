@@ -1,9 +1,21 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Button, Spinner, Chip, Divider, Input, Select, SelectItem } from "@nextui-org/react";
+import { Card, CardBody, Button, Spinner, Chip, Input, Select, SelectItem } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FaVideo, FaClock, FaCalendar, FaArrowLeft, FaSearch } from "react-icons/fa";
+import { 
+    Video, 
+    Clock, 
+    Calendar, 
+    ArrowLeft, 
+    Search, 
+    PlayCircle, 
+    CheckCircle2, 
+    BookOpen,
+    Radio,
+    Sparkles,
+    MessageCircle
+} from "lucide-react";
 import { useGetAllLiveClassesQuery } from "@/redux/api/liveClassApi";
 import { useGetMyOrdersQuery } from "@/redux/api/orderApi";
 import RequireAuth from "@/components/Auth/RequireAuth";
@@ -15,36 +27,41 @@ export default function AllLiveClassesPage() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentTime, setCurrentTime] = useState(new Date());
     
-    const itemsPerPage = 16;
+    // Bilingual support
+    const [language, setLanguage] = useState<"bn" | "en">("bn");
+    useEffect(() => {
+        const saved = (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn";
+        setLanguage(saved);
+        const handleLangChange = (e: any) => {
+            setLanguage(e.detail?.language || (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn");
+        };
+        window.addEventListener("languageChange", handleLangChange);
+        return () => window.removeEventListener("languageChange", handleLangChange);
+    }, []);
+    const isBn = language === "bn";
 
-    // Get student's orders to filter enrollments
+    const itemsPerPage = 12;
+
     const { data: ordersData } = useGetMyOrdersQuery();
     const orders = ordersData?.orders || [];
 
-    // Update current time every second for countdown
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date());
         }, 1000);
-
         return () => clearInterval(timer);
     }, []);
 
-    // Calculate skip based on current page
     const skip = (currentPage - 1) * itemsPerPage;
     const { data: classesData, isLoading: classesLoading } = useGetAllLiveClassesQuery({ skip, limit: itemsPerPage });
     const allClasses = (classesData?.data || []).filter((cls: any) => {
         if (!cls) return false;
         if (!cls.courseId) return false;
-        // Allow string courseId or object with _id
         if (typeof cls.courseId === "string") return true;
         return Boolean(cls.courseId?._id);
     });
-    const totalCount = classesData?.pagination?.total || 0;
 
-    // Filter classes based on student enrollment
     const accessibleClasses = useMemo(() => {
-        // Check if student has quarterly (premium) subscription or lifetime access
         const now = new Date();
         const hasQuarterly = orders.some(
             order =>
@@ -55,11 +72,9 @@ export default function AllLiveClassesPage() {
         );
 
         if (hasQuarterly) {
-            // Premium: show all classes with valid course reference
             return allClasses.filter((cls: any) => cls && cls.courseId);
         }
 
-        // Get enrolled course IDs from single purchases
         const enrolledCourseIds = orders
             .filter(
                 order =>
@@ -75,7 +90,6 @@ export default function AllLiveClassesPage() {
             })
             .filter(id => id != null);
 
-        // Get course IDs from combo/bundle purchases
         const comboCourseIds: string[] = [];
         orders
             .filter(
@@ -96,84 +110,58 @@ export default function AllLiveClassesPage() {
                 }
             });
 
-        // Combine all enrolled course IDs (single + combo)
         const allEnrolledCourseIds = [...enrolledCourseIds, ...comboCourseIds];
 
-        if (allEnrolledCourseIds.length === 0) {
-            // No enrollment, show no classes
-            return [];
-        }
-
-        // Filter classes to only those from enrolled courses
         return allClasses.filter((cls: any) => {
-            if (!cls || !cls.courseId) return false;
             const courseId = typeof cls.courseId === "object" && cls.courseId ? cls.courseId._id : cls.courseId;
-            return courseId && allEnrolledCourseIds.includes(courseId.toString());
+            return allEnrolledCourseIds.includes(courseId?.toString());
         });
     }, [allClasses, orders]);
 
-    // Separate upcoming and past classes
-    const upcomingClasses = accessibleClasses.filter((c: any) => {
-        const classTime = new Date(c.scheduledAt);
-        return classTime > currentTime && c.status === "Scheduled";
-    });
+    const upcomingClasses = useMemo(() => {
+        return accessibleClasses.filter((c: any) => {
+            return new Date(c.scheduledAt) > currentTime && c.status === "Scheduled";
+        });
+    }, [accessibleClasses, currentTime]);
 
-    const pastClasses = accessibleClasses.filter((c: any) => {
-        const classTime = new Date(c.scheduledAt);
-        return classTime <= currentTime || c.status === "Completed";
-    });
+    const pastClasses = useMemo(() => {
+        return accessibleClasses.filter((c: any) => {
+            return new Date(c.scheduledAt) <= currentTime || c.status === "Completed";
+        });
+    }, [accessibleClasses, currentTime]);
 
-    // Combine and filter based on status filter and search
-    let filteredClasses = statusFilter === "upcoming" ? upcomingClasses : statusFilter === "past" ? pastClasses : [...upcomingClasses, ...pastClasses];
-    
-    if (searchQuery) {
-        filteredClasses = filteredClasses.filter((cls: any) => 
-            cls.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (typeof cls.courseId === "object" && cls.courseId ? cls.courseId.title : "").toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }
+    const filteredClasses = useMemo(() => {
+        let result = accessibleClasses;
 
-    // Sort by scheduled date (newest first)
-    filteredClasses = filteredClasses.sort((a: any, b: any) => {
-        return new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime();
-    });
-
-    // Pagination - use FILTERED count, not API total count
-    const filteredTotal = filteredClasses.length;
-    const totalPages = Math.ceil(filteredTotal / itemsPerPage);
-    const paginatedClasses = filteredClasses;
-    const displayStart = filteredTotal === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-    const displayEnd = Math.min(currentPage * itemsPerPage, filteredTotal);
-
-    const pageNumbers = useMemo(() => {
-        const maxButtons = 9;
-        if (totalPages <= maxButtons) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        if (statusFilter === "upcoming") {
+            result = upcomingClasses;
+        } else if (statusFilter === "past") {
+            result = pastClasses;
         }
 
-        const pages: (number | string)[] = [1];
-        const start = Math.max(2, currentPage - 2);
-        const end = Math.min(totalPages - 1, currentPage + 2);
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter((cls: any) => {
+                const title = cls.title?.toLowerCase() || "";
+                const course = typeof cls.courseId === "object" && cls.courseId ? cls.courseId.title?.toLowerCase() || "" : "";
+                return title.includes(query) || course.includes(query);
+            });
+        }
 
-        if (start > 2) pages.push("left-ellipsis");
-        for (let i = start; i <= end; i++) pages.push(i);
-        if (end < totalPages - 1) pages.push("right-ellipsis");
-        pages.push(totalPages);
+        return result;
+    }, [accessibleClasses, upcomingClasses, pastClasses, statusFilter, searchQuery]);
 
-        return pages;
-    }, [currentPage, totalPages]);
+    const totalPages = Math.max(1, Math.ceil(filteredClasses.length / itemsPerPage));
+    const paginatedClasses = filteredClasses.slice(skip, skip + itemsPerPage);
 
-    // Function to get countdown time
     const getTimeStatus = (scheduledAt: string) => {
         const classTime = new Date(scheduledAt);
-        const now = currentTime;
-        const diffMs = classTime.getTime() - now.getTime();
+        const diffMs = classTime.getTime() - currentTime.getTime();
 
-        // Class already ended
         if (diffMs < 0) {
             return {
                 status: "ended",
-                display: "Class time already ended",
+                display: isBn ? "ক্লাস সমাপ্ত" : "Class ended",
                 color: "danger",
             };
         }
@@ -182,306 +170,263 @@ export default function AllLiveClassesPage() {
         const days = Math.floor(diffSecs / (24 * 60 * 60));
         const hours = Math.floor((diffSecs % (24 * 60 * 60)) / (60 * 60));
         const mins = Math.floor((diffSecs % (60 * 60)) / 60);
-        const secs = diffSecs % 60;
 
-        // Class starting soon (within 1 hour)
         if (diffSecs < 3600) {
             return {
                 status: "soon",
-                display: `${mins}m ${secs}s`,
+                display: isBn ? `${mins} মি. বাকি` : `${mins}m left`,
                 color: "warning",
             };
         }
 
-        // Class starting today
         if (days === 0) {
             return {
                 status: "today",
-                display: `${hours}h ${mins}m`,
+                display: isBn ? `${hours} ঘণ্টা বাকি` : `${hours}h left`,
                 color: "primary",
             };
         }
 
-        // Class starting later
         return {
             status: "later",
-            display: `${days}d ${hours}h`,
+            display: isBn ? `${days} দিন ${hours} ঘণ্টা` : `${days}d ${hours}h`,
             color: "default",
         };
     };
 
     return (
         <RequireAuth allowedRoles={["student"]}>
-            <div className="min-h-screen bg-gray-50">
-                {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4">
-                    <div className="container mx-auto max-w-7xl">
-                        <div className="flex items-center gap-2 mb-1">
+            <div className="min-h-screen bg-[#F8FAFC] pb-20">
+                {/* Ambient Hero */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-8 pb-14 px-6 rounded-b-[36px] shadow-lg">
+                    <div className="container mx-auto max-w-7xl relative z-10">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    isIconOnly
+                                    variant="flat"
+                                    className="bg-white/10 text-white rounded-xl hover:bg-white/20"
+                                    size="sm"
+                                    onPress={() => router.push("/student")}
+                                >
+                                    <ArrowLeft className="w-4 h-4" />
+                                </Button>
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h1 className="text-xl sm:text-2xl font-black text-white">
+                                            {isBn ? "লাইভ ক্লাস রুটিন ও সময়সূচী" : "All Live Interactive Sessions"}
+                                        </h1>
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-400/30">
+                                            LIVE
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-300">
+                                        {isBn ? "১০-১৫ জনের মাইক্রো-ব্যাচের আসন্ন ও সম্পন্ন সকল লাইভ ক্লাস" : "Upcoming and past sessions for your enrolled batches"}
+                                    </p>
+                                </div>
+                            </div>
+
                             <Button
-                                isIconOnly
-                                variant="light"
-                                className="text-white"
                                 size="sm"
-                                onPress={() => router.push("/student")}
+                                variant="bordered"
+                                className="font-bold text-xs rounded-xl border-white/20 text-white hover:bg-white/10 self-start md:self-auto"
+                                onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
+                                startContent={<MessageCircle className="w-3.5 h-3.5 text-emerald-400" />}
                             >
-                                <FaArrowLeft />
+                                {isBn ? "ক্লাস লিংক সহায়তা" : "Meeting Link Help"}
                             </Button>
-                            <h1 className="text-lg font-bold">All Live Classes</h1>
                         </div>
-                        <p className="text-xs text-blue-100">View upcoming and completed sessions</p>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="container mx-auto max-w-7xl px-4 py-3">
+                {/* Content Area */}
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6 -mt-6 relative z-20 space-y-6">
+                    {/* 3 Metric Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase">{isBn ? "আসন্ন লাইভ ক্লাস" : "Upcoming"}</p>
+                                <p className="text-2xl font-black text-blue-600 mt-0.5">{upcomingClasses.length}</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <Radio className="w-5 h-5 animate-pulse" />
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase">{isBn ? "সম্পন্ন ক্লাস ও রেকর্ডিং" : "Completed"}</p>
+                                <p className="text-2xl font-black text-emerald-600 mt-0.5">{pastClasses.length}</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <CheckCircle2 className="w-5 h-5" />
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase">{isBn ? "মোট নির্ধারিত সেশন" : "Total Sessions"}</p>
+                                <p className="text-2xl font-black text-[#2C2C2C] mt-0.5">{accessibleClasses.length}</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                                <Video className="w-5 h-5" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Filter and Search Bar */}
+                    <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center gap-3">
+                        <div className="flex-1 w-full">
+                            <Input
+                                isClearable
+                                size="sm"
+                                placeholder={isBn ? "ক্লাস বা কোর্সের নাম দিয়ে খুঁজুন..." : "Search class or course title..."}
+                                startContent={<Search className="w-4 h-4 text-slate-400" />}
+                                value={searchQuery}
+                                onValueChange={setSearchQuery}
+                                classNames={{ inputWrapper: "bg-slate-50 border border-slate-200 rounded-xl" }}
+                            />
+                        </div>
+                        <div className="w-full sm:w-48">
+                            <Select
+                                size="sm"
+                                label={isBn ? "ফিল্টার" : "Status"}
+                                selectedKeys={[statusFilter]}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                classNames={{ trigger: "bg-slate-50 border border-slate-200 rounded-xl" }}
+                            >
+                                <SelectItem key="all">{isBn ? "সকল ক্লাস" : "All Classes"}</SelectItem>
+                                <SelectItem key="upcoming">{isBn ? "আসন্ন ক্লাস" : "Upcoming"}</SelectItem>
+                                <SelectItem key="past">{isBn ? "সম্পন্ন ক্লাস" : "Completed"}</SelectItem>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Classes Grid */}
                     {classesLoading ? (
                         <div className="flex justify-center py-20">
-                            <Spinner />
+                            <Spinner size="lg" label={isBn ? "ক্লাস শিডিউল লোড হচ্ছে..." : "Loading schedule..."} />
                         </div>
+                    ) : paginatedClasses.length === 0 ? (
+                        <Card className="rounded-[28px] border border-slate-200 shadow-sm bg-white">
+                            <CardBody className="text-center py-12 px-4">
+                                <Video className="w-14 h-14 text-slate-300 mx-auto mb-3" />
+                                <h3 className="text-base font-bold text-slate-700 mb-1">
+                                    {isBn ? "কোনো লাইভ ক্লাস পাওয়া যায়নি" : "No live classes found"}
+                                </h3>
+                                <p className="text-xs text-slate-400">
+                                    {isBn ? "নতুন ক্লাসের শিডিউল শীঘ্রই প্রকাশিত হবে।" : "Upcoming class schedule will be published shortly."}
+                                </p>
+                            </CardBody>
+                        </Card>
                     ) : (
-                        <div className="space-y-3">
-                            {/* Statistics */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                <Card className="bg-gradient-to-br from-blue-500 to-blue-600">
-                                    <CardBody className="text-white p-3">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs opacity-90">Upcoming</p>
-                                                <p className="text-xl font-bold">{upcomingClasses.length}</p>
-                                            </div>
-                                            <FaVideo className="text-2xl opacity-50" />
-                                        </div>
-                                    </CardBody>
-                                </Card>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {paginatedClasses.map((cls: any) => {
+                                const classDate = new Date(cls.scheduledAt);
+                                const courseName = typeof cls.courseId === "object" && cls.courseId ? cls.courseId.title : "Course";
+                                const instructorName = typeof cls.instructorId === "object" && cls.instructorId ? cls.instructorId.name : "Instructor";
+                                const timeStatus = getTimeStatus(cls.scheduledAt);
+                                const isUpcoming = classDate > currentTime && cls.status === "Scheduled";
 
-                                <Card className="bg-gradient-to-br from-green-500 to-green-600">
-                                    <CardBody className="text-white p-3">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs opacity-90">Completed</p>
-                                                <p className="text-xl font-bold">{pastClasses.length}</p>
-                                            </div>
-                                            <FaCalendar className="text-2xl opacity-50" />
-                                        </div>
-                                    </CardBody>
-                                </Card>
-
-                                <Card className="bg-gradient-to-br from-purple-500 to-purple-600">
-                                    <CardBody className="text-white p-3">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs opacity-90">Total</p>
-                                                <p className="text-xl font-bold">{accessibleClasses.length}</p>
-                                            </div>
-                                            <FaVideo className="text-2xl opacity-50" />
-                                        </div>
-                                    </CardBody>
-                                </Card>
-                            </div>
-
-                            {/* Filters and Search */}
-                            <Card>
-                                <CardBody className="p-3">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        <Input
-                                            isClearable
-                                            type="text"
-                                            size="sm"
-                                            placeholder="Search class or course..."
-                                            startContent={<FaSearch className="text-gray-400 text-xs" />}
-                                            value={searchQuery}
-                                            onValueChange={setSearchQuery}
-                                            onClear={() => {
-                                                setSearchQuery("");
-                                                setCurrentPage(1);
-                                            }}
-                                        />
-                                        <Select
-                                            label="Status"
-                                            size="sm"
-                                            value={statusFilter}
-                                            onChange={(e) => {
-                                                setStatusFilter(e.target.value);
-                                                setCurrentPage(1);
-                                            }}
-                                        >
-                                            <SelectItem key="all" value="all">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem key="upcoming" value="upcoming">
-                                                Upcoming
-                                            </SelectItem>
-                                            <SelectItem key="past" value="past">
-                                                Completed
-                                            </SelectItem>
-                                        </Select>
-                                        <div className="flex items-center">
-                                            <p className="text-xs text-gray-600">
-                                                    {displayStart}-{displayEnd} of {filteredTotal}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </CardBody>
-                            </Card>
-
-                            {/* Classes List */}
-                            {paginatedClasses.length === 0 ? (
-                                <Card>
-                                    <CardBody className="text-center py-6">
-                                        <FaVideo className="text-3xl text-gray-300 mx-auto mb-2" />
-                                        <p className="text-gray-600 font-medium text-sm">No classes found</p>
-                                        <p className="text-gray-500 text-xs mt-1">Try adjusting your search or filters</p>
-                                    </CardBody>
-                                </Card>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {paginatedClasses.map((cls: any) => {
-                                        const classDate = new Date(cls.scheduledAt);
-                                        const courseName = typeof cls.courseId === "object" && cls.courseId ? cls.courseId.title : "Course";
-                                        const instructorName = typeof cls.instructorId === "object" && cls.instructorId ? cls.instructorId.name : "Instructor";
-                                        const timeStatus = getTimeStatus(cls.scheduledAt);
-                                        const isUpcoming = classDate > currentTime && cls.status === "Scheduled";
-
-                                        return (
-                                            <Card key={cls._id} className="hover:shadow-md transition-shadow">
-                                                <CardBody className="p-2 space-y-2">
-                                                    <div className="flex justify-between items-start gap-2">
-                                                        <div className="flex-1 min-w-0 space-y-1">
-                                                            <div className="flex items-center gap-1">
-                                                                <h3 className="font-semibold text-sm truncate" title={cls.title}>{cls.title}</h3>
-                                                                <Chip size="sm" variant="flat" color={isUpcoming ? "warning" : "success"} className="text-[10px]">
-                                                                    {isUpcoming ? "Upcoming" : "Done"}
-                                                                </Chip>
-                                                            </div>
-                                                            <p className="text-[11px] text-gray-600 truncate" title={courseName}>{courseName}</p>
-                                                        </div>
-                                                        <Chip size="sm" color="success" variant="flat" className="text-[11px]">
-                                                            {cls.platform}
-                                                        </Chip>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between text-[11px] text-gray-700">
-                                                        <div className="flex items-center gap-2">
-                                                            <FaCalendar className="text-primary text-[11px]" />
-                                                            <span>{classDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <FaClock className="text-primary text-[11px]" />
-                                                            <span>{classDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} ({cls.duration}m)</span>
-                                                        </div>
-                                                    </div>
-
-                                                    {isUpcoming && (
-                                                        <div className="p-2 bg-gradient-to-br from-orange-50 to-orange-100 rounded">
-                                                            <div className="text-[11px] text-gray-600 mb-0.5 flex items-center gap-1">⏱️ <span>Time</span></div>
-                                                            <Chip size="sm" variant="flat" color={timeStatus.color as any} className="font-bold text-[11px]">
-                                                                {timeStatus.display}
-                                                            </Chip>
-                                                        </div>
-                                                    )}
-
-                                                    {!isUpcoming && cls.recordedLink && (
-                                                        <div className="p-2 bg-green-50 border border-green-200 rounded text-[11px] space-y-1">
-                                                            <p className="text-green-700 font-semibold">📹 Recording</p>
-                                                            <a
-                                                                href={cls.recordedLink}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-green-600 hover:underline truncate block"
-                                                            >
-                                                                Watch
-                                                            </a>
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex gap-1">
-                                                        {isUpcoming ? (
-                                                            <Button
-                                                                color="primary"
-                                                                size="sm"
-                                                                className="flex-1 text-[11px]"
-                                                                startContent={<FaVideo className="text-[11px]" />}
-                                                                onPress={() => window.open(cls.meetingLink, "_blank")}
-                                                            >
-                                                                Join
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                color="default"
-                                                                size="sm"
-                                                                className="flex-1 text-[11px]"
-                                                                isDisabled
-                                                            >
-                                                                Done
-                                                            </Button>
-                                                        )}
-                                                        <Button
-                                                            size="sm"
-                                                            variant="flat"
-                                                            className="text-[11px]"
-                                                            onPress={() => {
-                                                                const courseId = typeof cls.courseId === "object" && cls.courseId ? cls.courseId._id : cls.courseId;
-                                                                if (courseId) {
-                                                                    router.push(`/courses/${courseId}`);
-                                                                }
-                                                            }}
-                                                        >
-                                                            Course
-                                                        </Button>
-                                                    </div>
-                                                </CardBody>
-                                            </Card>
-                                        );
-                                    })}
-                                </div>
-                            )}
-
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
-                                    <Button
-                                        size="sm"
-                                        isDisabled={currentPage === 1}
-                                        onPress={() => setCurrentPage(currentPage - 1)}
-                                        variant="flat"
-                                        className="text-xs"
+                                return (
+                                    <div
+                                        key={cls._id}
+                                        className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs hover:shadow-md transition-all duration-300 space-y-3"
                                     >
-                                        Prev
-                                    </Button>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-1.5 mb-1">
+                                                    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-bold">
+                                                        {cls.platform || "Google Meet"}
+                                                    </span>
+                                                    <span className="text-[11px] text-slate-400">•</span>
+                                                    <span className="text-[11px] text-slate-500 font-medium truncate">
+                                                        👨‍🏫 {instructorName}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-extrabold text-sm text-[#2C2C2C] line-clamp-1">
+                                                    {cls.title}
+                                                </h4>
+                                                <p className="text-xs text-slate-500 line-clamp-1">
+                                                    {courseName}
+                                                </p>
+                                            </div>
 
-                                    <div className="flex flex-wrap items-center gap-1 justify-center">
-                                        {pageNumbers.map((page, idx) =>
-                                            typeof page === "number" ? (
+                                            <Chip size="sm" variant="flat" color={isUpcoming ? "warning" : "default"} className="font-bold text-[10px]">
+                                                {isUpcoming ? (isBn ? "আসন্ন" : "Upcoming") : (isBn ? "সম্পন্ন" : "Done")}
+                                            </Chip>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl">
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                                                <span className="font-semibold text-slate-700">
+                                                    {classDate.toLocaleDateString(isBn ? "bn-BD" : "en-US", { month: "short", day: "numeric" })}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                                <span className="font-semibold text-slate-700">
+                                                    {classDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {isUpcoming && (
+                                            <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 flex items-center justify-between text-xs">
+                                                <span className="text-amber-800 font-bold">{isBn ? "শুরু হতে বাকি:" : "Starts in:"}</span>
+                                                <span className="font-black text-amber-900">{timeStatus.display}</span>
+                                            </div>
+                                        )}
+
+                                        <div className="pt-2 flex items-center gap-2">
+                                            {isUpcoming ? (
                                                 <Button
-                                                    key={page}
-                                                    isIconOnly
                                                     size="sm"
-                                                    color={currentPage === page ? "primary" : "default"}
-                                                    variant={currentPage === page ? "flat" : "light"}
-                                                    className="h-8 w-8 text-xs"
-                                                    onPress={() => setCurrentPage(page)}
+                                                    color="primary"
+                                                    className="flex-1 font-bold text-xs rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                                                    onPress={() => window.open(cls.meetingLink, "_blank")}
+                                                    startContent={<Video className="w-3.5 h-3.5" />}
                                                 >
-                                                    {page}
+                                                    {isBn ? "যোগ দিন" : "Join Class"}
+                                                </Button>
+                                            ) : cls.recordedLink ? (
+                                                <Button
+                                                    size="sm"
+                                                    color="success"
+                                                    variant="flat"
+                                                    className="flex-1 font-bold text-xs rounded-xl"
+                                                    onPress={() => window.open(cls.recordedLink, "_blank")}
+                                                    startContent={<PlayCircle className="w-3.5 h-3.5" />}
+                                                >
+                                                    {isBn ? "রেকর্ডিং দেখুন" : "Watch Recording"}
                                                 </Button>
                                             ) : (
-                                                <Button key={`${page}-${idx}`} size="sm" isDisabled variant="light" className="h-8 px-2 text-xxs">
-                                                    ...
+                                                <Button
+                                                    size="sm"
+                                                    variant="flat"
+                                                    className="flex-1 font-bold text-xs rounded-xl"
+                                                    isDisabled
+                                                >
+                                                    {isBn ? "ক্লাস সমাপ্ত" : "Session Over"}
                                                 </Button>
-                                            )
-                                        )}
-                                    </div>
+                                            )}
 
-                                    <Button
-                                        size="sm"
-                                        isDisabled={currentPage === totalPages}
-                                        onPress={() => setCurrentPage(currentPage + 1)}
-                                        variant="flat"
-                                        className="text-xs"
-                                    >
-                                        Next
-                                    </Button>
-                                </div>
-                            )}
+                                            <Button
+                                                size="sm"
+                                                variant="bordered"
+                                                className="font-bold text-xs rounded-xl border-slate-200 text-slate-700"
+                                                onPress={() => {
+                                                    const courseId = typeof cls.courseId === "object" && cls.courseId ? cls.courseId._id : cls.courseId;
+                                                    if (courseId) router.push(`/courses/${courseId}`);
+                                                }}
+                                            >
+                                                {isBn ? "কোর্স" : "Course"}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

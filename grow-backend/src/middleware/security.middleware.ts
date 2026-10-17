@@ -48,11 +48,26 @@ export const globalRateLimiter = rateLimit({
 // 3. Rate Limiting - Authentication Endpoints (Stricter)
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // Only 100 attempts per 15 minutes
+  max: 20, // Max 20 failed login attempts per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many login attempts. Please try again after 15 minutes.',
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP. Please try again after 15 minutes.',
+  },
   skipSuccessfulRequests: true, // Don't count successful attempts
+});
+
+// 3b. Rate Limiting - OTP Endpoints (Anti-Bombing & Brute Force Protection)
+export const otpRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // Max 10 OTP requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many OTP requests from this IP. Please wait 15 minutes before requesting again.',
+  },
 });
 
 // 4. Rate Limiting - API Endpoints

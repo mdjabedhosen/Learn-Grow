@@ -6,7 +6,6 @@ import {
   Tabs,
   Tab,
   Spinner,
-  Empty,
   Badge,
   Divider,
   Button,
@@ -18,18 +17,27 @@ import { hasValidAccess, getRemainingDays, isExpiringSoon } from "@/lib/access-c
 import { IEnrollmentAccess } from "@/types/combo.types";
 
 export default function StudentCourseDashboard() {
-  const { data: accessData, isLoading, isError } = useGetUserCourseAccessQuery({});
+  const [userId, setUserId] = React.useState<string>("");
 
-  const accesses = accessData?.data || [];
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (user?._id) setUserId(user._id);
+      } catch {}
+    }
+  }, []);
 
-  // Separate active and expired courses
-  const activeCourses = accesses.filter((access: IEnrollmentAccess) => hasValidAccess(access));
-  const expiredCourses = accesses.filter((access: IEnrollmentAccess) => !hasValidAccess(access));
+  const { data: accessData, isLoading, isError } = useGetUserCourseAccessQuery(userId, { skip: !userId });
+
+  const activeCourses = accessData?.data?.activeAccess || [];
+  const expiredCourses = accessData?.data?.expiredAccess || [];
+  const accesses = [...activeCourses, ...expiredCourses];
 
   // Sort active courses by remaining days (expiring soon first)
   const sortedActiveCourses = [...activeCourses].sort((a: IEnrollmentAccess, b: IEnrollmentAccess) => {
-    const aRemaining = getRemainingDays(a.accessEndDate);
-    const bRemaining = getRemainingDays(b.accessEndDate);
+    const aRemaining = getRemainingDays(a.accessEndDate) ?? 999;
+    const bRemaining = getRemainingDays(b.accessEndDate) ?? 999;
     return aRemaining - bRemaining;
   });
 

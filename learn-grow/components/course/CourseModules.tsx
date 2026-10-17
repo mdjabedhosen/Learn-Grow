@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useCompleteLessonMutation } from "@/redux/api/courseApi";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml, stripHtml } from "@/lib/sanitize";
 import {
     FaLock,
     FaCheckCircle,
@@ -155,10 +155,7 @@ export default function CourseModules({ courseId, isEnrolled, modulesFromApi, ha
     };
 
     const toPlainText = (html?: string) =>
-        DOMPurify.sanitize(normalizeRichHtml(html), { ALLOWED_TAGS: [] })
-            .replace(/\u00a0/g, " ")
-            .replace(/&nbsp;/g, " ")
-            .trim();
+        stripHtml(normalizeRichHtml(html));
 
     const resolveLessonContentUrl = (lesson: LessonFromApi | null) => {
         if (!lesson) return "";
@@ -536,7 +533,7 @@ export default function CourseModules({ courseId, isEnrolled, modulesFromApi, ha
                                     <div
                                         className="prose prose-sm max-w-none text-gray-700"
                                         dangerouslySetInnerHTML={{
-                                            __html: DOMPurify.sanitize(normalizeRichHtml(selectedLesson.description)),
+                                            __html: sanitizeHtml(normalizeRichHtml(selectedLesson.description)),
                                         }}
                                     />
                                 </div>

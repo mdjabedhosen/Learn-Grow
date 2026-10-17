@@ -466,6 +466,14 @@ export const approveOrderService = async (orderId: string) => {
           purchaseType: "single",
         });
       }
+
+      // Auto-assign student to active batch (15 students per batch capacity)
+      try {
+        const { autoAssignStudentToBatch } = await import("../../batch/service/batch.service");
+        await autoAssignStudentToBatch(order.courseId, order.userId);
+      } catch (batchErr) {
+        console.error("[Order Approval Batch Assignment Error]:", batchErr);
+      }
     } else if (order.planType === "combo" && order.comboId) {
       // Handle combo enrollment - enroll user in all courses in the combo
       const combo = await Combo.findById(order.comboId).populate("courses");
@@ -500,6 +508,17 @@ export const approveOrderService = async (orderId: string) => {
 
         if (enrollmentUpdates.length > 0) {
           await Enrollment.bulkWrite(enrollmentUpdates as any);
+
+          // Auto-assign student to batches for all courses in the combo
+          try {
+            const { autoAssignStudentToBatch } = await import("../../batch/service/batch.service");
+            for (const courseItem of combo.courses as any[]) {
+              const cId = courseItem._id || courseItem;
+              await autoAssignStudentToBatch(cId, order.userId);
+            }
+          } catch (batchErr) {
+            console.error("[Combo Approval Batch Assignment Error]:", batchErr);
+          }
         }
       }
     }
@@ -662,6 +681,20 @@ export const getStudentEnrollmentService = async (userId: string) => {
       }
     }
 
+    // Attach student's batch and assigned teacher info to enrolled courses
+    try {
+      const { getStudentBatch } = await import("../../batch/service/batch.service");
+      for (const item of enrollment.courses) {
+        const cId = item.courseId?._id || item.courseId;
+        if (cId) {
+          const batchInfo = await getStudentBatch(cId.toString(), userId);
+          item.batch = batchInfo;
+        }
+      }
+    } catch (batchErr) {
+      console.error("[Student Enrollment Batch Load Error]:", batchErr);
+    }
+
     return { success: true, data: enrollment };
   } catch (error: any) {
     return { success: false, message: error.message };
@@ -677,13 +710,18 @@ export const getEnrolledStudentsService = async (
   options?: { page?: number; limit?: number }
 ) => {
   try {
-    // Verify instructor owns the course
+    // Verify instructor owns or is assigned to the course
     const course = await Course.findById(courseId);
     if (!course) {
       return { success: false, message: "Course not found" };
     }
 
-    if (course.instructorId.toString() !== instructorId) {
+    const isAssignedInstructor =
+      course.instructorId.toString() === instructorId ||
+      (Array.isArray(course.instructorIds) &&
+        course.instructorIds.some((id: any) => id.toString() === instructorId));
+
+    if (!isAssignedInstructor) {
       return {
         success: false,
         message: "You don't have permission to view students for this course",

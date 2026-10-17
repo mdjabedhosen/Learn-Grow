@@ -45,11 +45,11 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   body: z.object({
     email: z.preprocess(
-      (val) => (val === "" ? undefined : val),
+      (val) => (typeof val === "string" ? (val.trim() === "" ? undefined : val.trim().toLowerCase()) : val),
       z.string().email("Invalid email address").optional()
     ),
     phone: z.preprocess(
-      (val) => (val === "" ? undefined : val),
+      (val) => (typeof val === "string" ? (val.trim() === "" ? undefined : val.trim()) : val),
       z.string().optional()
     ),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -123,15 +123,19 @@ export const updateProfileSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
     bio: z.string().optional(),
     phone: z.string().optional(),
-    expertise: z.string().optional(),
+    expertise: z.union([z.string(), z.array(z.string())]).optional(),
     qualification: z.string().optional(),
     institution: z.string().optional(),
     yearsOfExperience: z
       .preprocess((val) => {
-        if (typeof val === "string" && val.trim() !== "") return Number(val);
+        if (typeof val === "string" && val.trim() !== "") {
+          const num = Number(val);
+          return isNaN(num) ? undefined : num;
+        }
+        if (val === null || val === "" || (typeof val === "number" && isNaN(val))) return undefined;
         return val;
-      }, z.number().optional()),
-  }),
+      }, z.number().optional().nullable()),
+  }).passthrough(),
 });
 
 export const updateProfilePhotoSchema = z.object({

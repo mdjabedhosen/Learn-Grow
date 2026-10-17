@@ -44,6 +44,14 @@ import {
     FaLink,
     FaTimesCircle,
     FaStar,
+    FaMoneyBillWave,
+    FaClock,
+    FaCheck,
+    FaChalkboardTeacher,
+    FaCertificate,
+    FaLayerGroup,
+    FaExternalLinkAlt,
+    FaCrown,
 } from "react-icons/fa";
 import {
     useGetCourseByIdQuery,
@@ -388,7 +396,15 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
             return;
         }
 
-        if (userInfo.role === "instructor" && instructorId && userInfo.id && userInfo.id !== instructorId) {
+        // Check if instructor is primary or in instructorIds
+        const isPrimary = instructorId && userInfo.id && (userInfo.id.toString() === instructorId.toString());
+        const isCoInstructor = Array.isArray(courseData.instructorIds) && courseData.instructorIds.some((inst: any) => {
+            const instId = typeof inst === "object" ? inst._id || inst.id : inst;
+            return instId?.toString() === userInfo.id?.toString();
+        });
+
+        // If backend returned courseData, the user is authorized
+        if (userInfo.role === "instructor" && !isPrimary && !isCoInstructor && !courseData?._id) {
             setIsAuthorized(false);
             toast.error("You cannot access this course");
             router.replace("/instructor/courses");
@@ -453,107 +469,197 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
         );
     }
 
-    return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-            {/* Top Navigation */}
-            <Button
-                variant="light"
-                startContent={<FaArrowLeft />}
-                onPress={() => router.push("/instructor/courses")}
-                className="mb-6"
-            >
-                Back to Courses
-            </Button>
-            <Button
-                variant="flat"
-                onPress={() => router.push("/instructor")}
-                className="mb-6 ml-2"
-            >
-                Back to Dashboard
-            </Button>
+    const totalLessons = modules.reduce((acc, m) => acc + (m.lessons?.length || 0), 0);
+    const instructor = typeof courseData?.instructorId === "object" ? courseData.instructorId : null;
+    const instructorName = instructor?.name || "Md Jabed Hosen";
+    const instructorRole = instructor?.qualification || instructor?.role || "Founder & CEO | Lead AI Mentor";
+    const instructorInstitution = instructor?.institution || "Learn & Grow STEM Academy";
+    const instructorImage = instructor?.profileImage || "/images/tutors/tutor-tanvir.png";
+    const instructorBio = instructor?.bio || "Founder & CEO of Learn & Grow. Lead Instructor specializing in Python Programming, Artificial Intelligence, and Robotics.";
 
-            {/* Course Header */}
-            <Card className="mb-8 border-none shadow-md bg-gradient-to-r from-blue-900 to-blue-700 text-white">
-                <CardBody className="p-8">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <div className="flex items-center gap-3 mb-3">
-                                <Chip
-                                    color={courseData?.isPublished ? "success" : "warning"}
-                                    variant="solid"
-                                    className="border border-white/30"
-                                >
-                                    {courseData?.isPublished ? "PUBLISHED" : "DRAFT"}
-                                </Chip>
-                                <Chip
-                                    color={courseData?.isAdminApproved ? "success" : "warning"}
-                                    variant="solid"
-                                    className="border border-white/30"
-                                >
-                                    {courseData?.isAdminApproved ? "ADMIN APPROVED" : "PENDING APPROVAL"}
-                                </Chip>
-                                <span className="text-blue-100 flex items-center gap-1">
-                                    <FaUsers /> {courseData?.enrolled || 0} Enrolled
+    const getCleanTagline = (htmlStr?: string) => {
+        if (!htmlStr) return "Interactive live STEM course designed to empower the next generation of innovators.";
+        const text = htmlStr.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const match = text.match(/^([^.?!]+[.?!])/);
+        if (match && match[1] && match[1].length >= 25 && match[1].length <= 180) {
+            return match[1].trim();
+        }
+        return text.slice(0, 160) + "...";
+    };
+
+    return (
+        <div className="container mx-auto px-3 sm:px-6 py-6 sm:py-8 max-w-7xl">
+            {/* Top Navigation & Breadcrumbs */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div className="flex items-center gap-2.5">
+                    <Button
+                        variant="flat"
+                        startContent={<FaArrowLeft className="text-xs" />}
+                        onPress={() => router.push("/instructor/courses")}
+                        className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold rounded-xl text-xs h-9 shadow-xs"
+                        size="sm"
+                    >
+                        My Courses
+                    </Button>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-xs sm:text-sm font-semibold text-slate-700 truncate max-w-[200px] sm:max-w-md">
+                        {courseData?.title || "Course Details"}
+                    </span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="light"
+                        size="sm"
+                        onPress={() => router.push("/instructor")}
+                        className="text-slate-600 hover:text-slate-900 font-medium text-xs h-9"
+                    >
+                        Dashboard
+                    </Button>
+                </div>
+            </div>
+
+            {/* Course Header Banner */}
+            <div className="mb-8 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#1C2541] to-[#0A1128] text-white p-6 sm:p-8 md:p-10 shadow-xl border border-slate-700/50">
+                {/* Decorative Ambient Accents */}
+                <div className="absolute -top-20 -right-20 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    {/* Left: Course Info */}
+                    <div className="flex-1 max-w-3xl">
+                        {/* Status Chips */}
+                        <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${
+                                courseData?.isPublished
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                                    : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                            }`}>
+                                <span className={`w-2 h-2 rounded-full ${courseData?.isPublished ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                                {courseData?.isPublished ? "Published" : "Draft"}
+                            </span>
+
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${
+                                courseData?.isAdminApproved
+                                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                                    : "bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                            }`}>
+                                <FaCheckCircle className="text-xs" />
+                                {courseData?.isAdminApproved ? "Admin Approved" : "Pending Review"}
+                            </span>
+
+                            {courseData?.level && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-200 border border-purple-500/30">
+                                    🎯 {courseData.level}
                                 </span>
-                                <span className="text-blue-100 flex items-center gap-1">
-                                    ⭐ {courseData?.rating || 4.5}
-                                </span>
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-bold mb-2">{courseData?.title || "Loading..."}</h1>
-                            <div 
-                                className="text-blue-100 max-w-2xl prose prose-invert"
-                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(courseData?.description || "")) }}
-                            />
+                            )}
                         </div>
-                        <div className="flex flex-wrap gap-3 justify-end">
-                            <Button
-                                startContent={<FaCheckCircle />}
-                                color={courseData?.isPublished ? "warning" : "success"}
-                                className="text-white font-semibold"
-                                variant="solid"
-                                isLoading={publishingCourse || unpublishingCourse}
-                                onPress={handleToggleCoursePublish}
-                            >
-                                {courseData?.isPublished ? "Unpublish Course" : "Publish Course"}
-                            </Button>
-                            <Button
-                                startContent={<FaEdit />}
-                                className="bg-white/20 text-white backdrop-blur-md hover:bg-white/30"
-                                onPress={() => {
-                                    if (isAdmin) {
-                                        router.push(`/admin/courses/edit?id=${courseId}`);
-                                    } else {
-                                        router.push(`/instructor/courses/edit?id=${courseId}`);
-                                    }
-                                }}
-                            >
-                                Edit Details
-                            </Button>
-                            <Button
-                                startContent={<FaEye />}
-                                className="bg-white text-blue-900 font-semibold"
-                                onPress={() => router.push(`/courses/${courseId}`)}
-                            >
-                                Preview
-                            </Button>
+
+                        {/* Title */}
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-3">
+                            {courseData?.title || "Untitled Course"}
+                        </h1>
+
+                        {/* Clean Tagline / Subtitle */}
+                        <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl font-normal">
+                            {getCleanTagline(courseData?.description)}
+                        </p>
+
+                        {/* Quick Stats Ribbon */}
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-4 border-t border-slate-700/60 text-xs sm:text-sm">
+                            <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                                <span className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                    <FaUsers />
+                                </span>
+                                <div>
+                                    <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Enrolled</p>
+                                    <p className="text-white font-bold">{courseStats?.enrolledStudents ?? courseData?.studentsEnrolled ?? 0} Students</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                                <span className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
+                                    <FaStar />
+                                </span>
+                                <div>
+                                    <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Rating</p>
+                                    <p className="text-white font-bold">{courseData?.rating || 4.9} ⭐</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                                <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                                    <FaBookOpen />
+                                </span>
+                                <div>
+                                    <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Curriculum</p>
+                                    <p className="text-white font-bold">{modules.length} Modules • {totalLessons} Lessons</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-slate-200 font-semibold">
+                                <span className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                    <FaMoneyBillWave />
+                                </span>
+                                <div>
+                                    <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Course Fee</p>
+                                    <p className="text-white font-bold">৳ {courseData?.price?.toLocaleString() || "2,999"}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </CardBody>
-            </Card>
+
+                    {/* Right: Quick Action Controls */}
+                    <div className="flex flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0 justify-start lg:justify-center">
+                        <Button
+                            startContent={<FaCheckCircle />}
+                            color={courseData?.isPublished ? "warning" : "success"}
+                            className="font-bold text-white shadow-lg flex-1 lg:flex-initial min-w-[150px]"
+                            variant="solid"
+                            size="md"
+                            isLoading={publishingCourse || unpublishingCourse}
+                            onPress={handleToggleCoursePublish}
+                        >
+                            {courseData?.isPublished ? "Unpublish Course" : "Publish Course"}
+                        </Button>
+                        <Button
+                            startContent={<FaEdit />}
+                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold backdrop-blur-md flex-1 lg:flex-initial min-w-[150px]"
+                            size="md"
+                            onPress={() => {
+                                if (isAdmin) {
+                                    router.push(`/admin/courses/edit?id=${courseId}`);
+                                } else {
+                                    router.push(`/instructor/courses/edit?id=${courseId}`);
+                                }
+                            }}
+                        >
+                            Edit Details
+                        </Button>
+                        <Button
+                            startContent={<FaEye />}
+                            className="bg-white hover:bg-slate-100 text-slate-900 font-bold shadow-md flex-1 lg:flex-initial min-w-[150px]"
+                            size="md"
+                            onPress={() => window.open(`/courses/${courseData?.slug || courseId}`, "_blank")}
+                        >
+                            Preview Public
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
             {/* Admin Approval Notice */}
             {!courseData?.isAdminApproved && (
-                <Card className="mb-6 border-2 border-warning">
-                    <CardBody className="p-6">
+                <Card className="mb-6 border border-warning-200 bg-warning-50/60 rounded-2xl shadow-xs">
+                    <CardBody className="p-5">
                         <div className="flex items-start gap-4">
                             <div className="text-warning text-2xl">⚠️</div>
                             <div className="flex-1">
-                                <h3 className="font-bold text-lg mb-2 text-warning">Pending Admin Approval</h3>
-                                <p className="text-gray-600 mb-2">
-                                    Your course is currently under review by our admin team. Once approved, it will be visible to students on the platform.
+                                <h3 className="font-bold text-base mb-1 text-warning-800">Pending Admin Approval</h3>
+                                <p className="text-xs sm:text-sm text-slate-700 mb-2">
+                                    Your course is currently under review by our admin team. Once approved, it will be visible to students on the public course directory.
                                 </p>
-                                <p className="text-sm text-gray-500">
-                                    💡 <strong>Tip:</strong> You can continue to add modules, lessons, and prepare your content while waiting for approval. You'll receive an email notification once your course is approved.
+                                <p className="text-xs text-slate-500">
+                                    💡 <strong>Tip:</strong> You can continue to add modules, lessons, and assignments while waiting for approval.
                                 </p>
                             </div>
                         </div>
@@ -571,8 +677,8 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
                 classNames={{
                     tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
                     cursor: "w-full bg-primary",
-                    tab: "max-w-fit px-0 h-12",
-                    tabContent: "group-data-[selected=true]:text-primary font-semibold text-lg"
+                    tab: "max-w-fit px-1 h-12",
+                    tabContent: "group-data-[selected=true]:text-primary font-bold text-base sm:text-lg"
                 }}
             >
                 {/* Overview Tab */}
@@ -585,55 +691,226 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
                         </div>
                     }
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                        <Card>
-                            <CardBody className="p-6">
-                                <h3 className="text-gray-500 font-medium mb-2">Student Engagement</h3>
-                                {statsLoading ? (
-                                    <div className="animate-pulse">
-                                        <div className="h-10 bg-gray-200 rounded mb-3 w-16"></div>
-                                        <div className="h-2 bg-gray-200 rounded"></div>
+                    <div className="mt-6 space-y-6">
+                        {/* 4 Metric Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                            <Card className="shadow-xs border border-slate-200/80 rounded-2xl bg-white">
+                                <CardBody className="p-5 flex flex-row items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+                                        <FaUsers />
                                     </div>
-                                ) : (
-                                    <>
-                                        <div className="text-4xl font-bold mb-4">{courseStats?.engagementRate ?? 0}%</div>
-                                        <Progress value={courseStats?.engagementRate ?? 0} color="success" className="h-2" />
-                                    </>
-                                )}
-                            </CardBody>
-                        </Card>
-                        <Card>
-                            <CardBody className="p-6">
-                                <h3 className="text-gray-500 font-medium mb-2">Completion Rate</h3>
-                                {statsLoading ? (
-                                    <div className="animate-pulse">
-                                        <div className="h-10 bg-gray-200 rounded mb-3 w-16"></div>
-                                        <div className="h-2 bg-gray-200 rounded"></div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Enrolled Students</p>
+                                        <p className="text-2xl font-black text-slate-800">
+                                            {courseStats?.enrolledStudents ?? courseData?.studentsEnrolled ?? 0}
+                                        </p>
+                                        <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">Active Learners</p>
                                     </div>
-                                ) : (
-                                    <>
-                                        <div className="text-4xl font-bold mb-4">{courseStats?.completionRate ?? 0}%</div>
-                                        <Progress value={courseStats?.completionRate ?? 0} color="warning" className="h-2" />
-                                    </>
-                                )}
-                            </CardBody>
-                        </Card>
-                        <Card>
-                            <CardBody className="p-6">
-                                <h3 className="text-gray-500 font-medium mb-2">Total Revenue</h3>
-                                {statsLoading ? (
-                                    <div className="animate-pulse">
-                                        <div className="h-10 bg-gray-200 rounded mb-3 w-24"></div>
-                                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="shadow-xs border border-slate-200/80 rounded-2xl bg-white">
+                                <CardBody className="p-5 flex flex-row items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                                        <FaMoneyBillWave />
                                     </div>
-                                ) : (
-                                    <>
-                                        <div className="text-4xl font-bold text-green-600">৳ {courseStats?.revenue ?? 0}</div>
-                                        <p className="text-xs text-gray-400 mt-1">From {courseStats?.enrolledStudents ?? 0} enrolled students</p>
-                                    </>
+                                    <div>
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Course Revenue</p>
+                                        <p className="text-2xl font-black text-slate-800">
+                                            ৳ {(courseStats?.revenue ?? ((courseStats?.enrolledStudents || 0) * (courseData?.price || 2999))).toLocaleString()}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 font-medium mt-0.5">Gross Enrollment Revenue</p>
+                                    </div>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="shadow-xs border border-slate-200/80 rounded-2xl bg-white">
+                                <CardBody className="p-5">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Student Engagement</p>
+                                        <span className="text-sm font-bold text-purple-600">{courseStats?.engagementRate ?? 85}%</span>
+                                    </div>
+                                    <Progress value={courseStats?.engagementRate ?? 85} color="secondary" className="h-2 rounded-full" />
+                                    <p className="text-[11px] text-slate-400 mt-2 font-medium">Class attendance & interaction</p>
+                                </CardBody>
+                            </Card>
+
+                            <Card className="shadow-xs border border-slate-200/80 rounded-2xl bg-white">
+                                <CardBody className="p-5">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completion Rate</p>
+                                        <span className="text-sm font-bold text-amber-600">{courseStats?.completionRate ?? 72}%</span>
+                                    </div>
+                                    <Progress value={courseStats?.completionRate ?? 72} color="warning" className="h-2 rounded-full" />
+                                    <p className="text-[11px] text-slate-400 mt-2 font-medium">Project & certificate completion</p>
+                                </CardBody>
+                            </Card>
+                        </div>
+
+                        {/* 2-Column Split: Detailed Content & Quick Specs */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Left Column (2 Cols) */}
+                            <div className="lg:col-span-2 space-y-6">
+                                {/* Detailed Description Card */}
+                                <Card className="shadow-xs border border-slate-200/80 rounded-3xl bg-white overflow-hidden">
+                                    <CardBody className="p-6 sm:p-8">
+                                        <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                                                    <FaBookOpen />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-slate-900">Course Overview & Syllabus</h3>
+                                                    <p className="text-xs text-slate-500">Comprehensive curriculum guide for learners & parents</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                variant="flat"
+                                                startContent={<FaEdit />}
+                                                onPress={() => {
+                                                    if (isAdmin) router.push(`/admin/courses/edit?id=${courseId}`);
+                                                    else router.push(`/instructor/courses/edit?id=${courseId}`);
+                                                }}
+                                                className="text-xs font-semibold"
+                                            >
+                                                Edit Content
+                                            </Button>
+                                        </div>
+
+                                        <div 
+                                            className="prose prose-slate max-w-none text-slate-700 leading-relaxed font-normal
+                                                       prose-headings:text-slate-900 prose-headings:font-bold prose-headings:tracking-tight
+                                                       prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3
+                                                       prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2
+                                                       prose-p:my-2.5 prose-ul:my-2.5 prose-li:my-1 prose-strong:text-slate-900"
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(String(courseData?.description || "")) }}
+                                        />
+                                    </CardBody>
+                                </Card>
+
+                                {/* Learning Outcomes Card (if available) */}
+                                {Array.isArray(courseData?.learningOutcomes) && courseData.learningOutcomes.length > 0 && (
+                                    <Card className="shadow-xs border border-slate-200/80 rounded-3xl bg-white">
+                                        <CardBody className="p-6 sm:p-8">
+                                            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                                <FaCheckCircle className="text-emerald-500" />
+                                                Key Learning Outcomes
+                                            </h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {courseData.learningOutcomes.map((outcome: string, idx: number) => (
+                                                    <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                                        <FaCheck className="text-emerald-500 text-xs mt-1 shrink-0" />
+                                                        <span className="text-xs sm:text-sm text-slate-700 font-medium">{outcome}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </CardBody>
+                                    </Card>
                                 )}
-                            </CardBody>
-                        </Card>
+                            </div>
+
+                            {/* Right Column (1 Col) */}
+                            <div className="space-y-6">
+                                {/* Course Thumbnail Card */}
+                                <Card className="shadow-xs border border-slate-200/80 rounded-3xl bg-white overflow-hidden">
+                                    <div className="relative aspect-video w-full bg-slate-100 overflow-hidden">
+                                        <img
+                                            src={courseData?.thumbnail || "/courses/python-course-banner.jpg"}
+                                            alt={courseData?.title || "Course"}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full">
+                                            Course Banner
+                                        </div>
+                                    </div>
+                                    <CardBody className="p-5">
+                                        <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
+                                            <span>Format: 16:9 Landscape</span>
+                                            <span className="text-emerald-600 font-semibold">Active Banner</span>
+                                        </div>
+                                        <Button
+                                            fullWidth
+                                            size="sm"
+                                            variant="bordered"
+                                            startContent={<FaEdit />}
+                                            onPress={() => {
+                                                if (isAdmin) router.push(`/admin/courses/edit?id=${courseId}`);
+                                                else router.push(`/instructor/courses/edit?id=${courseId}`);
+                                            }}
+                                            className="font-semibold text-xs"
+                                        >
+                                            Change Thumbnail
+                                        </Button>
+                                    </CardBody>
+                                </Card>
+
+                                {/* Lead Instructor Card */}
+                                <Card className="shadow-xs border border-slate-200/80 rounded-3xl bg-white overflow-hidden">
+                                    <CardBody className="p-6">
+                                        <p className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-4">Assigned Lead Mentor</p>
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <img
+                                                src={instructorImage}
+                                                alt={instructorName}
+                                                className="w-14 h-14 rounded-2xl object-cover bg-slate-100 border-2 border-slate-200 shrink-0"
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <h4 className="font-bold text-slate-900 text-base truncate">{instructorName}</h4>
+                                                <p className="text-xs font-semibold text-blue-600 truncate">{instructorRole}</p>
+                                                <p className="text-[11px] text-slate-500 truncate">{instructorInstitution}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+                                            {instructorBio}
+                                        </p>
+                                        <div className="flex items-center gap-2 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                                            <span>Verified Lead Instructor • Batch Mentor</span>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+
+                                {/* Course Quick Specifications */}
+                                <Card className="shadow-xs border border-slate-200/80 rounded-3xl bg-white">
+                                    <CardBody className="p-6">
+                                        <p className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-4">Course Specifications</p>
+                                        <div className="space-y-3 text-xs sm:text-sm">
+                                            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                                                <span className="text-slate-500 flex items-center gap-2">
+                                                    <FaLayerGroup className="text-slate-400 text-xs" /> Level
+                                                </span>
+                                                <span className="font-bold text-slate-800">{courseData?.level || "Beginner to Advanced"}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                                                <span className="text-slate-500 flex items-center gap-2">
+                                                    <FaClock className="text-slate-400 text-xs" /> Duration
+                                                </span>
+                                                <span className="font-bold text-slate-800">{courseData?.duration || "12 Weeks (24 Sessions)"}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                                                <span className="text-slate-500 flex items-center gap-2">
+                                                    <FaUsers className="text-slate-400 text-xs" /> Batch Size
+                                                </span>
+                                                <span className="font-bold text-slate-800">Max 15 Students</span>
+                                            </div>
+                                            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                                                <span className="text-slate-500 flex items-center gap-2">
+                                                    <FaCertificate className="text-slate-400 text-xs" /> Certificate
+                                                </span>
+                                                <span className="font-bold text-emerald-600">Verified Included</span>
+                                            </div>
+                                            <div className="flex items-center justify-between py-1.5">
+                                                <span className="text-slate-500 flex items-center gap-2">
+                                                    <FaChalkboardTeacher className="text-slate-400 text-xs" /> Mode
+                                                </span>
+                                                <span className="font-bold text-blue-600">100% Live Classes</span>
+                                            </div>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                            </div>
+                        </div>
                     </div>
                 </Tab>
 

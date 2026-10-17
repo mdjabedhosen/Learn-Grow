@@ -12,13 +12,44 @@ import {
   Select,
   SelectItem,
   Switch,
+  Avatar,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useCreateCourseMutation } from "@/redux/api/courseApi";
+import {
+  useGetApprovedInstructorsPublicQuery,
+  useGetAllInstructorsQuery,
+  useGetUsersAdminQuery,
+} from "@/redux/api/userApi";
+import { FaUserTie } from "react-icons/fa";
 
 export default function CreateCoursePage() {
   const router = useRouter();
   const [createCourse, { isLoading }] = useCreateCourseMutation();
+  const { data: allInstructorsData } = useGetAllInstructorsQuery({ limit: 100 });
+  const { data: approvedInstructorsData } = useGetApprovedInstructorsPublicQuery();
+  const { data: adminInstructorsData } = useGetUsersAdminQuery({ role: "instructor", limit: 100 });
+  const { data: adminAdminsData } = useGetUsersAdminQuery({ role: "admin", limit: 50 });
+
+  const instructors = React.useMemo(() => {
+    const listA = allInstructorsData?.data || [];
+    const listB = approvedInstructorsData?.data || [];
+    const listC = adminInstructorsData?.data?.users || adminInstructorsData?.data || [];
+    const listD = adminAdminsData?.data?.users || adminAdminsData?.data || [];
+    const map = new Map();
+
+    [...listA, ...listB, ...listC, ...listD].forEach((ins: any) => {
+      if (ins && ins._id) {
+        map.set(ins._id.toString(), {
+          ...ins,
+          _id: ins._id.toString(),
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [allInstructorsData, approvedInstructorsData, adminInstructorsData, adminAdminsData]);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -26,10 +57,13 @@ export default function CreateCoursePage() {
     level: "Beginner",
     category: "",
     thumbnail: "",
-    type: "recorded",
-    isRegistrationOpen: false,
+    type: "live",
+    isRegistrationOpen: true,
     registrationDeadline: "",
     isPublished: true,
+    instructorId: "",
+    instructorIds: [] as string[],
+    maxBatchSize: 15,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -223,6 +257,99 @@ export default function CreateCoursePage() {
                     setFormData({ ...formData, isPublished: isSelected })
                   }
                 />
+              </div>
+
+              {/* Instructor Assignment & Cohort Setup */}
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                <div className="flex items-center gap-2">
+                  <FaUserTie className="text-blue-600" />
+                  <h3 className="text-sm font-bold text-gray-800">Instructor & Micro-Batch Setup</h3>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1">
+                    Primary Lead Instructor
+                  </label>
+                  <Select
+                    placeholder="Select Primary Instructor"
+                    selectedKeys={formData.instructorId ? new Set([formData.instructorId]) : new Set([])}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] as string;
+                      setFormData({ ...formData, instructorId: val });
+                    }}
+                    variant="bordered"
+                    size="sm"
+                  >
+                    {instructors.map((inst: any) => (
+                      <SelectItem key={inst._id} textValue={inst.name || inst.email}>
+                        <div className="flex items-center gap-2">
+                          <Avatar src={inst.profileImage} name={inst.name} size="sm" className="w-5 h-5" />
+                          <span className="text-xs font-semibold">{inst.name} ({inst.email})</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-gray-700">
+                      Co-Instructors / Batch Mentors ({formData.instructorIds.length})
+                    </label>
+                    <span className="text-[11px] text-gray-400">Can manage micro-batches</span>
+                  </div>
+                  <div className="max-h-36 overflow-y-auto space-y-1.5 p-2 bg-white rounded-lg border border-gray-200">
+                    {instructors.length === 0 ? (
+                      <p className="text-xs text-gray-400 italic">No approved instructors found</p>
+                    ) : (
+                      instructors.map((inst: any) => {
+                        const isSelected = formData.instructorIds.includes(inst._id);
+                        return (
+                          <div
+                            key={inst._id}
+                            onClick={() => {
+                              const next = isSelected
+                                ? formData.instructorIds.filter((id) => id !== inst._id)
+                                : [...formData.instructorIds, inst._id];
+                              setFormData({ ...formData, instructorIds: next });
+                            }}
+                            className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors text-xs ${
+                              isSelected
+                                ? "bg-blue-100/70 border border-blue-300 font-bold text-blue-900"
+                                : "hover:bg-gray-50 text-gray-700"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                readOnly
+                                className="rounded text-blue-600 pointer-events-none"
+                              />
+                              <Avatar src={inst.profileImage} name={inst.name} size="sm" className="w-5 h-5" />
+                              <span>{inst.name}</span>
+                            </div>
+                            <span className="text-[10px] text-gray-400 truncate max-w-[120px]">{inst.email}</span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1">
+                    Max Students Per Batch (Cohort Size)
+                  </label>
+                  <Input
+                    type="number"
+                    value={String(formData.maxBatchSize || 15)}
+                    onChange={(e) => setFormData({ ...formData, maxBatchSize: Number(e.target.value) || 15 })}
+                    size="sm"
+                    variant="bordered"
+                    description="Default: 15 students per micro-batch rule"
+                  />
+                </div>
               </div>
 
               <div className="flex gap-4 pt-4">

@@ -1,7 +1,9 @@
 import { Schema, model } from "mongoose";
 
 export interface IJobApplication {
-  jobId: Schema.Types.ObjectId;
+  jobId?: Schema.Types.ObjectId;
+  applicationType: "job" | "general_cv";
+  positionOfInterest?: string;
   userId?: Schema.Types.ObjectId;
   email: string;
   fullName: string;
@@ -19,7 +21,18 @@ const jobApplicationSchema = new Schema<IJobApplication>(
     jobId: {
       type: Schema.Types.ObjectId,
       ref: "JobPost",
-      required: true,
+      required: false,
+      default: null,
+    },
+    applicationType: {
+      type: String,
+      enum: ["job", "general_cv"],
+      default: "job",
+    },
+    positionOfInterest: {
+      type: String,
+      default: null,
+      trim: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
@@ -78,6 +91,7 @@ jobApplicationSchema.index({ email: 1 });
 jobApplicationSchema.index({ status: 1 });
 jobApplicationSchema.index({ appliedAt: -1 });
 jobApplicationSchema.index({ jobId: 1, status: 1 });
+jobApplicationSchema.index({ applicationType: 1 });
 
 export const JobApplication = model<IJobApplication>(
   "JobApplication",

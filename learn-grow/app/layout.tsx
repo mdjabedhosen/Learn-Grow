@@ -17,6 +17,7 @@ import {
 
 import LayoutWrapper from "./layout-wrapper";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import TrackingScripts from "@/components/TrackingScripts";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -135,6 +136,7 @@ export default function RootLayout({
           <LayoutWrapper>{children}</LayoutWrapper>
           <Toaster position="top-center" reverseOrder={false} />
           <CookieConsentBanner />
+          <TrackingScripts />
         </Providers>
       </body>
     </html>

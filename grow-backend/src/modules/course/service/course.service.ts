@@ -8,12 +8,22 @@ import { Quiz } from "../../quiz/model/quiz.model";
 import { Order } from "../../order/model/order.model";
 import { sendCourseApprovalEmail } from "@/utils/otp";
 import { parsePagination } from "@/utils/pagination";
+import { escapeRegex } from "@/utils/sanitizeSearch";
 
 // ===== COURSE SERVICES =====
 
 export const createCourse = async (data: Partial<ICourse>) => {
   try {
-    return await Course.create(data);
+    const createData: any = { ...data };
+    if (data.instructorId && typeof data.instructorId === "string" && Types.ObjectId.isValid(data.instructorId)) {
+      createData.instructorId = new Types.ObjectId(data.instructorId);
+    }
+    if (Array.isArray(data.instructorIds)) {
+      createData.instructorIds = data.instructorIds
+        .filter((i) => i && Types.ObjectId.isValid(i.toString()))
+        .map((i) => new Types.ObjectId(i.toString()));
+    }
+    return await Course.create(createData);
   } catch (error: any) {
     throw new Error(`Failed to create course: ${error.message}`);
   }
@@ -28,8 +38,31 @@ export const getAllCourses = async (filters: any = {}) => {
     if (filters.level) query.level = filters.level;
     if (filters.isPublished !== undefined) query.isPublished = filters.isPublished === "true";
     if (filters.isFeatured !== undefined) query.isFeatured = filters.isFeatured === "true";
-    if (filters.isRegistrationOpen !== undefined) query.isRegistrationOpen = filters.isRegistrationOpen === "true";
-    if (filters.instructorId) query.instructorId = filters.instructorId;
+    if (filters.instructorId) {
+      let batchCourseIds: any[] = [];
+      try {
+        const { Batch } = await import("../../batch/model/batch.model");
+        if (Types.ObjectId.isValid(filters.instructorId)) {
+          batchCourseIds = await Batch.find({
+            instructorId: new Types.ObjectId(filters.instructorId),
+          }).distinct("courseId");
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      const instId = Types.ObjectId.isValid(filters.instructorId) ? new Types.ObjectId(filters.instructorId) : filters.instructorId;
+      const orList: any[] = [
+        { instructorId: instId },
+        { instructorId: filters.instructorId },
+        { instructorIds: instId },
+        { instructorIds: filters.instructorId },
+      ];
+      if (batchCourseIds.length > 0) {
+        orList.push({ _id: { $in: batchCourseIds } });
+      }
+      query.$or = orList;
+    }
 
     // If student requesting enrolled courses only
     if (filters.enrolledOnly && filters.studentId) {
@@ -77,7 +110,8 @@ export const getAllCourses = async (filters: any = {}) => {
     const limit = filters.enrolledOnly ? 6 : boundedLimit;
 
     const courses = await Course.find(query)
-      .populate("instructorId", "name email profileImage")
+      .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")
+      .populate("instructorIds", "name email profileImage role qualification institution bio expertise yearsOfExperience")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -107,7 +141,8 @@ export const getPublishedCourses = async (filters: any = {}) => {
     const { page, skip, limit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 50 });
 
     const courses = await Course.find(query)
-      .populate("instructorId", "name email")
+      .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")
+      .populate("instructorIds", "name email profileImage role qualification institution bio expertise yearsOfExperience")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -133,7 +168,8 @@ export const getFeaturedCourses = async () => {
   try {
     // Only show courses that are both published AND admin approved, limit to 3 most recent
     return await Course.find({ isPublished: true, isFeatured: true, isAdminApproved: true })
-      .populate("instructorId", "name email")
+      .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")
+      .populate("instructorIds", "name email profileImage role qualification institution bio expertise yearsOfExperience")
       .sort({ createdAt: -1 })
       .limit(3)
       .lean();
@@ -146,14 +182,73 @@ export const getCourseById = async (
   id: string,
   options?: { userId?: string; userRole?: string }
 ) => {
-  const course = await Course.findById(id).populate(
-    "instructorId",
-    "name email profileImage phone bio role expertise experience education"
-  );
+  let course: any = null;
+  const isObjectId = Types.ObjectId.isValid(id) && id.length === 24;
+
+  if (isObjectId) {
+    course = await Course.findById(id)
+      .populate(
+        "instructorId",
+        "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+      )
+      .populate(
+        "instructorIds",
+        "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+      );
+  }
+
+  // If not found by ObjectId or if id is a slug/code name:
+  if (!course && typeof id === "string") {
+    const cleanId = id.trim().toLowerCase();
+
+    // Check by slug or case-insensitive title regex
+    course = await Course.findOne({
+      $or: [
+        { slug: cleanId },
+        { title: new RegExp(`^${cleanId.replace(/-/g, " ")}$`, "i") },
+      ],
+    })
+      .populate(
+        "instructorId",
+        "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+      )
+      .populate(
+        "instructorIds",
+        "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+      );
+
+    // Fallback known alias mappings
+    if (!course) {
+      const slugMap: Record<string, string> = {
+        "python-programming-for-teens": "69ce553ce9e96ed805295101",
+        "python-programming": "69ce553ce9e96ed805295101",
+        "python-for-teens": "69ce553ce9e96ed805295101",
+        "coding-with-python-and-ai": "69ce553ce9e96ed805295101",
+        "python": "69ce553ce9e96ed805295101",
+        "junior-robotics": "69ca5603e9e96ed80529474a",
+        "robotics-with-arduino": "69ca5603e9e96ed80529474a",
+        "robotics": "69ca5603e9e96ed80529474a",
+      };
+      const mappedId = slugMap[cleanId];
+      if (mappedId && Types.ObjectId.isValid(mappedId)) {
+        course = await Course.findById(mappedId)
+          .populate(
+            "instructorId",
+            "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+          )
+          .populate(
+            "instructorIds",
+            "name email profileImage phone bio role expertise experience education qualification institution yearsOfExperience"
+          );
+      }
+    }
+  }
 
   if (!course) {
     return null;
   }
+
+  const courseActualId = course._id;
 
   // 1. Fetch Enrollment & Progress
   let isEnrolled = false;
@@ -165,7 +260,7 @@ export const getCourseById = async (
     // Debug Log
 
     const enrollment = await Enrollment.findOne({
-      courseId: new Types.ObjectId(id),
+      courseId: courseActualId,
       studentId: new Types.ObjectId(options.userId),
     }).lean();
 
@@ -197,13 +292,39 @@ export const getCourseById = async (
     (course.instructorId as any)?._id?.toString?.() ??
     course.instructorId?.toString?.();
 
+  const isCoInstructor = Array.isArray(course.instructorIds) && course.instructorIds.some((ci: any) => {
+    const ciId = ci?._id ? ci._id.toString() : ci?.toString();
+    return ciId === options?.userId;
+  });
+
+  let hasAssignedBatch = false;
+  if (options?.userId && options?.userRole === "instructor") {
+    try {
+      const { Batch } = await import("../../batch/model/batch.model");
+      if (Types.ObjectId.isValid(options.userId)) {
+        const bCount = await Batch.countDocuments({
+          courseId: courseActualId,
+          instructorId: new Types.ObjectId(options.userId),
+        });
+        if (bCount > 0) hasAssignedBatch = true;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const isPrivileged =
     options?.userRole === "admin" ||
+    options?.userRole === "manager" ||
     (options?.userRole === "instructor" &&
-      courseInstructorId === options.userId);
+      (courseInstructorId === options.userId || isCoInstructor || hasAssignedBatch));
+
+  if (isPrivileged) {
+    isEnrolled = true;
+  }
 
   // 2. Fetch Modules & Lessons
-  const modules = await Module.find({ courseId: id })
+  const modules = await Module.find({ courseId: courseActualId })
     .sort({ orderIndex: 1 })
     .lean();
 
@@ -328,8 +449,8 @@ export const getCourseById = async (
   const allModulesCompleted = processedModules.every(m => m.isCompleted);
 
   const [assignments, quizzes] = await Promise.all([
-    Assignment.find({ courseId: id, status: "published" }).lean(),
-    Quiz.find({ courseId: id, status: "published" }).lean()
+    Assignment.find({ courseId: courseActualId, status: "published" }).lean(),
+    Quiz.find({ courseId: courseActualId, status: "published" }).lean()
   ]);
 
   // Helper to process course-level items
@@ -369,7 +490,32 @@ export const getCourseById = async (
 };
 
 export const updateCourse = async (id: string, data: Partial<ICourse>) => {
-  return Course.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  const updateData: any = { ...data };
+
+  const rawInstId = typeof data.instructorId === "object" && (data.instructorId as any)?._id 
+    ? (data.instructorId as any)._id.toString() 
+    : data.instructorId?.toString();
+
+  if (rawInstId && Types.ObjectId.isValid(rawInstId)) {
+    updateData.instructorId = new Types.ObjectId(rawInstId);
+  } else if (!data.instructorId) {
+    delete updateData.instructorId;
+  }
+
+  if (Array.isArray(data.instructorIds)) {
+    updateData.instructorIds = data.instructorIds
+      .map((i: any) => (typeof i === "object" && i?._id ? i._id.toString() : i?.toString()))
+      .filter((i) => i && Types.ObjectId.isValid(i))
+      .map((i) => new Types.ObjectId(i));
+  }
+
+  if (data.maxBatchSize !== undefined) {
+    updateData.maxBatchSize = Number(data.maxBatchSize) || 15;
+  }
+
+  return Course.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
+    .populate("instructorId", "name email profileImage phone bio role expertise experience education")
+    .populate("instructorIds", "name email profileImage phone bio role expertise experience education");
 };
 
 export const deleteCourse = (id: string) => {
@@ -468,9 +614,36 @@ export const getCoursesByInstructor = async (
   const limit = options?.limit || 10;
   const skip = (page - 1) * limit;
 
-  const query: any = { instructorId };
+  let assignedBatchCourseIds: any[] = [];
+  try {
+    const { Batch } = await import("../../batch/model/batch.model");
+    if (Types.ObjectId.isValid(instructorId)) {
+      assignedBatchCourseIds = await Batch.find({
+        instructorId: new Types.ObjectId(instructorId),
+      }).distinct("courseId");
+    }
+  } catch (e) {
+    console.error("Error finding batch courses for instructor:", e);
+  }
+
+  const instObjectId = Types.ObjectId.isValid(instructorId) ? new Types.ObjectId(instructorId) : instructorId;
+
+  const orConditions: any[] = [
+    { instructorId: instObjectId },
+    { instructorId: instructorId },
+    { instructorIds: instObjectId },
+    { instructorIds: instructorId },
+  ];
+  if (assignedBatchCourseIds.length > 0) {
+    orConditions.push({ _id: { $in: assignedBatchCourseIds } });
+  }
+
+  const query: any = { $or: orConditions };
   if (options?.search) {
-    query.title = { $regex: options.search, $options: "i" };
+    const safeSearch = escapeRegex(options.search);
+    if (safeSearch) {
+      query.title = { $regex: safeSearch, $options: "i" };
+    }
   }
 
   const [courses, total] = await Promise.all([
@@ -478,7 +651,7 @@ export const getCoursesByInstructor = async (
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select('_id title description category type price level language duration thumbnail isPublished isAdminApproved isRegistrationOpen registrationDeadline createdAt updatedAt instructorId')
+      .select('_id title description category type price level language duration thumbnail isPublished isAdminApproved isRegistrationOpen registrationDeadline createdAt updatedAt instructorId instructorIds')
       .lean(),
     Course.countDocuments(query)
   ]);
@@ -516,7 +689,7 @@ export const getCoursesByInstructor = async (
 
 export const getCoursesByCategory = (category: string) => {
   return Course.find({ category, isPublished: true, isAdminApproved: true })
-    .populate("instructorId", "name email profileImage")
+    .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")
     .sort({ createdAt: -1 });
 };
 

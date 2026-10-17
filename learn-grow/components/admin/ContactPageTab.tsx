@@ -159,13 +159,13 @@ export default function ContactPageTab() {
               variant="bordered"
             />
             <Input
-              label="Phone Number"
-              placeholder="+1 234 567 8900"
-              value={contactData.info.phone}
+              label="WhatsApp Number"
+              placeholder="+880 1706 276447"
+              value={contactData.info.WhatsApp}
               onChange={(e) => {
                 setContactData({
                   ...contactData,
-                  info: { ...contactData.info, phone: e.target.value },
+                  info: { ...contactData.info, WhatsApp: e.target.value },
                 });
                 setHasChanges(true);
               }}

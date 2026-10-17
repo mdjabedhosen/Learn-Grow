@@ -6,6 +6,8 @@ export const applyForJob = async (req: Request, res: Response) => {
     const application = await service.applyForJob({
       ...req.body,
       userId: req.userId,
+      req,
+      eventId: req.body?.eventId,
     });
     res.status(201).json({
       success: true,

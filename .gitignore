@@ -1,3 +1,9 @@
 node_modules
 /learn-grow/node_modules
 /grow-backend/node_modules
+learn-grow-original
+.DS_Store
+*.bak
+/learn-grow/.next
+/grow-backend/dist
+/grow-backend/backups

@@ -197,7 +197,7 @@ export default function UserProfile() {
             setProfilePhoto(imageUrl);
 
             // Upload to backend
-            const token = Cookies.get("accessToken");
+            const token = Cookies.get("accessToken") || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
             await axios.patch(
                 `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/users/profile/photo`,
                 { profileImage: imageUrl },
@@ -207,8 +207,9 @@ export default function UserProfile() {
             toast.success("Profile photo updated successfully");
             setImageUrlInput("");
             onImageModalOpenChange();
-        } catch (error) {
-            toast.error("Failed to upload photo");
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to upload photo";
+            toast.error(errorMsg);
         } finally {
             setIsUploadingPhoto(false);
         }
@@ -217,21 +218,41 @@ export default function UserProfile() {
     const handleUpdate = async () => {
         try {
             setIsSaving(true);
-            const token = Cookies.get("accessToken");
-            const updateData = {
-                ...formData,
-                yearsOfExperience: formData.yearsOfExperience ? parseInt(formData.yearsOfExperience, 10) : undefined,
+            const token = Cookies.get("accessToken") || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+
+            let yearsNum: number | undefined = undefined;
+            if (formData.yearsOfExperience) {
+                const parsed = parseInt(String(formData.yearsOfExperience).replace(/\D/g, ""), 10);
+                if (!isNaN(parsed)) yearsNum = parsed;
+            }
+
+            const updateData: any = {
+                name: formData.name?.trim(),
+                phone: formData.phone?.trim(),
+                bio: formData.bio?.trim(),
+                expertise: formData.expertise?.trim(),
+                qualification: formData.qualification?.trim(),
+                institution: formData.institution?.trim(),
+                yearsOfExperience: yearsNum,
             };
-            await axios.patch(
+
+            const response = await axios.patch(
                 `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/users/profile`,
                 updateData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            toast.success("Profile updated successfully");
+
+            const updatedUser = response.data?.data || { ...user, ...updateData };
+            toast.success(response.data?.message || "Profile updated successfully");
             setIsEditing(false);
-            setUser({ ...user, ...updateData });
-        } catch (error) {
-            toast.error("Failed to update profile");
+            setUser(updatedUser);
+            if (typeof window !== "undefined") {
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+            }
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to update profile";
+            toast.error(errorMsg);
+            console.error("[Profile Update Error]", error.response?.data || error);
         } finally {
             setIsSaving(false);
         }

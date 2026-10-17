@@ -18,11 +18,14 @@ import {
 } from "@/redux/api/jobApi";
 import JobsTable from "@/components/admin/JobsTable";
 import CreateJobModal from "@/components/admin/CreateJobModal";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FaArrowLeft, FaBriefcase, FaCheckCircle, FaGlobe, FaFileAlt, FaSearch, FaPlus, FaClipboardList } from "react-icons/fa";
 
 export default function JobsPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith("/manager");
+  const basePath = isManager ? "/manager" : "/admin";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -60,7 +63,7 @@ export default function JobsPage() {
             <Button
               variant="light"
               startContent={<FaArrowLeft />}
-              onPress={() => router.push("/admin")}
+              onPress={() => router.push(basePath)}
               className="mb-3 sm:mb-4 text-white hover:bg-white/20 min-h-[44px]"
               size="lg"
             >
@@ -83,7 +86,7 @@ export default function JobsPage() {
           <div className="flex gap-2 sm:gap-3 w-full sm:w-auto flex-col sm:flex-row">
             <Button
               as="a"
-              href="/admin/jobs/applications"
+              href={`${basePath}/jobs/applications`}
               color="default"
               size="lg"
               startContent={<FaClipboardList />}

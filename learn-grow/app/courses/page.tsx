@@ -1,5 +1,7 @@
 import CourseList from "@/components/courses/CourseList";
+import CoursesHero from "@/components/courses/CoursesHero";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Robotics & STEM Courses - Learn Arduino, Coding & Engineering",
@@ -61,22 +63,15 @@ export default function CoursesPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-                {/* Header Section */}
-                <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-500 text-white py-16 mb-12">
-                    <div className="container mx-auto px-4 text-center">
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-                            Explore Our Courses
-                        </h1>
-                        <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-light">
-                            Discover world-class education designed to help you master new skills and advance your career
-                        </p>
-                    </div>
-                </div>
+            <div className="min-h-screen bg-[#F8F9FA]">
+                {/* Kodland-inspired Hero Section with Realistic Student & 3D Illustration Badges */}
+                <CoursesHero />
 
                 {/* Course List */}
                 <div className="container mx-auto px-4 pb-16">
-                    <CourseList />
+                    <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>}>
+                        <CourseList />
+                    </Suspense>
                 </div>
             </div>
         </>

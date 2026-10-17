@@ -19,6 +19,7 @@ import {
   sendInstructorApprovalEmail,
   sendGuardianCredentialsEmail,
 } from "@/utils/otp";
+import { escapeRegex } from "@/utils/sanitizeSearch";
 
 interface RegisterInput {
   name: string;
@@ -343,8 +344,13 @@ export const login = async (input: LoginInput): Promise<AuthResponse> => {
   try {
     const { email, phone, password } = input;
 
-    // Find user
-    const query = email ? { email } : phone ? { phone } : null;
+    // Find user (case-insensitive email)
+    const normalizedEmail = email?.trim().toLowerCase();
+    const query = normalizedEmail
+      ? { email: { $regex: new RegExp(`^${normalizedEmail.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}$`, "i") } }
+      : phone
+      ? { phone: phone.trim() }
+      : null;
 
     if (!query) {
       return {
@@ -714,10 +720,13 @@ export const getAllInstructors = async (params?: {
 
     // Search filter
     if (params?.search) {
-      query.$or = [
-        { name: { $regex: params.search, $options: "i" } },
-        { email: { $regex: params.search, $options: "i" } },
-      ];
+      const safeSearch = escapeRegex(params.search);
+      if (safeSearch) {
+        query.$or = [
+          { name: { $regex: safeSearch, $options: "i" } },
+          { email: { $regex: safeSearch, $options: "i" } },
+        ];
+      }
     }
 
     // Status filter
@@ -762,9 +771,9 @@ export const getApprovedInstructorsPublic = async (): Promise<{
   data?: any[];
 }> => {
   try {
-    const instructors = await User.find({ role: "instructor", isApproved: true }).select(
-      "_id name role profileImage"
-    );
+    const instructors = await User.find({ role: "instructor", isApproved: true })
+      .select("_id name email role profileImage bio expertise qualification institution yearsOfExperience phone createdAt")
+      .sort({ createdAt: 1 });
 
     return {
       success: true,
@@ -1032,12 +1041,14 @@ export const listUsersAdmin = async (params: { page?: number; limit?: number; se
       filter.role = params.role;
     }
     if (params.search) {
-      const q = params.search.trim();
-      filter.$or = [
-        { name: { $regex: q, $options: "i" } },
-        { email: { $regex: q, $options: "i" } },
-        { phone: { $regex: q, $options: "i" } },
-      ];
+      const q = escapeRegex(params.search);
+      if (q) {
+        filter.$or = [
+          { name: { $regex: q, $options: "i" } },
+          { email: { $regex: q, $options: "i" } },
+          { phone: { $regex: q, $options: "i" } },
+        ];
+      }
     }
 
     const [total, users, totalsByRole] = await Promise.all([
@@ -1074,7 +1085,7 @@ export const listUsersAdmin = async (params: { page?: number; limit?: number; se
 };
 
 /** Admin: Create a user */
-export const createUserAdmin = async (input: { name: string; email?: string; phone?: string; password: string; role: "student" | "instructor" | "guardian" | "admin"; }) => {
+export const createUserAdmin = async (input: { name: string; email?: string; phone?: string; password: string; role: "student" | "instructor" | "guardian" | "admin" | "manager"; }) => {
   try {
     const { name, email, phone, password, role } = input;
     if (!email && !phone) {
@@ -1144,56 +1155,238 @@ export const updateUserRoleAdmin = async (id: string, role: "student" | "instruc
   }
 };
 
-/** Instructor: Get enrolled students */
-export const getInstructorStudents = async (instructorId: string, params: { page?: number; limit?: number; search?: string }) => {
+/** Instructor: Get enrolled students (by assigned Batches and Courses) */
+export const getInstructorStudents = async (
+  instructorId: string,
+  params: { page?: number; limit?: number; search?: string; batchId?: string; courseId?: string }
+) => {
   try {
-    const { Course } = await import("@/modules/course/model/course.model");
-    const { Enrollment } = await import("@/modules/enrollment/model/enrollment.model");
+    const { Types } = await import("mongoose");
+    const { Course } = await import("../../course/model/course.model");
+    const { Enrollment } = await import("../../enrollment/model/enrollment.model");
+    const { Batch } = await import("../../batch/model/batch.model");
 
-    const page = params.page || 1;
-    const limit = params.limit || 20;
+    const page = Number(params.page) || 1;
+    const limit = Number(params.limit) || 20;
     const skip = (page - 1) * limit;
 
-    // Get instructor's courses
-    const courses = await Course.find({ instructorId: instructorId });
-    const courseIds = courses.map(c => c._id);
+    const instObjId = Types.ObjectId.isValid(instructorId) ? new Types.ObjectId(instructorId) : null;
 
-    // Get unique student IDs from enrollments
-    const enrollments = await Enrollment.find({ courseId: { $in: courseIds } }).distinct("studentId");
+    // 1. Find all Batches where this user is assigned as instructor
+    const batchOrConditions: any[] = [{ instructorId: instructorId }];
+    if (instObjId) {
+      batchOrConditions.push({ instructorId: instObjId });
+    }
+    const batchFilter: any = { $or: batchOrConditions };
+    if (params.batchId && Types.ObjectId.isValid(params.batchId)) {
+      batchFilter._id = new Types.ObjectId(params.batchId);
+    }
+    const instructorBatches = await Batch.find(batchFilter)
+      .populate("courseId", "_id title thumbnail price")
+      .populate("instructorId", "name email phone profileImage qualification")
+      .lean();
 
-    // Build search query for students
+    const instructorBatchIds = instructorBatches.map((b) => b._id);
+    const batchStudentIdSet = new Set<string>();
+    instructorBatches.forEach((b) => {
+      (b.enrolledStudents || []).forEach((st: any) => {
+        const idStr = (st?._id || st)?.toString();
+        if (idStr) batchStudentIdSet.add(idStr);
+      });
+    });
+
+    // 2. Find all Courses where this user is primary or co-instructor
+    const courseOrConditions: any[] = [
+      { instructorId: instructorId },
+      { instructorIds: instructorId },
+    ];
+    if (instObjId) {
+      courseOrConditions.push({ instructorId: instObjId });
+      courseOrConditions.push({ instructorIds: instObjId });
+    }
+    const courseFilter: any = { $or: courseOrConditions };
+    if (params.courseId && Types.ObjectId.isValid(params.courseId)) {
+      courseFilter._id = new Types.ObjectId(params.courseId);
+    }
+    const instructorCourses = await Course.find(courseFilter)
+      .select("_id title thumbnail price")
+      .lean();
+    const instructorCourseIds = instructorCourses.map((c) => c._id);
+
+    // 3. Find Enrollments strictly for this tutor's purview:
+    // - assigned to this instructor's batches (batchId in instructorBatchIds)
+    // - explicitly assigned to this instructor (assignedInstructorId == instructorId)
+    // - or student is explicitly in batch's enrolledStudents
+    // - or course enrollment has NO other batch assigned
+    const enrollmentOr: any[] = [];
+    if (instructorBatchIds.length > 0) {
+      enrollmentOr.push({ batchId: { $in: instructorBatchIds } });
+    }
+    enrollmentOr.push({ assignedInstructorId: instructorId });
+    if (instObjId) {
+      enrollmentOr.push({ assignedInstructorId: instObjId });
+    }
+    if (instructorCourseIds.length > 0) {
+      enrollmentOr.push({
+        courseId: { $in: instructorCourseIds },
+        $or: [
+          { assignedInstructorId: { $in: [instObjId, instructorId].filter(Boolean) } },
+          ...(instructorBatchIds.length > 0 ? [{ batchId: { $in: instructorBatchIds } }] : []),
+          { batchId: { $exists: false } },
+          { batchId: null },
+        ],
+      });
+    }
+    if (batchStudentIdSet.size > 0) {
+      const studentObjIds = Array.from(batchStudentIdSet)
+        .filter((id) => Types.ObjectId.isValid(id))
+        .map((id) => new Types.ObjectId(id));
+      if (studentObjIds.length > 0) {
+        enrollmentOr.push({ studentId: { $in: studentObjIds } });
+      }
+    }
+
+    let enrollments: any[] = [];
+    if (enrollmentOr.length > 0) {
+      enrollments = await Enrollment.find({ $or: enrollmentOr })
+        .populate("courseId", "_id title thumbnail price")
+        .populate("batchId", "_id batchName batchNumber schedule zoomLink whatsappGroupUrl status startDate")
+        .sort({ updatedAt: -1 })
+        .lean();
+    }
+
+    // Combine all unique student IDs from both batches and enrollments
+    const allStudentIdSet = new Set<string>();
+    batchStudentIdSet.forEach((id) => allStudentIdSet.add(id));
+    enrollments.forEach((e) => {
+      const sId = (e.studentId?._id || e.studentId)?.toString();
+      if (sId) allStudentIdSet.add(sId);
+    });
+
+    const distinctStudentIds = Array.from(allStudentIdSet)
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+
+    if (distinctStudentIds.length === 0) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+        },
+      };
+    }
+
+    // Build student query
     const searchQuery: any = {
-      _id: { $in: enrollments },
-      role: "student"
+      _id: { $in: distinctStudentIds },
     };
 
     if (params.search) {
-      searchQuery.$or = [
-        { name: { $regex: params.search, $options: "i" } },
-        { email: { $regex: params.search, $options: "i" } }
-      ];
+      const safeSearch = escapeRegex(params.search);
+      if (safeSearch) {
+        searchQuery.$or = [
+          { name: { $regex: safeSearch, $options: "i" } },
+          { email: { $regex: safeSearch, $options: "i" } },
+          { phoneNumber: { $regex: safeSearch, $options: "i" } },
+        ];
+      }
     }
 
-    // Get students with pagination
+    const total = await User.countDocuments(searchQuery);
+
     const students = await User.find(searchQuery)
       .select("-password -otp -otpExpiresAt -refreshToken -verificationToken")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    const total = await User.countDocuments(searchQuery);
+    // Enrich each student with batch & course details
+    const enrichedStudents = students.map((student: any) => {
+      const stIdStr = student._id.toString();
+
+      // Find enrollments for this student
+      const stEnrollments = enrollments.filter(
+        (e) => (e.studentId?._id || e.studentId)?.toString() === stIdStr
+      );
+
+      // Find batches for this student
+      const stBatches = instructorBatches.filter((b) => {
+        const inEnrolledList = (b.enrolledStudents || []).some(
+          (st: any) => (st?._id || st)?.toString() === stIdStr
+        );
+        const inEnrollment = stEnrollments.some(
+          (e) => (e.batchId?._id || e.batchId)?.toString() === b._id.toString()
+        );
+        return inEnrolledList || inEnrollment;
+      });
+
+      // Primary batch & course
+      const primaryBatch =
+        stBatches[0] ||
+        stEnrollments.find((e) => e.batchId && typeof e.batchId === "object")?.batchId ||
+        null;
+
+      const primaryCourse =
+        primaryBatch?.courseId && typeof primaryBatch.courseId === "object"
+          ? primaryBatch.courseId
+          : stEnrollments.find((e) => e.courseId && typeof e.courseId === "object")?.courseId || null;
+
+      const latestEnrollment = stEnrollments[0] || null;
+
+      return {
+        ...student,
+        batches: stBatches.map((b) => ({
+          _id: b._id,
+          batchName: b.batchName,
+          batchNumber: b.batchNumber,
+          schedule: b.schedule,
+          zoomLink: b.zoomLink,
+          whatsappGroupUrl: b.whatsappGroupUrl,
+          status: b.status,
+          course: b.courseId,
+        })),
+        primaryBatch: primaryBatch
+          ? {
+              _id: primaryBatch._id,
+              batchName: primaryBatch.batchName,
+              batchNumber: primaryBatch.batchNumber,
+              schedule: primaryBatch.schedule,
+              zoomLink: primaryBatch.zoomLink,
+              whatsappGroupUrl: primaryBatch.whatsappGroupUrl,
+              status: primaryBatch.status,
+            }
+          : null,
+        primaryCourse: primaryCourse
+          ? {
+              _id: primaryCourse._id,
+              title: primaryCourse.title,
+              thumbnail: primaryCourse.thumbnail,
+            }
+          : null,
+        progress: latestEnrollment?.progress ?? (latestEnrollment?.completionPercentage ?? 0),
+        completionPercentage: latestEnrollment?.completionPercentage ?? (latestEnrollment?.progress ?? 0),
+        isCompleted: latestEnrollment?.isCompleted || false,
+        enrolledAt: latestEnrollment?.createdAt || student.createdAt,
+      };
+    });
 
     return {
       success: true,
-      data: students,
+      data: enrichedStudents,
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit) || 1,
+      },
     };
   } catch (error: any) {
+    console.error("Error in getInstructorStudents:", error);
     return { success: false, message: error.message || "Failed to get students" };
   }
 };
@@ -1201,40 +1394,89 @@ export const getInstructorStudents = async (instructorId: string, params: { page
 /** Instructor: Get individual student details */
 export const getInstructorStudentById = async (instructorId: string, studentId: string) => {
   try {
-    const { Course } = await import("@/modules/course/model/course.model");
-    const { Enrollment } = await import("@/modules/enrollment/model/enrollment.model");
+    const { Types } = await import("mongoose");
+    const { Course } = await import("../../course/model/course.model");
+    const { Enrollment } = await import("../../enrollment/model/enrollment.model");
+    const { Batch } = await import("../../batch/model/batch.model");
 
-    // Get instructor's courses
-    const courses = await Course.find({ instructorId: instructorId });
-    const courseIds = courses.map(c => c._id);
+    const instObjId = Types.ObjectId.isValid(instructorId) ? new Types.ObjectId(instructorId) : null;
+    const studentObjId = Types.ObjectId.isValid(studentId) ? new Types.ObjectId(studentId) : null;
 
-    // Check if student is enrolled in any of instructor's courses
-    const enrollment = await Enrollment.findOne({ 
-      courseId: { $in: courseIds },
-      studentId: studentId 
-    });
+    if (!studentObjId) {
+      return { success: false, message: "Invalid student ID" };
+    }
 
-    if (!enrollment) {
+    // 1. Check if student is in any of instructor's batches
+    const batchOrConditions: any[] = [{ instructorId: instructorId }];
+    if (instObjId) batchOrConditions.push({ instructorId: instObjId });
+
+    const instructorBatches = await Batch.find({
+      $or: batchOrConditions,
+      enrolledStudents: studentObjId,
+    })
+      .populate("courseId", "_id title thumbnail price")
+      .lean();
+
+    // 2. Check instructor's courses
+    const courseOrConditions: any[] = [
+      { instructorId: instructorId },
+      { instructorIds: instructorId },
+    ];
+    if (instObjId) {
+      courseOrConditions.push({ instructorId: instObjId });
+      courseOrConditions.push({ instructorIds: instObjId });
+    }
+    const instructorCourses = await Course.find({ $or: courseOrConditions }).lean();
+    const instructorCourseIds = instructorCourses.map((c) => c._id);
+
+    // 3. Check enrollments
+    const allInstructorBatches = await Batch.find({ $or: batchOrConditions }).lean();
+    const allInstructorBatchIds = allInstructorBatches.map((b) => b._id);
+
+    const enrollmentOr: any[] = [
+      { assignedInstructorId: instructorId },
+      ...(instObjId ? [{ assignedInstructorId: instObjId }] : []),
+    ];
+    if (allInstructorBatchIds.length > 0) {
+      enrollmentOr.push({ batchId: { $in: allInstructorBatchIds } });
+    }
+    if (instructorCourseIds.length > 0) {
+      enrollmentOr.push({ courseId: { $in: instructorCourseIds } });
+    }
+
+    const studentEnrollments = await Enrollment.find({
+      studentId: studentObjId,
+      $or: enrollmentOr,
+    })
+      .populate("courseId", "_id title thumbnail price level duration")
+      .populate("batchId", "_id batchName batchNumber schedule zoomLink whatsappGroupUrl status startDate")
+      .lean();
+
+    const isAuthorized = instructorBatches.length > 0 || studentEnrollments.length > 0;
+
+    if (!isAuthorized) {
       return {
         success: false,
-        message: "Student not found or not enrolled in your courses"
+        message: "Student not found or not enrolled in your batches/courses",
       };
     }
 
-    // Get student details
-    const student = await User.findById(studentId)
-      .select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
+    // 4. Get student profile details
+    const student = await User.findById(studentObjId)
+      .select("-password -otp -otpExpiresAt -refreshToken -verificationToken")
+      .lean();
 
     if (!student) {
-      return {
-        success: false,
-        message: "Student not found"
-      };
+      return { success: false, message: "Student not found" };
     }
 
     return {
       success: true,
-      data: student
+      data: {
+        ...student,
+        batches: instructorBatches,
+        enrollments: studentEnrollments,
+      },
     };
   } catch (error: any) {
     return { success: false, message: error.message || "Failed to get student details" };
@@ -1246,38 +1488,99 @@ export const getInstructorStudentById = async (instructorId: string, studentId: 
  */
 export const getInstructorDashboardStats = async (instructorId: string) => {
   try {
-    const { Course } = await import("@/modules/course/model/course.model");
-    const { Enrollment } = await import("@/modules/enrollment/model/enrollment.model");
-    
-    // Get instructor's courses (use instructorId field)
-    const courses = await Course.find({ instructorId: instructorId });
-    const courseIds = courses.map(c => c._id);
-    
-    // Get enrollments for these courses
-    const enrollments = await Enrollment.find({ courseId: { $in: courseIds } });
-    
-    // Calculate stats
-    const totalStudents = enrollments.length;
-    const totalRevenue = courses.reduce((sum, course) => sum + (course.price || 0) * enrollments.filter(e => e.courseId.toString() === course._id.toString()).length, 0);
-    
-    // Calculate completion rate (students who completed all modules)
-    const completedStudents = enrollments.filter(e => (e.completionPercentage ?? 0) >= 100).length;
-    const completionRate = totalStudents > 0 ? Math.round((completedStudents / totalStudents) * 100) : 0;
-    
-    // Calculate student engagement (based on course interactions)
-    const studentEngagement = Math.min(87, Math.max(0, completionRate)); // Default to 87% or based on completion rate
-    
-    // Get this month's revenue
+    const { Types } = await import("mongoose");
+    const { Course } = await import("../../course/model/course.model");
+    const { Enrollment } = await import("../../enrollment/model/enrollment.model");
+    const { Batch } = await import("../../batch/model/batch.model");
+
+    const instObjId = Types.ObjectId.isValid(instructorId) ? new Types.ObjectId(instructorId) : null;
+
+    // 1. Batches taught by this instructor
+    const batchOr: any[] = [{ instructorId: instructorId }];
+    if (instObjId) batchOr.push({ instructorId: instObjId });
+    const batches = await Batch.find({ $or: batchOr }).lean();
+    const batchIds = batches.map((b) => b._id);
+    const batchCourseIds = batches.map((b) => b.courseId).filter(Boolean);
+
+    const batchStudentIds = new Set<string>();
+    batches.forEach((b) => {
+      (b.enrolledStudents || []).forEach((st: any) => {
+        const id = (st?._id || st)?.toString();
+        if (id) batchStudentIds.add(id);
+      });
+    });
+
+    // 2. Courses (primary, co-instructor, or batch-associated)
+    const courseOr: any[] = [
+      { instructorId: instructorId },
+      { instructorIds: instructorId },
+    ];
+    if (instObjId) {
+      courseOr.push({ instructorId: instObjId });
+      courseOr.push({ instructorIds: instObjId });
+    }
+    if (batchCourseIds.length > 0) {
+      courseOr.push({ _id: { $in: batchCourseIds } });
+    }
+    const courses = await Course.find({ $or: courseOr }).lean();
+    const courseIds = courses.map((c) => c._id);
+
+    // 3. Enrollments under this instructor's purview
+    const enrollmentOr: any[] = [];
+    if (batchIds.length > 0) enrollmentOr.push({ batchId: { $in: batchIds } });
+    enrollmentOr.push({ assignedInstructorId: instructorId });
+    if (instObjId) enrollmentOr.push({ assignedInstructorId: instObjId });
+    if (courseIds.length > 0) enrollmentOr.push({ courseId: { $in: courseIds } });
+    if (batchStudentIds.size > 0) {
+      const bObjIds = Array.from(batchStudentIds)
+        .filter((id) => Types.ObjectId.isValid(id))
+        .map((id) => new Types.ObjectId(id));
+      if (bObjIds.length > 0) {
+        enrollmentOr.push({ studentId: { $in: bObjIds } });
+      }
+    }
+
+    let enrollments: any[] = [];
+    if (enrollmentOr.length > 0) {
+      enrollments = await Enrollment.find({ $or: enrollmentOr }).lean();
+    }
+
+    // 4. Calculate stats
+    const totalStudentIdSet = new Set<string>();
+    batchStudentIds.forEach((id) => totalStudentIdSet.add(id));
+    enrollments.forEach((e) => {
+      const sId = (e.studentId?._id || e.studentId)?.toString();
+      if (sId) totalStudentIdSet.add(sId);
+    });
+
+    const totalStudents = totalStudentIdSet.size;
+    const totalRevenue = courses.reduce((sum, course) => {
+      const count = enrollments.filter(
+        (e) => (e.courseId?._id || e.courseId)?.toString() === course._id.toString()
+      ).length;
+      return sum + (course.price || 0) * count;
+    }, 0);
+
+    const completedStudents = enrollments.filter(
+      (e) => (e.completionPercentage ?? e.progress ?? 0) >= 100
+    ).length;
+    const completionRate =
+      enrollments.length > 0 ? Math.round((completedStudents / enrollments.length) * 100) : 0;
+    const studentEngagement = Math.min(95, Math.max(70, completionRate || 85));
+
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisMonthRevenue = courses.reduce((sum, course) => {
-      const courseEnrollments = enrollments.filter(e => {
+      const courseEnrollments = enrollments.filter((e) => {
         const enrollDate = e.createdAt ? new Date(e.createdAt) : new Date();
-        return e.courseId.toString() === course._id.toString() && enrollDate >= monthStart;
+        return (
+          (e.courseId?._id || e.courseId)?.toString() === course._id.toString() &&
+          enrollDate >= monthStart
+        );
       });
       return sum + (course.price || 0) * courseEnrollments.length;
     }, 0);
-    
+
     return {
       success: true,
       message: "Instructor stats retrieved",
@@ -1287,8 +1590,10 @@ export const getInstructorDashboardStats = async (instructorId: string) => {
         totalRevenue,
         thisMonthRevenue,
         totalStudents,
+        totalBatches: batches.length,
+        activeBatches: batches.filter((b) => b.status === "ongoing" || b.status === "upcoming").length,
         totalCourses: courses.length,
-        publishedCourses: courses.filter(c => c.isPublished).length,
+        publishedCourses: courses.filter((c) => c.isPublished).length,
       },
     };
   } catch (error: any) {
@@ -1520,27 +1825,65 @@ export const updateProfile = async (
 
     // If phone is being updated, ensure it's not used by another user
     if (profileData.phone && profileData.phone !== user.phone) {
-      const existing = await User.findOne({ phone: profileData.phone });
+      console.log(`[updateProfile phone check] incoming: "${profileData.phone}", current user: id=${userId}, email=${user.email}, phone="${user.phone}"`);
+      const existing = await User.findOne({ phone: profileData.phone.trim() });
+      if (existing) {
+        console.log(`[updateProfile phone check] found existing user: id=${existing._id}, email=${existing.email}, phone="${existing.phone}"`);
+      }
       if (existing && existing._id.toString() !== userId) {
+        console.log(`[updateProfile phone check] REJECTING: existing id ${existing._id} !== current user id ${userId}`);
         return {
           success: false,
           message: "Phone number already in use by another account",
         };
       }
-      user.phone = profileData.phone;
+      user.phone = profileData.phone.trim();
     }
 
     // Update allowed fields
     if (profileData.name) user.name = profileData.name;
-    if (profileData.bio) user.bio = profileData.bio;
-    if (profileData.expertise && Array.isArray(profileData.expertise)) user.expertise = profileData.expertise;
-    if (profileData.qualification) user.qualification = profileData.qualification;
-    if (profileData.institution) user.institution = profileData.institution;
+    if (profileData.bio !== undefined) user.bio = profileData.bio;
+    if (profileData.expertise !== undefined) {
+      if (Array.isArray(profileData.expertise)) {
+        user.expertise = profileData.expertise;
+      } else if (typeof profileData.expertise === "string") {
+        user.expertise = profileData.expertise
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+    }
+    if (profileData.qualification !== undefined) user.qualification = profileData.qualification;
+    if (profileData.institution !== undefined) user.institution = profileData.institution;
     if (profileData.yearsOfExperience !== undefined) {
       user.yearsOfExperience = profileData.yearsOfExperience;
     }
 
     await user.save();
+
+    // If user is also in TeamMember (e.g. CEO / Lead Instructor), sync updates
+    try {
+      const { TeamMember } = await import("../../team/model/team.model.js");
+      await TeamMember.updateMany(
+        { 
+          $or: [
+            { userId: user._id.toString() },
+            { name: { $regex: new RegExp(`^${user.name.trim()}$`, "i") } }
+          ]
+        },
+        {
+          $set: {
+            bio: user.bio,
+            qualification: user.qualification,
+            institution: user.institution,
+            yearsOfExperience: user.yearsOfExperience,
+            expertise: user.expertise,
+          }
+        }
+      );
+    } catch (teamSyncErr) {
+      // Non-blocking
+    }
 
     return {
       success: true,

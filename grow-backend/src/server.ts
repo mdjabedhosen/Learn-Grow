@@ -1,6 +1,7 @@
 import { createApp } from "./app.js";
 import { config } from "./config/index.js";
 import { connectDB } from "./database/mongoose.js";
+import { ensureAdminUsers } from "./utils/ensureAdmin.js";
 
 const start = async () => {
   try {
@@ -8,6 +9,7 @@ const start = async () => {
     const dbConnectionEnv = config.MONGODB_URI;
 
     await connectDB();
+    await ensureAdminUsers();
     const app = createApp();
     app.listen(config.PORT, () => {
     });

@@ -21,6 +21,7 @@ import {
   reduceCourseAccessService,
   getUserActiveCourseAccessService,
 } from "../service/order.service";
+import { TrackingService } from "../../tracking/service/tracking.service.js";
 
 // Create new order
 export const createOrder = async (req: Request, res: Response) => {
@@ -76,6 +77,23 @@ export const createOrder = async (req: Request, res: Response) => {
         success: false, 
         message: result.message 
       });
+    }
+
+    // Fire Server-Side Tracking Event (Purchase / Order Placed) asynchronously
+    if (result.data) {
+      const order = result.data as any;
+      TrackingService.trackPurchase({
+        orderId: order._id?.toString(),
+        totalAmount: order.price || 0,
+        currency: "BDT",
+        courseName: order.courseId?.title || order.comboId?.name || order.planType,
+        courseId: order.courseId?._id?.toString() || order.comboId?._id?.toString(),
+        userEmail: order.userId?.email,
+        userPhone: order.senderNumber || order.userId?.phone,
+        userName: order.userId?.name,
+        userId: userId,
+        req,
+      }).catch(() => {});
     }
 
     return res.status(201).json({

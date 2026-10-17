@@ -26,8 +26,9 @@ export const userApi = createApi({
         }),
 
         // Admin: List users with pagination, search, role filter
-        getUsersAdmin: builder.query({
-            query: ({ page = 1, limit = 10, search = "", role = "" } = {}) => {
+        getUsersAdmin: builder.query<any, { page?: number; limit?: number; search?: string; role?: string } | void>({
+            query: (args) => {
+                const { page = 1, limit = 10, search = "", role = "" } = args || {};
                 const params = new URLSearchParams();
                 params.set("page", String(page));
                 params.set("limit", String(limit));
@@ -123,12 +124,15 @@ export const userApi = createApi({
         }),
 
         // Instructor: Get enrolled students with pagination
-        getInstructorStudents: builder.query({
-            query: ({ page = 1, limit = 20, search = "" } = {}) => {
+        getInstructorStudents: builder.query<any, { page?: number; limit?: number; search?: string; batchId?: string; courseId?: string } | void>({
+            query: (args) => {
+                const { page = 1, limit = 20, search = "", batchId = "", courseId = "" } = args || {};
                 const params = new URLSearchParams();
                 params.set("page", String(page));
                 params.set("limit", String(limit));
                 if (search) params.set("search", search);
+                if (batchId) params.set("batchId", batchId);
+                if (courseId) params.set("courseId", courseId);
                 return `/instructor/students?${params.toString()}`;
             },
             providesTags: ["Users"],
@@ -158,6 +162,12 @@ export const userApi = createApi({
             }),
         }),
 
+        // Public: Get approved instructors for Tutors page
+        getApprovedInstructorsPublic: builder.query<{ success: boolean; data: any[] }, void>({
+            query: () => "/instructors/approved",
+            providesTags: ["Users"],
+        }),
+
         // Update phone number
         updatePhoneNumber: builder.mutation({
             query: (data) => ({
@@ -183,6 +193,7 @@ export const {
     useGetInstructorStatsQuery,
     useGetInstructorStudentsQuery,
     useGetInstructorStudentByIdQuery,
+    useGetApprovedInstructorsPublicQuery,
     useSendPasswordChangeOtpMutation,
     useVerifyPasswordChangeOtpMutation,
     useUpdatePhoneNumberMutation,

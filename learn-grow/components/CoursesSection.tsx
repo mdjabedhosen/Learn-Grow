@@ -11,12 +11,32 @@ import {
 } from "@nextui-org/react";
 import { useGetFeaturedCoursesQuery } from "@/redux/api/courseApi";
 import { useRouter } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
+import { getCourseSlug } from "@/lib/coursesData";
 
 const CoursesSection = () => {
-  const [language] = useState<"en" | "bn">("bn");
+  const [language, setLanguage] = useState<"en" | "bn">("bn");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedLang = localStorage.getItem("language") as "en" | "bn";
+      if (storedLang) {
+        setLanguage(storedLang);
+      }
+
+      const handleLangChange = () => {
+        const updatedLang = localStorage.getItem("language") as "en" | "bn";
+        if (updatedLang) {
+          setLanguage(updatedLang);
+        }
+      };
+
+      window.addEventListener("languageChange", handleLangChange);
+      return () => window.removeEventListener("languageChange", handleLangChange);
+    }
+  }, []);
   const { data, isLoading, error } = useGetFeaturedCoursesQuery();
   const router = useRouter();
+  
   const sanitizeDescription = (value: string, maxLength = 120) => {
     if (!value) return "";
 
@@ -36,37 +56,21 @@ const CoursesSection = () => {
       : cleanText;
   };
 
-  if (error) {
-    // If API fails, show sample courses instead of error message
-    // We mutate the courses array below if it's empty, but since 'courses' is derived from data,
-    // we'll just handle it in the render logic or re-assign here if we were using a let.
-    // Better strategy: Return content using sampleCourses directly here.
-  }
-
-  // Use API data or fallback to sampleCourses if error exists
+  // Show only courses returned by the backend.
   const displayCourses = useMemo(() => {
     const fromApi = data?.data || data || [];
     const filtered = fromApi.filter(
       (c: any) => c.isPublished && c.isAdminApproved && c.isFeatured
     );
-    if (filtered.length > 0) return filtered;
+    return filtered;
+  }, [data]);
 
-    return [];
-  }, [data, error]);
-
-  // Gradient mapping for visual variety (cycling through based on index)
+  // Pastel gradient mapping configured in tailwind.config.js
   const gradients = [
-    "bg-gradient-robotics",
-    "bg-gradient-coding",
-    "bg-gradient-math",
-    "bg-gradient-science",
-  ];
-
-  const shadows = [
-    "hover:shadow-glow-primary",
-    "hover:shadow-glow-accent",
-    "hover:shadow-glow-secondary",
-    "hover:shadow-xl",
+    "bg-gradient-coding",    // Soft Peach/Orange
+    "bg-gradient-robotics",  // Soft Blue
+    "bg-gradient-math",      // Soft Purple
+    "bg-gradient-science",   // Soft Green
   ];
 
   if (isLoading) {
@@ -78,32 +82,30 @@ const CoursesSection = () => {
   }
 
   return (
-    <section className="py-8 px-6 bg-gradient-to-b from-white via-gray-50 to-white">
+    <section className="py-14 sm:py-18 px-4 sm:px-6 bg-gradient-to-b from-white via-[#EAF4FB]/30 to-white">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-10 animate-fadeIn">
+        <div className="text-center mb-16 animate-fadeIn">
           <div className="inline-block mb-4">
             <Chip
-              className="bg-primary-100 text-primary-700 font-semibold"
+              className="bg-primary-100 text-primary-700 font-bold px-4 py-2"
               size="lg"
               variant="flat"
             >
-              {language === "en" ? "📚 Our Courses" : "📚 আমাদের কোর্স"}
+              {language === "en" ? "📚 Our Courses" : "📚 আমাদের কোর্সসমূহ"}
             </Chip>
           </div>
           <h2
-            className={`text-4xl md:text-5xl font-black text-gray-900 mb-4 ${language === "bn" ? "font-siliguri" : ""}`}
+            className={`text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight ${language === "bn" ? "font-siliguri" : ""}`}
           >
-            {language === "en"
-              ? "Explore Our Programs"
-              : "আমাদের প্রোগ্রাম দেখুন"}
+            {language === "en" ? "Explore Our Programs" : "আমাদের প্রোগ্রামসমূহ দেখুন"}
           </h2>
           <p
             className={`text-lg md:text-xl text-gray-600 max-w-3xl mx-auto ${language === "bn" ? "font-siliguri" : ""}`}
           >
             {language === "en"
               ? "Choose from our carefully designed courses to start your STEM journey"
-              : "আপনার STEM যাত্রা শুরু করতে আমাদের সযত্নে ডিজাইন করা কোর্স থেকে বেছে নিন"}
+              : "আপনার সন্তানকে স্ক্রিন টাইম থেকে কোডিং এবং রোবটিক্স হিরো করে তুলতে কোর্স নির্বাচন করুন"}
           </p>
         </div>
 
@@ -117,38 +119,38 @@ const CoursesSection = () => {
             displayCourses.map((course: any, index: number) => (
               <Card
                 key={course._id || index}
-                className={`group cursor-pointer transition-all duration-300 hover:-translate-y-2 ${shadows[index % shadows.length]} shadow-card animate-slideUp border-0 w-full max-w-sm lg:max-w-xs`}
+                className={`group cursor-pointer transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] border-0 w-full max-w-sm rounded-[32px] overflow-hidden ${gradients[index % gradients.length]}`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Course Image Header */}
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    removeWrapper
-                    alt={course.title}
-                    className="z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    src={
-                      course.thumbnail ||
-                      course.img ||
-                      "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"
-                    }
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-blue-900/20 to-transparent z-10" />
-                  <div className="absolute bottom-4 left-4 z-20">
-                    <Chip
-                      color="primary"
-                      size="sm"
-                      variant="flat"
-                      className="bg-white/90 text-primary-700 font-bold shadow-sm"
-                    >
-                      {course.level}
-                    </Chip>
+                <div className="relative h-56 overflow-hidden p-6 pb-0">
+                  <div className="relative w-full h-full rounded-[24px] overflow-hidden">
+                    <Image
+                      removeWrapper
+                      alt={course.title}
+                      className="z-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-2"
+                      src={
+                        course.thumbnail ||
+                        course.img ||
+                        "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"
+                      }
+                    />
+                    <div className="absolute inset-0 bg-black/10 z-10" />
+                    <div className="absolute bottom-4 left-4 z-20">
+                      <Chip
+                        size="sm"
+                        className="bg-white/90 text-gray-900 font-extrabold shadow-sm px-3 py-1"
+                      >
+                        {course.level}
+                      </Chip>
+                    </div>
                   </div>
                 </div>
 
-                <CardBody className="p-6">
+                <CardBody className="p-6 pt-5">
                   {/* Course Title */}
                   <h3
-                    className={`text-xl font-bold text-gray-900 mb-2 ${language === "bn" ? "font-siliguri" : ""}`}
+                    className={`text-2xl font-black text-gray-900 mb-1 leading-tight tracking-tight ${language === "bn" ? "font-siliguri" : ""}`}
                   >
                     {course.title}
                   </h3>
@@ -156,36 +158,32 @@ const CoursesSection = () => {
                   {/* Subtitle */}
                   {course.subtitle && (
                     <p
-                      className={`text-primary-600 text-sm font-semibold mb-3 ${language === "bn" ? "font-siliguri" : ""}`}
+                      className={`text-secondary-600 text-xs font-bold uppercase tracking-wider mb-3 ${language === "bn" ? "font-siliguri" : ""}`}
                     >
                       {course.subtitle}
                     </p>
                   )}
 
-                  {/* Description - Parse HTML with basic tags only (h1, h2, p) */}
-                  <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed mb-4">
                     {sanitizeDescription(course.description) ||
                       "No description available"}
                   </p>
 
                   {/* Duration & Age Range */}
-                  <div className="flex gap-4 mb-4">
+                  <div className="flex gap-4 mb-4 border-t border-black/5 pt-4">
                     {course.duration && (
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
                         <span>⏱️</span>
-                        <span
-                          className={language === "bn" ? "font-siliguri" : ""}
-                        >
+                        <span className={language === "bn" ? "font-siliguri" : ""}>
                           {course.duration}
                         </span>
                       </div>
                     )}
                     {course.ageRange && (
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
                         <span>👥</span>
-                        <span
-                          className={language === "bn" ? "font-siliguri" : ""}
-                        >
+                        <span className={language === "bn" ? "font-siliguri" : ""}>
                           {course.ageRange}
                         </span>
                       </div>
@@ -194,16 +192,14 @@ const CoursesSection = () => {
 
                   {/* Features List */}
                   {course.features && course.features.length > 0 && (
-                    <ul className="space-y-2 mb-4">
-                      {course.features.map((feature: string, idx: number) => (
+                    <ul className="space-y-1.5">
+                      {course.features.slice(0, 3).map((feature: string, idx: number) => (
                         <li
                           key={idx}
-                          className="flex items-start gap-2 text-sm text-gray-700"
+                          className="flex items-start gap-2 text-xs font-medium text-gray-800"
                         >
-                          <span className="text-green-500 mt-0.5">✓</span>
-                          <span
-                            className={language === "bn" ? "font-siliguri" : ""}
-                          >
+                          <span className="text-primary-500 font-bold">✓</span>
+                          <span className={language === "bn" ? "font-siliguri" : ""}>
                             {feature}
                           </span>
                         </li>
@@ -212,71 +208,64 @@ const CoursesSection = () => {
                   )}
                 </CardBody>
 
-                <CardFooter className="p-6 pt-0 flex items-center justify-between border-t border-gray-100">
+                <CardFooter className="p-6 pt-0 flex items-center justify-between border-t border-black/5">
                   {/* Price Display */}
                   <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 mb-1">
-                      {language === "en" ? "Price" : "মূল্য"}
+                    <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+                      {language === "en" ? "Course Price" : "কোর্স ফি"}
                     </span>
-                    <span className="text-2xl font-bold text-primary">
+                    <span className="text-2xl font-black text-gray-900">
                       ৳{course.price || 0}
                     </span>
                   </div>
 
                   {/* Enroll Button */}
                   <Button
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold shadow-md hover:shadow-lg transition-shadow"
-                    size="lg"
+                    className="bg-[#2C2C2C] text-white font-black rounded-xl px-5 py-5 hover:bg-black transition-colors text-sm"
                     onPress={() => {
-                      router.push(`/courses/${course._id || course.id}`);
+                      router.push(`/courses/${getCourseSlug(course)}`);
                     }}
                   >
                     <span className={language === "bn" ? "font-siliguri" : ""}>
-                      {language === "en" ? "Enroll Now →" : "এনরোল করুন →"}
+                      {language === "en" ? "Details →" : "বিস্তারিত →"}
                     </span>
                   </Button>
                 </CardFooter>
-
-                {/* Hover Effect Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-xl" />
               </Card>
             ))
           )}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom Advisor CTA */}
         <div
-          className="text-center mt-12 animate-fadeIn"
+          className="text-center mt-20 animate-fadeIn"
           style={{ animationDelay: "600ms" }}
         >
           <p
-            className={`text-gray-600 mb-6 ${language === "bn" ? "font-siliguri" : ""}`}
+            className={`text-gray-600 mb-6 font-bold ${language === "bn" ? "font-siliguri" : ""}`}
           >
             {language === "en"
-              ? "Can't decide? We'll help you choose the perfect course!"
-              : "সিদ্ধান্ত নিতে পারছেন না? আমরা আপনাকে নিখুঁত কোর্স বেছে নিতে সাহায্য করব!"}
+              ? "Can't decide? We'll help you choose the perfect track!"
+              : "আপনার সন্তানের জন্য সঠিক প্রোগ্রাম সিলেক্ট করতে পরামর্শ পেতে চান?"}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              className="border-2 border-primary-500 text-primary-600 font-bold hover:bg-primary-50"
+              className="border-2 border-primary-500 text-primary-600 font-bold hover:bg-primary-50 rounded-[20px]"
               size="lg"
               variant="bordered"
+              onPress={() => router.push("/contact")}
             >
               <span className={language === "bn" ? "font-siliguri" : ""}>
-                {language === "en"
-                  ? "📞 Talk to Advisor"
-                  : "📞 পরামর্শদাতার সাথে কথা বলুন"}
+                {language === "en" ? "📞 Talk to Advisor" : "📞 অ্যাডভাইজরের সাথে কথা বলুন"}
               </span>
             </Button>
             <Button
-              className="bg-gradient-secondary text-white font-bold shadow-glow-secondary"
+              className="bg-primary text-white font-bold shadow-glow-primary rounded-[20px]"
               size="lg"
               onPress={() => router.push("/courses")}
             >
               <span className={language === "bn" ? "font-siliguri" : ""}>
-                {language === "en"
-                  ? "🎁 View All Courses"
-                  : "🎁 সব কোর্স দেখুন"}
+                {language === "en" ? "🎁 View All Courses" : "🎁 সকল কোর্স দেখুন"}
               </span>
             </Button>
           </div>

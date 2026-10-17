@@ -32,8 +32,21 @@ export default function ManagersPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUserRole, setCurrentUserRole] = useState<string>("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const limit = 20;
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          setCurrentUserRole(user.role || "");
+        } catch (e) {}
+      }
+    }
+  }, []);
 
   // Reset to page 1 when search changes
   React.useEffect(() => {
@@ -89,15 +102,17 @@ export default function ManagersPage() {
               </p>
             </div>
           </div>
-          <Button
-            color="default"
-            startContent={<FaPlus />}
-            onPress={() => router.push("/admin/users?openModal=true&role=manager")}
-            size="lg"
-            className="w-full sm:w-auto min-h-[44px] bg-white text-purple-600 font-semibold shadow-lg hover:shadow-xl transition-shadow"
-          >
-            Add Manager
-          </Button>
+          {currentUserRole === "admin" && (
+            <Button
+              color="default"
+              startContent={<FaPlus />}
+              onPress={() => router.push("/admin/users?openModal=true&role=manager")}
+              size="lg"
+              className="w-full sm:w-auto min-h-[44px] bg-white text-purple-600 font-semibold shadow-lg hover:shadow-xl transition-shadow"
+            >
+              Add Manager
+            </Button>
+          )}
         </div>
       </div>
 

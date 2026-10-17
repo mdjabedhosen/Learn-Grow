@@ -1,55 +1,51 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Card,
   CardBody,
   CardFooter,
-  Image,
   Button,
-  Spinner,
   Chip,
   Pagination,
-  Select,
-  SelectItem,
   Input,
   Skeleton,
-  Avatar,
 } from "@nextui-org/react";
 import { useGetPublishedCoursesQuery } from "@/redux/api/courseApi";
 import { useGetAllCategoriesQuery } from "@/redux/api/categoryApi";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getCourseSlug } from "@/lib/coursesData";
 import {
   FaSearch,
   FaClock,
-  FaBook,
-  FaUser,
-  FaStar,
-  FaPlayCircle,
+  FaUsers,
+  FaAward,
+  FaCheck,
+  FaArrowRight,
 } from "react-icons/fa";
 
 // Skeleton Loader Component
 const CourseCardSkeleton = () => (
-  <Card className="w-full space-y-5 p-0" radius="lg">
-    <Skeleton className="rounded-t-lg">
-      <div className="h-52 rounded-t-lg bg-default-300"></div>
+  <Card className="w-full rounded-[28px] p-0 border border-gray-100 shadow-sm" radius="lg">
+    <Skeleton className="rounded-t-[28px]">
+      <div className="h-56 rounded-t-[28px] bg-default-300"></div>
     </Skeleton>
-    <div className="space-y-3 px-4 pb-4">
-      <Skeleton className="w-3/5 rounded-lg">
-        <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
+    <div className="space-y-3 p-6">
+      <Skeleton className="w-1/3 rounded-lg">
+        <div className="h-4 w-1/3 rounded-lg bg-default-200"></div>
       </Skeleton>
       <Skeleton className="w-4/5 rounded-lg">
-        <div className="h-6 w-4/5 rounded-lg bg-default-200"></div>
+        <div className="h-7 w-4/5 rounded-lg bg-default-200"></div>
       </Skeleton>
       <Skeleton className="w-full rounded-lg">
-        <div className="h-3 w-full rounded-lg bg-default-300"></div>
+        <div className="h-4 w-full rounded-lg bg-default-300"></div>
       </Skeleton>
-      <div className="flex gap-2">
-        <Skeleton className="w-16 rounded-lg">
-          <div className="h-5 w-16 rounded-lg bg-default-200"></div>
+      <div className="flex gap-2 pt-2">
+        <Skeleton className="w-24 rounded-lg">
+          <div className="h-6 w-24 rounded-lg bg-default-200"></div>
         </Skeleton>
-        <Skeleton className="w-20 rounded-lg">
-          <div className="h-5 w-20 rounded-lg bg-default-200"></div>
+        <Skeleton className="w-24 rounded-lg">
+          <div className="h-6 w-24 rounded-lg bg-default-200"></div>
         </Skeleton>
       </div>
     </div>
@@ -65,84 +61,141 @@ export default function CourseList() {
   const { data: categoriesData, isLoading: isCategoriesLoading } =
     useGetAllCategoriesQuery(undefined);
   const router = useRouter();
-  const [language] = useState<"en" | "bn">("bn");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const searchParams = useSearchParams();
+  const [language, setLanguage] = useState<"en" | "bn">("bn");
+  const [selectedFilter, setSelectedFilter] = useState<"all" | "python" | "robotics">("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  // Sync language with site-wide toggle
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("language") as "en" | "bn";
+      if (stored) setLanguage(stored);
+
+      const handleLangChange = () => {
+        const updated = localStorage.getItem("language") as "en" | "bn";
+        if (updated) setLanguage(updated);
+      };
+
+      window.addEventListener("languageChange", handleLangChange);
+      return () => window.removeEventListener("languageChange", handleLangChange);
+    }
+  }, []);
+
+  const urlQuery = searchParams?.get("search") || searchParams?.get("category") || searchParams?.get("q") || "";
+
+  useEffect(() => {
+    if (urlQuery) {
+      setSearchTerm(urlQuery);
+    }
+  }, [urlQuery]);
+
   const pageSize = data?.data?.pagination?.limit || 6;
   const totalPages = data?.data?.pagination?.totalPages || 1;
   const totalCourses = data?.data?.pagination?.total || 0;
 
   const apiCourses = data?.data?.courses || [];
 
-  // Normalize rich-text/HTML descriptions for display and search
-  const sanitizeDescription = (value: string) => {
-    if (!value) return "";
-    return value
-      .replace(/<[^>]*>/g, " ") // strip HTML tags
-      .replace(/&nbsp;|&#160;/g, " ") // decode non-breaking spaces
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/\s+/g, " ")
-      .trim();
+  // Helper to determine accurate thumbnail
+  const getCourseThumbnail = (course: any) => {
+    const title = (course.title || "").toLowerCase();
+    const slug = (course.slug || "").toLowerCase();
+    if (title.includes("python") || slug.includes("python") || course._id === "69ce553ce9e96ed805295101") {
+      return "/courses/python-course-banner.jpg";
+    }
+    if (title.includes("robot") || title.includes("arduino") || slug.includes("robot") || course._id === "69ca5603e9e96ed80529474a") {
+      return "/courses/robotics-course-banner.jpg";
+    }
+    return course.thumbnail || course.img || "/images/course-placeholder.jpg";
   };
 
-  const categories: any[] = Array.isArray(categoriesData) ? categoriesData : [];
+  // Helper for title & subtitle localization
+  const getCourseMeta = (course: any) => {
+    const title = (course.title || "").toLowerCase();
+    const isPython = title.includes("python") || course._id === "69ce553ce9e96ed805295101";
+    const isRobotics = title.includes("robot") || title.includes("arduino") || course._id === "69ca5603e9e96ed80529474a";
 
+    if (isPython) {
+      return {
+        displayTitle: language === "bn" ? "টিনএজারদের জন্য পাইথন প্রোগ্রামিং ও এআই" : "Python Programming & AI for Teens",
+        displayTagline: language === "bn" 
+          ? "লাইভ মেন্টরশিপে পাইথন কোডিং, এআই চ্যাটবট ও ইন্টারেক্টিভ গেম তৈরি শিখুন।"
+          : "Master Python from scratch to building real AI chatbots, 2D games, and automation.",
+        ageRange: language === "bn" ? "১২-১৮ বছর" : "Ages 12-18",
+        duration: "10 Weeks",
+        price: course.price || 2999,
+        regularPrice: 4999,
+        badge: "💻 Programming & AI",
+        features: language === "bn" 
+          ? ["১০০% লাইভ ক্লাস (সপ্তাহে ২ দিন)", "৫+ বাস্তব প্রজেক্ট পোর্টফোলিও", "ভেরিফায়েড কোর্স সমাপন সনদ"]
+          : ["100% Live Classes (2x/week)", "5+ Real-world Projects", "Verified Completion Certificate"]
+      };
+    }
+
+    if (isRobotics) {
+      return {
+        displayTitle: language === "bn" ? "জুনিয়র রোবটিক্স উইথ আর্দুইনো" : "Junior Robotics with Arduino",
+        displayTagline: language === "bn" 
+          ? "আসল রোবট তৈরি, মাইক্রোকন্ট্রোলার কোডিং ও সেন্সর ইলেকট্রনিক্স হাতে-কলমে শিখুন।"
+          : "Build real physical robots, program Arduino, and master sensor electronics with hardware kit.",
+        ageRange: language === "bn" ? "১০-১৬ বছর" : "Ages 10-16",
+        duration: "8 Weeks",
+        price: course.price || 3499,
+        regularPrice: 5499,
+        badge: "🤖 Robotics & STEM",
+        features: language === "bn" 
+          ? ["১০০% লাইভ ক্লাস ও হার্ডওয়্যার গাইড", "অবস্ট্যাকল ও লাইন-ফলোয়ার রোবট", "ভেরিফায়েড কোর্স সমাপন সনদ"]
+          : ["100% Live Sessions & Hardware Kit", "Build 2 Autonomous Robots", "Verified Completion Certificate"]
+      };
+    }
+
+    return {
+      displayTitle: course.title,
+      displayTagline: course.subtitle || "Comprehensive hands-on STEM curriculum.",
+      ageRange: "All Ages",
+      duration: `${course.duration || 8}h`,
+      price: course.price || 2999,
+      regularPrice: Math.round((course.price || 2999) * 1.5),
+      badge: "STEM Course",
+      features: ["Live interactive class", "Hands-on projects", "Verified Certificate"]
+    };
+  };
+
+  // Filter logic
   const courses = useMemo(() => {
     let filtered = apiCourses.filter(
       (c: any) => c.isPublished && c.isAdminApproved
     );
 
-    // Filter by category if selected
-    if (selectedCategory) {
-      filtered = filtered.filter((c: any) => {
-        const categoryId =
-          typeof c.category === "object" ? c.category._id : c.category;
-        return categoryId === selectedCategory;
-      });
+    // Filter by quick pill
+    if (selectedFilter === "python") {
+      filtered = filtered.filter((c: any) => 
+        (c.title || "").toLowerCase().includes("python") || c._id === "69ce553ce9e96ed805295101"
+      );
+    } else if (selectedFilter === "robotics") {
+      filtered = filtered.filter((c: any) => 
+        (c.title || "").toLowerCase().includes("robot") || (c.title || "").toLowerCase().includes("arduino") || c._id === "69ca5603e9e96ed80529474a"
+      );
     }
 
-    // Filter by search term (search in title and description)
+    // Filter by search term
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter((c: any) => {
         const title = (c.title || "").toLowerCase();
-        const description = sanitizeDescription(
-          c.description || ""
-        ).toLowerCase();
-        return title.includes(searchLower) || description.includes(searchLower);
+        const desc = (c.description || "").toLowerCase();
+        return title.includes(searchLower) || desc.includes(searchLower);
       });
     }
 
-    return filtered.length > 0 ? filtered : [];
-  }, [apiCourses, selectedCategory, searchTerm]);
-
-  // Get level badge color
-  const getLevelColor = (level: string) => {
-    switch (level?.toLowerCase()) {
-      case "beginner":
-        return "success";
-      case "intermediate":
-        return "warning";
-      case "advanced":
-        return "danger";
-      default:
-        return "default";
-    }
-  };
+    return filtered;
+  }, [apiCourses, selectedFilter, searchTerm]);
 
   if (isLoading) {
     return (
       <div className="space-y-8">
-        {/* Search skeleton */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <Skeleton className="h-12 w-full md:flex-1 rounded-xl" />
-          <Skeleton className="h-12 w-full md:w-64 rounded-xl" />
-        </div>
-        {/* Cards skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(pageSize || 6)].map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[...Array(2)].map((_, i) => (
             <CourseCardSkeleton key={i} />
           ))}
         </div>
@@ -152,253 +205,230 @@ export default function CourseList() {
 
   return (
     <div className="space-y-8">
-      {/* Search and Filter Section */}
-      <div className="flex flex-col md:flex-row gap-4 md:sticky md:top-20 md:z-10 bg-white md:bg-white/80 md:backdrop-blur-lg py-4 rounded-2xl px-4 md:shadow-sm md:border md:border-gray-100">
-        <Input
-          placeholder="Search courses by name..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1);
-          }}
-          startContent={<FaSearch className="text-gray-400 text-lg" />}
-          className="flex-1"
-          size="lg"
-          radius="lg"
-          classNames={{
-            input: "text-base",
-            inputWrapper:
-              "bg-white shadow-sm border border-gray-200 hover:border-primary transition-colors",
-          }}
-          isClearable
-          onClear={() => setSearchTerm("")}
-        />
-        <Select
-          label="Category"
-          placeholder="All Categories"
-          selectedKeys={selectedCategory ? [selectedCategory] : []}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-            setPage(1);
-          }}
-          className="w-full md:w-72"
-          size="lg"
-          radius="lg"
-          classNames={{
-            trigger:
-              "bg-white shadow-sm border border-gray-200 hover:border-primary transition-colors",
-          }}
-          isLoading={isCategoriesLoading}
-        >
-          {[
-            <SelectItem key="" value="">
-              All Categories
-            </SelectItem>,
-            ...categories.map((cat: any) => (
-              <SelectItem key={cat._id} value={cat._id}>
-                {cat.name}
-              </SelectItem>
-            )),
-          ]}
-        </Select>
+      
+      {/* Search & Quick Filter Chips Container */}
+      <div className="bg-white rounded-[24px] border border-gray-100 p-4 sm:p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        {/* Quick Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={() => { setSelectedFilter("all"); setPage(1); }}
+            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+              selectedFilter === "all"
+                ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
+                : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
+            }`}
+          >
+            {language === "en" ? "✨ All Courses" : "✨ সকল প্রোগ্রাম"}
+          </button>
+          <button
+            onClick={() => { setSelectedFilter("python"); setPage(1); }}
+            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+              selectedFilter === "python"
+                ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
+                : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
+            }`}
+          >
+            🐍 {language === "en" ? "Python & AI Programming" : "পাইথন ও এআই কোডিং"}
+          </button>
+          <button
+            onClick={() => { setSelectedFilter("robotics"); setPage(1); }}
+            className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-black transition-all ${
+              selectedFilter === "robotics"
+                ? "bg-[#3B82F6] text-white shadow-md shadow-blue-500/20"
+                : "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100 border border-gray-200/80"
+            }`}
+          >
+            🤖 {language === "en" ? "Junior Robotics & Arduino" : "জুনিয়র রোবটিক্স"}
+          </button>
+        </div>
+
+        {/* Search input */}
+        <div className="w-full md:w-80">
+          <Input
+            placeholder={language === "en" ? "Search courses..." : "কোর্স অনুসন্ধান করুন..."}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+            startContent={<FaSearch className="text-gray-400 text-sm" />}
+            size="md"
+            radius="full"
+            classNames={{
+              input: "text-sm font-medium",
+              inputWrapper:
+                "bg-[#F8F9FA] border border-gray-200 hover:border-[#3B82F6] transition-colors h-11",
+            }}
+            isClearable
+            onClear={() => setSearchTerm("")}
+          />
+        </div>
       </div>
 
-      {/* Results count */}
-      {courses.length > 0 && (
-        <div className="flex items-center justify-between px-2">
-          <p className="text-gray-600 text-sm">
-            Showing{" "}
-            <span className="font-semibold text-gray-900">
-              {courses.length}
-            </span>{" "}
-            of{" "}
-            <span className="font-semibold text-gray-900">
-              {totalCourses || courses.length}
-            </span>{" "}
-            courses
-          </p>
-        </div>
-      )}
+      {/* Results Count bar */}
+      <div className="flex items-center justify-between px-2">
+        <p className="text-gray-500 text-xs sm:text-sm font-medium">
+          {language === "en" ? "Showing" : "প্রদর্শিত হচ্ছে"}{" "}
+          <span className="font-black text-[#2C2C2C]">{courses.length}</span>{" "}
+          {language === "en" ? "of" : "টি কোর্স (মোট"}{" "}
+          <span className="font-black text-[#2C2C2C]">{totalCourses || courses.length}</span>
+          {language === "en" ? " courses" : " টির মধ্যে)"}
+        </p>
+      </div>
 
-      {/* Course Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Course Grid: 2-columns on large screens for wide 16:9 banner impact */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {courses.length === 0 ? (
-          <div className="col-span-full text-center py-20">
-            <div className="text-7xl mb-6 opacity-50">📚</div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              No courses found
+          <div className="col-span-full bg-white rounded-[28px] border border-gray-100 text-center py-16 px-4">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-black text-gray-800 mb-2">
+              {language === "en" ? "No courses found" : "কোনো কোর্স পাওয়া যায়নি"}
             </h3>
-            <p className="text-gray-500 mb-6">
-              Try adjusting your search or filters
+            <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">
+              {language === "en"
+                ? "Try searching with different keywords or reset your filters."
+                : "অন্য কোনো কি-ওয়ার্ড দিয়ে সার্চ করুন অথবা ফিল্টার রিসেট করুন।"}
             </p>
             <Button
               color="primary"
-              variant="flat"
+              radius="full"
+              className="font-bold text-xs"
               onPress={() => {
                 setSearchTerm("");
-                setSelectedCategory("");
+                setSelectedFilter("all");
               }}
             >
-              Clear Filters
+              {language === "en" ? "View All Courses" : "সব কোর্স দেখুন"}
             </Button>
           </div>
         ) : (
           courses.map((course: any, index: number) => {
-            const categoryName =
-              typeof course.category === "object"
-                ? course.category?.name
-                : null;
-            const instructorName =
-              typeof course.instructor === "object"
-                ? course.instructor?.name
-                : "Instructor";
+            const meta = getCourseMeta(course);
+            const thumbnail = getCourseThumbnail(course);
+            const slug = getCourseSlug(course);
 
             return (
-              <Card
+              <div
                 key={course._id || index}
-                className="group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-gray-100"
-                radius="lg"
+                className="bg-white rounded-[28px] border-2 border-gray-100 hover:border-[#3B82F6]/50 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between group cursor-pointer"
+                onClick={() => router.push(`/courses/${slug}`)}
               >
-                {/* Course Image with Overlay Badge */}
-                <div
-                  className="relative h-52 overflow-hidden cursor-pointer"
-                  onClick={() =>
-                    router.push(`/courses/${course._id || course.id}`)
-                  }
-                >
-                  <Image
-                    removeWrapper
-                    alt={course.title}
-                    className="z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    src={
-                      course.img ||
-                      course.thumbnail ||
-                      "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=1000&auto=format&fit=crop"
-                    }
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div>
+                  {/* Course 16:9 Thumbnail Header */}
+                  <div className="relative w-full pt-[54%] overflow-hidden bg-gray-900">
+                    <img
+                      src={thumbnail}
+                      alt={meta.displayTitle}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        const img = e.currentTarget;
+                        img.onerror = null;
+                        img.src = "/logo.png";
+                      }}
+                    />
+                    {/* Subtle gradient vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Level Badge on Image */}
-                  <div className="absolute top-3 left-3">
-                    <Chip
-                      color={getLevelColor(course.level)}
-                      size="sm"
-                      variant="solid"
-                      className="font-semibold shadow-lg"
-                    >
-                      {course.level || "Beginner"}
-                    </Chip>
+                    {/* Top Overlay Badges */}
+                    <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                      <span className="px-3 py-1 bg-white/95 backdrop-blur-md text-gray-900 text-xs font-black rounded-full shadow-sm">
+                        {meta.ageRange}
+                      </span>
+                      <span className="px-3 py-1 bg-[#3B82F6] text-white text-xs font-black rounded-full shadow-sm">
+                        {course.level || "Beginner"}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600/90 text-white text-xs font-black rounded-full shadow-sm">
+                        <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                        LIVE
+                      </span>
+                    </div>
+
+                    {/* Bottom overlay badge inside image */}
+                    <div className="absolute bottom-3 left-4 z-10">
+                      <span className="text-xs font-bold text-white bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                        {meta.badge}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Type Badge */}
-                  {course.type && (
-                    <div className="absolute top-3 right-3">
-                      <Chip
-                        color="default"
-                        size="sm"
-                        variant="solid"
-                        className="bg-white/90 text-gray-800 font-medium shadow-lg"
-                        startContent={
-                          course.type === "Live" ? (
-                            <FaPlayCircle className="text-red-500" />
-                          ) : undefined
-                        }
-                      >
-                        {course.type}
-                      </Chip>
+                  {/* Card Content Body */}
+                  <div className="p-6 sm:p-7 space-y-4">
+                    
+                    {/* Course Title */}
+                    <h3 className="text-xl sm:text-2xl font-black text-[#2C2C2C] group-hover:text-[#3B82F6] transition-colors leading-tight">
+                      {meta.displayTitle}
+                    </h3>
+
+                    {/* Tagline / Subtitle */}
+                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                      {meta.displayTagline}
+                    </p>
+
+                    {/* 3 Value Points */}
+                    <div className="space-y-1.5 pt-1">
+                      {meta.features.map((feat: string, fIdx: number) => (
+                        <div key={fIdx} className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                          <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] flex-shrink-0">
+                            <FaCheck />
+                          </span>
+                          <span className="truncate">{feat}</span>
+                        </div>
+                      ))}
                     </div>
-                  )}
+
+                    {/* Meta stats pills */}
+                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F9FA] rounded-xl text-xs font-bold text-gray-600">
+                        <FaClock className="text-[#3B82F6]" />
+                        <span>{meta.duration}</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F9FA] rounded-xl text-xs font-bold text-gray-600">
+                        <FaUsers className="text-[#7C3AED]" />
+                        <span>10-15 {language === "en" ? "Students" : "জন"}</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F8F9FA] rounded-xl text-xs font-bold text-gray-600">
+                        <FaAward className="text-emerald-600" />
+                        <span>{language === "en" ? "Certificate" : "সার্টিফিকেট"}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <CardBody className="p-5 space-y-3">
-                  {/* Category Tag */}
-                  {categoryName && (
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="secondary"
-                      className="w-fit"
-                    >
-                      {categoryName}
-                    </Chip>
-                  )}
-
-                  {/* Course Title */}
-                  <h3
-                    className="text-lg font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-primary transition-colors cursor-pointer"
-                    onClick={() =>
-                      router.push(`/courses/${course._id || course.id}`)
-                    }
-                  >
-                    {course.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
-                    {(() => {
-                      const clean = sanitizeDescription(
-                        String(course.description || "")
-                      );
-                      if (!clean) return "No description available";
-                      return clean.length > 120
-                        ? `${clean.substring(0, 120)}...`
-                        : clean;
-                    })()}
-                  </p>
-
-                  {/* Meta Information */}
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {course.duration && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 px-2.5 py-1.5 rounded-lg">
-                        <FaClock className="text-primary" />
-                        <span className="font-medium">{course.duration}h</span>
-                      </div>
-                    )}
-                    {course.modules && course.modules.length > 0 && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 px-2.5 py-1.5 rounded-lg">
-                        <FaBook className="text-primary" />
-                        <span className="font-medium">
-                          {course.modules.length} Modules
-                        </span>
-                      </div>
-                    )}
-                    {course.enrolled !== undefined && course.enrolled > 0 && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 px-2.5 py-1.5 rounded-lg">
-                        <FaUser className="text-primary" />
-                        <span className="font-medium">{course.enrolled}</span>
-                      </div>
-                    )}
-                  </div>
-                </CardBody>
-
-                {/* Footer with Price and CTA */}
-                <CardFooter className="p-5 flex items-center justify-between bg-gray-50/50">
+                {/* Card Footer with Price and Action */}
+                <div className="p-6 sm:p-7 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
                   <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 mb-1">Price</span>
-                    <span className="text-3xl font-bold text-primary">
-                      ৳{course.price || 0}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400 line-through font-semibold">
+                        ৳{meta.regularPrice.toLocaleString()}
+                      </span>
+                      <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-black rounded-md border border-amber-200">
+                        40% OFF
+                      </span>
+                    </div>
+                    <span className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
+                      ৳{meta.price.toLocaleString()}
                     </span>
                   </div>
+
                   <Button
-                    color="primary"
-                    variant="shadow"
-                    size="lg"
-                    className="font-semibold"
-                    onPress={() =>
-                      router.push(`/courses/${course._id || course.id}`)
-                    }
+                    className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-black rounded-2xl px-6 py-6 text-sm shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-all"
+                    endContent={<FaArrowRight className="text-xs group-hover:translate-x-1 transition-transform" />}
+                    onPress={() => router.push(`/courses/${slug}`)}
                   >
-                    Enroll Now
+                    {language === "en" ? "View Details" : "বিস্তারিত দেখুন"}
                   </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             );
           })
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination (if applicable) */}
       {totalPages > 1 && (
         <div className="flex justify-center pt-8">
           <Pagination
@@ -409,7 +439,7 @@ export default function CourseList() {
             size="lg"
             showControls
             className="gap-2"
-            radius="lg"
+            radius="full"
           />
         </div>
       )}

@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/Footer";
+import { TrialBookingModal } from "@/components/TrialBookingModal";
+import RecruitmentModal from "@/components/RecruitmentModal";
 
 export default function LayoutWrapper({
   children,
@@ -23,6 +25,9 @@ export default function LayoutWrapper({
       <main className={`flex-grow ${!isDashboardRoute ? 'pt-24 sm:pt-28 md:pt-24' : ''}`}>{children}</main>
 
       {!isDashboardRoute && <Footer />}
+
+      <TrialBookingModal />
+      <RecruitmentModal />
     </div>
   );
 }

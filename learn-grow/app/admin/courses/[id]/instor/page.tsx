@@ -100,15 +100,45 @@ function AdminCourseDetailContent() {
 
           <Divider />
 
-          <div className="flex items-center gap-4">
-            <Avatar src={instructorImage || undefined} name={instructorName} size="lg" />
-            <div>
-              <h4 className="font-semibold">Instructor</h4>
-              <p className="text-gray-800">{instructorName}</p>
-              {instructorEmail && (
-                <p className="text-gray-600 text-sm">{instructorEmail}</p>
-              )}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <Avatar src={instructorImage || undefined} name={instructorName} size="lg" />
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Primary Instructor</span>
+                  <p className="text-gray-900 font-bold text-base mt-0.5">{instructorName}</p>
+                  {instructorEmail && (
+                    <p className="text-gray-500 text-sm">{instructorEmail}</p>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                color="secondary"
+                variant="flat"
+                className="font-bold"
+                onPress={() => router.push(`/admin/batches?courseId=${id}`)}
+              >
+                Manage Batches & Teachers
+              </Button>
             </div>
+
+            {Array.isArray(course.instructorIds) && course.instructorIds.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <h4 className="font-bold text-sm text-gray-700 mb-3">All Assigned Teachers & Batch Mentors ({course.instructorIds.length})</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {course.instructorIds.map((inst: any) => (
+                    <div key={inst._id || inst} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                      <Avatar src={inst?.profileImage} name={inst?.name || "Teacher"} size="sm" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-900 truncate">{inst?.name || "Instructor"}</p>
+                        <p className="text-[11px] text-gray-500 truncate">{inst?.email || ""}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {Array.isArray(course.modules) && course.modules.length > 0 && (

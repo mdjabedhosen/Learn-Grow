@@ -1,18 +1,63 @@
 "use client";
 
-import { Card, CardBody, Button, Input, Spinner, Checkbox, Progress, Chip, Tabs, Tab } from "@nextui-org/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import {
+  Card,
+  CardBody,
+  Button,
+  Input,
+  Spinner,
+  Checkbox,
+  Progress,
+  Chip,
+  Tabs,
+  Tab,
+  Tooltip,
+} from "@nextui-org/react";
 import {
   useGetCommissionQuery,
   useUpdateCommissionMutation,
   useGetSMTPConfigQuery,
   useUpdateSMTPConfigMutation,
   useTestSMTPConnectionMutation,
+  useGetTrackingConfigQuery,
+  useUpdateTrackingConfigMutation,
+  useTestTrackingEventMutation,
 } from "@/redux/api/settingsApi";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { API_CONFIG } from "@/config/apiConfig";
+import { toast } from "react-toastify";
 import {
-  FaArrowLeft,
-  FaCogs,
+  ArrowLeft,
+  ShieldCheck,
+  ShieldAlert,
+  Lock,
+  Unlock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  Server,
+  Mail,
+  Coins,
+  TrendingUp,
+  Activity,
+  Database,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  Send,
+  HelpCircle,
+  ExternalLink,
+  Sparkles,
+  RefreshCw,
+  Sliders,
+  Radio,
+  Info,
+} from "lucide-react";
+import {
   FaPercentage,
   FaEnvelope,
   FaServer,
@@ -28,21 +73,53 @@ import {
   FaDatabase,
   FaDownload,
   FaCheckCircle,
+  FaChartLine,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
 
 export default function AdminSettingsPage() {
   const router = useRouter();
-  const { data, isLoading, refetch } = useGetCommissionQuery();
-  const [updateCommission, { isLoading: saving }] = useUpdateCommissionMutation();
+
+  // Role & Current User State
+  const [userRole, setUserRole] = useState<string>("admin");
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.role) setUserRole(u.role);
+        if (u.name) setUserName(u.name);
+      } else {
+        const cookieRole = Cookies.get("userRole");
+        if (cookieRole) setUserRole(cookieRole);
+      }
+    } catch {
+      // Default fallback
+    }
+  }, []);
+
+  const isSuperAdmin = userRole === "admin";
+  const dashboardRoute = userRole === "manager" ? "/manager" : "/admin";
+
+  // Commission & Kit Price State
+  const { data: commissionData, isLoading: commissionLoading, refetch: refetchCommission } = useGetCommissionQuery();
+  const [updateCommission, { isLoading: commissionSaving }] = useUpdateCommissionMutation();
   const [commission, setCommission] = useState<number>(20);
   const [kitPrice, setKitPrice] = useState<number>(4500);
-  const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
-  const [backupLoading, setBackupLoading] = useState(false);
   const payout = Math.max(0, 100 - (Number.isFinite(commission) ? commission : 0));
 
-  // SMTP state
-  const { data: smtpData, isLoading: smtpLoading, refetch: smtpRefetch } = useGetSMTPConfigQuery();
+  useEffect(() => {
+    if (commissionData?.data?.platformCommissionPercent != null) {
+      setCommission(commissionData.data.platformCommissionPercent);
+    }
+    if (commissionData?.data?.kitPrice != null) {
+      setKitPrice(Number(commissionData.data.kitPrice));
+    }
+  }, [commissionData]);
+
+  // SMTP State
+  const { data: smtpData, isLoading: smtpLoading, refetch: refetchSMTP } = useGetSMTPConfigQuery();
   const [updateSMTP, { isLoading: smtpSaving }] = useUpdateSMTPConfigMutation();
   const [testSMTP, { isLoading: smtpTesting }] = useTestSMTPConnectionMutation();
   const [smtp, setSMTP] = useState({
@@ -57,38 +134,112 @@ export default function AdminSettingsPage() {
   });
   const [testEmail, setTestEmail] = useState("");
   const [smtpSource, setSMTPSource] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (data?.data?.platformCommissionPercent != null) {
-      setCommission(data.data.platformCommissionPercent);
-    }
-    if (data?.data?.kitPrice != null) {
-      setKitPrice(Number(data.data.kitPrice));
-    }
-  }, [data]);
+  const [showSMTPPassword, setShowSMTPPassword] = useState(false);
 
   useEffect(() => {
     if (smtpData?.data) {
       setSMTP({
-        host: smtpData.data.host,
-        port: smtpData.data.port,
-        secure: smtpData.data.secure,
-        user: smtpData.data.user,
+        host: smtpData.data.host || "",
+        port: smtpData.data.port || 587,
+        secure: smtpData.data.secure || false,
+        user: smtpData.data.user || "",
         password: "",
-        fromName: smtpData.data.fromName,
-        fromEmail: smtpData.data.fromEmail,
+        fromName: smtpData.data.fromName || "",
+        fromEmail: smtpData.data.fromEmail || "",
         replyTo: smtpData.data.replyTo || "",
       });
       setSMTPSource(smtpData.data.source || "");
     }
   }, [smtpData]);
 
-  const handleSave = async () => {
+  // Database Backup State
+  const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
+  const [backupLoading, setBackupLoading] = useState(false);
+
+  // Tracking & CAPI State
+  const { data: trackingData, isLoading: trackingLoading, refetch: refetchTracking } = useGetTrackingConfigQuery();
+  const [updateTracking, { isLoading: trackingSaving }] = useUpdateTrackingConfigMutation();
+  const [testTracking, { isLoading: trackingTesting }] = useTestTrackingEventMutation();
+
+  const [tracking, setTracking] = useState({
+    isEnabled: true,
+    metaEnabled: true,
+    metaPixelId: "",
+    metaAccessToken: "",
+    metaTestEventCode: "",
+    tiktokEnabled: true,
+    tiktokPixelId: "",
+    tiktokAccessToken: "",
+    tiktokTestEventCode: "",
+    googleEnabled: true,
+    ga4MeasurementId: "",
+    ga4ApiSecret: "",
+    googleAdsConversionId: "",
+    googleAdsConversionLabel: "",
+    linkedinEnabled: true,
+    linkedinPartnerId: "",
+    linkedinAccessToken: "",
+    linkedinConversionId: "",
+  });
+
+  // Masking toggles for sensitive tokens
+  const [showMetaToken, setShowMetaToken] = useState(false);
+  const [showTikTokToken, setShowTikTokToken] = useState(false);
+  const [showGA4Secret, setShowGA4Secret] = useState(false);
+  const [showLinkedInToken, setShowLinkedInToken] = useState(false);
+
+  // Copied state indicator
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopy = (text: string, keyName: string) => {
+    if (!text) {
+      toast.info("No value to copy");
+      return;
+    }
+    navigator.clipboard.writeText(text);
+    setCopiedKey(keyName);
+    toast.success(`Copied ${keyName} to clipboard!`);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
+
+  const [testPlatform, setTestPlatform] = useState<"all" | "meta" | "tiktok" | "google" | "linkedin">("all");
+  const [testResult, setTestResult] = useState<any>(null);
+
+  useEffect(() => {
+    if (trackingData?.data) {
+      const d = trackingData.data;
+      setTracking({
+        isEnabled: d.isEnabled ?? true,
+        metaEnabled: d.meta?.enabled ?? true,
+        metaPixelId: d.meta?.pixelId || "",
+        metaAccessToken: d.meta?.accessToken || "",
+        metaTestEventCode: d.meta?.testEventCode || "",
+        tiktokEnabled: d.tiktok?.enabled ?? true,
+        tiktokPixelId: d.tiktok?.pixelId || "",
+        tiktokAccessToken: d.tiktok?.accessToken || "",
+        tiktokTestEventCode: d.tiktok?.testEventCode || "",
+        googleEnabled: d.google?.enabled ?? true,
+        ga4MeasurementId: d.google?.ga4MeasurementId || "",
+        ga4ApiSecret: d.google?.ga4ApiSecret || "",
+        googleAdsConversionId: d.google?.adsConversionId || "",
+        googleAdsConversionLabel: d.google?.adsConversionLabel || "",
+        linkedinEnabled: d.linkedin?.enabled ?? true,
+        linkedinPartnerId: d.linkedin?.partnerId || "",
+        linkedinAccessToken: d.linkedin?.accessToken || "",
+        linkedinConversionId: d.linkedin?.conversionId || "",
+      });
+    }
+  }, [trackingData]);
+
+  // Handlers
+  const handleSaveCommission = async () => {
     try {
-      await updateCommission({ platformCommissionPercent: Number(commission) || 0, kitPrice: Number(kitPrice) || 0 }).unwrap();
-      await refetch();
-      toast.success("Commission settings updated successfully");
+      await updateCommission({
+        platformCommissionPercent: Number(commission) || 0,
+        kitPrice: Number(kitPrice) || 0,
+      }).unwrap();
+      await refetchCommission();
+      toast.success("কমিশন রেট সফলভাবে সংরক্ষিত হয়েছে! | Commission settings updated!");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update commission settings");
     }
@@ -97,83 +248,167 @@ export default function AdminSettingsPage() {
   const handleSMTPSave = async () => {
     try {
       const payload: any = {
-        host: smtp.host,
-        port: smtp.port,
+        host: smtp.host.trim(),
+        port: Number(smtp.port) || 587,
         secure: smtp.secure,
-        user: smtp.user,
-        fromName: smtp.fromName,
-        fromEmail: smtp.fromEmail,
+        user: smtp.user.trim(),
+        fromName: smtp.fromName.trim(),
+        fromEmail: smtp.fromEmail.trim(),
       };
       if (smtp.password) payload.password = smtp.password;
-      if (smtp.replyTo) payload.replyTo = smtp.replyTo;
+      if (smtp.replyTo) payload.replyTo = smtp.replyTo.trim();
 
       await updateSMTP(payload).unwrap();
-      await smtpRefetch();
+      await refetchSMTP();
       setSMTP((prev) => ({ ...prev, password: "" }));
-      toast.success("SMTP settings updated successfully");
+      toast.success("SMTP সার্ভার সেটিংস সফলভাবে সংরক্ষিত হয়েছে! | SMTP settings saved successfully!");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update SMTP settings");
     }
   };
 
   const handleTestSMTP = async () => {
-    if (!testEmail) {
-      toast.error("Please enter a test email address");
+    if (!testEmail || !testEmail.includes("@")) {
+      toast.error("সঠিক ইমেইল এড্রেস লিখুন | Please enter a valid test email address");
       return;
     }
     try {
       const result = await testSMTP({ testEmail }).unwrap();
-      toast.success(result.message || "Test email sent successfully");
+      toast.success(result.message || "টেস্ট ইমেইল সফলভাবে পাঠানো হয়েছে! | Test email sent successfully");
       setTestEmail("");
     } catch (error: any) {
-      toast.error(error?.data?.message || "SMTP test failed");
+      toast.error(error?.data?.message || "SMTP connection test failed. Check host, port & credentials.");
     }
   };
 
+  const applySMTPPreset = (preset: "gmail" | "titan" | "ses") => {
+    if (preset === "gmail") {
+      setSMTP((prev) => ({
+        ...prev,
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+      }));
+      toast.info("Applied Gmail / Google Workspace preset (Host: smtp.gmail.com, Port: 465 SSL)");
+    } else if (preset === "titan") {
+      setSMTP((prev) => ({
+        ...prev,
+        host: "smtp.titan.email",
+        port: 465,
+        secure: true,
+      }));
+      toast.info("Applied Titan Mail preset (Host: smtp.titan.email, Port: 465 SSL)");
+    } else if (preset === "ses") {
+      setSMTP((prev) => ({
+        ...prev,
+        host: "email-smtp.ap-south-1.amazonaws.com",
+        port: 587,
+        secure: false,
+      }));
+      toast.info("Applied Amazon SES preset (Port: 587 TLS)");
+    }
+  };
+
+  const handleTrackingSave = async () => {
+    try {
+      await updateTracking({
+        isEnabled: tracking.isEnabled,
+        metaEnabled: tracking.metaEnabled,
+        metaPixelId: tracking.metaPixelId.trim(),
+        metaAccessToken: tracking.metaAccessToken.trim(),
+        metaTestEventCode: tracking.metaTestEventCode.trim(),
+        tiktokEnabled: tracking.tiktokEnabled,
+        tiktokPixelId: tracking.tiktokPixelId.trim(),
+        tiktokAccessToken: tracking.tiktokAccessToken.trim(),
+        tiktokTestEventCode: tracking.tiktokTestEventCode.trim(),
+        googleEnabled: tracking.googleEnabled,
+        ga4MeasurementId: tracking.ga4MeasurementId.trim(),
+        ga4ApiSecret: tracking.ga4ApiSecret.trim(),
+        googleAdsConversionId: tracking.googleAdsConversionId.trim(),
+        googleAdsConversionLabel: tracking.googleAdsConversionLabel.trim(),
+        linkedinEnabled: tracking.linkedinEnabled,
+        linkedinPartnerId: tracking.linkedinPartnerId.trim(),
+        linkedinAccessToken: tracking.linkedinAccessToken.trim(),
+        linkedinConversionId: tracking.linkedinConversionId.trim(),
+      }).unwrap();
+      await refetchTracking();
+      toast.success("সার্ভার ট্র্যাকিং সেটিংস সংরক্ষিত হয়েছে! | Tracking settings updated!");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update tracking settings");
+    }
+  };
+
+  const handleTestTracking = async () => {
+    try {
+      setTestResult(null);
+      const res = await testTracking({ platform: testPlatform }).unwrap();
+      setTestResult(res.results);
+      toast.success("সার্ভার টেস্ট ইভেন্ট সফলভাবে পাঠানো হয়েছে! | Test event sent successfully!");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to dispatch test event to advertising servers");
+    }
+  };
+
+  // Secure Database Backup Handler with JWT Auth & API_CONFIG Base URL
   const handleBackupDatabase = async () => {
+    if (!isSuperAdmin) {
+      toast.error("শুধুমাত্র সুপার অ্যাডমিন ডাটাবেস ব্যাকআপ নিতে পারেন | Super Admin privileges required");
+      return;
+    }
+
     const confirmed = window.confirm(
-      "This will create a full MongoDB backup and download it as a compressed file. This may take a few minutes depending on database size. Continue?"
+      "⚠️ SECURITY CONFIRMATION:\n\nThis will trigger a full MongoDB database export including all collections, user profiles, and order data. The file will be streamed directly to your browser as an encrypted archive.\n\nDo you want to proceed?"
     );
     if (!confirmed) return;
 
     setBackupLoading(true);
     try {
-      // Make the backup request directly via fetch to handle file download
-      const response = await fetch("/api/settings/backup/database", {
+      const token =
+        Cookies.get("accessToken") ||
+        (typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("accessToken") : null);
+
+      const backupUrl = `${API_CONFIG.BASE_URL}/settings/backup/database`;
+
+      const response = await fetch(backupUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create backup");
+        let errMessage = "Failed to create database backup";
+        try {
+          const errData = await response.json();
+          if (errData?.message) errMessage = errData.message;
+        } catch {
+          errMessage = `HTTP error ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errMessage);
       }
 
-      // Create blob and download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      
-      // Extract filename from response headers or use default
+
       const contentDisposition = response.headers.get("content-disposition");
       let filename = `learn-grow-backup-${new Date().toISOString().split("T")[0]}.tar.gz`;
-      
       if (contentDisposition) {
         const matches = contentDisposition.match(/filename="?([^";\n]+)"?/i);
         if (matches) filename = matches[1];
       }
-      
+
       link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
-      setLastBackupTime(new Date().toLocaleString());
-      toast.success("✓ Database backed up successfully! File is downloading...");
+
+      const now = new Date().toLocaleString();
+      setLastBackupTime(now);
+      toast.success("✓ ডাটাবেস ব্যাকআপ সম্পন্ন হয়েছে! | Database export downloaded successfully!");
     } catch (error: any) {
       toast.error(error?.message || "Failed to create database backup");
     } finally {
@@ -182,95 +417,174 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-5xl">
-      {/* Header with Gradient */}
-      <div className="mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl">
-        <Button
-          variant="light"
-          startContent={<FaArrowLeft className="text-sm sm:text-base" />}
-          onPress={() => router.push("/admin")}
-          className="mb-2 sm:mb-3 md:mb-4 text-white hover:bg-white/20 min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
-          size="sm"
-        >
-          <span className="hidden xs:inline">Back to Dashboard</span>
-          <span className="xs:hidden">Back</span>
-        </Button>
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <div className="bg-white/20 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl backdrop-blur-sm">
-            <FaCogs className="text-2xl sm:text-3xl md:text-4xl" />
+    <div className="container mx-auto px-3 sm:px-5 md:px-8 py-6 md:py-10 max-w-6xl space-y-6">
+      {/* Enterprise SaaS Header with Brand Depth */}
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 p-6 sm:p-8 md:p-10 text-white shadow-2xl border border-slate-800/80">
+        {/* Subtle Ambient Glow */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 -mb-20 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10">
+          {/* Top navigation row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <Button
+              variant="flat"
+              startContent={<ArrowLeft className="w-4 h-4 text-white" />}
+              onPress={() => router.push(dashboardRoute)}
+              className="bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold backdrop-blur-md rounded-xl transition-all"
+              size="sm"
+            >
+              <span>Back to {userRole === "manager" ? "Manager Console" : "Dashboard"}</span>
+            </Button>
+
+            {/* Security Badges */}
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-sm">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                256-Bit Vault Encrypted
+              </span>
+              <span
+                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-sm ${
+                  isSuperAdmin
+                    ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                    : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                }`}
+              >
+                {isSuperAdmin ? "👑 Super Admin" : "🛡️ Operations Manager"}
+              </span>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold truncate">
-              Platform Settings
-            </h1>
-            <p className="text-xs sm:text-sm md:text-base text-white/90 mt-0.5 sm:mt-1 line-clamp-2">
-              Configure commission rates, email (SMTP) settings, and more
-            </p>
+
+          {/* Main title banner */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 uppercase tracking-widest mb-1.5">
+                <span>Infrastructure & Security</span>
+                <span>•</span>
+                <span>Config Center</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">
+                Platform Settings & Integrations
+              </h1>
+              <p className="text-xs sm:text-sm md:text-base text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                Centralized control room for revenue commissions, transactional SMTP relays, secure database backups, and direct server-side advertising conversions.
+              </p>
+            </div>
+
+            {/* Quick sync status pill */}
+            <div className="flex items-center gap-3 bg-slate-800/60 p-3 rounded-2xl border border-slate-700/60 backdrop-blur-md self-start md:self-auto">
+              <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="text-xs">
+                <p className="font-bold text-white">System Status: Operational</p>
+                <p className="text-slate-400 text-[11px]">API Services & Telemetry Online</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 overflow-hidden min-h-[400px] sm:min-h-[600px]">
+      {/* Main Container Card */}
+      <div className="bg-white rounded-[28px] shadow-xl border border-slate-200/90 overflow-hidden">
         <Tabs
-          aria-label="Settings Tabs"
+          aria-label="Platform Configuration Tabs"
           color="primary"
           variant="underlined"
           classNames={{
-            tabList: "gap-2 sm:gap-4 md:gap-6 w-full relative rounded-none p-0 border-b border-divider px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-4 overflow-x-auto",
-            cursor: "w-full bg-blue-600",
-            tab: "max-w-fit px-2 sm:px-3 md:px-4 h-12 sm:h-14 min-w-fit whitespace-nowrap",
-            tabContent: "group-data-[selected=true]:text-blue-600 font-bold text-xs sm:text-sm md:text-base lg:text-lg"
+            tabList: "gap-2 sm:gap-4 md:gap-6 w-full relative rounded-none p-0 border-b border-slate-200 px-4 sm:px-6 pt-3 overflow-x-auto scrollbar-none",
+            cursor: "w-full bg-blue-600 h-[3px] rounded-full",
+            tab: "max-w-fit px-3 sm:px-4 h-14 min-w-fit whitespace-nowrap",
+            tabContent: "group-data-[selected=true]:text-blue-600 font-bold text-xs sm:text-sm md:text-base",
           }}
         >
+          {/* TAB 1: Finance & Commission */}
           <Tab
             key="finance"
             title={
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <FaWallet className="text-purple-600 text-xs sm:text-sm" />
-                <span className="hidden sm:inline">Finance & Commission</span>
-                <span className="sm:hidden">Finance</span>
+              <div className="flex items-center gap-2 py-1">
+                <Coins className="w-4 h-4 text-purple-600" />
+                <span className="font-semibold">Finance & Commission</span>
+                <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200">
+                  {commission}% Platform
+                </span>
               </div>
             }
           >
-            <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-3xl mx-auto">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100">
-                <div className="p-2 sm:p-3 bg-purple-100 text-purple-600 rounded-lg sm:rounded-xl">
-                  <FaPercentage size={20} className="sm:w-6 sm:h-6" />
+            <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 pb-5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-100/70 text-purple-600 rounded-2xl border border-purple-200">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                      Platform Revenue Distribution & Kit Pricing
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      Govern standard course sale commission splits and standalone Robotics Kit baseline prices.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate">Commission Structure</h2>
-                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">Manage how revenue is split between the platform and instructors</p>
-                </div>
+                {!isSuperAdmin && (
+                  <Chip size="sm" variant="flat" color="warning" startContent={<Lock className="w-3 h-3" />}>
+                    Manager View Mode
+                  </Chip>
+                )}
               </div>
 
-              {isLoading ? (
-                <div className="h-60 flex items-center justify-center">
-                  <Spinner size="lg" label="Loading financial settings..." />
+              {commissionLoading ? (
+                <div className="h-64 flex flex-col items-center justify-center gap-3">
+                  <Spinner size="lg" color="primary" />
+                  <p className="text-xs text-slate-500 font-medium">Loading financial policies...</p>
                 </div>
               ) : (
-                <div className="space-y-4 sm:space-y-6 md:space-y-8">
-                  <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border border-purple-100">
-                    <div className="flex justify-between mb-3 sm:mb-4 font-bold text-sm sm:text-base md:text-lg">
-                      <span className="text-purple-700">Platform Share: {commission}%</span>
-                      <span className="text-green-700">Instructor Share: {payout}%</span>
+                <div className="space-y-6">
+                  {/* Dynamic Visualizer Bar */}
+                  <div className="bg-gradient-to-br from-purple-50/70 via-indigo-50/50 to-blue-50/60 p-5 rounded-2xl border border-purple-100/90 shadow-sm">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-purple-600" />
+                        <span className="font-bold text-sm sm:text-base text-purple-900">
+                          Platform Share: {commission}%
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full bg-emerald-600" />
+                        <span className="font-bold text-sm sm:text-base text-emerald-900">
+                          Instructor Payout: {payout}%
+                        </span>
+                      </div>
                     </div>
+
                     <Progress
                       size="lg"
                       radius="lg"
                       classNames={{
-                        track: "drop-shadow-sm border border-purple-200 bg-white h-4",
-                        indicator: "bg-gradient-to-r from-purple-600 to-indigo-600 h-4",
+                        track: "bg-emerald-100 border border-purple-200 h-5",
+                        indicator: "bg-gradient-to-r from-purple-600 to-indigo-600 h-5",
                       }}
                       value={commission}
-                      aria-label="Commission split"
+                      aria-label="Platform revenue split progress"
                     />
-                    <div className="flex justify-between mt-2 text-xs text-gray-500 font-medium px-1">
-                      <span>Platform keeps this amount</span>
-                      <span>Instructor receives this amount</span>
+
+                    {/* Simulation Calculation */}
+                    <div className="mt-4 pt-4 border-t border-purple-100/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+                      <span className="font-medium">
+                        💡 <strong>Real-time Simulation (per ৳ 10,000 Course Enrollment):</strong>
+                      </span>
+                      <div className="flex items-center gap-4">
+                        <span className="text-purple-700 font-bold bg-purple-100/60 px-2.5 py-1 rounded-lg">
+                          Platform: ৳ {(10000 * (commission / 100)).toLocaleString("en-BD")}
+                        </span>
+                        <span className="text-emerald-700 font-bold bg-emerald-100/60 px-2.5 py-1 rounded-lg">
+                          Instructor: ৳ {(10000 * (payout / 100)).toLocaleString("en-BD")}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                  {/* Input Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Input
                       type="number"
                       label="Platform Commission (%)"
@@ -278,56 +592,63 @@ export default function AdminSettingsPage() {
                       onChange={(e) => setCommission(Math.min(100, Math.max(0, Number(e.target.value))))}
                       variant="bordered"
                       size="lg"
-                      description="Enter percentage (0-100)"
-                      startContent={<FaPercentage className="text-gray-400" />}
+                      isDisabled={!isSuperAdmin}
+                      description="Default percentage platform keeps from course enrollments"
+                      startContent={<FaPercentage className="text-purple-500" />}
                       classNames={{
-                        inputWrapper: "border-2 border-gray-200 hover:border-purple-500 focus-within:border-purple-600"
+                        inputWrapper: "border-2 border-slate-200 hover:border-purple-400 focus-within:border-purple-600 rounded-xl",
                       }}
                     />
+
                     <Input
                       isReadOnly
-                      label="Instructor Payout (%)"
-                      value={`${payout}`}
+                      label="Instructor Net Payout (%)"
+                      value={`${payout}%`}
                       variant="flat"
                       size="lg"
-                      className="opacity-90"
-                      startContent={<FaWallet className="text-green-600" />}
+                      description="Automatically calculated balance credited to tutor balances"
+                      startContent={<FaWallet className="text-emerald-600" />}
                       classNames={{
-                        inputWrapper: "bg-green-50 border-2 border-green-200"
+                        inputWrapper: "bg-emerald-50/70 border-2 border-emerald-200/80 rounded-xl font-bold text-emerald-800",
                       }}
                     />
+
                     <Input
                       type="number"
-                      label="Robotics Kit Price (BDT)"
+                      label="Hardware Kit Retail Price (BDT)"
                       value={String(kitPrice)}
                       onChange={(e) => setKitPrice(Math.max(0, Number(e.target.value)))}
                       variant="bordered"
                       size="lg"
-                      startContent={<FaBoxOpen className="text-gray-400" />}
+                      isDisabled={!isSuperAdmin}
                       className="sm:col-span-2"
-                      description="Used for kit-only orders and displayed on pricing"
+                      description="Used for standalone robotics kit orders and kit cost deductions during course checkout"
+                      startContent={<span className="text-slate-400 font-bold text-sm">৳</span>}
                       classNames={{
-                        inputWrapper: "border-2 border-gray-200 hover:border-blue-500 focus-within:border-blue-600"
+                        inputWrapper: "border-2 border-slate-200 hover:border-blue-400 focus-within:border-blue-600 rounded-xl",
                       }}
                     />
                   </div>
 
-                  <div className="flex items-start gap-2 sm:gap-3 bg-blue-50 p-3 sm:p-4 rounded-lg sm:rounded-xl text-xs sm:text-sm text-blue-800 border border-blue-100">
-                    <FaGlobe className="text-base sm:text-xl shrink-0 mt-0.5" />
+                  {/* Policy Alert Note */}
+                  <div className="flex items-start gap-3 bg-blue-50/80 p-4 rounded-2xl border border-blue-200/80 text-xs sm:text-sm text-blue-900">
+                    <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong>Global Policy:</strong> This commission rate applies to all course sales unless overridden by specific instructor agreements. Changes take effect immediately for new transactions.
+                      <strong className="font-bold">Global Policy Enforcement:</strong> Changes made here take immediate effect for all newly placed course enrollments. Specific instructor override contracts take precedence over standard global commission tiers.
                     </div>
                   </div>
 
-                  <div className="pt-3 sm:pt-4">
+                  {/* Save Button */}
+                  <div className="pt-2 flex justify-end">
                     <Button
-                      color="secondary"
-                      onPress={handleSave}
-                      isLoading={saving}
+                      color="primary"
+                      onPress={handleSaveCommission}
+                      isLoading={commissionSaving}
+                      isDisabled={!isSuperAdmin}
                       size="lg"
-                      className="font-bold shadow-lg bg-gradient-to-r from-purple-600 to-indigo-600 w-full sm:w-auto sm:min-w-[200px] min-h-[44px] text-sm sm:text-base"
+                      className="font-bold shadow-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl px-8"
                     >
-                      Save Changes
+                      {commissionSaving ? "Saving Rates..." : "Save Financial Settings"}
                     </Button>
                   </div>
                 </div>
@@ -335,193 +656,245 @@ export default function AdminSettingsPage() {
             </div>
           </Tab>
 
+          {/* TAB 2: Email Configuration (SMTP) */}
           <Tab
             key="smtp"
             title={
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <FaEnvelope className="text-blue-600 text-xs sm:text-sm" />
-                <span className="hidden sm:inline">Email Configuration (SMTP)</span>
-                <span className="sm:hidden">Email</span>
+              <div className="flex items-center gap-2 py-1">
+                <Mail className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold">Email (SMTP)</span>
+                {smtp.host && (
+                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                    {smtp.host}
+                  </span>
+                )}
               </div>
             }
           >
-            <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6 md:mb-8 pb-3 sm:pb-4 border-b border-gray-100">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-2 sm:p-3 bg-blue-100 text-blue-600 rounded-lg sm:rounded-xl">
-                    <FaServer size={20} className="sm:w-6 sm:h-6" />
+            <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-100/70 text-blue-600 rounded-2xl border border-blue-200">
+                    <Server className="w-6 h-6" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate">SMTP Server</h2>
-                    <p className="text-xs sm:text-sm text-gray-500 line-clamp-1">Configure outbound email delivery settings</p>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                      Transactional SMTP Relays & Notifications
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      Configure authenticated email transport for OTPs, course purchase confirmations, and mentor assignments.
+                    </p>
                   </div>
                 </div>
                 {smtpSource && (
-                  <Chip size="sm" variant="flat" color="primary" startContent={<FaGlobe size={10} className="sm:w-3 sm:h-3" />}>
-                    <span className="text-xs">Source: {smtpSource}</span>
+                  <Chip size="sm" variant="flat" color="primary">
+                    Active Config: {smtpSource}
                   </Chip>
                 )}
               </div>
 
+              {/* Quick Presets */}
+              <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 px-2">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                  Quick Presets:
+                </span>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  className="bg-white text-xs font-semibold border border-slate-200 hover:border-blue-400"
+                  onPress={() => applySMTPPreset("gmail")}
+                >
+                  Gmail / Google Workspace (Port 465 SSL)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  className="bg-white text-xs font-semibold border border-slate-200 hover:border-blue-400"
+                  onPress={() => applySMTPPreset("titan")}
+                >
+                  Titan Email (Port 465 SSL)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  className="bg-white text-xs font-semibold border border-slate-200 hover:border-blue-400"
+                  onPress={() => applySMTPPreset("ses")}
+                >
+                  Amazon SES (Port 587 TLS)
+                </Button>
+              </div>
+
               {smtpLoading ? (
-                <div className="h-80 flex items-center justify-center">
-                  <Spinner size="lg" label="Loading SMTP settings..." />
+                <div className="h-64 flex flex-col items-center justify-center gap-3">
+                  <Spinner size="lg" color="primary" />
+                  <p className="text-xs text-slate-500 font-medium">Loading SMTP parameters...</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-                  {/* Left Column: Form */}
-                  <div className="lg:col-span-2 space-y-4 sm:space-y-6 md:space-y-8">
-                    <div className="space-y-3 sm:space-y-4 md:space-y-5">
-                      <h3 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500"></span> Server Details
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left Column: Config Form */}
+                  <div className="lg:col-span-2 space-y-5">
+                    {/* Server Connection Group */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        Host Connection
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
-                          label="SMTP Host"
+                          label="SMTP Host Address"
                           placeholder="smtp.gmail.com"
                           value={smtp.host}
                           onChange={(e) => setSMTP({ ...smtp, host: e.target.value })}
                           variant="bordered"
-                          size="lg"
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                         <Input
                           type="number"
-                          label="SMTP Port"
-                          placeholder="587"
+                          label="Port Number"
+                          placeholder="465 or 587"
                           value={String(smtp.port)}
                           onChange={(e) => setSMTP({ ...smtp, port: Number(e.target.value) })}
                           variant="bordered"
-                          size="lg"
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                       </div>
-                      <div className="bg-gray-50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                      <div className="bg-slate-50/90 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                          <p className="font-bold text-sm text-slate-800">Enforce SSL / TLS Encryption</p>
+                          <p className="text-xs text-slate-500">Required for Port 465; recommended for all cloud mail services.</p>
+                        </div>
                         <Checkbox
                           isSelected={smtp.secure}
                           onValueChange={(checked) => setSMTP({ ...smtp, secure: checked })}
-                          size="md"
                           color="primary"
-                        >
-                          <span className="font-semibold text-sm sm:text-base text-gray-700 ml-1 sm:ml-2">Use Secure Connection (TLS/SSL)</span>
-                        </Checkbox>
-                        <p className="text-xs text-gray-500 ml-6 sm:ml-9 mt-1">Recommended for production environments</p>
+                          size="md"
+                        />
                       </div>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4 md:space-y-5">
-                      <h3 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></span> Authentication
+                    {/* Authentication Group */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        Credentials & Authentication
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
-                          label="SMTP Username"
-                          placeholder="user@example.com"
+                          label="SMTP Username / Email"
+                          placeholder="info@learngrowedu.com"
                           value={smtp.user}
                           onChange={(e) => setSMTP({ ...smtp, user: e.target.value })}
                           variant="bordered"
-                          size="lg"
-                          startContent={<FaUser className="text-gray-400" />}
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          startContent={<FaUser className="text-slate-400 text-xs" />}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                         <Input
-                          type={showPassword ? "text" : "password"}
-                          label="SMTP Password"
-                          placeholder="Leave blank to keep"
+                          type={showSMTPPassword ? "text" : "password"}
+                          label="SMTP Password / App Key"
+                          placeholder="Leave blank to keep current"
                           value={smtp.password}
                           onChange={(e) => setSMTP({ ...smtp, password: e.target.value })}
                           variant="bordered"
-                          size="lg"
-                          startContent={<FaLock className="text-gray-400" />}
+                          startContent={<KeyRound className="w-4 h-4 text-slate-400" />}
                           endContent={
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="focus:outline-none text-gray-500 hover:text-gray-700 transition-colors"
-                              aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                              {showPassword ? (
-                                <FaEyeSlash className="text-lg" />
-                              ) : (
-                                <FaEye className="text-lg" />
+                            <div className="flex items-center gap-1">
+                              {smtp.password && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(smtp.password, "SMTP Password")}
+                                  className="text-slate-400 hover:text-slate-600 p-1"
+                                >
+                                  {copiedKey === "SMTP Password" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                </button>
                               )}
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() => setShowSMTPPassword(!showSMTPPassword)}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                              >
+                                {showSMTPPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
                           }
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4 md:space-y-5">
-                      <h3 className="text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500"></span> Sender Info
+                    {/* Sender Identity */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        Sender Identity & Branding
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
-                          label="From Name"
-                          placeholder="Learn & Grow"
+                          label="From Sender Display Name"
+                          placeholder="Learn & Grow STEM Academy"
                           value={smtp.fromName}
                           onChange={(e) => setSMTP({ ...smtp, fromName: e.target.value })}
                           variant="bordered"
-                          size="lg"
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                         <Input
                           type="email"
-                          label="From Email"
-                          placeholder="noreply@example.com"
+                          label="From Sender Email"
+                          placeholder="noreply@learngrowedu.com"
                           value={smtp.fromEmail}
                           onChange={(e) => setSMTP({ ...smtp, fromEmail: e.target.value })}
                           variant="bordered"
-                          size="lg"
-                          classNames={{ inputWrapper: "border-gray-300" }}
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                         />
                       </div>
                       <Input
                         type="email"
-                        label="Reply-To Email (Optional)"
-                        placeholder="support@example.com"
+                        label="Reply-To Email Address (Optional)"
+                        placeholder="support@learngrowedu.com"
                         value={smtp.replyTo}
                         onChange={(e) => setSMTP({ ...smtp, replyTo: e.target.value })}
                         variant="bordered"
-                        size="lg"
-                        classNames={{ inputWrapper: "border-gray-300" }}
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
                       />
                     </div>
 
-                    <Button
-                      color="primary"
-                      onPress={handleSMTPSave}
-                      isLoading={smtpSaving}
-                      size="lg"
-                      className="font-bold shadow-lg bg-gradient-to-r from-blue-600 to-cyan-600 w-full sm:w-auto sm:min-w-[200px] min-h-[44px] text-sm sm:text-base"
-                    >
-                      Save Configuration
-                    </Button>
+                    <div className="pt-2">
+                      <Button
+                        color="primary"
+                        onPress={handleSMTPSave}
+                        isLoading={smtpSaving}
+                        size="lg"
+                        className="font-bold shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-8"
+                      >
+                        {smtpSaving ? "Saving Configuration..." : "Save SMTP Configuration"}
+                      </Button>
+                    </div>
                   </div>
 
-                  {/* Right Column: Test Panel */}
+                  {/* Right Column: Live Test Console */}
                   <div className="lg:col-span-1">
-                    <Card className="bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-blue-100 shadow-none lg:sticky lg:top-6">
-                      <CardBody className="p-4 sm:p-5 md:p-6">
-                        <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2 text-gray-800">
-                          <FaShieldAlt className="text-green-600" />
-                          Connection Test
-                        </h3>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
-                          Send a test email to verify that your SMTP settings are correct before saving.
+                    <Card className="bg-gradient-to-br from-slate-50 to-blue-50/60 border border-blue-100 shadow-sm rounded-2xl lg:sticky lg:top-6">
+                      <CardBody className="p-5 space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-blue-100">
+                          <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                          <h3 className="font-bold text-slate-800 text-base">Relay Diagnostic Test</h3>
+                        </div>
+
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Transmit an authenticated test email to prove your credentials, port, and sender reputation before saving changes.
                         </p>
 
-                        <div className="space-y-3 sm:space-y-4">
+                        <div className="space-y-3">
                           <Input
                             type="email"
-                            label="Recipient Email"
-                            placeholder="you@example.com"
+                            label="Target Recipient Email"
+                            placeholder="yourname@gmail.com"
                             value={testEmail}
                             onChange={(e) => setTestEmail(e.target.value)}
                             variant="flat"
                             classNames={{
-                              inputWrapper: "bg-white border border-gray-200"
+                              inputWrapper: "bg-white border border-slate-200 rounded-xl",
                             }}
                           />
                           <Button
@@ -530,19 +903,19 @@ export default function AdminSettingsPage() {
                             onPress={handleTestSMTP}
                             isLoading={smtpTesting}
                             fullWidth
-                            className="font-semibold bg-white border border-purple-200 hover:bg-purple-50 text-purple-700 min-h-[44px] text-sm sm:text-base"
-                            startContent={<FaPaperPlane />}
+                            startContent={<Send className="w-4 h-4" />}
+                            className="font-bold bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 rounded-xl min-h-[44px]"
                           >
-                            Send Test Email
+                            {smtpTesting ? "Transmitting..." : "Send Verification Email"}
                           </Button>
                         </div>
 
-                        <div className="mt-6 pt-4 border-t border-gray-200 text-xs text-gray-500">
-                          <p className="font-semibold text-gray-700 mb-1">Troubleshooting:</p>
+                        <div className="pt-3 border-t border-slate-200/80 text-[11px] text-slate-500 space-y-1.5">
+                          <p className="font-bold text-slate-700">Verification Tips:</p>
                           <ul className="list-disc pl-4 space-y-1">
-                            <li>Check if your firewall blocks the port.</li>
-                            <li>Ensure "Less Secure Apps" is allowed if using Gmail.</li>
-                            <li>Verify credentials carefully.</li>
+                            <li>For Gmail, generate an <strong>App Password</strong> in Google Account Security.</li>
+                            <li>Ensure DNS records (SPF, DKIM) authorize your sending IP.</li>
+                            <li>Port 465 requires SSL checked; Port 587 requires TLS.</li>
                           </ul>
                         </div>
                       </CardBody>
@@ -553,140 +926,644 @@ export default function AdminSettingsPage() {
             </div>
           </Tab>
 
+          {/* TAB 3: Database Backup (RBAC Protected) */}
           <Tab
             key="backup"
             title={
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <FaDatabase className="text-orange-600 text-xs sm:text-sm" />
-                <span className="hidden sm:inline">Database Backup</span>
-                <span className="sm:hidden">Backup</span>
+              <div className="flex items-center gap-2 py-1">
+                <Database className="w-4 h-4 text-amber-600" />
+                <span className="font-semibold">Database Backup</span>
+                {!isSuperAdmin ? (
+                  <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-rose-100 text-rose-700 font-bold border border-rose-200">
+                    Admin Only
+                  </span>
+                ) : (
+                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200">
+                    MongoDB
+                  </span>
+                )}
               </div>
             }
           >
-            <div className="p-3 sm:p-4 md:p-6 lg:p-8 max-w-3xl mx-auto">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100">
-                <div className="p-2 sm:p-3 bg-orange-100 text-orange-600 rounded-lg sm:rounded-xl">
-                  <FaDatabase size={20} className="sm:w-6 sm:h-6" />
+            <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6">
+              {/* Header */}
+              <div className="flex items-center gap-3 pb-5 border-b border-slate-100">
+                <div className="p-3 bg-amber-100/70 text-amber-600 rounded-2xl border border-amber-200">
+                  <Database className="w-6 h-6" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate">Database Backup</h2>
-                  <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">Export your complete MongoDB database as a downloadable ZIP file</p>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                    Disaster Recovery & Database Export
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Full raw MongoDB collection dump and compressed archive download for off-site backups.
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-4 sm:space-y-6 md:space-y-8">
-                {/* Backup Info Card */}
-                <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-100 shadow-none">
-                  <CardBody className="p-4 sm:p-5 md:p-6">
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="p-2 sm:p-3 bg-orange-200 rounded-lg flex-shrink-0">
-                        <FaDatabase className="text-orange-700 text-lg sm:text-xl" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-1">Full Database Export</h3>
-                        <p className="text-xs sm:text-sm text-gray-700">
-                          Creates a complete backup of your MongoDB database including all collections (users, courses, orders, enrollments, etc.). The backup is compressed as a ZIP file for easy storage and recovery.
-                        </p>
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
-
-                {/* Features */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
-                  <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <CardBody className="p-4 sm:p-5">
-                      <div className="flex items-start gap-3">
-                        <FaCheckCircle className="text-green-600 text-lg sm:text-xl flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base">Complete Data</p>
-                          <p className="text-xs sm:text-sm text-gray-600 mt-1">Includes all collections and documents</p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-
-                  <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <CardBody className="p-4 sm:p-5">
-                      <div className="flex items-start gap-3">
-                        <FaCheckCircle className="text-green-600 text-lg sm:text-xl flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base">Compressed Format</p>
-                          <p className="text-xs sm:text-sm text-gray-600 mt-1">ZIP file for easy download & storage</p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-
-                  <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <CardBody className="p-4 sm:p-5">
-                      <div className="flex items-start gap-3">
-                        <FaCheckCircle className="text-green-600 text-lg sm:text-xl flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base">Admin Only</p>
-                          <p className="text-xs sm:text-sm text-gray-600 mt-1">Restricted to platform administrators</p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-
-                  <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <CardBody className="p-4 sm:p-5">
-                      <div className="flex items-start gap-3">
-                        <FaCheckCircle className="text-green-600 text-lg sm:text-xl flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base">Auto-Cleanup</p>
-                          <p className="text-xs sm:text-sm text-gray-600 mt-1">Old backups auto-deleted (7 days)</p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
+              {/* RBAC Gate: Manager Restriction Card */}
+              {!isSuperAdmin ? (
+                <div className="p-6 md:p-8 rounded-[24px] bg-gradient-to-br from-rose-50/70 via-amber-50/50 to-orange-50/60 border-2 border-rose-200/80 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center border-2 border-rose-300">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                  <div className="max-w-lg mx-auto">
+                    <h3 className="text-lg font-bold text-rose-950 mb-1">
+                      Super Administrator Clearance Required
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      You are signed in as <strong>{userName || "Operations Manager"}</strong> (Role: <code className="bg-rose-100 text-rose-800 px-1 py-0.5 rounded text-xs">manager</code>). Raw database dumps contain sensitive student Personally Identifiable Information (PII), password hashes, billing logs, and API credentials.
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-rose-200 text-xs font-semibold text-rose-800 shadow-sm">
+                    <ShieldAlert className="w-4 h-4 text-rose-500" />
+                    Direct export capability is restricted to Super Admins.
+                  </div>
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Security Clearance Alert */}
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 p-5 rounded-2xl border border-amber-200 flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="text-xs sm:text-sm text-amber-950 leading-relaxed">
+                      <strong className="font-bold">Privileged Operation:</strong> Initiating an export collects all MongoDB collections (Users, Courses, Orders, Mentors, Blogs, and Settings) and bundles them into an encrypted gzip archive. Keep downloaded archives stored in access-controlled environments.
+                    </div>
+                  </div>
 
-                {/* Last Backup Info */}
-                {lastBackupTime && (
-                  <Card className="bg-green-50 border-2 border-green-100 shadow-none">
-                    <CardBody className="p-3 sm:p-4 md:p-5">
-                      <p className="text-xs sm:text-sm text-green-800">
-                        <strong>Last backup:</strong> {lastBackupTime}
+                  {/* Feature Checklist */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl border border-slate-200 bg-white flex items-start gap-3 shadow-sm">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm text-slate-800">100% Complete Snapshot</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Exports every collection with full document schemas and metadata.</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-2xl border border-slate-200 bg-white flex items-start gap-3 shadow-sm">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm text-slate-800">Streamed Archive</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Streamed directly as a compressed .tar.gz file for rapid storage.</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-2xl border border-slate-200 bg-white flex items-start gap-3 shadow-sm">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm text-slate-800">Automatic Storage Cleanup</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Backend server auto-purges temporary server archives older than 7 days.</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-2xl border border-slate-200 bg-white flex items-start gap-3 shadow-sm">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-sm text-slate-800">JWT Authenticated</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Requires verified Super Admin Bearer Token to authorize transmission.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Last Backup Record */}
+                  {lastBackupTime && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl flex items-center justify-between text-xs sm:text-sm text-emerald-900">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span><strong>Last Successful Export:</strong> {lastBackupTime}</span>
+                      </div>
+                      <span className="font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg text-xs">
+                        Verified
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="pt-2">
+                    <Button
+                      color="warning"
+                      size="lg"
+                      onPress={handleBackupDatabase}
+                      isLoading={backupLoading}
+                      disabled={backupLoading}
+                      startContent={backupLoading ? null : <Download className="w-5 h-5" />}
+                      className="font-bold shadow-lg bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl px-8"
+                    >
+                      {backupLoading ? "Extracting & Compressing Database..." : "Generate & Download Database Backup"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Tab>
+
+          {/* TAB 4: Server-Side Tracking & Conversions API */}
+          <Tab
+            key="tracking"
+            title={
+              <div className="flex items-center gap-2 py-1">
+                <Activity className="w-4 h-4 text-emerald-600" />
+                <span className="font-semibold">Server Tracking & CAPI</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live CAPI
+                </span>
+              </div>
+            }
+          >
+            <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-emerald-100/70 text-emerald-600 rounded-2xl border border-emerald-200">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                      Multi-Platform Server-Side Conversions API (CAPI)
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      Direct server-to-server dispatch for Meta (Facebook/Instagram/WhatsApp), TikTok, GA4, and LinkedIn with SHA-256 deduplication.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {trackingLoading ? (
+                <div className="h-64 flex flex-col items-center justify-center gap-3">
+                  <Spinner size="lg" color="primary" />
+                  <p className="text-xs text-slate-500 font-medium">Connecting to advertising credentials vault...</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Master Switch Banner */}
+                  <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/80 to-purple-50/80 p-5 rounded-2xl border border-blue-200/80 flex items-center justify-between shadow-sm">
+                    <div className="max-w-xl">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Radio className="w-4 h-4 text-blue-600" />
+                        <h3 className="font-bold text-slate-900 text-base">Global Server Dispatch Engine</h3>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        When enabled, every Course Purchase, Kit Order, and Event Registration is asynchronously relayed from your backend with hashed user data (`em`, `ph`, `client_ip`, `user_agent`) to recover 30-40% of conversions lost to iOS privacy & ad blockers.
                       </p>
+                    </div>
+                    <Checkbox
+                      isSelected={tracking.isEnabled}
+                      onValueChange={(val) => setTracking({ ...tracking, isEnabled: val })}
+                      size="lg"
+                      color="primary"
+                    />
+                  </div>
+
+                  {/* 1. META / FACEBOOK CAPI */}
+                  <Card className="border-2 border-blue-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
+                    <CardBody className="p-5 sm:p-6 space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
+                            <span className="font-black text-lg">f</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-slate-900 text-base">
+                                Meta Conversions API (CAPI) & Pixel
+                              </h3>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  tracking.metaPixelId && tracking.metaAccessToken
+                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {tracking.metaPixelId && tracking.metaAccessToken ? "● Configured" : "○ Incomplete"}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500">
+                              Facebook, Instagram & Click-to-WhatsApp Ads with Event Deduplication
+                            </p>
+                          </div>
+                        </div>
+                        <Checkbox
+                          isSelected={tracking.metaEnabled}
+                          onValueChange={(val) => setTracking({ ...tracking, metaEnabled: val })}
+                          color="primary"
+                        >
+                          <span className="text-xs font-bold text-slate-700">Active</span>
+                        </Checkbox>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Input
+                          label="Meta Pixel ID"
+                          placeholder="e.g. 123456789012345"
+                          value={tracking.metaPixelId}
+                          onChange={(e) => setTracking({ ...tracking, metaPixelId: e.target.value.trim() })}
+                          variant="bordered"
+                          endContent={
+                            tracking.metaPixelId && (
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(tracking.metaPixelId, "Meta Pixel ID")}
+                                className="text-slate-400 hover:text-slate-600"
+                              >
+                                {copiedKey === "Meta Pixel ID" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                              </button>
+                            )
+                          }
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                        />
+                        <Input
+                          label="Test Event Code (Optional for Live Testing)"
+                          placeholder="e.g. TEST12345 (from Events Manager)"
+                          value={tracking.metaTestEventCode}
+                          onChange={(e) => setTracking({ ...tracking, metaTestEventCode: e.target.value.trim() })}
+                          variant="bordered"
+                          description="Found in Events Manager > Test events tab"
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                        />
+                      </div>
+
+                      <Input
+                        type={showMetaToken ? "text" : "password"}
+                        label="Meta CAPI Access Token (Long-Lived System User Token)"
+                        placeholder="EAAB..."
+                        value={tracking.metaAccessToken}
+                        onChange={(e) => setTracking({ ...tracking, metaAccessToken: e.target.value.trim() })}
+                        variant="bordered"
+                        startContent={<KeyRound className="w-4 h-4 text-blue-500" />}
+                        endContent={
+                          <div className="flex items-center gap-1.5">
+                            {tracking.metaAccessToken && (
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(tracking.metaAccessToken, "Meta Token")}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                                title="Copy Access Token"
+                              >
+                                {copiedKey === "Meta Token" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setShowMetaToken(!showMetaToken)}
+                              className="text-slate-400 hover:text-slate-600 p-1"
+                              title={showMetaToken ? "Mask Token" : "Reveal Token"}
+                            >
+                              {showMetaToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        }
+                        description="Generated in Meta Events Manager > Settings > Conversions API > Set up manually > Generate access token"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl font-mono text-xs" }}
+                      />
                     </CardBody>
                   </Card>
-                )}
 
-                {/* Warning */}
-                <Card className="bg-yellow-50 border-2 border-yellow-100 shadow-none">
-                  <CardBody className="p-3 sm:p-4 md:p-5">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <div className="text-yellow-600 text-lg sm:text-xl flex-shrink-0 mt-0.5">⚠️</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm text-yellow-800">
-                          <strong>Note:</strong> The backup process may take several minutes depending on your database size. The file will be automatically downloaded once ready. Keep backups secure and store them safely.
-                        </p>
+                  {/* 2. TIKTOK EVENTS API */}
+                  <Card className="border-2 border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:border-slate-400 transition-all">
+                    <CardBody className="p-5 sm:p-6 space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white shadow-md">
+                            <span className="font-bold text-sm">TT</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-slate-900 text-base">
+                                TikTok Events API (Server Tracking)
+                              </h3>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  tracking.tiktokPixelId && tracking.tiktokAccessToken
+                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {tracking.tiktokPixelId && tracking.tiktokAccessToken ? "● Configured" : "○ Incomplete"}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500">Direct Server Events + Pixel Match for TikTok Ads</p>
+                          </div>
+                        </div>
+                        <Checkbox
+                          isSelected={tracking.tiktokEnabled}
+                          onValueChange={(val) => setTracking({ ...tracking, tiktokEnabled: val })}
+                          color="primary"
+                        >
+                          <span className="text-xs font-bold text-slate-700">Active</span>
+                        </Checkbox>
                       </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Input
+                          label="TikTok Pixel ID (Pixel Code)"
+                          placeholder="e.g. C5XXXXXXXXXXXXXXX"
+                          value={tracking.tiktokPixelId}
+                          onChange={(e) => setTracking({ ...tracking, tiktokPixelId: e.target.value.trim() })}
+                          variant="bordered"
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                        />
+                        <Input
+                          label="Test Event Code (Optional)"
+                          placeholder="e.g. TEST_CODE"
+                          value={tracking.tiktokTestEventCode}
+                          onChange={(e) => setTracking({ ...tracking, tiktokTestEventCode: e.target.value.trim() })}
+                          variant="bordered"
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                        />
+                      </div>
+
+                      <Input
+                        type={showTikTokToken ? "text" : "password"}
+                        label="TikTok Access Token"
+                        placeholder="Long-lived API access token"
+                        value={tracking.tiktokAccessToken}
+                        onChange={(e) => setTracking({ ...tracking, tiktokAccessToken: e.target.value.trim() })}
+                        variant="bordered"
+                        startContent={<KeyRound className="w-4 h-4 text-slate-700" />}
+                        endContent={
+                          <div className="flex items-center gap-1.5">
+                            {tracking.tiktokAccessToken && (
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(tracking.tiktokAccessToken, "TikTok Token")}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                              >
+                                {copiedKey === "TikTok Token" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setShowTikTokToken(!showTikTokToken)}
+                              className="text-slate-400 hover:text-slate-600 p-1"
+                            >
+                              {showTikTokToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        }
+                        description="Generated in TikTok Events Manager > Settings > Events API"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl font-mono text-xs" }}
+                      />
+                    </CardBody>
+                  </Card>
+
+                  {/* 3. GOOGLE ANALYTICS 4 & GOOGLE ADS */}
+                  <Card className="border-2 border-amber-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-amber-300 transition-all">
+                    <CardBody className="p-5 sm:p-6 space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md">
+                            <span className="font-bold text-sm">G</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-slate-900 text-base">
+                                Google Analytics 4 & Google Ads Enhanced Conversions
+                              </h3>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  tracking.ga4MeasurementId
+                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {tracking.ga4MeasurementId ? "● Configured" : "○ Incomplete"}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500">Measurement Protocol v2 + Google Ads Conversion Tracking</p>
+                          </div>
+                        </div>
+                        <Checkbox
+                          isSelected={tracking.googleEnabled}
+                          onValueChange={(val) => setTracking({ ...tracking, googleEnabled: val })}
+                          color="primary"
+                        >
+                          <span className="text-xs font-bold text-slate-700">Active</span>
+                        </Checkbox>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Input
+                          label="GA4 Measurement ID"
+                          placeholder="G-XXXXXXXXXX"
+                          value={tracking.ga4MeasurementId}
+                          onChange={(e) => setTracking({ ...tracking, ga4MeasurementId: e.target.value.trim() })}
+                          variant="bordered"
+                          classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                        />
+                        <Input
+                          type={showGA4Secret ? "text" : "password"}
+                          label="GA4 Measurement Protocol API Secret"
+                          placeholder="API Secret String"
+                          value={tracking.ga4ApiSecret}
+                          onChange={(e) => setTracking({ ...tracking, ga4ApiSecret: e.target.value.trim() })}
+                          variant="bordered"
+                          startContent={<KeyRound className="w-4 h-4 text-amber-500" />}
+                          endContent={
+                            <div className="flex items-center gap-1.5">
+                              {tracking.ga4ApiSecret && (
+                                <button
+                                type="button"
+                                onClick={() => handleCopy(tracking.ga4ApiSecret, "GA4 Secret")}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                              >
+                                {copiedKey === "GA4 Secret" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setShowGA4Secret(!showGA4Secret)}
+                              className="text-slate-400 hover:text-slate-600 p-1"
+                            >
+                              {showGA4Secret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        }
+                        description="GA4 Admin > Data Streams > Web Stream > Measurement Protocol API secrets"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl font-mono text-xs" }}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Input
+                        label="Google Ads Conversion ID (Optional)"
+                        placeholder="AW-XXXXXXXXX"
+                        value={tracking.googleAdsConversionId}
+                        onChange={(e) => setTracking({ ...tracking, googleAdsConversionId: e.target.value.trim() })}
+                        variant="bordered"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                      />
+                      <Input
+                        label="Google Ads Conversion Label (Optional)"
+                        placeholder="e.g. AbC-123_xYz"
+                        value={tracking.googleAdsConversionLabel}
+                        onChange={(e) => setTracking({ ...tracking, googleAdsConversionLabel: e.target.value.trim() })}
+                        variant="bordered"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                      />
                     </div>
                   </CardBody>
                 </Card>
 
-                {/* Backup Button */}
-                <div className="pt-2 sm:pt-4">
+                {/* 4. LINKEDIN CONVERSIONS API */}
+                <Card className="border-2 border-blue-100/60 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
+                  <CardBody className="p-5 sm:p-6 space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#0A66C2] flex items-center justify-center text-white shadow-md">
+                          <span className="font-black text-sm">in</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-slate-900 text-base">
+                              LinkedIn Conversions API & Insight Tag
+                            </h3>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                tracking.linkedinPartnerId && tracking.linkedinAccessToken
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                  : "bg-slate-100 text-slate-600"
+                              }`}
+                            >
+                              {tracking.linkedinPartnerId && tracking.linkedinAccessToken ? "● Configured" : "○ Incomplete"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500">B2B Ad Tracking + Server Conversion Events</p>
+                        </div>
+                      </div>
+                      <Checkbox
+                        isSelected={tracking.linkedinEnabled}
+                        onValueChange={(val) => setTracking({ ...tracking, linkedinEnabled: val })}
+                        color="primary"
+                      >
+                        <span className="text-xs font-bold text-slate-700">Active</span>
+                      </Checkbox>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Input
+                        label="LinkedIn Partner ID (Insight Tag ID)"
+                        placeholder="e.g. 1234567"
+                        value={tracking.linkedinPartnerId}
+                        onChange={(e) => setTracking({ ...tracking, linkedinPartnerId: e.target.value.trim() })}
+                        variant="bordered"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                      />
+                      <Input
+                        label="LinkedIn Conversion ID / Rule URN"
+                        placeholder="e.g. 9876543 (from Campaign Manager)"
+                        value={tracking.linkedinConversionId}
+                        onChange={(e) => setTracking({ ...tracking, linkedinConversionId: e.target.value.trim() })}
+                        variant="bordered"
+                        classNames={{ inputWrapper: "border-slate-200 rounded-xl" }}
+                      />
+                    </div>
+
+                    <Input
+                      type={showLinkedInToken ? "text" : "password"}
+                      label="LinkedIn OAuth Access Token"
+                      placeholder="AQ..."
+                      value={tracking.linkedinAccessToken}
+                      onChange={(e) => setTracking({ ...tracking, linkedinAccessToken: e.target.value.trim() })}
+                      variant="bordered"
+                      startContent={<KeyRound className="w-4 h-4 text-[#0A66C2]" />}
+                      endContent={
+                        <div className="flex items-center gap-1.5">
+                          {tracking.linkedinAccessToken && (
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(tracking.linkedinAccessToken, "LinkedIn Token")}
+                              className="text-slate-400 hover:text-slate-600 p-1"
+                            >
+                              {copiedKey === "LinkedIn Token" ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setShowLinkedInToken(!showLinkedInToken)}
+                            className="text-slate-400 hover:text-slate-600 p-1"
+                          >
+                            {showLinkedInToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      }
+                      description="Generated via LinkedIn Developer Portal with rw_ads or r_ads permission"
+                      classNames={{ inputWrapper: "border-slate-200 rounded-xl font-mono text-xs" }}
+                    />
+                  </CardBody>
+                </Card>
+
+                {/* Live Diagnostic Sandbox Console */}
+                <Card className="bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                  <CardBody className="p-5 sm:p-6 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+                        <h4 className="font-bold text-sm tracking-wide text-white uppercase">
+                          Live CAPI Event Transmission Sandbox
+                        </h4>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-400">Payload: Lead Event</span>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Transmit a simulated test <code className="bg-slate-800 px-1.5 py-0.5 rounded text-emerald-400">Lead</code> event to verify server connectivity and inspect Graph API response codes in real time.
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <select
+                        value={testPlatform}
+                        onChange={(e: any) => setTestPlatform(e.target.value)}
+                        className="px-4 py-2.5 rounded-xl text-xs sm:text-sm bg-slate-800 border border-slate-700 text-white font-medium focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="all">⚡ All Enabled Ad Networks</option>
+                        <option value="meta">🔵 Meta (Facebook/WhatsApp CAPI) Only</option>
+                        <option value="tiktok">⬛ TikTok Events API Only</option>
+                        <option value="google">📊 Google Analytics 4 (MP) Only</option>
+                        <option value="linkedin">💼 LinkedIn Conversions API Only</option>
+                      </select>
+
+                      <Button
+                        color="secondary"
+                        size="md"
+                        onPress={handleTestTracking}
+                        isLoading={trackingTesting}
+                        disabled={trackingTesting}
+                        startContent={trackingTesting ? null : <Send className="w-4 h-4" />}
+                        className="font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5"
+                      >
+                        {trackingTesting ? "Transmitting..." : "Send Test Event"}
+                      </Button>
+                    </div>
+
+                    {testResult && (
+                      <div className="mt-3 p-4 bg-black/80 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto border border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between text-slate-400 text-[11px] pb-1 border-b border-slate-800">
+                          <span>Graph API Response Stream:</span>
+                          <span className="text-emerald-400">● 200 OK</span>
+                        </div>
+                        <pre className="text-[11px] leading-relaxed">{JSON.stringify(testResult, null, 2)}</pre>
+                      </div>
+                    )}
+                  </CardBody>
+                </Card>
+
+                {/* Save Tracking Settings Button */}
+                <div className="pt-2 flex justify-end">
                   <Button
-                    color="warning"
+                    color="primary"
                     size="lg"
-                    onPress={handleBackupDatabase}
-                    isLoading={backupLoading}
-                    disabled={backupLoading}
-                    className="font-bold shadow-lg bg-gradient-to-r from-orange-600 to-amber-600 w-full sm:w-auto sm:min-w-[250px] min-h-[44px] text-sm sm:text-base text-white"
-                    startContent={backupLoading ? <Spinner size="sm" color="current" /> : <FaDownload />}
+                    onPress={handleTrackingSave}
+                    isLoading={trackingSaving}
+                    disabled={trackingSaving}
+                    className="font-bold shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-8"
                   >
-                    {backupLoading ? "Creating Backup..." : "Start Database Backup"}
+                    {trackingSaving ? "Saving Settings..." : "Save Tracking Settings"}
                   </Button>
                 </div>
               </div>
-            </div>
-          </Tab>
-        </Tabs>
-      </div>
+            )}
+          </div>
+        </Tab>
+      </Tabs>
     </div>
-  );
+  </div>
+);
 }

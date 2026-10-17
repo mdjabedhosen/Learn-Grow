@@ -166,7 +166,7 @@ export default function EnrollmentSection() {
                 <Button
                   fullWidth
                   size="lg"
-                  color={plan.color}
+                  color={plan.color as "default" | "primary" | "secondary" | "success" | "warning" | "danger"}
                   variant={plan.id === "quarterly" ? "solid" : "bordered"}
                   onPress={plan.action}
                   className={`font-bold ${

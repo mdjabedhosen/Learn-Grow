@@ -55,6 +55,7 @@ import {
     useGenerateCertificateMutation,
     useGetCertificateQuery,
 } from "@/redux/api/certificateApi";
+import { useGetStudentBatchQuery } from "@/redux/api/batchApi";
 import CertificateComponent from "@/components/certificate/CertificateComponent";
 import { toast } from "react-toastify";
 
@@ -184,7 +185,11 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
     });
     const certificate = certificateResponse?.data || null;
 
-
+    // Fetch student's assigned batch for this course (Micro-batch rule)
+    const { data: studentBatchRes } = useGetStudentBatchQuery(courseId, {
+        skip: !courseId || !authChecked || !isAuthorized,
+    });
+    const batchData = studentBatchRes?.data || null;
 
     const modules: Module[] = courseData?.modules || [];
 
@@ -692,24 +697,72 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 md:gap-5">
                         {/* Left: Course Info */}
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-start gap-3 mb-3">
-                                <Avatar
-                                    src={courseData.instructorId?.avatar}
-                                    name={courseData.instructorId?.name}
-                                    size="lg"
-                                    className="flex-shrink-0 ring-2 ring-blue-100"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1.5 line-clamp-2 leading-tight">
-                                        {courseData.title}
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5 mb-2">
-                                        <FaGraduationCap className="text-blue-600 flex-shrink-0 text-sm" />
-                                        <span className="truncate font-medium">{courseData.instructorId?.name || "Unknown"}</span>
-                                    </p>
+                            {(() => {
+                                const assignedTeacher = batchData?.assignedInstructor || courseData.instructorId;
+                                return (
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <Avatar
+                                            src={assignedTeacher?.profileImage || assignedTeacher?.avatar}
+                                            name={assignedTeacher?.name || "Instructor"}
+                                            size="lg"
+                                            className="flex-shrink-0 ring-2 ring-blue-100"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1.5 line-clamp-2 leading-tight">
+                                                {courseData.title}
+                                            </h1>
+                                            <div className="flex items-center gap-2 flex-wrap mb-2">
+                                                <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5">
+                                                    <FaGraduationCap className="text-blue-600 flex-shrink-0 text-sm" />
+                                                    <span className="truncate font-semibold text-gray-900">
+                                                        {assignedTeacher?.name || "Lead Mentor"}
+                                                    </span>
+                                                </p>
+                                                {batchData && (
+                                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-600 text-white shadow-xs">
+                                                        {batchData.batchName || `Batch ${batchData.batchNumber}`}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
+                            {/* Batch details & Live links if assigned */}
+                            {batchData && (
+                                <div className="mb-3 p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 rounded-xl flex flex-wrap items-center justify-between gap-2.5">
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <span className="font-bold text-blue-900">
+                                            📅 {batchData.schedule || "Regular Class Schedule"}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        {batchData.zoomLink && (
+                                            <a
+                                                href={batchData.zoomLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs"
+                                            >
+                                                <FaVideo className="text-xs" />
+                                                Join Live Class
+                                            </a>
+                                        )}
+                                        {batchData.whatsappGroupUrl && (
+                                            <a
+                                                href={batchData.whatsappGroupUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs"
+                                            >
+                                                WhatsApp Group
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Status Badge */}
                             <div className="flex items-center gap-2 flex-wrap">

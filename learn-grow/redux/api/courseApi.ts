@@ -54,7 +54,7 @@ export const courseApi = baseApi.injectEndpoints({
             }),
             providesTags: ["Course"],
         }),
-        getFeaturedCourses: build.query({
+        getFeaturedCourses: build.query<any, void>({
             query: () => ({ url: "/course/get-featured-courses", method: "GET" }),
             providesTags: ["Course"],
         }),

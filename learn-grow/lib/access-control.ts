@@ -3,10 +3,12 @@ import { IAccessStatus } from "@/types/combo.types";
 /**
  * Check if access is still valid
  */
-export const hasValidAccess = (accessEndDate: string | null | undefined): boolean => {
+export const hasValidAccess = (accessEndDate: string | null | undefined | { accessEndDate?: string | null }): boolean => {
   if (!accessEndDate) return true; // null = lifetime
+  const endDate = typeof accessEndDate === "object" && accessEndDate !== null ? accessEndDate.accessEndDate : accessEndDate;
+  if (!endDate) return true;
   const now = new Date();
-  return new Date(accessEndDate) > now;
+  return new Date(endDate) > now;
 };
 
 /**
@@ -79,10 +81,10 @@ export const getAccessStatus = (accessEndDate: string | null | undefined): IAcce
 /**
  * Format date for display
  */
-export const formatDate = (dateString: string | undefined | null): string => {
+export const formatDate = (dateString: string | Date | undefined | null): string => {
   if (!dateString) return "Lifetime";
 
-  const date = new Date(dateString);
+  const date = typeof dateString === "string" ? new Date(dateString) : dateString;
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",

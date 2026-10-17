@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import * as service from "../service/course.service";
 import { parsePagination } from "@/utils/pagination";
 import { Course } from "../model/course.model";
 import { Module } from "../model/module.model";
 import { Lesson } from "../model/lesson.model";
 import { deleteFromCloudinary } from "@/utils/cloudinary";
+import { escapeRegex } from "@/utils/sanitizeSearch";
 
 // Helpers to enforce instructor ownership
 const ensureCourseAccess = async (
@@ -15,8 +17,33 @@ const ensureCourseAccess = async (
   const course = await Course.findById(courseId);
   if (!course) return { status: 404, message: "Course not found" } as const;
 
-  if (userRole === "instructor" && course.instructorId.toString() !== userId) {
-    return { status: 403, message: "Forbidden" } as const;
+  if (userRole === "admin" || userRole === "manager") {
+    return { status: 200, course } as const;
+  }
+
+  if (userRole === "instructor" && userId) {
+    const isPrimary = course.instructorId?.toString() === userId;
+    const isCoInstructor = Array.isArray(course.instructorIds) && course.instructorIds.some(
+      (id: any) => (id?._id ? id._id.toString() : id?.toString()) === userId
+    );
+
+    let isBatchInstructor = false;
+    try {
+      const { Batch } = await import("../../batch/model/batch.model");
+      if (Types.ObjectId.isValid(userId)) {
+        const batchCount = await Batch.countDocuments({
+          courseId: course._id,
+          instructorId: new Types.ObjectId(userId),
+        });
+        if (batchCount > 0) isBatchInstructor = true;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    if (!isPrimary && !isCoInstructor && !isBatchInstructor) {
+      return { status: 403, message: "Forbidden" } as const;
+    }
   }
 
   return { status: 200, course } as const;
@@ -181,10 +208,13 @@ export const getCoursesCount = async (req: Request, res: Response) => {
     if (req.query.isFeatured !== undefined) filters.isFeatured = req.query.isFeatured === "true";
     if (req.query.isRegistrationOpen !== undefined) filters.isRegistrationOpen = req.query.isRegistrationOpen === "true";
     if (req.query.search) {
-      filters.$or = [
-        { title: { $regex: req.query.search, $options: "i" } },
-        { description: { $regex: req.query.search, $options: "i" } },
-      ];
+      const safeSearch = escapeRegex(req.query.search);
+      if (safeSearch) {
+        filters.$or = [
+          { title: { $regex: safeSearch, $options: "i" } },
+          { description: { $regex: safeSearch, $options: "i" } },
+        ];
+      }
     }
 
     // Instructors see only their courses
@@ -380,7 +410,13 @@ export const deleteCourse = async (req: Request, res: Response) => {
 export const getCoursesByInstructor = async (req: Request, res: Response) => {
   try {
     const targetInstructorId =
-      req.userRole === "instructor" ? req.userId! : req.params.instructorId;
+      req.params.instructorId && req.params.instructorId !== "undefined"
+        ? req.params.instructorId
+        : (req.userId || (req as any).user?._id || (req as any).user?.id);
+
+    if (!targetInstructorId) {
+      return res.status(400).json({ success: false, message: "Instructor ID is required" });
+    }
 
     const { page, limit } = parsePagination(req.query, { defaultLimit: 12, maxLimit: 200 });
     const search = typeof req.query.search === "string" ? req.query.search : undefined;

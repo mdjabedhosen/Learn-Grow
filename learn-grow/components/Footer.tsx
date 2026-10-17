@@ -1,13 +1,15 @@
 "use client";
 import React from "react";
 import { FaFacebookF, FaLinkedinIn, FaInstagram, FaYoutube } from "react-icons/fa";
-import { MdLocationOn, MdEmail, MdPhone } from "react-icons/md";
+import { MdLocationOn, MdEmail } from "react-icons/md";
+import { FaWhatsapp } from "react-icons/fa";
 import Image from "next/image";
 import NextLink from "next/link";
 import Link from "next/link";
 
 import Logo from "@/public/logo.png";
 import { siteConfig } from "@/config/site";
+import { LearnGrowBrand } from "@/components/LearnGrowBrand";
 
 const Footer: React.FC = () => {
   return (
@@ -17,15 +19,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-10 border-b border-gray-700">
           {/* Column 1: Logo & Description */}
           <div className="lg:col-span-1 space-y-4">
-            <NextLink className="flex items-center gap-2 group" href="/">
-              <Image
-                alt="Learn and Grow logo"
-                className="w-10 h-10"
-                src={Logo}
-              />
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                {siteConfig.name}
-              </span>
+            <NextLink className="inline-block group select-none" href="/" title="Learn & Grow Home">
+              <LearnGrowBrand className="h-7 w-auto text-white group-hover:text-blue-400 transition-colors" />
             </NextLink>
             <p className="text-sm text-gray-400">
               Empowering students with quality education in Programming, Robotics, Math, and Science.
@@ -52,6 +47,14 @@ const Footer: React.FC = () => {
                   href="/blog"
                 >
                   Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-blue-400 transition-colors"
+                  href="/events"
+                >
+                  Events & Workshops
                 </Link>
               </li>
               <li>
@@ -180,14 +183,16 @@ const Footer: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <MdPhone className="text-blue-400 text-lg mt-0.5 flex-shrink-0" />
+                <FaWhatsapp className="text-green-400 text-lg mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-gray-400 text-xs mb-0.5">Phone:</p>
+                  <p className="text-gray-400 text-xs mb-0.5">WhatsApp:</p>
                   <a
-                    href="tel:+8801706274644"
-                    className="hover:text-blue-400 transition-colors"
+                    href="https://wa.me/8801706276447"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-green-400 transition-colors"
                   >
-                    +880-1706274644
+                    +880-1706276447
                   </a>
                 </div>
               </div>

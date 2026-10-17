@@ -196,15 +196,23 @@ export default function EditBlogPage() {
         toast.error("Excerpt is required");
         return;
       }
+      if (!formData.categoryId) {
+        toast.error("Category is required");
+        return;
+      }
+      if (!blogResponse?.data?._id) {
+        toast.error("Blog is still loading. Please try again.");
+        return;
+      }
 
       await updateBlog({
-        id: blogSlug,
+        id: blogResponse?.data?._id,
         title: formData.title,
         slug: formData.slug,
         excerpt: formData.excerpt,
         content: formData.content,
         image: formData.image,
-        categoryId: formData.categoryId,
+        category: formData.categoryId,
         metaTags: formData.metaTags
           .split(",")
           .map((tag: string) => tag.trim())

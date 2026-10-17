@@ -44,7 +44,8 @@ export const getAllEvents = async (req: Request, res: Response) => {
 
 export const getEventById = async (req: Request, res: Response) => {
   try {
-    const event = await service.getEventById(req.params.id);
+    const isAdmin = (req as any).user?.role === "admin";
+    const event = await service.getEventById(req.params.id, isAdmin);
     
     if (!event) {
       return res.status(404).json({
@@ -311,12 +312,31 @@ export const registerForEvent = async (req: Request, res: Response) => {
     });
     
     // Send confirmation email
-    await notificationService.sendRegistrationConfirmation(registration, event);
+    try {
+      await notificationService.sendRegistrationConfirmation(registration, event);
+    } catch (emailErr) {
+      console.error("[Email Notification] Could not send confirmation email:", emailErr);
+    }
     
     res.status(201).json({
       success: true,
       message: "Registration successful! Confirmation email sent.",
-      data: registration,
+      data: {
+        registration,
+        meetingLink: event.mode === "Online" ? event.meetingLink : undefined,
+        platformType: event.platformType,
+        platformInstructions: event.platformInstructions,
+        event: {
+          _id: event._id,
+          title: event.title,
+          mode: event.mode,
+          eventDate: event.eventDate,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          venueName: event.venueName,
+          venueAddress: event.venueAddress,
+        },
+      },
     });
   } catch (error: any) {
     res.status(400).json({

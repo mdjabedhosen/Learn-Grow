@@ -28,6 +28,9 @@ import analyticsRoutes from "./modules/analytics/analytics.route.js";
 import ticketRoutes from "./modules/ticket/route/ticket.route.js";
 import contactRoutes from "./modules/contact/routes/contact.route.js";
 import certificateRoutes from "./modules/certificate/routes/certificate.routes.js";
+import trialBookingRoutes from "./modules/trialBooking/routes/trialBooking.route.js";
+import batchRoutes from "./modules/batch/routes/batch.route.js";
+import trackingRoutes from "./modules/tracking/routes/tracking.route.js";
 import { ENV } from "./config/env.js";
 import "./config/passport.js";
 // Security middleware imports
@@ -59,22 +62,28 @@ export const createApp = () => {
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void
     ) => {
-      // Allowed origins list
-      const allowedOrigins = [
-        ENV.FRONTEND_URL,
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-        "https://learnandgrow.io",
-        "https://www.learnandgrow.io"
-       
-      ];
+      // Allowed origins: Strictly locked down to https://learnandgrow.io
+      const allowedOrigins = ENV.NODE_ENV === "production"
+        ? [
+            "https://learnandgrow.io",
+            "https://www.learnandgrow.io",
+          ]
+        : [
+            "https://learnandgrow.io",
+            "https://www.learnandgrow.io",
+            "http://localhost:3000",
+            "http://localhost:3001",
+          ];
 
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Normalize incoming origin (remove trailing slashes)
+      const normalizedOrigin = origin?.replace(/\/+$/, "");
+
+      // Allow requests with no origin (mobile native apps, internal server-to-server, or curl)
+      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Allow for now, but log it
+        console.error(`[CORS Blocked] Unauthorized origin: ${origin}. Only https://learnandgrow.io is allowed.`);
+        callback(new Error(`CORS blocked: Only https://learnandgrow.io is permitted.`));
       }
     },
     credentials: true,
@@ -201,6 +210,10 @@ export const createApp = () => {
   mountApiRoute("/v1/site-content", siteContentRoutes);
   mountApiRoute("/settings", settingsRoutes);
   mountApiRoute("/v1/settings", settingsRoutes);
+  mountApiRoute("/trial-booking", trialBookingRoutes);
+  mountApiRoute("/trials", trialBookingRoutes);
+  mountApiRoute("/batches", batchRoutes);
+  mountApiRoute("/tracking", trackingRoutes);
 
   // 404 handler - Ensure CORS headers on 404
   app.use((_req, res) => {

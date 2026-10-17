@@ -55,28 +55,32 @@ export const siteConfig = {
   address: "Your Business Address",
   navItems: [
     {
-      label: "Home",
-      href: "/",
-    },
-    {
       label: "Courses",
       href: "/courses",
     },
     {
-      label: "About",
-      href: "/about",
-    },
-    {
-      label: "Services",
-      href: "/services",
+      label: "Tutors",
+      href: "/tutors",
     },
     {
       label: "Events",
       href: "/events",
     },
     {
+      label: "About",
+      href: "/about",
+    },
+    {
+      label: "FAQ",
+      href: "/faq",
+    },
+    {
       label: "Blog",
       href: "/blog",
+    },
+    {
+      label: "Contact",
+      href: "/contact",
     },
   ],
   navMenuItems: [

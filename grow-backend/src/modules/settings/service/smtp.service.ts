@@ -9,9 +9,27 @@ export const getSMTPConfig = async () => {
     const config = await SMTPConfig.findOne({ isActive: true }).select("-password").lean();
     
     if (!config) {
+      // Check if environment variables are available as fallback
+      if (process.env.EMAIL_HOST && process.env.EMAIL_USER) {
+        return {
+          success: true,
+          message: "SMTP configuration loaded from environment variables",
+          data: {
+            host: process.env.EMAIL_HOST,
+            port: Number(process.env.EMAIL_PORT) || 587,
+            secure: process.env.EMAIL_SECURE === "true",
+            user: process.env.EMAIL_USER,
+            fromName: process.env.EMAIL_FROM_NAME || "Learn & Grow",
+            fromEmail: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            replyTo: process.env.EMAIL_REPLY_TO,
+            source: "environment",
+          },
+        };
+      }
+
       return {
-        success: false,
-        message: "SMTP configuration not found in database. Please configure SMTP settings in admin panel.",
+        success: true,
+        message: "SMTP configuration not set yet. Please configure SMTP settings.",
         data: null,
       };
     }
@@ -173,21 +191,33 @@ export const getSMTPTransporter = async () => {
   try {
     const configDoc = await SMTPConfig.findOne({ isActive: true }).select("+password").lean();
 
-    if (!configDoc) {
-      throw new Error(
-        "SMTP configuration not found in database. Please configure SMTP settings in admin panel."
-      );
+    if (configDoc) {
+      return nodemailer.createTransport({
+        host: configDoc.host,
+        port: configDoc.port,
+        secure: configDoc.secure,
+        auth: {
+          user: configDoc.user,
+          pass: configDoc.password,
+        },
+      });
     }
 
-    return nodemailer.createTransport({
-      host: configDoc.host,
-      port: configDoc.port,
-      secure: configDoc.secure,
-      auth: {
-        user: configDoc.user,
-        pass: configDoc.password,
-      },
-    });
+    if (process.env.EMAIL_HOST && process.env.EMAIL_USER && (process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD)) {
+      return nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_PORT) || 587,
+        secure: process.env.EMAIL_SECURE === "true",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD,
+        },
+      });
+    }
+
+    throw new Error(
+      "SMTP configuration not found. Please configure SMTP settings in the dashboard or environment variables."
+    );
   } catch (error: any) {
     throw error;
   }

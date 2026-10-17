@@ -20,7 +20,7 @@ router.get("/", teamController.getAllTeamMembers);
 router.post(
     "/",
     requireAuth,
-    requireRoles("admin"),
+    requireRoles("admin", "manager"),
     validate(createTeamMemberSchema),
     teamController.createTeamMember
 );
@@ -28,7 +28,7 @@ router.post(
 router.patch(
     "/:id",
     requireAuth,
-    requireRoles("admin"),
+    requireRoles("admin", "manager"),
     validate(updateTeamMemberSchema),
     teamController.updateTeamMember
 );
@@ -36,27 +36,27 @@ router.patch(
 router.patch(
     "/:id/toggle-home",
     requireAuth,
-    requireRoles("admin"),
+    requireRoles("admin", "manager"),
     validate(toggleShowHomeSchema),
     teamController.toggleShowHome
 );
 
-router.delete("/:id", requireAuth, requireRoles("admin"), teamController.deleteTeamMember);
+router.delete("/:id", requireAuth, requireRoles("admin", "manager"), teamController.deleteTeamMember);
 
 // Import instructors route
 router.post(
     "/import/instructors",
     requireAuth,
-    requireRoles("admin"),
+    requireRoles("admin", "manager"),
     validate(importInstructorSchema),
     teamController.importInstructors
 );
 
 // Get approved instructors for import preview
-router.get("/import/approved/instructors", requireAuth, requireRoles("admin"), teamController.getApprovedInstructors);
+router.get("/import/approved/instructors", requireAuth, requireRoles("admin", "manager"), teamController.getApprovedInstructors);
 
 // Position management routes
-router.post("/reorder", requireAuth, requireRoles("admin"), teamController.reorderMembers);
-router.patch("/:id/position", requireAuth, requireRoles("admin"), teamController.updateMemberPosition);
+router.post("/reorder", requireAuth, requireRoles("admin", "manager"), teamController.reorderMembers);
+router.patch("/:id/position", requireAuth, requireRoles("admin", "manager"), teamController.updateMemberPosition);
 
 export default router;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 
@@ -20,6 +20,7 @@ import {
   ModalFooter,
   useDisclosure,
   Divider,
+  Avatar,
 } from "@nextui-org/react";
 import { useRouter, useSearchParams } from "next/navigation";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -28,6 +29,11 @@ import {
   useUpdateCourseMutation,
 } from "@/redux/api/courseApi";
 import { useGetAllCategoriesQuery, useCreateCategoryMutation } from "@/redux/api/categoryApi";
+import {
+  useGetApprovedInstructorsPublicQuery,
+  useGetAllInstructorsQuery,
+  useGetUsersAdminQuery,
+} from "@/redux/api/userApi";
 import {
   FaPlus,
   FaArrowLeft,
@@ -43,7 +49,9 @@ import {
   FaCalendarAlt,
   FaClock,
   FaCloudUploadAlt,
-  FaTrash
+  FaTrash,
+  FaUsers,
+  FaUserTie,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -65,6 +73,50 @@ function EditCourseContent() {
   const course = courseData?.data;
   const { data: categoriesData, isLoading: isCategoriesLoading } = useGetAllCategoriesQuery(undefined);
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
+  const { data: allInstructorsData } = useGetAllInstructorsQuery({ limit: 100 });
+  const { data: approvedInstructorsData } = useGetApprovedInstructorsPublicQuery();
+  const { data: adminInstructorsData } = useGetUsersAdminQuery({ role: "instructor", limit: 100 });
+  const { data: adminAdminsData } = useGetUsersAdminQuery({ role: "admin", limit: 50 });
+
+  const instructors = useMemo(() => {
+    const listA = allInstructorsData?.data || [];
+    const listB = approvedInstructorsData?.data || [];
+    const listC = adminInstructorsData?.data?.users || adminInstructorsData?.data || [];
+    const listD = adminAdminsData?.data?.users || adminAdminsData?.data || [];
+    const map = new Map();
+
+    [...listA, ...listB, ...listC, ...listD].forEach((ins: any) => {
+      if (ins && ins._id) {
+        map.set(ins._id.toString(), {
+          ...ins,
+          _id: ins._id.toString(),
+        });
+      }
+    });
+
+    // Also include current course instructor if populated
+    if (course?.instructorId && typeof course.instructorId === "object" && course.instructorId._id) {
+      const cId = course.instructorId._id.toString();
+      if (!map.has(cId)) {
+        map.set(cId, { ...course.instructorId, _id: cId });
+      }
+    }
+
+    // Also include any current co-instructors if populated
+    if (Array.isArray(course?.instructorIds)) {
+      course.instructorIds.forEach((ci: any) => {
+        if (ci && typeof ci === "object" && ci._id) {
+          const ciId = ci._id.toString();
+          if (!map.has(ciId)) {
+            map.set(ciId, { ...ci, _id: ciId });
+          }
+        }
+      });
+    }
+
+    return Array.from(map.values());
+  }, [allInstructorsData, approvedInstructorsData, adminInstructorsData, adminAdminsData, course]);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryDescription, setNewCategoryDescription] = useState("");
@@ -89,13 +141,26 @@ function EditCourseContent() {
     isRegistrationOpen: false,
     registrationDeadline: "",
     isPublished: true,
+    instructorId: "",
+    instructorIds: [] as string[],
+    maxBatchSize: 15,
   });
 
   useEffect(() => {
     if (course) {
       const categoryValue = typeof course.category === 'object' && course.category?._id
-        ? course.category._id
+        ? course.category._id.toString()
         : course.category || "";
+
+      const primaryInstId = course.instructorId?._id 
+        ? course.instructorId._id.toString() 
+        : course.instructorId ? course.instructorId.toString() : "";
+
+      const extraInstIds = Array.isArray(course.instructorIds)
+        ? course.instructorIds
+            .map((inst: any) => (typeof inst === 'object' && inst?._id ? inst._id.toString() : inst?.toString()))
+            .filter(Boolean)
+        : [];
 
       setFormData({
         title: course.title || "",
@@ -110,6 +175,9 @@ function EditCourseContent() {
         isRegistrationOpen: !!course.isRegistrationOpen,
         registrationDeadline: course.registrationDeadline ? new Date(course.registrationDeadline).toISOString().split('T')[0] : "",
         isPublished: course.isPublished ?? true,
+        instructorId: primaryInstId,
+        instructorIds: extraInstIds,
+        maxBatchSize: course.maxBatchSize || 15,
       });
       setThumbnailPreview(course.thumbnail || "");
       setThumbnailFile(null);
@@ -569,6 +637,126 @@ function EditCourseContent() {
                   startContent={<FaCalendarAlt className="text-gray-400" />}
                   className={!formData.isRegistrationOpen ? "opacity-50 pointer-events-none" : ""}
                 />
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Batches & Multi-Teacher Management */}
+          <Card className="shadow-md border border-blue-100 bg-white">
+            <CardBody className="p-6 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <FaUserTie className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">Course Teachers & Batch Setup</h3>
+                    <p className="text-xs text-gray-500">Assign lead instructor and co-instructors for 15-student micro batches</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary Instructor */}
+              <div>
+                <label className="text-xs font-bold text-gray-700 block mb-1">
+                  Primary Lead Instructor
+                </label>
+                <Select
+                  placeholder="Select Lead Instructor"
+                  selectedKeys={formData.instructorId ? new Set([formData.instructorId]) : new Set([])}
+                  onSelectionChange={(keys) => {
+                    const val = Array.from(keys)[0] as string;
+                    setFormData({ ...formData, instructorId: val });
+                  }}
+                  variant="bordered"
+                  size="sm"
+                >
+                  {instructors.map((inst: any) => (
+                    <SelectItem key={inst._id} textValue={inst.name || inst.email}>
+                      <div className="flex items-center gap-2">
+                        <Avatar src={inst.profileImage} name={inst.name} size="sm" className="w-5 h-5" />
+                        <span className="text-xs font-semibold">{inst.name} ({inst.email})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Multi-Instructors for Batches */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-gray-700">
+                    Assigned Teachers for Cohorts / Batches ({formData.instructorIds.length})
+                  </label>
+                  <span className="text-[11px] text-gray-400">Can manage student batches</span>
+                </div>
+                <div className="max-h-44 overflow-y-auto space-y-1.5 p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                  {instructors.length === 0 ? (
+                    <p className="text-xs text-gray-400 italic">No approved instructors found</p>
+                  ) : (
+                    instructors.map((inst: any) => {
+                      const isSelected = formData.instructorIds.includes(inst._id);
+                      return (
+                        <div
+                          key={inst._id}
+                          onClick={() => {
+                            const next = isSelected
+                              ? formData.instructorIds.filter((id) => id !== inst._id)
+                              : [...formData.instructorIds, inst._id];
+                            setFormData({ ...formData, instructorIds: next });
+                          }}
+                          className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors text-xs ${
+                            isSelected
+                              ? "bg-blue-100/70 border border-blue-300 font-bold text-blue-900"
+                              : "bg-white border border-gray-100 hover:bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              readOnly
+                              className="rounded text-blue-600 pointer-events-none"
+                            />
+                            <Avatar src={inst.profileImage} name={inst.name} size="sm" className="w-5 h-5" />
+                            <span>{inst.name}</span>
+                          </div>
+                          <span className="text-[10px] text-gray-400 truncate max-w-[120px]">{inst.email}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Max Batch Capacity */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1">
+                    Max Students Per Batch
+                  </label>
+                  <Input
+                    type="number"
+                    value={String(formData.maxBatchSize || 15)}
+                    onChange={(e) => setFormData({ ...formData, maxBatchSize: Number(e.target.value) || 15 })}
+                    size="sm"
+                    variant="bordered"
+                    description="Default rule: 15 students auto-batch"
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  {courseId && (
+                    <Button
+                      color="secondary"
+                      variant="flat"
+                      className="w-full font-bold text-xs"
+                      onPress={() => router.push(`/admin/batches?courseId=${courseId}`)}
+                    >
+                      Open Cohort Manager →
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardBody>
           </Card>

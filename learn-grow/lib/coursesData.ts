@@ -968,4 +968,28 @@ export const courses: Course[] = [
   },
 ];
 
+export const getCourseSlug = (course: any): string => {
+  if (!course) return "";
+  if (course.slug) return course.slug;
+  const title = (course.title || "").toLowerCase();
+  const id = String(course._id || course.id || "");
+  if (title.includes("python") || id === "69ce553ce9e96ed805295101") return "python-programming-for-teens";
+  if (title.includes("robot") || title.includes("arduino") || id === "69ca5603e9e96ed80529474a") return "junior-robotics";
+  return id;
+};
+
+export const findCourseDetail = (slugOrId: string): Course | undefined => {
+  if (!slugOrId) return undefined;
+  const s = slugOrId.toLowerCase().trim();
+  const isPython = s.includes("python") || s === "69ce553ce9e96ed805295101";
+  const isRobotics = s.includes("robot") || s.includes("arduino") || s === "69ca5603e9e96ed80529474a";
+
+  return courses.find(c => 
+    c.id === s || 
+    c.slug === s || 
+    (isPython && (c.id === "python-ai" || c.slug.includes("python"))) ||
+    (isRobotics && (c.id === "robotics-arduino" || c.slug.includes("robotics")))
+  );
+};
+
 export default courses;

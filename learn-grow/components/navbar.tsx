@@ -19,6 +19,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { siteConfig } from "@/config/site";
 import Logo from "@/public/logo.png";
+import { LearnGrowBrand } from "@/components/LearnGrowBrand";
+import { openTrialModal } from "@/components/TrialBookingModal";
 
 import {
   Dropdown,
@@ -29,11 +31,11 @@ import {
   Skeleton,
 } from "@nextui-org/react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { getDashboardUrl } from "@/lib/utils/dashboard";
 import { logout as apiLogout } from "@/lib/auth";
 
-const AuthButtons = ({ isScrolled }: { isScrolled: boolean }) => {
+const AuthButtons = ({ isScrolled, language }: { isScrolled: boolean; language: "en" | "bn" }) => {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -205,49 +207,55 @@ const AuthButtons = ({ isScrolled }: { isScrolled: boolean }) => {
 
   return (
     <div className="flex gap-2 sm:gap-3 items-center">
-      <Button
-        as={Link}
-        className={clsx(
-          "text-sm font-bold px-4 sm:px-6 py-2 border-2 transition-all duration-300",
-          isScrolled
-            ? "text-blue-600 border-blue-600/40 bg-white hover:bg-blue-50 hover:border-blue-600"
-            : "text-white border-white/60 bg-transparent hover:bg-white/20 hover:border-white"
-        )}
+      <NextLink
         href="/login"
-        size="md"
-        variant="bordered"
-        radius="lg"
-        startContent={<span className="text-base sm:text-lg">👤</span>}
+        className="text-xs sm:text-sm font-black text-[#2C2C2C] hover:text-[#3B82F6] transition-colors px-3 py-2 flex items-center gap-1.5"
       >
-        <span className="hidden sm:inline">লগইন</span>
-      </Button>
-      <Button
-        as={Link}
-        className={clsx(
-          "text-sm font-bold px-4 sm:px-6 py-2 transition-all duration-300 shadow-lg",
-          isScrolled
-            ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
-            : "text-blue-900 bg-white hover:bg-gray-50 hover:shadow-xl"
-        )}
-        href="/register"
-        size="md"
-        variant="solid"
-        radius="lg"
-        startContent={<span className="text-base sm:text-lg">✨</span>}
+        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+        <span>{language === "en" ? "Log in" : "লগইন"}</span>
+      </NextLink>
+      <button
+        onClick={() => openTrialModal({ source: "navbar" })}
+        className="bg-[#2C2C2C] hover:bg-black text-white text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 flex items-center justify-center whitespace-nowrap cursor-pointer"
       >
-        <span className="hidden sm:inline">রেজিস্ট্রেশন</span>
-      </Button>
+        <span>{language === "en" ? "Free lesson" : "ফ্রি ট্রায়াল"}</span>
+      </button>
     </div>
   );
 };
 
 export const Navbar = () => {
+  const router = useRouter();
+  const rawPathname = usePathname();
+  const pathname = rawPathname || "";
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mobileAuth, setMobileAuth] = React.useState<{
     authed: boolean;
     user?: any;
   }>({ authed: false });
+
+  const [language, setLanguage] = React.useState<"en" | "bn">("bn");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedLang = (localStorage.getItem("language") || localStorage.getItem("preferredLanguage")) as "en" | "bn";
+      if (storedLang) {
+        setLanguage(storedLang);
+      }
+    }
+  }, []);
+
+  const changeLanguage = (newLang: "en" | "bn") => {
+    setLanguage(newLang);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", newLang);
+      localStorage.setItem("preferredLanguage", newLang);
+      window.dispatchEvent(new CustomEvent("languageChange", { detail: { language: newLang } }));
+    }
+  };
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -309,12 +317,7 @@ export const Navbar = () => {
     <NextUINavbar
       isBlurred={false}
       classNames={{
-        base: clsx(
-          "py-3 transition-all duration-500 !h-auto !min-h-[96px] !fixed top-0 left-0 right-0 z-50 overflow-visible",
-          isScrolled
-            ? "bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg"
-            : "bg-gradient-to-r from-blue-900/40 via-teal-800/40 to-amber-900/40 backdrop-blur-md"
-        ),
+        base: "py-3 transition-all duration-300 !h-auto !min-h-[76px] !fixed top-0 left-0 right-0 z-50 overflow-visible bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm",
         wrapper: "px-4 sm:px-6 lg:px-8 items-center",
       }}
       height="auto"
@@ -324,135 +327,270 @@ export const Navbar = () => {
       onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="basis-1/5 sm:basis-auto" justify="start">
-        <NavbarBrand as="li" className="gap-2 sm:gap-3 max-w-fit shrink-0">
+        <NavbarBrand as="li" className="max-w-fit shrink-0">
           <NextLink
-            className="flex justify-start items-center gap-2 sm:gap-3 group"
+            className="flex items-center py-1 select-none group"
             href="/"
+            title="Learn & Grow Home"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="relative flex-shrink-0"
-            >
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.6, 0.9, 0.6],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl blur-lg"
-              />
-              <motion.div whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }} transition={{ duration: 0.3 }}>
-                <Image
-                  priority
-                  alt="Learn & Grow Logo"
-                  className={clsx(
-                    "relative object-contain rounded-xl transition-all duration-300",
-                    isScrolled
-                      ? "w-10 h-10 sm:w-12 sm:h-12"
-                      : "w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16"
-                  )}
-                  src={Logo}
-                  width={64}
-                  height={64}
-                />
-              </motion.div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col shrink-0"
-            >
-              <p
-                className={clsx(
-                  "font-extrabold tracking-tight whitespace-nowrap leading-tight",
-                  isScrolled
-                    ? "text-sm sm:text-base lg:text-lg bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
-                    : "text-base sm:text-lg lg:text-xl text-white drop-shadow-lg"
-                )}
-              >
-                {siteConfig.name}
-              </p>
-              <p
-                className={clsx(
-                  "text-[9px] sm:text-xs font-medium mt-0 leading-tight whitespace-nowrap",
-                  isScrolled ? "text-gray-600" : "text-white/90"
-                )}
-              >
-                Empowering Education
-              </p>
-            </motion.div>
+            <LearnGrowBrand className="h-7 sm:h-8 w-auto text-[#2C2C2C] group-hover:text-[#3B82F6] transition-colors" />
           </NextLink>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden md:flex basis-full" justify="center">
-        <motion.ul
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex gap-1 lg:gap-2 overflow-x-auto scrollbar-hide"
-        >
-          {siteConfig.navItems.map((item, index) => (
-            <NavbarItem key={item.href} className="flex-shrink-0">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-                whileHover={{ y: -2 }}
-              >
-                <NextLink
+        <ul className="flex items-center gap-1 lg:gap-2">
+          {/* Courses with Dropdown */}
+          <Dropdown placement="bottom-start" className="rounded-2xl shadow-xl border border-gray-100">
+            <DropdownTrigger>
+              <button
                 className={clsx(
-                  "relative text-sm lg:text-base font-semibold transition-all duration-300 px-3 lg:px-4 py-2 rounded-lg group whitespace-nowrap",
-                  isScrolled
-                    ? "text-gray-800 hover:text-blue-600"
-                    : "text-white hover:text-white/80"
+                  "flex items-center gap-1 text-sm lg:text-base font-bold transition-all px-3 py-1.5 rounded-full cursor-pointer",
+                  pathname.startsWith("/courses")
+                    ? "bg-gray-100 text-[#2C2C2C]"
+                    : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
                 )}
-                href={item.href}
               >
-                <span className="relative z-10">{item.label}</span>
-                <span
-                  className={clsx(
-                    "absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                    isScrolled
-                      ? "bg-gradient-to-r from-blue-500/10 to-purple-500/10"
-                      : "bg-white/20"
-                  )}
-                ></span>
-                <span
-                  className={clsx(
-                    "absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 group-hover:w-3/4 transition-all duration-300",
-                    isScrolled
-                      ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                      : "bg-white"
-                  )}
-                ></span>
-              </NextLink>
-              </motion.div>
-            </NavbarItem>
-          ))}
-        </motion.ul>
+                <span>{language === "en" ? "Courses" : "কোর্সসমূহ"}</span>
+                <span className="text-xs opacity-60">⌄</span>
+              </button>
+            </DropdownTrigger>
+            <DropdownMenu 
+              aria-label="Course Categories" 
+              className="p-2"
+              onAction={(key) => {
+                router.push(key as string);
+              }}
+            >
+              <DropdownItem 
+                key="/courses" 
+                onPress={() => router.push("/courses")} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "📚 All Courses" : "📚 সকল কোর্সসমূহ"}
+              </DropdownItem>
+              <DropdownItem 
+                key="/courses?search=robotics" 
+                onPress={() => router.push("/courses?search=robotics")} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "🤖 Robotics & Arduino" : "🤖 রোবটিক্স ও আর্ডুইনো"}
+              </DropdownItem>
+              <DropdownItem 
+                key="/courses?search=python" 
+                onPress={() => router.push("/courses?search=python")} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "🐍 Python & AI" : "🐍 পাইথন ও এআই"}
+              </DropdownItem>
+              <DropdownItem 
+                key="/courses?search=game" 
+                onPress={() => router.push("/courses?search=game")} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "🎮 Game Coding" : "🎮 গেম ডেভেলপমেন্ট"}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+
+          {/* Tutors Link */}
+          <li>
+            <NextLink
+              href="/tutors"
+              className={clsx(
+                "inline-block text-sm lg:text-base font-bold transition-all px-3.5 py-1.5 rounded-full",
+                pathname === "/tutors"
+                  ? "bg-gray-100 text-[#2C2C2C] shadow-inner font-black"
+                  : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+              )}
+            >
+              {language === "en" ? "Tutors" : "শিক্ষকবৃন্দ"}
+            </NextLink>
+          </li>
+
+          {/* Events Link */}
+          <li>
+            <NextLink
+              href="/events"
+              className={clsx(
+                "inline-block text-sm lg:text-base font-bold transition-all px-3.5 py-1.5 rounded-full",
+                pathname.startsWith("/events")
+                  ? "bg-gray-100 text-[#2C2C2C] shadow-inner font-black"
+                  : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+              )}
+            >
+              {language === "en" ? "Events" : "ইভেন্টস"}
+            </NextLink>
+          </li>
+
+          {/* About with Dropdown */}
+          <Dropdown placement="bottom-start" className="rounded-2xl shadow-xl border border-gray-100">
+            <DropdownTrigger>
+              <button
+                className={clsx(
+                  "flex items-center gap-1 text-sm lg:text-base font-bold transition-all px-3 py-1.5 rounded-full cursor-pointer",
+                  pathname.startsWith("/about")
+                    ? "bg-gray-100 text-[#2C2C2C]"
+                    : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+                )}
+              >
+                <span>{language === "en" ? "About" : "আমাদের সম্পর্কে"}</span>
+                <span className="text-xs opacity-60">⌄</span>
+              </button>
+            </DropdownTrigger>
+            <DropdownMenu 
+              aria-label="About Menu" 
+              className="p-2"
+              onAction={(key) => {
+                const target = key as string;
+                if (target.startsWith("/#")) {
+                  if (pathname === "/") {
+                    const el = document.getElementById(target.substring(2));
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    router.push(target);
+                  }
+                } else {
+                  router.push(target);
+                }
+              }}
+            >
+              <DropdownItem 
+                key="/about" 
+                onPress={() => router.push("/about")} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "🏫 About Academy" : "🏫 একাডেমি পরিচিতি"}
+              </DropdownItem>
+              <DropdownItem 
+                key="/#goals" 
+                onPress={() => {
+                  if (pathname === "/") {
+                    const el = document.getElementById("goals");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    router.push("/#goals");
+                  }
+                }} 
+                className="rounded-xl font-bold py-2.5 cursor-pointer"
+              >
+                {language === "en" ? "🎯 Our Mission" : "🎯 আমাদের লক্ষ্য ও উদ্দেশ্য"}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+
+          {/* Blog Link */}
+          <li>
+            <NextLink
+              href="/blog"
+              className={clsx(
+                "inline-block text-sm lg:text-base font-bold transition-all px-3.5 py-1.5 rounded-full",
+                pathname.startsWith("/blog")
+                  ? "bg-gray-100 text-[#2C2C2C] shadow-inner font-black"
+                  : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+              )}
+            >
+              {language === "en" ? "Blog" : "ব্লগ"}
+            </NextLink>
+          </li>
+
+          {/* FAQ Link */}
+          <li>
+            <NextLink
+              href="/faq"
+              className={clsx(
+                "inline-block text-sm lg:text-base font-bold transition-all px-4 py-1.5 rounded-full",
+                pathname === "/faq"
+                  ? "bg-gray-100 text-[#2C2C2C] font-black"
+                  : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+              )}
+            >
+              {language === "en" ? "FAQ" : "সাধারণ প্রশ্ন"}
+            </NextLink>
+          </li>
+
+          {/* Contact Link */}
+          <li>
+            <NextLink
+              href="/contact"
+              className={clsx(
+                "inline-block text-sm lg:text-base font-bold transition-all px-4 py-1.5 rounded-full",
+                pathname === "/contact"
+                  ? "bg-gray-100 text-[#2C2C2C] font-black"
+                  : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50"
+              )}
+            >
+              {language === "en" ? "Contact" : "যোগাযোগ"}
+            </NextLink>
+          </li>
+        </ul>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex basis-auto" justify="end">
+      <NavbarContent className="hidden sm:flex basis-auto items-center gap-4" justify="end">
+        {/* Language Switcher */}
+        <NavbarItem className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+          <button
+            onClick={() => changeLanguage("bn")}
+            className={clsx(
+              "px-3 py-1 text-xs font-bold rounded-lg transition-all",
+              language === "bn"
+                ? "bg-[#2C2C2C] text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+            )}
+          >
+            বাং
+          </button>
+          <button
+            onClick={() => changeLanguage("en")}
+            className={clsx(
+              "px-3 py-1 text-xs font-bold rounded-lg transition-all",
+              language === "en"
+                ? "bg-[#2C2C2C] text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+            )}
+          >
+            EN
+          </button>
+        </NavbarItem>
+
         <NavbarItem>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <AuthButtons isScrolled={isScrolled} />
+            <AuthButtons isScrolled={isScrolled} language={language} />
           </motion.div>
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1/5" justify="end">
+      <NavbarContent className="sm:hidden basis-1/5 items-center gap-2" justify="end">
+        {/* Mobile Language Switcher */}
+        <div className="flex items-center gap-0.5 bg-gray-500/10 backdrop-blur-md border border-gray-500/20 p-0.5 rounded-lg">
+          <button
+            onClick={() => changeLanguage("bn")}
+            className={clsx(
+              "px-2 py-0.5 text-[10px] font-bold rounded-md transition-all",
+              language === "bn"
+                ? "bg-[#2C2C2C] text-white"
+                : isScrolled ? "text-gray-600" : "text-white/80"
+            )}
+          >
+            বাং
+          </button>
+          <button
+            onClick={() => changeLanguage("en")}
+            className={clsx(
+              "px-2 py-0.5 text-[10px] font-bold rounded-md transition-all",
+              language === "en"
+                ? "bg-[#2C2C2C] text-white"
+                : "text-gray-700 hover:text-[#3B82F6]"
+            )}
+          >
+            EN
+          </button>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -460,115 +598,60 @@ export const Navbar = () => {
           whileTap={{ scale: 0.9 }}
         >
           <NavbarMenuToggle
-            className={clsx(
-              "ml-2 touch-manipulation active:scale-95 transition-all duration-500 ease-out w-8 h-8 [&>span]:w-6 [&>span]:h-0.5 [&>span:nth-child(2)]:my-1 [&>span]:transition-all [&>span]:duration-500",
-              isScrolled ? "text-gray-700" : "text-white"
-            )}
+            className="ml-2 touch-manipulation active:scale-95 transition-all duration-500 ease-out w-8 h-8 [&>span]:w-6 [&>span]:h-0.5 [&>span:nth-child(2)]:my-1 [&>span]:transition-all [&>span]:duration-500 text-gray-800"
             aria-label="Toggle navigation menu"
           />
         </motion.div>
       </NavbarContent>
 
       <NavbarMenu
-        className="pt-6 pb-safe max-h-[calc(100vh-120px)] overflow-y-auto transition-all duration-500 ease-out"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(20, 83, 136, 0.95) 50%, rgba(180, 83, 9, 0.95) 100%)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
+        className="pt-6 pb-safe max-h-[calc(100vh-80px)] overflow-y-auto transition-all duration-300 ease-out bg-white/98 backdrop-blur-2xl border-t border-gray-100 shadow-2xl"
       >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="px-4 select-none space-y-2"
+          className="px-4 select-none space-y-1.5"
         >
           {siteConfig.navItems.map((item, index) => (
             <NavbarMenuItem key={`${item.label}-${index}`}>
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                whileTap={{ scale: 0.98 }}
+              <NextLink
+                className={clsx(
+                  "w-full text-base font-bold py-3.5 px-4 rounded-2xl touch-manipulation transition-all duration-200 flex items-center justify-between",
+                  pathname === item.href
+                    ? "bg-gray-100 text-[#2C2C2C] font-black"
+                    : "text-gray-700 hover:text-[#3B82F6] hover:bg-gray-50 active:bg-gray-100"
+                )}
+                href={item.href}
+                onClick={() => setIsMenuOpen(false)}
               >
-                <NextLink
-                  className="w-full text-white text-lg font-semibold py-4 px-5 rounded-lg active:bg-white/30 touch-manipulation transition-all duration-300 hover:bg-white/20 min-h-[48px] flex items-center transform hover:translate-x-1"
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </NextLink>
-              </motion.div>
+                <span>{item.label}</span>
+                <span className="text-gray-400 text-xs">→</span>
+              </NextLink>
             </NavbarMenuItem>
           ))}
         </motion.div>
         <NavbarMenuItem>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="flex flex-col gap-4 mt-8 w-full px-4 pb-6"
-          >
+          <div className="flex flex-col gap-3 mt-6 w-full px-4 pb-6 border-t border-gray-100 pt-6">
             {mobileAuth.authed ? (
               <>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.4 }}
-                  whileTap={{ scale: 0.98 }}
+                <Button
+                  as={NextLink}
+                  className="text-sm font-bold border-2 border-gray-200 text-gray-800 rounded-full min-h-[48px]"
+                  href={getDashboardUrl(mobileAuth.user?.role)}
+                  variant="bordered"
+                  fullWidth
+                  onPress={() => setIsMenuOpen(false)}
                 >
-                  <Button
-                    as={NextLink}
-                    className="text-sm font-bold border-2 bg-white/10 backdrop-blur-md text-white border-white/60 active:bg-white/30 touch-manipulation min-h-[52px] transition-all duration-300 hover:bg-white/20 hover:border-white transform hover:scale-[1.02]"
-                    href={getDashboardUrl(mobileAuth.user?.role)}
-                    size="lg"
-                    variant="bordered"
-                    radius="lg"
-                    fullWidth
-                    onPress={() => setIsMenuOpen(false)}
-                    startContent={<span className="text-xl">📊</span>}
-                  >
-                    Dashboard
-                  </Button>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.5 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    as={NextLink}
-                    className="text-sm font-bold bg-white text-blue-900 active:bg-gray-200 shadow-lg touch-manipulation min-h-[52px] transition-all duration-300 hover:shadow-xl hover:bg-blue-50 transform hover:scale-[1.02]"
-                    href="/profile"
-                    size="lg"
-                    variant="solid"
-                    radius="lg"
-                    fullWidth
-                    onPress={() => setIsMenuOpen(false)}
-                    startContent={<span className="text-xl">👤</span>}
-                  >
-                    Profile
-                  </Button>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.6 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                  className="text-sm font-bold bg-red-500 text-white active:bg-red-700 shadow-lg touch-manipulation min-h-[52px] transition-all duration-300 hover:bg-red-600 hover:shadow-xl transform hover:scale-[1.02]"
-                  size="lg"
-                  variant="solid"
-                  radius="lg"
+                  Dashboard
+                </Button>
+                <Button
+                  className="text-sm font-bold bg-red-500 text-white rounded-full min-h-[48px]"
                   fullWidth
                   onPress={async () => {
                     try {
                       sessionStorage.setItem("loggingOut", "1");
                       await apiLogout();
-                      // Ensure cookie removal matches original path
                       Cookies.remove("accessToken", { path: "/" });
                       Cookies.remove("refreshToken", { path: "/" });
                       Cookies.remove("userRole", { path: "/" });
@@ -576,7 +659,6 @@ export const Navbar = () => {
                       localStorage.removeItem("userRole");
                       localStorage.removeItem("token");
                       localStorage.removeItem("accessToken");
-                      // Proactively sync UI on all listeners
                       window.dispatchEvent(new Event("auth-change"));
                       setMobileAuth({ authed: false });
                       setIsMenuOpen(false);
@@ -585,57 +667,36 @@ export const Navbar = () => {
                       window.location.href = "/";
                     }
                   }}
-                  startContent={<span className="text-xl">🚪</span>}
                 >
-                  লগআউট
+                  Log Out
                 </Button>
-                </motion.div>
               </>
             ) : (
               <>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.4 }}
-                  whileTap={{ scale: 0.98 }}
+                <Button
+                  as={NextLink}
+                  className="text-sm font-bold border-2 border-gray-200 text-gray-800 rounded-full min-h-[48px] hover:border-gray-400"
+                  href="/login"
+                  variant="bordered"
+                  fullWidth
+                  onPress={() => setIsMenuOpen(false)}
                 >
-                  <Button
-                    as={NextLink}
-                    className="text-sm font-bold border-2 bg-white/10 backdrop-blur-md text-white border-white/60 active:bg-white/30 touch-manipulation min-h-[52px] transition-all duration-300 hover:bg-white/20 hover:border-white transform hover:scale-[1.02]"
-                    href="/login"
-                    size="lg"
-                    variant="bordered"
-                    radius="lg"
-                    fullWidth
-                    onPress={() => setIsMenuOpen(false)}
-                    startContent={<span className="text-xl">👤</span>}
-                  >
-                    লগইন
-                  </Button>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.5 }}
-                  whileTap={{ scale: 0.98 }}
+                  {language === "en" ? "Log in" : "লগইন"}
+                </Button>
+                <Button
+                  className="text-sm font-black bg-[#2C2C2C] hover:bg-black text-white rounded-full min-h-[48px] shadow-lg cursor-pointer"
+                  variant="solid"
+                  fullWidth
+                  onPress={() => {
+                    setIsMenuOpen(false);
+                    openTrialModal({ source: "navbar_mobile" });
+                  }}
                 >
-                  <Button
-                    as={Link}
-                    className="text-sm font-bold bg-white text-blue-900 active:bg-gray-200 shadow-lg touch-manipulation min-h-[52px] transition-all duration-300 hover:shadow-xl hover:bg-blue-50 transform hover:scale-[1.02]"
-                    href="/register"
-                    size="lg"
-                    variant="solid"
-                    radius="lg"
-                    fullWidth
-                    onPress={() => setIsMenuOpen(false)}
-                    startContent={<span className="text-xl">✨</span>}
-                  >
-                    রেজিস্ট্রেশন
-                  </Button>
-                </motion.div>
+                  {language === "en" ? "Free lesson" : "ফ্রি ট্রায়াল"}
+                </Button>
               </>
             )}
-          </motion.div>
+          </div>
         </NavbarMenuItem>
       </NavbarMenu>
     </NextUINavbar>

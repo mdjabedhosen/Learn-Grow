@@ -18,6 +18,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useApplyForJobMutation } from "@/redux/api/jobApi";
+import { trackEvent } from "@/utils/tracking";
 import { useRef } from "react";
 
 interface JobApplicationFormProps {
@@ -38,6 +39,7 @@ export default function JobApplicationForm({
   const [applyForJob, { isLoading }] = useApplyForJobMutation();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formStep, setFormStep] = useState<"confirm" | "form">("confirm");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -129,15 +131,35 @@ export default function JobApplicationForm({
       // Use the provided resume link
       const resumeUrl = formData.resumeLink;
 
+      const eventId = `job_app_${Date.now()}`;
       await applyForJob({
         jobId,
+        applicationType: "job",
+        positionOfInterest: jobTitle,
         email: formData.email,
         fullName: formData.fullName,
         phone: formData.phone,
         resumeUrl,
         linkedinProfile: formData.linkedinProfile || undefined,
         additionalInfo: formData.additionalInfo || undefined,
-      }).unwrap();
+        eventId,
+      } as any).unwrap();
+
+      // Track conversion event across Meta, TikTok, GA4, LinkedIn
+      trackEvent(
+        "Lead",
+        {
+          content_name: jobTitle,
+          content_category: "Job Post Application",
+          content_ids: [jobId],
+        },
+        {
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+        },
+        eventId
+      );
 
       // Reset form
       setFormData({

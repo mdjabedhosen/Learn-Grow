@@ -4,7 +4,7 @@ export interface Payment {
     id: string;
     courseId: string;
     amount: number;
-    method: "bkash" | "nagad" | "card";
+    method: "bkash" | "nagad" | "card" | "sslcommerz" | string;
     status: "pending" | "completed" | "failed";
     transactionId?: string;
     createdAt: string;
@@ -30,7 +30,7 @@ const paymentSlice = createSlice({
             action: PayloadAction<{
                 courseId: string;
                 amount: number;
-                method: "bkash" | "nagad" | "card";
+                method: "bkash" | "nagad" | "card" | "sslcommerz" | string;
             }>
         ) => {
             const payment: Payment = {

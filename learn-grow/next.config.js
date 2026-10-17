@@ -13,6 +13,8 @@ const nextConfig = {
     root: __dirname,
   },
 
+  serverExternalPackages: ["jsdom", "isomorphic-dompurify"],
+
   images: {
     unoptimized: true, // Required for static export
     remotePatterns: [

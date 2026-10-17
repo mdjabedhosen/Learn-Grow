@@ -1,10 +1,21 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
-import { Card, CardBody, CardHeader, Button, Spinner, Chip, Avatar } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Button, Spinner, Chip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FaVideo, FaClock, FaCalendar, FaUsers } from "react-icons/fa";
-import { useGetUpcomingClassesQuery, useGetAllLiveClassesQuery } from "@/redux/api/liveClassApi";
+import { 
+    Video, 
+    Clock, 
+    Calendar, 
+    Users, 
+    ExternalLink, 
+    Radio, 
+    Sparkles, 
+    MessageCircle, 
+    CheckCircle2, 
+    BookOpen 
+} from "lucide-react";
+import { useGetUpcomingClassesQuery } from "@/redux/api/liveClassApi";
 import { useGetMyOrdersQuery } from "@/redux/api/orderApi";
 
 export default function StudentLiveClasses() {
@@ -14,6 +25,19 @@ export default function StudentLiveClasses() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
+
+    // Bilingual support
+    const [language, setLanguage] = useState<"bn" | "en">("bn");
+    useEffect(() => {
+        const savedLang = (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn";
+        setLanguage(savedLang);
+        const handleLangChange = (e: any) => {
+            setLanguage(e.detail?.language || (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn");
+        };
+        window.addEventListener("languageChange", handleLangChange);
+        return () => window.removeEventListener("languageChange", handleLangChange);
+    }, []);
+    const isBn = language === "bn";
 
     // Update current time every second for countdown
     useEffect(() => {
@@ -40,7 +64,6 @@ export default function StudentLiveClasses() {
                 order.isActive &&
                 (order.endDate === null || (order.endDate && new Date(order.endDate) > now))
             ) {
-                // Has all access - will be handled separately
                 return;
             }
 
@@ -121,7 +144,6 @@ export default function StudentLiveClasses() {
     const displayStart = next7DaysClasses.length === 0 ? 0 : startIndex + 1;
     const displayEnd = Math.min(startIndex + itemsPerPage, next7DaysClasses.length);
 
-    // Reset page if out of bounds
     useEffect(() => {
         if (currentPage > totalPages && totalPages > 0) {
             setCurrentPage(1);
@@ -134,11 +156,10 @@ export default function StudentLiveClasses() {
         const now = currentTime;
         const diffMs = classTime.getTime() - now.getTime();
 
-        // Class already ended
         if (diffMs < 0) {
             return {
                 status: "ended",
-                display: "Class time already ended",
+                display: isBn ? "ক্লাস সম্পন্ন হয়েছে" : "Class ended",
                 color: "danger",
             };
         }
@@ -149,212 +170,267 @@ export default function StudentLiveClasses() {
         const mins = Math.floor((diffSecs % (60 * 60)) / 60);
         const secs = diffSecs % 60;
 
-        // Class starting soon (within 1 hour)
         if (diffSecs < 3600) {
             return {
                 status: "soon",
-                display: `${mins}m ${secs}s`,
+                display: isBn ? `${mins} মি. ${secs} সে.` : `${mins}m ${secs}s`,
                 color: "warning",
             };
         }
 
-        // Class starting today
         if (days === 0) {
             return {
                 status: "today",
-                display: `${hours}h ${mins}m`,
+                display: isBn ? `${hours} ঘণ্টা ${mins} মি.` : `${hours}h ${mins}m`,
                 color: "primary",
             };
         }
 
-        // Class starting later
         return {
             status: "later",
-            display: `${days}d ${hours}h`,
+            display: isBn ? `${days} দিন ${hours} ঘণ্টা` : `${days}d ${hours}h`,
             color: "default",
         };
     };
 
     if (classesLoading) {
         return (
-            <Card>
+            <Card className="rounded-[24px] border border-slate-200/80 shadow-sm">
                 <CardBody className="flex justify-center py-12">
-                    <Spinner />
+                    <Spinner size="lg" label={isBn ? "লাইভ ক্লাস লোড হচ্ছে..." : "Loading live classes..."} />
                 </CardBody>
             </Card>
         );
     }
 
     return (
-        <Card className="shadow-lg bg-gradient-to-br from-gray-50 to-white border-1 border-gray-200">
-            <CardHeader className="flex justify-between items-center py-4 px-5 border-b-2 border-blue-100 bg-gradient-to-r from-blue-50 to-transparent">
+        <Card className="rounded-[24px] border border-slate-200/80 shadow-sm overflow-hidden bg-white">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 px-6 border-b border-slate-100 bg-gradient-to-r from-blue-50/60 via-purple-50/30 to-white">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                        <FaVideo className="text-base text-primary" />
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                        <Video className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-sm text-gray-800">Upcoming Live Classes</h3>
-                        <p className="text-xs text-gray-500">Next 7 Days</p>
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-extrabold text-base text-[#2C2C2C]">
+                                {isBn ? "আসন্ন লাইভ ক্লাসসমূহ" : "Upcoming Live Classes"}
+                            </h3>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                                {isBn ? "লাইভ" : "LIVE"}
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium">
+                            {isBn ? "পরবর্তী ৭ দিনের সময়সূচী • ১০-১৫ জনের মাইক্রো-ব্যাচ" : "Next 7 Days Schedule • 10-15 Micro-Batch"}
+                        </p>
                     </div>
                 </div>
+
                 <div className="flex items-center gap-2">
                     {next7DaysClasses.length > 0 && (
-                        <Chip size="sm" color="primary" variant="shadow" className="text-xs font-semibold">
-                            {next7DaysClasses.length} class{next7DaysClasses.length !== 1 ? 'es' : ''}
+                        <Chip size="sm" color="primary" variant="flat" className="text-xs font-bold">
+                            {next7DaysClasses.length} {isBn ? "টি ক্লাস" : `class${next7DaysClasses.length !== 1 ? 'es' : ''}`}
                         </Chip>
                     )}
                     <Button
                         size="sm"
                         color="primary"
-                        variant="shadow"
-                        className="text-xs font-semibold"
+                        variant="flat"
+                        className="text-xs font-bold rounded-xl"
                         onPress={() => router.push("/student/all-live-classes")}
                     >
-                        View All
+                        {isBn ? "সব ক্লাস দেখুন" : "View All"}
                     </Button>
                 </div>
             </CardHeader>
 
-            <CardBody className="space-y-3 py-4 px-5">
+            <CardBody className="p-6 space-y-4">
                 {next7DaysClasses.length === 0 ? (
-                    <div className="text-center py-8 px-4 rounded-lg bg-gradient-to-b from-gray-100 to-gray-50">
-                        <div className="p-3 rounded-full bg-gray-300/20 w-fit mx-auto mb-3">
-                            <FaVideo className="text-3xl text-gray-400 mx-auto" />
+                    <div className="relative overflow-hidden rounded-2xl border border-blue-100/80 bg-gradient-to-br from-[#F8FAFC] via-[#EFF6FF]/40 to-[#FAF5FF]/50 p-6 sm:p-8 text-center">
+                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md border border-blue-100 flex items-center justify-center mx-auto mb-4 text-blue-600">
+                            <Radio className="w-7 h-7 text-blue-600 animate-pulse" />
                         </div>
-                        <p className="text-gray-700 font-semibold text-sm">No live classes scheduled</p>
-                        <p className="text-xs text-gray-500 mt-1">Check back soon or view all classes</p>
+                        
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full mb-3">
+                            {isBn ? "📅 সাপ্তাহিক লাইভ ক্লাস সময়সূচী" : "📅 Weekly Live Batch Schedule"}
+                        </span>
+
+                        <h4 className="text-base sm:text-lg font-bold text-[#2C2C2C] mb-2">
+                            {isBn ? "পরবর্তী ৭ দিনে কোনো নির্ধারিত ক্লাস নেই" : "No Live Classes in the Next 7 Days"}
+                        </h4>
+                        
+                        <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed mb-5">
+                            {isBn ? (
+                                <>
+                                    আমাদের লাইভ প্র্যাকটিক্যাল ক্লাস সাধারণত <strong>শুক্রবার ও শনিবার সন্ধ্যা ৭:০০টায়</strong> অনুষ্ঠিত হয়। ক্লাসের Zoom বা Google Meet লিংক ক্লাস শুরুর ২০ মিনিট আগে আপনার ড্যাশবোর্ডে সক্রিয় হবে এবং WhatsApp ব্যাচ গ্রুপে পৌঁছে যাবে।
+                                </>
+                            ) : (
+                                <>
+                                    Live practical sessions are typically held on <strong>Fridays & Saturdays at 7:00 PM</strong>. Your Zoom or Google Meet link activates 20 minutes before class and is also sent to your batch WhatsApp group.
+                                </>
+                            )}
+                        </p>
+
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <Button
+                                size="sm"
+                                color="primary"
+                                className="font-bold text-xs rounded-xl shadow-md shadow-blue-500/20"
+                                onPress={() => router.push("/student/all-live-classes")}
+                                startContent={<Calendar className="w-3.5 h-3.5" />}
+                            >
+                                {isBn ? "সম্পূর্ণ ক্লাস রুটিন দেখুন" : "View Full Class Routine"}
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="bordered"
+                                className="font-bold text-xs rounded-xl border-slate-300 text-slate-700 bg-white"
+                                onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
+                                startContent={<MessageCircle className="w-3.5 h-3.5 text-emerald-600" />}
+                            >
+                                {isBn ? "WhatsApp ব্যাচ হেল্পলাইন" : "WhatsApp Batch Helpline"}
+                            </Button>
+                        </div>
                     </div>
                 ) : (
                     <>
-                        {paginatedClasses.map((cls: any) => {
-                            const classDate = new Date(cls.scheduledAt);
-                            const courseName = typeof cls.courseId === "object" ? cls.courseId.title : "Course";
-                            const instructorName = typeof cls.instructorId === "object" ? cls.instructorId.name : "Instructor";
-                            const timeStatus = getTimeStatus(cls.scheduledAt);
+                        <div className="space-y-3">
+                            {paginatedClasses.map((cls: any) => {
+                                const classDate = new Date(cls.scheduledAt);
+                                const courseName = typeof cls.courseId === "object" ? cls.courseId.title : "Course";
+                                const instructorName = typeof cls.instructorId === "object" ? cls.instructorId.name : "Instructor";
+                                const timeStatus = getTimeStatus(cls.scheduledAt);
 
-                            return (
-                                <div key={cls._id} className="border border-gray-200 rounded-lg p-3 hover:shadow-md hover:border-primary/30 transition-all duration-300 bg-white">
-                                    <div className="flex items-start justify-between mb-2 gap-2">
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-bold text-sm mb-1 line-clamp-2 text-gray-800">{cls.title}</h4>
-                                            <p className="text-xs text-gray-600 line-clamp-1">{courseName}</p>
-                                        </div>
-                                        <Chip size="sm" variant="shadow" color="success" className="text-xs whitespace-nowrap font-semibold">
-                                            {cls.platform}
-                                        </Chip>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-3 bg-gray-50 rounded-lg p-2">
-                                        <div className="flex items-center gap-1.5">
-                                            <FaCalendar className="text-xs text-blue-500" />
-                                            <span className="text-xs font-medium">{classDate.toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <FaClock className="text-xs text-orange-500" />
-                                            <span className="text-xs font-medium">{classDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Countdown/Status Display */}
-                                    <div className="mb-3">
-                                        <Chip
-                                            size="sm"
-                                            variant="shadow"
-                                            color={timeStatus.color as any}
-                                            className="font-bold text-xs w-full justify-center py-1"
-                                        >
-                                            <div className="flex items-center gap-1.5">
-                                                {timeStatus.status === "soon" && <div className="animate-pulse w-2 h-2 rounded-full bg-current"></div>}
-                                                {timeStatus.status === "ended" ? "Class Over" : `${timeStatus.display}`}
+                                return (
+                                    <div 
+                                        key={cls._id} 
+                                        className="border border-slate-200/80 rounded-2xl p-4 hover:shadow-lg hover:border-blue-400/50 transition-all duration-300 bg-white group"
+                                    >
+                                        <div className="flex items-start justify-between mb-3 gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-bold">
+                                                        {cls.platform || "Google Meet"}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400">•</span>
+                                                    <span className="text-xs text-slate-500 font-medium truncate">
+                                                        👨‍🏫 {instructorName}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-bold text-sm text-[#2C2C2C] group-hover:text-blue-600 transition-colors line-clamp-1">
+                                                    {cls.title}
+                                                </h4>
+                                                <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                                                    {courseName}
+                                                </p>
                                             </div>
-                                        </Chip>
-                                    </div>
 
-                                    <div className="flex gap-2">
-                                        {timeStatus.status === "ended" ? (
-                                            <Button
+                                            <Chip
                                                 size="sm"
-                                                color="default"
                                                 variant="flat"
-                                                className="flex-1 text-xs font-semibold"
-                                                isDisabled
+                                                color={timeStatus.color as any}
+                                                className="font-bold text-xs whitespace-nowrap"
                                             >
-                                                Session Over
-                                            </Button>
-                                        ) : (
+                                                <span className="flex items-center gap-1.5">
+                                                    {timeStatus.status === "soon" && (
+                                                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                                                    )}
+                                                    {timeStatus.display}
+                                                </span>
+                                            </Chip>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4 bg-slate-50 rounded-xl p-2.5">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                                                <span className="font-semibold text-slate-700">
+                                                    {classDate.toLocaleDateString(isBn ? "bn-BD" : "en-US", { 
+                                                        weekday: "short", 
+                                                        month: "short", 
+                                                        day: "numeric" 
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                                <span className="font-semibold text-slate-700">
+                                                    {classDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {timeStatus.status === "ended" ? (
+                                                <Button
+                                                    size="sm"
+                                                    color="default"
+                                                    variant="flat"
+                                                    className="flex-1 text-xs font-bold rounded-xl"
+                                                    isDisabled
+                                                >
+                                                    {isBn ? "ক্লাস সমাপ্ত" : "Class Over"}
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    color="primary"
+                                                    className="flex-1 text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                                                    onPress={() => window.open(cls.meetingLink, "_blank")}
+                                                    startContent={<Video className="w-3.5 h-3.5" />}
+                                                >
+                                                    {isBn ? "এখনই ক্লাসে যোগ দিন" : "Join Class Now"}
+                                                </Button>
+                                            )}
                                             <Button
                                                 size="sm"
-                                                color="primary"
-                                                className="flex-1 text-xs font-semibold shadow-md"
-                                                onPress={() => window.open(cls.meetingLink, "_blank")}
+                                                variant="bordered"
+                                                className="text-xs font-bold rounded-xl border-slate-200 text-slate-700"
+                                                onPress={() =>
+                                                    router.push(
+                                                        `/courses/${typeof cls.courseId === "object" ? cls.courseId._id : cls.courseId}`
+                                                    )
+                                                }
+                                                startContent={<BookOpen className="w-3.5 h-3.5" />}
                                             >
-                                                Join Now
+                                                {isBn ? "কোর্স" : "Course"}
                                             </Button>
-                                        )}
-                                        <Button
-                                            size="sm"
-                                            variant="bordered"
-                                            className="text-xs font-semibold border-primary/20"
-                                            onPress={() =>
-                                                router.push(
-                                                    `/courses/${typeof cls.courseId === "object" ? cls.courseId._id : cls.courseId}`
-                                                )
-                                            }
-                                        >
-                                            Course
-                                        </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
 
                         {/* Pagination Controls */}
                         {totalPages > 1 && (
-                            <div className="flex flex-wrap justify-center items-center gap-2 mt-4 pt-4 border-t-2 border-gray-100">
-                                <Button
-                                    size="sm"
-                                    isDisabled={currentPage === 1}
-                                    variant="flat"
-                                    className="text-xs font-semibold px-3"
-                                    onPress={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                >
-                                    ← Prev
-                                </Button>
-
-                                <div className="flex gap-1.5 flex-wrap justify-center">
-                                    {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                                        const startPage = Math.max(1, currentPage - 2);
-                                        return startPage + i;
-                                    }).map((page) => (
-                                        <Button
-                                            key={page}
-                                            size="sm"
-                                            color={currentPage === page ? "primary" : "default"}
-                                            variant={currentPage === page ? "shadow" : "flat"}
-                                            className="text-xs font-semibold px-2.5 min-w-fit"
-                                            onPress={() => setCurrentPage(page)}
-                                        >
-                                            {page}
-                                        </Button>
-                                    ))}
+                            <div className="flex flex-wrap justify-between items-center gap-2 pt-3 border-t border-slate-100">
+                                <span className="text-xs text-slate-500 font-medium">
+                                    {isBn ? `দেখানো হচ্ছে ${displayStart}-${displayEnd} (মোট ${next7DaysClasses.length}টি)` : `Showing ${displayStart}-${displayEnd} of ${next7DaysClasses.length}`}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <Button
+                                        size="sm"
+                                        isDisabled={currentPage === 1}
+                                        variant="flat"
+                                        className="text-xs font-bold rounded-lg px-2.5 min-w-0"
+                                        onPress={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                    >
+                                        ←
+                                    </Button>
+                                    <span className="text-xs font-bold px-2 text-slate-700">
+                                        {currentPage} / {totalPages}
+                                    </span>
+                                    <Button
+                                        size="sm"
+                                        isDisabled={currentPage === totalPages}
+                                        variant="flat"
+                                        className="text-xs font-bold rounded-lg px-2.5 min-w-0"
+                                        onPress={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                    >
+                                        →
+                                    </Button>
                                 </div>
-
-                                <Button
-                                    size="sm"
-                                    isDisabled={currentPage === totalPages}
-                                    variant="flat"
-                                    className="text-xs font-semibold px-3"
-                                    onPress={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                >
-                                    Next →
-                                </Button>
                             </div>
                         )}
-
-                        {/* Pagination Info */}
-                        <div className="text-center text-xs text-gray-500 font-medium pt-2">
-                            Showing {displayStart}-{displayEnd} of {next7DaysClasses.length} classes
-                        </div>
                     </>
                 )}
             </CardBody>

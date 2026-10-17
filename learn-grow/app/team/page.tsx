@@ -19,15 +19,24 @@ export default function TeamPage() {
         const instructors = [];
         const executives = [];
 
+        const seenNames = new Set<string>();
+
         // Sort members by position
         const sortedMembers = [...teamData.data].sort((a: any, b: any) => (a.position || 0) - (b.position || 0));
 
         sortedMembers.forEach((member: any) => {
+            const normName = (member.name || "").trim().toLowerCase();
+            if (seenNames.has(normName)) return; // Prevent duplicate display across sections
+            seenNames.add(normName);
+
             const teamMember = {
                 _id: member._id,
                 image: member.image,
                 name: member.name,
-                role: member.role,
+                role: (member.role?.toLowerCase() === "ceo" || normName.includes("jabed")) ? "Founder & CEO" : member.role,
+                domain: member.domain,
+                yearsOfExperience: member.yearsOfExperience,
+                expertise: member.expertise,
                 bio: member.bio,
                 linkedIn: member.linkedIn,
                 twitter: member.twitter,
@@ -37,23 +46,20 @@ export default function TeamPage() {
 
             const roleLower = (member.role || "").toLowerCase();
 
-            // Categorize by role keywords - Check instructor FIRST to avoid catching in other categories
-            // Section 2: Instructors (highest priority)
-            if (roleLower.includes("instructor") || roleLower.includes("teacher") || 
-                roleLower.includes("educator") || roleLower.includes("trainer")) {
-                instructors.push(teamMember);
-            }
-            // Line 1: C-Level Executives (CEO, CTO, COO, CFO, etc.)
-            else if (roleLower.includes("ceo") || roleLower.includes("cto") || roleLower.includes("coo") || 
-                     roleLower.includes("cfo") || roleLower.includes("founder")) {
+            // Categorize with Leadership priority first
+            // Section 1: C-Level Leadership (CEO, CTO, COO, Founder)
+            if (/\b(ceo|cto|coo|cfo|cmo|founder|co-founder|chief executive|chief technology|chief operating)\b/i.test(roleLower)) {
                 leadership.cLevel.push(teamMember);
             }
-            // Line 2: Team Leads & Managers (Operations Manager, Technical Lead, Marketing Head, etc.)
-            else if (roleLower.includes("manager") || roleLower.includes("lead") || 
-                     roleLower.includes("head") || roleLower.includes("director")) {
+            // Section 2: Team Leads, Managers & Coordinators
+            else if (/\b(manager|lead|head|director|coordinator|supervisor|specialist)\b/i.test(roleLower)) {
                 leadership.teamLeads.push(teamMember);
             }
-            // Section 3: Executives & Other Roles
+            // Section 3: Instructors & Educators
+            else if (/\b(instructor|teacher|educator|trainer|mentor|faculty)\b/i.test(roleLower)) {
+                instructors.push(teamMember);
+            }
+            // Section 4: Core Team & Executives
             else {
                 executives.push(teamMember);
             }
@@ -65,18 +71,17 @@ export default function TeamPage() {
             const bRole = (b.role || "").toLowerCase();
             
             // CEO priority (1)
-            if (aRole.includes("ceo") && !bRole.includes("ceo")) return -1;
-            if (!aRole.includes("ceo") && bRole.includes("ceo")) return 1;
+            if (/\bceo\b/i.test(aRole) && !/\bceo\b/i.test(bRole)) return -1;
+            if (!/\bceo\b/i.test(aRole) && /\bceo\b/i.test(bRole)) return 1;
             
             // CTO priority (2)
-            if (aRole.includes("cto") && !bRole.includes("cto")) return -1;
-            if (!aRole.includes("cto") && bRole.includes("cto")) return 1;
+            if (/\bcto\b/i.test(aRole) && !/\bcto\b/i.test(bRole)) return -1;
+            if (!/\bcto\b/i.test(aRole) && /\bcto\b/i.test(bRole)) return 1;
             
             // COO priority (3)
-            if (aRole.includes("coo") && !bRole.includes("coo")) return -1;
-            if (!aRole.includes("coo") && bRole.includes("coo")) return 1;
+            if (/\bcoo\b/i.test(aRole) && !/\bcoo\b/i.test(bRole)) return -1;
+            if (!/\bcoo\b/i.test(aRole) && /\bcoo\b/i.test(bRole)) return 1;
             
-            // Others (CFO, Founder, etc.)
             return 0;
         });
 

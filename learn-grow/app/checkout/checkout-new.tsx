@@ -15,10 +15,23 @@ import {
   CreditCard,
   Smartphone,
   Banknote,
-  ChevronRight
+  ChevronRight,
+  Truck,
+  Package,
+  ShieldCheck,
+  CheckCircle2,
+  Sparkles,
+  Cpu,
+  Wrench,
+  BookOpen,
+  Headphones,
+  Gift,
+  Star,
+  Clock,
 } from "lucide-react";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useGetCommissionQuery } from "@/redux/api/settingsApi";
+import { trackPurchaseEvent } from "@/utils/tracking";
 
 interface CourseData {
   _id: string;
@@ -63,12 +76,126 @@ interface DeliveryAddress {
   postalCode: string;
 }
 
+const KIT_COMPONENTS = [
+  {
+    nameEn: "Arduino Uno R3 Microcontroller",
+    nameBn: "আর্ডুইনো উনো আর৩ মাইক্রোকন্ট্রোলার",
+    descEn: "Original ATmega328P chip with blue USB programming cable",
+    descBn: "অরিজিনাল ATmega328P চিপ ও ইউএসবি প্রোগ্রামিং ক্যাবলসহ",
+    tagEn: "Main Brain",
+    tagBn: "মূল মস্তিষ্ক",
+    icon: "🔌",
+  },
+  {
+    nameEn: "4WD Smart Robot Car Chassis",
+    nameBn: "৪-হুইল স্মার্ট রোবট কার চ্যাসিস",
+    descEn: "4x DC geared motors, high-grip rubber wheels & laser-cut frame",
+    descBn: "৪টি ডিসি গিয়ার মোটর, হাই-গ্রিপ রাবার চাকা ও অ্যাক্রিলিক বডি",
+    tagEn: "Drive Unit",
+    tagBn: "ড্রাইভ ইউনিট",
+    icon: "🏎️",
+  },
+  {
+    nameEn: "HC-SR04 Ultrasonic Distance Sensor",
+    nameBn: "HC-SR04 আল্ট্রাসোনিক দূরত্ব সেন্সর",
+    descEn: "Obstacle detection & auto-navigation sonar with mounting bracket",
+    descBn: "বাধা শনাক্তকরণ ও স্বয়ংক্রিয় টার্নিং সোনার সেন্সর ও মাউন্ট",
+    tagEn: "Eyes / Sonar",
+    tagBn: "সোনার চোখ",
+    icon: "🦇",
+  },
+  {
+    nameEn: "L298N Dual Motor Driver Module",
+    nameBn: "L298N ডুয়াল মোটর ড্রাইভার মডিউল",
+    descEn: "High-power dual H-bridge motor speed & direction controller",
+    descBn: "হাই-পাওয়ার মোটর স্পিড ও ডিরেকশন কন্ট্রোলার মডিউল",
+    tagEn: "Motor Control",
+    tagBn: "মোটর কন্ট্রোল",
+    icon: "⚡",
+  },
+  {
+    nameEn: "400-Point Solderless Breadboard",
+    nameBn: "৪০০-পয়েন্ট সোল্ডারলেস ব্রেডবোর্ড",
+    descEn: "Zero-soldering plug-and-play safe circuit prototyping board",
+    descBn: "ঝালাই ছাড়াই নিরাপদ সার্কিট তৈরির প্রোটোটাইপিং বোর্ড",
+    tagEn: "Safe Prototyping",
+    tagBn: "নিরাপদ সার্কিট",
+    icon: "🍞",
+  },
+  {
+    nameEn: "40x Premium Jumper Wires Pack",
+    nameBn: "৪০টি প্রিমিয়াম জাম্পার ওয়্যার প্যাক",
+    descEn: "Multi-color Male-to-Male & Male-to-Female flexible cables",
+    descBn: "রঙিন মেল-টু-মেল এবং মেল-টু-ফিমেল কানেক্টিং ওয়্যার",
+    tagEn: "Cables",
+    tagBn: "কানেক্টিং ওয়্যার",
+    icon: "🌈",
+  },
+  {
+    nameEn: "Electronics & Sensor Lab Pack",
+    nameBn: "ইলেকট্রনিক্স ও সেন্সর ল্যাব প্যাক",
+    descEn: "10x LEDs, active buzzer, LDR light sensor, resistors & buttons",
+    descBn: "১০টি এলইডি, বাজার, এলডিআর আলোক সেন্সর, পুশ বাটন ও রেজিস্টর",
+    tagEn: "Lab Elements",
+    tagBn: "ল্যাব উপাদান",
+    icon: "💡",
+  },
+  {
+    nameEn: "Project Manual & Dual Battery Box",
+    nameBn: "প্রজেক্ট বুক ও ডুয়াল ব্যাটারি হোল্ডার",
+    descEn: "Step-by-step illustrated guide + power case with on/off switch",
+    descBn: "সচিত্র গাইড বুক + অন/অফ সুইচসহ পাওয়ার ব্যাটারি কেস",
+    tagEn: "Guide & Power",
+    tagBn: "গাইড ও পাওয়ার",
+    icon: "📖",
+  },
+];
+
+const KIT_PERKS = [
+  {
+    titleEn: "Free Doorstep Delivery",
+    titleBn: "সারা বাংলাদেশে ফ্রি হোম ডেলিভারি",
+    descEn: "Express courier delivery to your home within 48-72 hours",
+    descBn: "৪৮-৭২ ঘণ্টার মধ্যে এক্সপ্রেস কুরিয়ারে নিরাপদে হোম ডেলিভারি",
+    icon: Truck,
+    badgeEn: "100% Free",
+    badgeBn: "১০০% ফ্রি",
+  },
+  {
+    titleEn: "7-Day Replacement Warranty",
+    titleBn: "৭ দিনের পার্টস রিপ্লেসমেন্ট ওয়ারেন্টি",
+    descEn: "Any defective component replaced completely free of charge",
+    descBn: "কোনো পার্টসে ত্রুটি থাকলে সম্পূর্ণ ফ্রি নতুন পার্টস প্রদান",
+    icon: ShieldCheck,
+    badgeEn: "Guaranteed",
+    badgeBn: "নিশ্চয়তা",
+  },
+  {
+    titleEn: "Video Assembly Tutorials",
+    titleBn: "ভিডিও টিউটোরিয়াল ও সার্কিট গাইড",
+    descEn: "High-definition video lessons and wiring diagrams included",
+    descBn: "স্টেপ-বাই-স্টেপ ভিডিও ক্লাস ও নির্ভুল ওয়্যারিং ডায়াগ্রাম অ্যাক্সেস",
+    icon: Sparkles,
+    badgeEn: "Included",
+    badgeBn: "অন্তর্ভুক্ত",
+  },
+  {
+    titleEn: "Live Mentor Tech Support",
+    titleBn: "লাইভ মেন্টর টেকনিক্যাল সাপোর্ট",
+    descEn: "Dedicated WhatsApp & Discord support for assembly guidance",
+    descBn: "রোবট তৈরিতে কোনো সমস্যায় ডেডিকেটেড মেন্টর সাপোর্ট",
+    icon: Headphones,
+    badgeEn: "Live Help",
+    badgeBn: "লাইভ হেল্প",
+  },
+];
+
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const courseId = searchParams.get("courseId") || "";
-  const planType = (searchParams.get("plan") || "single") as "single" | "quarterly" | "kit" | "school" | "combo";
-  const comboId = searchParams.get("comboId") || "";
+  const courseId = searchParams?.get("courseId") || "";
+  const planType = (searchParams?.get("plan") || "single") as "single" | "quarterly" | "kit" | "school" | "combo";
+  const comboId = searchParams?.get("comboId") || "";
   const [createOrder] = useCreateOrderMutation();
   const { data: settingsData } = useGetCommissionQuery();
 
@@ -98,6 +225,21 @@ export default function CheckoutPage() {
   const [existingSubscription, setExistingSubscription] = useState<any>(null);
   const [hasPurchasedCombo, setHasPurchasedCombo] = useState<boolean>(false);
   const [existingComboOrder, setExistingComboOrder] = useState<any>(null);
+  const [language, setLanguage] = useState<"bn" | "en">("bn");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = (localStorage.getItem("language") || localStorage.getItem("preferredLanguage")) as "bn" | "en";
+      if (stored) setLanguage(stored);
+
+      const handleLangChange = (e: any) => {
+        const newLang = (e.detail?.language || localStorage.getItem("language") || localStorage.getItem("preferredLanguage") || "bn") as "bn" | "en";
+        setLanguage(newLang);
+      };
+      window.addEventListener("languageChange", handleLangChange);
+      return () => window.removeEventListener("languageChange", handleLangChange);
+    }
+  }, []);
 
   // Pricing based on plan type
   const planPrice = React.useMemo(() => {
@@ -163,9 +305,13 @@ export default function CheckoutPage() {
           const fallbackPrice = planType === "kit" ? resolvedKitPrice : planType === "quarterly" ? 9999 : 0;
           setCourseData({
             _id: planType,
-            title: planType === "quarterly" ? "ত্রৈমাসিক সাবস্ক্রিপশন - All Course Access" : planType === "kit" ? "Robotics Kit Only" : "School Partnership",
+            title: planType === "quarterly" 
+              ? "ত্রৈমাসিক সাবস্ক্রিপশন - All Course Access" 
+              : planType === "kit" 
+                ? "Official Robotics Starter Kit (Arduino Edition)" 
+                : "School Partnership",
             price: fallbackPrice,
-            thumbnail: "/images/default-plan.jpg",
+            thumbnail: planType === "kit" ? "/courses/robotics-course-banner.jpg" : "/images/default-plan.jpg",
           });
         }
 
@@ -333,6 +479,22 @@ export default function CheckoutPage() {
       const res = await createOrder(orderPayload).unwrap();
       const order = (res as any)?.order || (res as any)?.data || res;
       if (order?._id) {
+        // Track Purchase event (Client Pixel + Next.js Server CAPI with SHA-256 deduplication)
+        try {
+          trackPurchaseEvent({
+            orderId: order._id,
+            value: Number(planPrice) || 0,
+            currency: "BDT",
+            content_name: courseData?.title || `Plan: ${planType}`,
+            content_ids: courseData?._id ? [courseData._id] : undefined,
+            email: userData?.email,
+            phone: senderNumber || deliveryAddress?.phone || userData?.phone,
+            name: userData?.name || deliveryAddress?.name,
+          });
+        } catch (trackErr) {
+          // Non-blocking for checkout flow
+        }
+
         // Redirect to payment processing page
         router.push(`/payment-processing?orderId=${order._id}`);
       } else {
@@ -382,15 +544,21 @@ export default function CheckoutPage() {
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
             <Link href="/courses" className="hover:text-blue-600 transition">
-              Courses
+              {language === "bn" ? "কোর্সসমূহ" : "Courses"}
             </Link>
             <ChevronRight size={16} />
-            <span className="text-slate-900 font-medium">Checkout</span>
+            <span className="text-slate-900 font-medium">
+              {language === "bn" ? "চেকআউট" : "Checkout"}
+            </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-            Complete Your Purchase <span className="text-2xl md:text-3xl">/ আপনার অর্ডার সম্পন্ন করুন</span>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+            {language === "bn" ? "আপনার অর্ডার সম্পন্ন করুন" : "Complete Your Purchase"}
           </h1>
-          <p className="text-slate-600 mt-2">Secure checkout • Fast payment processing / সুরক্ষিত চেকআউট • দ্রুত পেমেন্ট প্রসেসিং</p>
+          <p className="text-slate-600 mt-2 font-medium">
+            {language === "bn"
+              ? "🔒 সুরক্ষিত চেকআউট • দ্রুত পেমেন্ট অনুমোদন • নির্ভরযোগ্য ডেলিভারি"
+              : "🔒 Secure checkout • Instant payment verification • Reliable delivery"}
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -479,93 +647,273 @@ export default function CheckoutPage() {
             )}
 
             {/* Order Summary Card */}
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-6">Order Summary / অর্ডার সারাংশ</h2>
-
-                  {/* Combo precheck notice */}
-                  {planType === "combo" && hasPurchasedCombo && (
-                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-900 font-semibold">
-                        You already purchased this bundle. Please go to My Courses.
-                      </p>
-                      <div className="mt-3">
-                        <Link href="/student/courses" className="inline-block px-4 py-2 bg-green-600 text-white rounded-md text-sm">
-                          Go to My Courses
-                        </Link>
-                      </div>
-                    </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100">
+                <div>
+                  {planType === "kit" && (
+                    <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block mb-2">
+                      {language === "bn" ? "অফিসিয়াল হার্ডওয়্যার কিট" : "Official Hardware Kit"}
+                    </span>
                   )}
-
-              {/* Course Item */}
-              <div className="flex gap-4 pb-6 border-b border-slate-200">
-                <div className="relative w-20 h-20 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
-                  {courseData?.thumbnail ? (
-                    <Image
-                      src={courseData.thumbnail}
-                      alt={courseData?.title || "Course"}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        img.onerror = null;
-                        img.src = "/logo.png";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
-                      <span className="text-white text-2xl">📚</span>
-                    </div>
-                  )}
+                  <h2 className="text-xl md:text-2xl font-black text-slate-900">
+                    {language === "bn" ? "অর্ডার সারাংশ" : "Order Summary"}
+                  </h2>
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 text-sm md:text-base line-clamp-2">
-                    {courseData?.title}
-                  </h3>
-                  {courseData?.category && (
-                    <p className="text-sm text-slate-600 mt-1">{courseData.category.name}</p>
-                  )}
-                  {courseData?.level && (
-                    <p className="text-xs text-slate-500 mt-1 capitalize">
-                      Level: {courseData.level}
-                    </p>
-                  )}
-                </div>
-
-                <div className="text-right flex-shrink-0">
-                  <p className="font-bold text-slate-900">৳{(courseData?.price || planPrice).toLocaleString()}</p>
-                  <p className="text-xs text-slate-600 mt-1">Qty: 1</p>
-                </div>
+                {planType === "kit" && (
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                    <CheckCircle2 size={14} className="text-emerald-600" />
+                    <span>{language === "bn" ? "স্টক অ্যাভেইলেবল • সারাদেশে ফ্রি ডেলিভারি" : "In Stock • Free Nationwide Delivery"}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Pricing Breakdown */}
-              <div className="space-y-3 text-sm mt-6">
-                <div className="flex justify-between text-slate-600">
-                  <span>Subtotal / সাবটোটাল</span>
-                  <span>৳{(courseData?.price || planPrice).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Tax / ট্যাক্স (0%)</span>
-                  <span>৳0</span>
-                </div>
-                
-                <div className="border-t border-slate-200 pt-3 mt-3">
-                  <div className="flex justify-between font-bold text-lg text-slate-900">
-                    <span>Total Amount / মোট টাকা</span>
-                    <span className="text-blue-600">৳{(courseData?.price || planPrice).toLocaleString()}</span>
+              {/* Combo precheck notice */}
+              {planType === "combo" && hasPurchasedCombo && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-900 font-semibold">
+                    {language === "bn" ? "আপনি ইতিমধ্যে এই বান্ডেলটি কিনেছেন। অনুগ্রহ করে My Courses এ যান।" : "You already purchased this bundle. Please go to My Courses."}
+                  </p>
+                  <div className="mt-3">
+                    <Link href="/student/courses" className="inline-block px-4 py-2 bg-green-600 text-white rounded-md text-sm">
+                      {language === "bn" ? "আমার কোর্সে যান" : "Go to My Courses"}
+                    </Link>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {planType === "kit" ? (
+                <>
+                  {/* Kit Product Hero Header */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl p-4 md:p-6 border border-slate-200/80 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
+                      <div className="relative w-full sm:w-36 h-36 rounded-xl overflow-hidden flex-shrink-0 shadow-md border border-slate-200 bg-white">
+                        <Image
+                          src="/courses/robotics-course-banner.jpg"
+                          alt="Learn & Grow Robotics Kit"
+                          fill
+                          className="object-cover"
+                          priority
+                        />
+                        <div className="absolute top-2 left-2 bg-[#2C2C2C]/90 text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider backdrop-blur-sm">
+                          Arduino Uno R3
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-xs font-bold px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">
+                            ⭐ {language === "bn" ? "প্রিমিয়াম স্টেম কিট" : "Premium STEM Kit"}
+                          </span>
+                          <span className="text-xs font-medium text-slate-500">
+                            {language === "bn" ? "বয়স: ৯-১৬ বছর" : "Ages: 9-16 Yrs"}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg md:text-xl font-black text-slate-900 leading-snug">
+                          {language === "bn" 
+                            ? "লার্ন অ্যান্ড গ্রো অফিসিয়াল রোবোটিক্স স্টার্টার কিট (আর্ডুইনো এডিশন)" 
+                            : "Learn & Grow Official Robotics Starter Kit (Arduino Edition)"}
+                        </h3>
+                        
+                        <p className="text-xs md:text-sm text-slate-600 mt-1.5 leading-relaxed">
+                          {language === "bn"
+                            ? "বাচ্চা ও কিশোরদের জন্য কমপ্লিট ৪-হুইল স্মার্ট কার ও ইলেকট্রনিক্স ল্যাব। সোল্ডারিং ছাড়াই নিরাপদ প্লাগ অ্যান্ড প্লে প্রোটোটাইপিং।"
+                            : "All-in-one 4WD smart robot car & electronics prototyping lab for kids. Zero-soldering safe plug & play components."}
+                        </p>
+
+                        <div className="flex flex-wrap items-baseline gap-3 mt-3">
+                          <span className="text-2xl font-black text-blue-600">
+                            ৳{planPrice.toLocaleString()}
+                          </span>
+                          <span className="text-sm font-semibold text-slate-400 line-through">
+                            ৳4,500
+                          </span>
+                          <span className="text-xs font-bold text-emerald-600 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                            {language === "bn" ? "৳৫০১ ছাড়" : "Save ৳501"}
+                          </span>
+                          <span className="text-xs text-slate-500 font-medium ml-auto">
+                            {language === "bn" ? "পরিমাণ: ১ সেট" : "Qty: 1 Set"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* What's In The Box Grid */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package size={18} className="text-blue-600" />
+                      <h4 className="text-sm md:text-base font-bold text-slate-900">
+                        {language === "bn" ? "বক্সে যা যা থাকছে (৮টি মূল উপাদান):" : "What's in the Box (8 Core Modules):"}
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {KIT_COMPONENTS.map((item, idx) => (
+                        <div 
+                          key={idx}
+                          className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/70 transition"
+                        >
+                          <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                              <h5 className="text-xs md:text-sm font-bold text-slate-900 truncate">
+                                {language === "bn" ? item.nameBn : item.nameEn}
+                              </h5>
+                              <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded flex-shrink-0">
+                                {language === "bn" ? item.tagBn : item.tagEn}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-snug">
+                              {language === "bn" ? item.descBn : item.descEn}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Kit Guarantees & Perks */}
+                  <div className="mb-6 pt-5 border-t border-slate-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles size={18} className="text-amber-500" />
+                      <h4 className="text-sm md:text-base font-bold text-slate-900">
+                        {language === "bn" ? "সাথে পাচ্ছেন বিশেষ সেবা ও গ্যারান্টি:" : "Included Services & Guarantees:"}
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {KIT_PERKS.map((perk, idx) => {
+                        const IconComp = perk.icon;
+                        return (
+                          <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <IconComp size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1 mb-0.5">
+                                <span className="text-xs font-bold text-slate-900">
+                                  {language === "bn" ? perk.titleBn : perk.titleEn}
+                                </span>
+                                <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                  {language === "bn" ? perk.badgeBn : perk.badgeEn}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 leading-tight">
+                                {language === "bn" ? perk.descBn : perk.descEn}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="space-y-3 text-sm pt-4 border-t border-slate-200">
+                    <div className="flex justify-between text-slate-600">
+                      <span>{language === "bn" ? "রোবোটিক্স কিট সাবটোটাল" : "Robotics Kit Subtotal"}</span>
+                      <span className="font-semibold text-slate-900">৳{planPrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5">
+                        <Truck size={14} className="text-emerald-600" />
+                        <span>{language === "bn" ? "সারাদেশে এক্সপ্রেস ডেলিভারি (৪৮-৭২ ঘণ্টা)" : "Nationwide Express Delivery (48-72h)"}</span>
+                      </span>
+                      <span className="font-bold text-emerald-600">{language === "bn" ? "সম্পূর্ণ ফ্রি (৳০)" : "FREE (৳0)"}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span className="flex items-center gap-1.5">
+                        <ShieldCheck size={14} className="text-blue-600" />
+                        <span>{language === "bn" ? "৭ দিনের যন্ত্রাংশ রিপ্লেসমেন্ট ওয়ারেন্টি" : "7-Day Replacement Warranty"}</span>
+                      </span>
+                      <span className="font-semibold text-blue-600">{language === "bn" ? "অন্তর্ভুক্ত" : "Included"}</span>
+                    </div>
+                    
+                    <div className="border-t border-slate-200 pt-3 mt-3">
+                      <div className="flex justify-between font-black text-xl text-slate-900">
+                        <span>{language === "bn" ? "মোট প্রদেয় টাকা" : "Total Payable Amount"}</span>
+                        <span className="text-blue-600">৳{planPrice.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Standard Course Item */}
+                  <div className="flex gap-4 pb-6 border-b border-slate-200">
+                    <div className="relative w-20 h-20 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+                      {courseData?.thumbnail ? (
+                        <Image
+                          src={courseData.thumbnail}
+                          alt={courseData?.title || "Course"}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            const img = e.target as HTMLImageElement;
+                            img.onerror = null;
+                            img.src = "/logo.png";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
+                          <span className="text-white text-2xl">📚</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 text-sm md:text-base line-clamp-2">
+                        {courseData?.title}
+                      </h3>
+                      {courseData?.category && (
+                        <p className="text-sm text-slate-600 mt-1">{courseData.category.name}</p>
+                      )}
+                      {courseData?.level && (
+                        <p className="text-xs text-slate-500 mt-1 capitalize">
+                          {language === "bn" ? "লেভেল:" : "Level:"} {courseData.level}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-bold text-slate-900">৳{(courseData?.price || planPrice).toLocaleString()}</p>
+                      <p className="text-xs text-slate-600 mt-1">{language === "bn" ? "পরিমাণ: ১" : "Qty: 1"}</p>
+                    </div>
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="space-y-3 text-sm mt-6">
+                    <div className="flex justify-between text-slate-600">
+                      <span>{language === "bn" ? "সাবটোটাল" : "Subtotal"}</span>
+                      <span>৳{(courseData?.price || planPrice).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>{language === "bn" ? "ভ্যাট / ট্যাক্স (০%)" : "Tax (0%)"}</span>
+                      <span>৳0</span>
+                    </div>
+                    
+                    <div className="border-t border-slate-200 pt-3 mt-3">
+                      <div className="flex justify-between font-bold text-lg text-slate-900">
+                        <span>{language === "bn" ? "মোট টাকা" : "Total Amount"}</span>
+                        <span className="text-blue-600">৳{(courseData?.price || planPrice).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* User Information Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-6">Billing Information / বিলিং তথ্য</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-6">
+                {language === "bn" ? "বিলিং তথ্য" : "Billing Information"}
+              </h2>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Full Name / পুরো নাম
+                    {language === "bn" ? "পুরো নাম" : "Full Name"}
                   </label>
                   <input
                     type="text"
@@ -577,7 +925,7 @@ export default function CheckoutPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Email Address / ইমেইল ঠিকানা
+                    {language === "bn" ? "ইমেইল ঠিকানা" : "Email Address"}
                   </label>
                   <input
                     type="email"
@@ -589,7 +937,7 @@ export default function CheckoutPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Phone Number / ফোন নম্বর
+                    {language === "bn" ? "ফোন নম্বর" : "Phone Number"}
                   </label>
                   <input
                     type="tel"
@@ -600,93 +948,108 @@ export default function CheckoutPage() {
                 </div>
 
                 <p className="text-xs text-slate-500 mt-4">
-                  Information from your profile. To change, please update your profile settings. / আপনার প্রোফাইল থেকে তথ্য। পরিবর্তন করতে প্রোফাইল আপডেট করুন।
+                  {language === "bn" 
+                    ? "আপনার প্রোফাইল থেকে সংগৃহীত। পরিবর্তন করতে চাইলে প্রোফাইল সেটিংস আপডেট করুন।" 
+                    : "Information retrieved from your profile. To change, please update your profile settings."}
                 </p>
               </div>
             </div>
 
             {/* Delivery Address Card (for kit and quarterly plans) */}
             {(planType === "kit" || planType === "quarterly") && (
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-                <h2 className="text-xl font-bold text-slate-900 mb-6">Delivery Address / ডেলিভারি ঠিকানা</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {planType === "kit"
+                      ? (language === "bn" ? "রোবোটিক্স কিট ডেলিভারি ঠিকানা" : "Robotics Kit Delivery Address")
+                      : (language === "bn" ? "ডেলিভারি ঠিকানা" : "Delivery Address")}
+                  </h2>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    {language === "bn" ? "ফ্রি এক্সপ্রেস ডেলিভারি" : "Free Express Courier"}
+                  </span>
+                </div>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Recipient Name / প্রাপকের নাম <span className="text-red-500">*</span>
+                      {language === "bn" ? "প্রাপকের নাম" : "Recipient Name"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={deliveryAddress.name || ""}
                       onChange={(e) => setDeliveryAddress({ ...deliveryAddress, name: e.target.value })}
-                      placeholder="Enter recipient name / প্রাপকের নাম লিখুন"
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder={language === "bn" ? "প্রাপকের নাম লিখুন" : "Enter recipient name"}
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Phone Number / ফোন নম্বর <span className="text-red-500">*</span>
+                      {language === "bn" ? "মোবাইল নম্বর" : "Phone Number"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
                       value={deliveryAddress.phone || ""}
                       onChange={(e) => setDeliveryAddress({ ...deliveryAddress, phone: e.target.value })}
-                      placeholder="01XXXXXXXXX / ০১XXXXXXXXX"
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="01XXXXXXXXX"
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Full Address / সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
+                      {language === "bn" ? "সম্পূর্ণ ঠিকানা (বাসা/ফ্ল্যাট, রোড, এলাকা)" : "Full Address (House/Flat, Road, Area)"} <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={deliveryAddress.fullAddress || ""}
                       onChange={(e) => setDeliveryAddress({ ...deliveryAddress, fullAddress: e.target.value })}
-                      placeholder="House/Flat, Road, Area / বাসা/ফ্ল্যাট, রোড, এলাকা"
+                      placeholder={language === "bn" ? "যেমন: ফ্ল্যাট ৪বি, বাড়ি ১২, রোড ৫, ধানমন্ডি, ঢাকা" : "e.g., Flat 4B, House 12, Road 5, Dhanmondi, Dhaka"}
                       rows={3}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        City / District / শহর / জেলা <span className="text-red-500">*</span>
+                        {language === "bn" ? "শহর / জেলা" : "City / District"} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={deliveryAddress.city || ""}
                         onChange={(e) => setDeliveryAddress({ ...deliveryAddress, city: e.target.value })}
-                        placeholder="e.g., Dhaka / যেমন: ঢাকা"
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder={language === "bn" ? "যেমন: ঢাকা / চট্টগ্রাম / সিলেট" : "e.g., Dhaka, Chittagong, Sylhet"}
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Postal Code / পোস্টাল কোড
+                        {language === "bn" ? "পোস্টাল কোড (ঐচ্ছিক)" : "Postal Code (Optional)"}
                       </label>
                       <input
                         type="text"
                         value={deliveryAddress.postalCode || ""}
                         onChange={(e) => setDeliveryAddress({ ...deliveryAddress, postalCode: e.target.value })}
-                        placeholder="e.g., 1230 / যেমন: ১২৩০"
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., 1205"
+                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                    <div className="flex gap-2">
-                      <span className="text-blue-600 text-lg">📦</span>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mt-4">
+                    <div className="flex gap-3 items-start">
+                      <Truck size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium text-blue-900">
-                          {planType === "quarterly" ? "Kit Delivery Included" : "Kit Delivery"}
+                        <p className="text-sm font-bold text-blue-900">
+                          {planType === "kit" 
+                            ? (language === "bn" ? "রোবোটিক্স কিট হোম ডেলিভারি (সম্পূর্ণ ফ্রি)" : "Robotics Kit Home Delivery (100% Free)")
+                            : (language === "bn" ? "কোর্সের সাথে কিট ডেলিভারি অন্তর্ভুক্ত" : "Kit Delivery Included with Plan")}
                         </p>
-                        <p className="text-xs text-blue-700 mt-1">
-                          Your robotics kit will be delivered to this address within 3-5 business days.
+                        <p className="text-xs text-blue-700 mt-1 leading-relaxed">
+                          {language === "bn"
+                            ? "অর্ডার অনুমোদনের পর ৪৮-৭২ ঘণ্টার মধ্যে এক্সপ্রেস কুরিয়ারে যত্নসহকারে কিট বক্স পৌঁছে দেওয়া হবে। সারাদেশে হোম ডেলিভারি ফ্রি।"
+                            : "Your robotics kit box will be dispatched within 24 hours and delivered within 48-72 hours via express courier. Free nationwide delivery."}
                         </p>
                       </div>
                     </div>
@@ -696,19 +1059,21 @@ export default function CheckoutPage() {
             )}
 
             {/* Payment Method Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-6">Payment Method / পেমেন্ট পদ্ধতি</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-6">
+                {language === "bn" ? "পেমেন্ট মাধ্যম নির্বাচন" : "Select Payment Method"}
+              </h2>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Select Payment Method / পেমেন্ট পদ্ধতি নির্বাচন করুন
+                  {language === "bn" ? "পেমেন্ট পদ্ধতি পছন্দ করুন" : "Choose a payment method"}
                 </label>
                 <select
                   value={selectedPaymentMethod}
                   onChange={(e) => setSelectedPaymentMethod(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition"
                 >
-                  <option value="">Choose a payment method / একটি পদ্ধতি নির্বাচন করুন</option>
+                  <option value="">{language === "bn" ? "একটি পদ্ধতি নির্বাচন করুন" : "Choose a payment method"}</option>
                   {paymentMethods.map((method) => (
                     <option key={method._id} value={method._id}>
                       {method.name} {method.accountNumber ? `- ${method.accountNumber}` : ''}
@@ -719,8 +1084,8 @@ export default function CheckoutPage() {
 
               {/* Show selected payment method details */}
               {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod) && (
-                <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-3 mb-3">
+                <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                  <div className="flex items-center gap-3 mb-1">
                     {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("rocket") && (
                       <CreditCard size={20} className="text-blue-600" />
                     )}
@@ -735,8 +1100,8 @@ export default function CheckoutPage() {
                         {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name}
                       </h3>
                       {paymentMethods.find(m => m._id === selectedPaymentMethod)?.accountNumber && (
-                        <p className="text-sm text-slate-600">
-                          Account: {paymentMethods.find(m => m._id === selectedPaymentMethod)?.accountNumber}
+                        <p className="text-sm font-semibold text-slate-700">
+                          {language === "bn" ? "অ্যাকাউন্ট নম্বর:" : "Account Number:"} {paymentMethods.find(m => m._id === selectedPaymentMethod)?.accountNumber}
                         </p>
                       )}
                     </div>
@@ -747,14 +1112,16 @@ export default function CheckoutPage() {
 
               {/* Show detailed payment note when method selected */}
               {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod)?.paymentNote && (
-                <div className="mt-6 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg">
+                <div className="mt-6 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl">
                   <div className="flex items-start gap-3">
                     <div className="bg-blue-600 text-white rounded-full p-2 flex-shrink-0">
                       <Shield size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-blue-900 mb-2 text-base">Payment Instructions / পেমেন্ট নির্দেশনা</h3>
-                      <div className="text-sm text-slate-700 space-y-2 whitespace-pre-line">
+                      <h3 className="font-bold text-blue-900 mb-2 text-base">
+                        {language === "bn" ? "পেমেন্ট নির্দেশনা" : "Payment Instructions"}
+                      </h3>
+                      <div className="text-sm text-slate-700 space-y-2 whitespace-pre-line leading-relaxed">
                         {paymentMethods.find(m => m._id === selectedPaymentMethod)?.paymentNote}
                       </div>
                     </div>
@@ -765,55 +1132,61 @@ export default function CheckoutPage() {
 
             {/* Payment Details Card */}
             {selectedPaymentMethod && (
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
-                <h2 className="text-xl font-bold text-slate-900 mb-6">Payment Details / পেমেন্ট বিস্তারিত</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <h2 className="text-xl font-bold text-slate-900 mb-2">
+                  {language === "bn" ? "পেমেন্ট লেনদেনের তথ্য" : "Payment Transaction Details"}
+                </h2>
                 <p className="text-sm text-slate-600 mb-6">
-                  Enter the payment details from your transaction / আপনার লেনদেনের তথ্য দিন
+                  {language === "bn" ? "আপনার লেনদেনের ট্রানজেকশন নম্বর ও প্রেরকের ফোন দিন" : "Enter the payment details from your mobile or bank transfer"}
                 </p>
 
                 <div className="space-y-4">
                   {/* Sender Number/Account Field */}
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Account/Mobile Number / অ্যাকাউন্ট/মোবাইল নম্বর *
+                      {language === "bn" ? "যে নম্বর থেকে পেমেন্ট করেছেন *" : "Sender Account / Mobile Number *"}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g., 01700000000 / যেমন: ০১৭০০০০০০০০"
+                      placeholder={language === "bn" ? "যেমন: ০১৭১২-৩৪৫৬৭৮" : "e.g., 01712345678"}
                       value={senderNumber}
                       onChange={(e) => setSenderNumber(e.target.value)}
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      Which account/mobile did you send the payment from? / কোন নম্বর থেকে টাকা পাঠিয়েছেন?
+                      {language === "bn" ? "যে বিকাশ / নগদ / রকেট নম্বর থেকে টাকা পাঠিয়েছেন তা লিখুন" : "Enter the mobile or bank account you sent money from"}
                     </p>
                   </div>
 
                   {/* Transaction ID Field */}
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Transaction ID / ট্রানজেকশন আইডি *
+                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g., TXN123456789 / যেমন: TXN123456789"
+                      placeholder={language === "bn" ? "যেমন: TXN987654321" : "e.g., TXN987654321"}
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900 uppercase"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      Enter the transaction/reference ID from your payment / পেমেন্ট এর ট্রানজেকশন আইডি দিন
+                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন" : "Enter the transaction ID from your confirmation SMS"}
                     </p>
                   </div>
                 </div>
 
                 {/* Security Note */}
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex gap-3">
                   <Shield size={18} className="text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-blue-900 mb-1">Secure Payment / সুরক্ষিত পেমেন্ট</p>
-                    <p className="text-xs text-blue-800">
-                      Your payment information is encrypted and secure. We verify all transactions before processing. / আপনার পেমেন্ট তথ্য নিরাপদ এবং এনক্রিপ্টেড। আমরা সব লেনদেন যাচাই করি।
+                    <p className="text-sm font-semibold text-blue-900 mb-1">
+                      {language === "bn" ? "নিরাপদ ও এনক্রিপ্টেড পেমেন্ট" : "Secure Payment"}
+                    </p>
+                    <p className="text-xs text-blue-800 leading-relaxed">
+                      {language === "bn" 
+                        ? "আপনার পেমেন্ট তথ্য নিরাপদ এবং এনক্রিপ্টেড। আমরা প্রতিটি লেনদেন যাচাই করে দ্রুত সার্ভিস সচল করি।"
+                        : "Your payment information is encrypted and secure. We verify all transactions before processing."}
                     </p>
                   </div>
                 </div>
@@ -821,7 +1194,7 @@ export default function CheckoutPage() {
             )}
 
             {/* Terms & Conditions */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -829,16 +1202,32 @@ export default function CheckoutPage() {
                   onChange={(e) => setAgreeTerms(e.target.checked)}
                   className="w-5 h-5 mt-0.5 accent-blue-600 rounded"
                 />
-                <span className="text-sm text-slate-700">
-                  I agree to the{" "}
-                  <a href="/terms-of-use" className="text-blue-600 hover:underline">
-                    Terms & Conditions
-                  </a>{" "}
-                  and{" "}
-                  <a href="/privacy-policy" className="text-blue-600 hover:underline">
-                    Privacy Policy
-                  </a>
-                  {" / আমি শর্তাবলী এবং গোপনীয়তা নীতি মেনে নিচ্ছি"}
+                <span className="text-sm text-slate-700 leading-relaxed">
+                  {language === "bn" ? (
+                    <>
+                      আমি লার্ন অ্যান্ড গ্রো এর{" "}
+                      <a href="/terms-of-use" target="_blank" className="text-blue-600 font-semibold hover:underline">
+                        শর্তাবলী
+                      </a>{" "}
+                      এবং{" "}
+                      <a href="/privacy-policy" target="_blank" className="text-blue-600 font-semibold hover:underline">
+                        গোপনীয়তা নীতি
+                      </a>{" "}
+                      মেনে নিচ্ছি।
+                    </>
+                  ) : (
+                    <>
+                      I agree to the{" "}
+                      <a href="/terms-of-use" target="_blank" className="text-blue-600 font-semibold hover:underline">
+                        Terms & Conditions
+                      </a>{" "}
+                      and{" "}
+                      <a href="/privacy-policy" target="_blank" className="text-blue-600 font-semibold hover:underline">
+                        Privacy Policy
+                      </a>
+                      .
+                    </>
+                  )}
                 </span>
               </label>
             </div>
@@ -848,59 +1237,80 @@ export default function CheckoutPage() {
           <div className="space-y-6">
             {/* Price Summary Sticky */}
             <div className="lg:sticky lg:top-8">
-              <div className="bg-white rounded-lg shadow-md border border-slate-200 p-6">
-                <div className="space-y-4 mb-6 pb-6 border-b border-slate-200">
+              <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                <h3 className="font-black text-slate-900 text-lg mb-4 pb-3 border-b border-slate-100">
+                  {language === "bn" ? "পেমেন্ট সারাংশ" : "Payment Summary"}
+                </h3>
+
+                <div className="space-y-3 mb-6 pb-6 border-b border-slate-200 text-sm">
                   <div className="flex justify-between text-slate-700">
-                    <span className="text-sm">Subtotal / সাবটোটাল</span>
+                    <span>{language === "bn" ? "সাবটোটাল" : "Subtotal"}</span>
                     <span className="font-semibold">৳{planPrice.toLocaleString()}</span>
                   </div>
+                  {(planType === "kit" || planType === "quarterly") && (
+                    <div className="flex justify-between text-slate-700">
+                      <span>{language === "bn" ? "সারাদেশে কুরিয়ার ডেলিভারি" : "Nationwide Courier Delivery"}</span>
+                      <span className="font-bold text-emerald-600">{language === "bn" ? "ফ্রি (৳০)" : "FREE (৳0)"}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-slate-700">
-                    <span className="text-sm">Discount / ছাড়</span>
-                    <span className="font-semibold text-green-600">৳0</span>
+                    <span>{language === "bn" ? "ছাড়" : "Discount"}</span>
+                    <span className="font-semibold text-emerald-600">৳0</span>
                   </div>
                 </div>
 
                 <div className="mb-6">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-slate-700 font-medium">Total / মোট</span>
-                    <span className="text-3xl font-bold text-blue-600">৳{planPrice.toLocaleString()}</span>
+                    <span className="text-slate-700 font-bold">{language === "bn" ? "মোট প্রদেয়" : "Total Amount"}</span>
+                    <span className="text-3xl font-black text-blue-600">৳{planPrice.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <button
                   onClick={handlePlaceOrder}
                   disabled={hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !senderNumber.trim() || !transactionId.trim()}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold text-white text-lg transition flex items-center justify-center gap-2 ${
+                  className={`w-full py-3.5 px-4 rounded-xl font-bold text-white text-base transition flex items-center justify-center gap-2 shadow-md ${
                     hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !senderNumber.trim() || !transactionId.trim()
-                      ? "bg-slate-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700 active:scale-95"
+                      ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
+                      : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-blue-500/20"
                   }`}
                 >
                   {submitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Processing... / প্রসেস হচ্ছে...
+                      <span>{language === "bn" ? "প্রসেসিং হচ্ছে..." : "Processing..."}</span>
                     </>
                   ) : (
                     <>
-                      {hasPurchasedCombo ? "Already Purchased" : "Place Order / অর্ডার করুন"}
+                      <span>{hasPurchasedCombo ? (language === "bn" ? "ইতিমধ্যে কেনা হয়েছে" : "Already Purchased") : (language === "bn" ? "অর্ডার নিশ্চিত করুন" : "Confirm & Place Order")}</span>
                       <ChevronRight size={18} />
                     </>
                   )}
                 </button>
+
+                {planType === "kit" && (
+                  <div className="mt-4 p-3 bg-blue-50/80 rounded-xl border border-blue-100 flex items-center gap-2.5 text-xs text-blue-800">
+                    <Truck size={16} className="text-blue-600 flex-shrink-0" />
+                    <span>
+                      {language === "bn" ? "🚚 এক্সপ্রেস ডেলিভারি: ৪৮-৭২ ঘণ্টার মধ্যে" : "🚚 Express Delivery: Within 48-72 hours"}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Trust Indicators */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mt-6">
-                <h3 className="font-semibold text-slate-900 text-sm mb-4">Secure Checkout / সুরক্ষিত চেকআউট</h3>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
+                <h3 className="font-bold text-slate-900 text-sm mb-4">
+                  {language === "bn" ? "নিরাপদ চেকআউট গ্যারান্টি" : "Secure Checkout Guarantee"}
+                </h3>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
-                      <Lock size={18} className="text-green-600" />
+                      <Lock size={18} className="text-emerald-600" />
                     </div>
-                    <span className="text-sm text-slate-700">
-                      SSL encrypted connection / SSL এনক্রিপ্টেড কনেকশন
+                    <span className="text-xs md:text-sm text-slate-700">
+                      {language === "bn" ? "২৫৬-বিট SSL এনক্রিপ্টেড সংযোগ" : "256-bit SSL encrypted connection"}
                     </span>
                   </div>
 
@@ -908,8 +1318,8 @@ export default function CheckoutPage() {
                     <div className="flex-shrink-0">
                       <Shield size={18} className="text-blue-600" />
                     </div>
-                    <span className="text-sm text-slate-700">
-                      Your payment is secure / আপনার পেমেন্ট নিরাপদ
+                    <span className="text-xs md:text-sm text-slate-700">
+                      {language === "bn" ? "১০০% নিরাপদ পেমেন্ট ভেরিফিকেশন" : "100% Secure payment verification"}
                     </span>
                   </div>
 
@@ -917,30 +1327,37 @@ export default function CheckoutPage() {
                     <div className="flex-shrink-0">
                       <Check size={18} className="text-emerald-600" />
                     </div>
-                    <span className="text-sm text-slate-700">
-                      PCI DSS compliant / PCI DSS অনুমোদিত
+                    <span className="text-xs md:text-sm text-slate-700">
+                      {language === "bn" ? "৭ দিনের পার্টস রিপ্লেসমেন্ট নিশ্চয়তা" : "7-Day component replacement guarantee"}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="mt-4 pt-4 border-t border-slate-100">
                   <p className="text-xs text-slate-500 text-center">
-                    🔒 This is a secure page. Your information is encrypted. / এটি একটি নিরাপদ পেজ। আপনার তথ্য এনক্রিপ্টেড।
+                    {language === "bn" 
+                      ? "🔒 আপনার তথ্য সম্পূর্ণ সুরক্ষিত ও এনক্রিপ্টেড।" 
+                      : "🔒 This is a secure page. Your information is protected."}
                   </p>
                 </div>
               </div>
 
               {/* Need Help */}
-              <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 mt-6">
-                <p className="text-sm font-medium text-blue-900 mb-2">Need Help? / সাহায্য লাগবে?</p>
-                <p className="text-xs text-blue-800 mb-3">
-                  Contact our support team if you have any questions / কোনো প্রশ্ন থাকলে আমাদের সাপোর্ট টিমে যোগাযোগ করুন
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-5 mt-6">
+                <p className="text-sm font-bold text-blue-900 mb-1">
+                  {language === "bn" ? "সাহায্য প্রয়োজন?" : "Need Assistance?"}
+                </p>
+                <p className="text-xs text-blue-800 mb-3 leading-relaxed">
+                  {language === "bn" 
+                    ? "পেমেন্ট বা ডেলিভারি নিয়ে যেকোনো প্রশ্নে সরাসরি আমাদের সাপোর্ট টিমে নক দিন।"
+                    : "Have questions about payment or delivery? Our dedicated support team is ready to help."}
                 </p>
                 <a
-                  href="/help"
-                  className="inline-block text-sm font-medium text-blue-600 hover:text-blue-700 transition"
+                  href="/contact"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-800 bg-white px-3 py-1.5 rounded-lg border border-blue-200 shadow-xs transition"
                 >
-                  Get Support / সাপোর্ট পান →
+                  <Headphones size={14} />
+                  <span>{language === "bn" ? "সাপোর্টে যোগাযোগ করুন →" : "Contact Support →"}</span>
                 </a>
               </div>
             </div>

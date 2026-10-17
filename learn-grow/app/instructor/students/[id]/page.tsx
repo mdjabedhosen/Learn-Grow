@@ -44,6 +44,15 @@ function InstructorStudentDetailContent() {
   });
   
   const student = data?.data;
+  const studentBatches = Array.isArray(student?.batches) ? student.batches : [];
+  const studentEnrollments = Array.isArray(student?.enrollments) ? student.enrollments : [];
+  const enrolledCoursesCount = studentEnrollments.length || studentBatches.length || 0;
+  const completedCount = studentEnrollments.filter(
+    (e: any) => e.isCompleted || (e.completionPercentage ?? e.progress ?? 0) >= 100
+  ).length;
+  const inProgressCount = studentEnrollments.filter(
+    (e: any) => !e.isCompleted && (e.completionPercentage ?? e.progress ?? 0) < 100
+  ).length;
 
   // Fetch student's orders
   const { data: ordersData, isLoading: ordersLoading } = useGetStudentOrdersQuery({
@@ -298,7 +307,7 @@ function InstructorStudentDetailContent() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Enrolled Courses</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">{enrolledCoursesCount}</p>
                   </div>
                 </div>
               </CardBody>
@@ -312,7 +321,7 @@ function InstructorStudentDetailContent() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Completed</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">{completedCount}</p>
                   </div>
                 </div>
               </CardBody>
@@ -326,7 +335,7 @@ function InstructorStudentDetailContent() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">In Progress</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">{inProgressCount}</p>
                   </div>
                 </div>
               </CardBody>
@@ -444,20 +453,124 @@ function InstructorStudentDetailContent() {
             </CardBody>
           </Card>
 
-          {/* Course Progress */}
+          {/* Course & Batch Progress */}
           <Card>
-            <CardHeader>
-              <h3 className="font-semibold text-lg">Course Progress</h3>
+            <CardHeader className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-lg">Assigned Batches & Course Progress</h3>
+                <p className="text-xs text-gray-500">Live cohorts and learning completion under your instruction</p>
+              </div>
+              <Chip size="sm" color="primary" variant="flat">
+                {studentEnrollments.length || studentBatches.length} Cohorts
+              </Chip>
             </CardHeader>
             <Divider />
             <CardBody>
-              <div className="text-center py-12">
-                <FaBook className="text-6xl text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">No enrolled courses yet</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Course enrollments will appear here
-                </p>
-              </div>
+              {(studentEnrollments.length > 0 || studentBatches.length > 0) ? (
+                <div className="space-y-4">
+                  {studentEnrollments.map((enr: any, idx: number) => {
+                    const batch = enr.batchId || (studentBatches[idx] || null);
+                    const course = enr.courseId || batch?.courseId || null;
+                    const progVal = enr.progress ?? enr.completionPercentage ?? 0;
+
+                    return (
+                      <div
+                        key={enr._id || idx}
+                        className="p-4 rounded-2xl border border-gray-200 bg-gray-50/50 hover:bg-gray-50 transition space-y-3"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                              <FaBook />
+                            </div>
+                            <div>
+                              <p className="font-bold text-gray-900 text-sm">
+                                {course?.title || "Enrolled Course"}
+                              </p>
+                              {batch && (
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700">
+                                    {batch.batchName || `Batch ${batch.batchNumber}`}
+                                  </span>
+                                  {batch.schedule && (
+                                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                                      <FaClock className="text-gray-400" />
+                                      {batch.schedule}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 self-start sm:self-auto">
+                            {batch?.whatsappGroupUrl && (
+                              <a
+                                href={batch.whatsappGroupUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 transition"
+                              >
+                                WhatsApp Group
+                              </a>
+                            )}
+                            {batch?.zoomLink && (
+                              <a
+                                href={batch.zoomLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200 transition"
+                              >
+                                Live Class
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs font-semibold">
+                            <span className="text-gray-600">Overall Course Progress</span>
+                            <span className={progVal >= 100 ? "text-emerald-600 font-bold" : "text-blue-600 font-bold"}>
+                              {progVal}% {progVal >= 100 ? "(Completed)" : "(In Progress)"}
+                            </span>
+                          </div>
+                          <Progress
+                            value={progVal}
+                            size="md"
+                            color={progVal >= 100 ? "success" : "primary"}
+                            className="h-2 rounded-full"
+                          />
+                        </div>
+
+                        {/* Sub-metrics */}
+                        <div className="flex flex-wrap gap-4 pt-1 text-xs text-gray-500">
+                          {Array.isArray(enr.completedLessons) && (
+                            <span>Lessons: {enr.completedLessons.length}</span>
+                          )}
+                          {Array.isArray(enr.completedModules) && (
+                            <span>Modules: {enr.completedModules.length}</span>
+                          )}
+                          {Array.isArray(enr.completedAssignments) && (
+                            <span>Assignments: {enr.completedAssignments.length}</span>
+                          )}
+                          {enr.createdAt && (
+                            <span>Enrolled: {new Date(enr.createdAt).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FaBook className="text-6xl text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600">No active cohorts or course progress recorded yet</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Student enrollments will appear here once assigned to your batches
+                  </p>
+                </div>
+              )}
             </CardBody>
           </Card>
 
@@ -502,7 +615,7 @@ function InstructorStudentDetailContent() {
 
 export default function InstructorStudentDetailPage() {
   return (
-    <RequireAuth allowedRoles={["instructor"]}>
+    <RequireAuth allowedRoles={["instructor", "admin", "manager"]}>
       <InstructorStudentDetailContent />
     </RequireAuth>
   );

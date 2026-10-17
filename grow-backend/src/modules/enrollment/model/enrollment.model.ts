@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, models, Model, Types } from "mongoose";
 
 export interface IEnrollment {
   studentId: Types.ObjectId;
@@ -17,6 +17,9 @@ export interface IEnrollment {
   accessEndDate?: Date; // Null = lifetime access
   purchaseType?: "single" | "combo"; // How user got access (single course or combo)
   comboId?: Types.ObjectId; // If purchased as part of combo
+  batchId?: Types.ObjectId; // Assigned batch
+  batchNumber?: number; // Batch number (e.g., 1, 2, 3)
+  assignedInstructorId?: Types.ObjectId; // Batch teacher
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -59,6 +62,19 @@ const enrollmentSchema = new Schema<IEnrollment>(
       type: Schema.Types.ObjectId,
       ref: "Combo",
     },
+    batchId: {
+      type: Schema.Types.ObjectId,
+      ref: "Batch",
+      index: true,
+    },
+    batchNumber: {
+      type: Number,
+    },
+    assignedInstructorId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
   },
   { timestamps: true }
 );
@@ -69,4 +85,4 @@ enrollmentSchema.index({ studentId: 1, courseId: 1 }, { unique: true });
 enrollmentSchema.index({ accessEndDate: 1 });
 enrollmentSchema.index({ studentId: 1, accessEndDate: 1 });
 
-export const Enrollment = model<IEnrollment>("Enrollment", enrollmentSchema);
+export const Enrollment = (models.Enrollment as Model<IEnrollment>) || model<IEnrollment>("Enrollment", enrollmentSchema);

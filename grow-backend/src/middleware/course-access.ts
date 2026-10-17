@@ -33,6 +33,39 @@ export const checkCourseAccess = async (
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
+    // 0. Admins and managers always have full course access
+    if (req.userRole === "admin" || req.userRole === "manager") {
+      return next();
+    }
+
+    // 0.1 Instructors assigned to this course (primary, co-instructor, or batch mentor) have full access
+    if (req.userRole === "instructor") {
+      try {
+        const { Course } = await import("../modules/course/model/course.model");
+        const course = await Course.findById(courseObjectId).lean();
+        if (course) {
+          const isPrimary = course.instructorId?.toString() === userId;
+          const isCoInstructor = Array.isArray(course.instructorIds) && course.instructorIds.some(
+            (id: any) => (id?._id ? id._id.toString() : id?.toString()) === userId
+          );
+          if (isPrimary || isCoInstructor) {
+            return next();
+          }
+
+          const { Batch } = await import("../modules/batch/model/batch.model");
+          const bCount = await Batch.countDocuments({
+            courseId: courseObjectId,
+            instructorId: userObjectId,
+          });
+          if (bCount > 0) {
+            return next();
+          }
+        }
+      } catch (e) {
+        // continue to normal order checks
+      }
+    }
+
     // 1. Check for active quarterly subscription (legacy, all courses access)
     const quarterlySubscription = await Order.findOne({
       userId: userObjectId,

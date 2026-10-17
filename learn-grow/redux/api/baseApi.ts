@@ -189,6 +189,8 @@ export const baseApi = createApi({
         "Tickets",
         "TicketStats",
         "Certificates",
+        "Batch",
+        "TrialBooking",
     ],
     endpoints: () => ({}),
 });

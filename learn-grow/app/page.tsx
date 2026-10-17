@@ -1,15 +1,14 @@
 import React from "react";
 import { Metadata } from "next";
 
-import Educators from "@/components/Educators";
 import ModernBanner from "@/components/ModernBanner";
 import CoursesSection from "@/components/CoursesSection";
 import PlatformFeaturesSection from "@/components/PlatformFeaturesSection";
+import LiveClassSection from "@/components/LiveClassSection";
 import PricingSection from "@/components/PricingSection";
-import EnrollmentSection from "@/components/EnrollmentSection";
-import OurGoals from "@/components/OurGoals";
 import WhyBestCourses from "@/components/WhyBestCourses";
-import NextTarget from "@/components/NextTarget";
+import WorkshopStorySection from "@/components/WorkshopStorySection";
+import Educators from "@/components/Educators";
 
 export const metadata: Metadata = {
   title: "Learn & Grow - Robotics Courses & STEM Education Kits",
@@ -71,35 +70,30 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="space-y-16">
+      <div className="flex flex-col">
         {/* Hero Banner */}
         <ModernBanner />
 
         {/* Courses Offered */}
         <CoursesSection />
 
-        {/* Platform Features - Moved Here */}
+        {/* Platform Key Value Highlights */}
         <PlatformFeaturesSection />
 
-        {/* Enrollment Options */}
-        {/* <EnrollmentSection /> */}
+        {/* 100% Live Interactive Classes (Not Recorded) */}
+        <LiveClassSection />
+
+        {/* Real Flagship Workshop & Success Story (BPSC 300 Students) */}
+        <WorkshopStorySection />
 
         {/* Pricing Plans */}
         <PricingSection />
 
-        {/* Our Goals in Bangla */}
-        <OurGoals />
+        {/* Our Educators / Tutors (Kodland-Style Interactive Carousel) */}
+        <Educators />
 
-         <Educators />
-
-        {/* Why Our Courses Are Best - FAQ */}
+        {/* Why Our Courses Are Best - Stats & FAQ */}
         <WhyBestCourses />
-
-        {/* Our Next Target */}
-        <NextTarget />
-
-        {/* Our Educators - Last section before footer */}
-       
       </div>
     </>
   );

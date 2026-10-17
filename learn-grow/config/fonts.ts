@@ -50,7 +50,7 @@ export const fontPlaypen = FontPlaypen({
 });
 
 export const fontHindSiliguri = FontHindSiliguri({
-  subsets: ["latin"],
+  subsets: ["bengali", "latin"],
   variable: "--font-hind-siliguri",
   weight: ["300", "400", "500", "600", "700"],
 });

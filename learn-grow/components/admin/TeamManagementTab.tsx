@@ -42,11 +42,15 @@ interface TeamMember {
     role: string;
     image: string;
     imageSize: number;
+    domain?: string;
+    yearsOfExperience?: string | number;
+    expertise?: string[] | string;
     linkedIn?: string;
     twitter?: string;
     bio?: string;
     showOnHome: boolean;
     userId?: string;
+    position?: number;
 }
 
 interface Instructor {
@@ -89,10 +93,14 @@ export default function TeamManagementTab() {
     const [formData, setFormData] = useState({
         name: "",
         role: "",
+        domain: "",
+        yearsOfExperience: "",
+        expertise: "",
         linkedIn: "",
         twitter: "",
         bio: "",
         imageUrl: "",
+        showOnHome: true,
     });
 
     const teamMembers = (teamData?.data || []) as TeamMember[];
@@ -117,14 +125,30 @@ export default function TeamManagementTab() {
             await createTeamMember({
                 name: formData.name,
                 role: formData.role,
+                domain: formData.domain,
+                yearsOfExperience: formData.yearsOfExperience,
+                expertise: formData.expertise,
                 image: formData.imageUrl,
                 linkedIn: formData.linkedIn,
                 twitter: formData.twitter,
                 bio: formData.bio,
+                showOnHome: formData.showOnHome,
             }).unwrap();
 
             toast.success("Team member added successfully!");
-            setFormData({ name: "", role: "", linkedIn: "", twitter: "", bio: "", imageUrl: "" });
+            setFormData({
+                name: "",
+                role: "",
+                domain: "",
+                yearsOfExperience: "",
+                expertise: "",
+                linkedIn: "",
+                twitter: "",
+                bio: "",
+                imageUrl: "",
+                showOnHome: true,
+            });
+            refetch();
         } catch (error) {
             toast.error((error as any)?.data?.message || "Failed to add member");
         }
@@ -143,6 +167,7 @@ export default function TeamManagementTab() {
             toast.success("Team member updated successfully!");
             setIsEditOpen(false);
             setEditingMember(null);
+            refetch();
         } catch (error) {
             toast.error((error as any)?.data?.message || "Failed to update member");
         }
@@ -175,10 +200,10 @@ export default function TeamManagementTab() {
     const handleToggleShowHome = async (id: string, currentValue: boolean) => {
         try {
             await toggleShowHome({ id, showOnHome: !currentValue }).unwrap();
-            toast.success("Visibility updated!");
+            toast.success(!currentValue ? "Member will now appear in Home Mentor Slider!" : "Member removed from Home Mentor Slider");
             refetch();
         } catch (error) {
-            toast.error("Failed to update visibility");
+            toast.error("Failed to update home slider visibility");
         }
     };
 
@@ -230,6 +255,26 @@ export default function TeamManagementTab() {
                                     </SelectItem>
                                 ))}
                             </Select>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input
+                                    label="Domain / Specialty (Optional)"
+                                    placeholder="e.g. Python & AI, Junior Robotics"
+                                    value={formData.domain}
+                                    onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                                />
+                                <Input
+                                    label="Years of Experience (Optional)"
+                                    placeholder="e.g. 3+ Years Exp"
+                                    value={formData.yearsOfExperience}
+                                    onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
+                                />
+                            </div>
+                            <Input
+                                label="Skills / Expertise (Optional, comma-separated)"
+                                placeholder="e.g. AI, Python, Data Science"
+                                value={formData.expertise}
+                                onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
+                            />
                             <Input
                                 label="LinkedIn URL (Optional)"
                                 placeholder="https://linkedin.com/in/..."
@@ -248,6 +293,17 @@ export default function TeamManagementTab() {
                                 value={formData.bio}
                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                             />
+                            <div className="flex items-center justify-between p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl">
+                                <div>
+                                    <p className="font-bold text-sm text-blue-950">🌟 Feature on Home Mentor Slider</p>
+                                    <p className="text-xs text-blue-800">Show this person sliding along with mentors/tutors on the homepage carousel</p>
+                                </div>
+                                <Switch
+                                    isSelected={formData.showOnHome}
+                                    onValueChange={(val) => setFormData({ ...formData, showOnHome: val })}
+                                    color="success"
+                                />
+                            </div>
 
                             <div>
                                 <p className="text-sm font-semibold mb-3">Profile Picture URL</p>
@@ -352,7 +408,7 @@ export default function TeamManagementTab() {
                         <CardHeader className="flex gap-3">
                             <div>
                                 <p className="text-lg font-semibold">Manage Team Members</p>
-                                <p className="text-sm text-gray-600">Edit, delete, or toggle home page visibility for each member</p>
+                                <p className="text-sm text-gray-600">Edit, delete, or choose who appears in the Home Page sliding Mentor / Tutor carousel</p>
                             </div>
                         </CardHeader>
                         <CardBody>
@@ -373,12 +429,13 @@ export default function TeamManagementTab() {
                                                         <p className="text-sm text-gray-600">{member.role}</p>
                                                     </div>
                                                     <Chip
-                                                        startContent={member.showOnHome ? <FaEye /> : <FaEyeSlash />}
+                                                        startContent={member.showOnHome ? <FaEye className="text-emerald-500" /> : <FaEyeSlash className="text-slate-400" />}
                                                         variant="flat"
                                                         color={member.showOnHome ? "success" : "default"}
                                                         size="sm"
+                                                        className="font-bold text-xs"
                                                     >
-                                                        {member.showOnHome ? "Visible" : "Hidden"}
+                                                        {member.showOnHome ? "🌟 On Home Slider" : "Hidden from Slider"}
                                                     </Chip>
                                                 </div>
 
@@ -394,6 +451,23 @@ export default function TeamManagementTab() {
                                                 ) : (
                                                     <div className="w-full h-[150px] bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
                                                         <span className="text-6xl font-bold text-gray-400">{member.name.charAt(0)}</span>
+                                                    </div>
+                                                )}
+
+                                                {member.domain && (
+                                                    <div className="flex items-center gap-2 text-xs font-semibold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-md">
+                                                        <span>🤖 {member.domain}</span>
+                                                        {member.yearsOfExperience && <span className="text-gray-500">• {member.yearsOfExperience}</span>}
+                                                    </div>
+                                                )}
+
+                                                {Array.isArray(member.expertise) && member.expertise.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {member.expertise.map((skill, idx) => (
+                                                            <span key={idx} className="text-[10px] bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-full">
+                                                                {skill}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 )}
 
@@ -430,13 +504,14 @@ export default function TeamManagementTab() {
 
                                                 <div className="flex gap-2 pt-2 border-t">
                                                     <Button
-                                                        startContent={<FaEye />}
+                                                        startContent={member.showOnHome ? <FaEyeSlash /> : <FaEye />}
                                                         size="sm"
                                                         variant="flat"
                                                         color={member.showOnHome ? "warning" : "success"}
+                                                        className="font-bold text-xs"
                                                         onClick={() => handleToggleShowHome(member._id, member.showOnHome)}
                                                     >
-                                                        {member.showOnHome ? "Hide" : "Show"}
+                                                        {member.showOnHome ? "Remove from Slider" : "Feature on Home Slider"}
                                                     </Button>
                                                     <Button
                                                         isIconOnly
@@ -499,6 +574,55 @@ export default function TeamManagementTab() {
                                                 </SelectItem>
                                             ))}
                                         </Select>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <Input
+                                                label="Domain / Specialty (Optional)"
+                                                placeholder="e.g. Python & AI, Junior Robotics"
+                                                value={editingMember.domain || ""}
+                                                onChange={(e) =>
+                                                    setEditingMember({ ...editingMember, domain: e.target.value })
+                                                }
+                                            />
+                                            <Input
+                                                label="Years of Experience (Optional)"
+                                                placeholder="e.g. 3+ Years Exp"
+                                                value={editingMember.yearsOfExperience?.toString() || ""}
+                                                onChange={(e) =>
+                                                    setEditingMember({ ...editingMember, yearsOfExperience: e.target.value })
+                                                }
+                                            />
+                                        </div>
+                                        <Input
+                                            label="Skills / Expertise (comma-separated)"
+                                            placeholder="e.g. AI, Python, Data Science"
+                                            value={
+                                                Array.isArray(editingMember.expertise)
+                                                    ? editingMember.expertise.join(", ")
+                                                    : (editingMember.expertise || "")
+                                            }
+                                            onChange={(e) =>
+                                                setEditingMember({
+                                                    ...editingMember,
+                                                    expertise: e.target.value
+                                                        .split(",")
+                                                        .map((s) => s.trim())
+                                                        .filter(Boolean),
+                                                })
+                                            }
+                                        />
+                                        <div className="flex items-center justify-between p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl">
+                                            <div>
+                                                <p className="font-bold text-sm text-blue-950">🌟 Feature on Home Mentor Slider</p>
+                                                <p className="text-xs text-blue-800">Show this person sliding along with mentors/tutors on the homepage carousel</p>
+                                            </div>
+                                            <Switch
+                                                isSelected={Boolean(editingMember.showOnHome)}
+                                                onValueChange={(val) =>
+                                                    setEditingMember({ ...editingMember, showOnHome: val })
+                                                }
+                                                color="success"
+                                            />
+                                        </div>
                                         <Input
                                             label="Bio"
                                             value={editingMember.bio || ""}

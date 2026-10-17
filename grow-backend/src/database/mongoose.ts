@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-
-// Hardcoded URI - Primary source
-const MONGODB_URI = "mongodb://learnandgrow:learnandgrow@104.207.70.54:27017/learnandgrow?authSource=admin";
+import { config } from "@/config";
 
 /**
  * Global UTC & Cleanup Transformation
@@ -28,10 +26,7 @@ mongoose.set("toObject", outputOptions);
  */
 export const connectDB = async () => {
   try {
-    // We use the hardcoded URI directly for "clean" simplicity
-    await mongoose.connect(MONGODB_URI);
-
-    const maskedUri = MONGODB_URI.replace(/\/\/.*:(.*)@/, "//user:***@");
+    await mongoose.connect(config.MONGODB_URI);
   } catch (error: any) {
     process.exit(1);
   }

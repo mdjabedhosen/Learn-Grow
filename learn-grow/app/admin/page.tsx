@@ -1,35 +1,70 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import RequireAuth from "@/components/Auth/RequireAuth";
 import {
   Card,
   CardBody,
+  CardHeader,
   Button,
   Skeleton,
+  Chip,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useGetAdminDashboardStatsQuery } from "@/redux/api/userApi";
 import { useGetCoursesCountQuery } from "@/redux/api/courseApi";
 import { useGetTicketStatsQuery } from "@/redux/features/ticketApi";
+import { useGetTrialBookingsQuery } from "@/redux/api/trialBookingApi";
 import {
-  FaUsers,
-  FaBook,
-  FaChartLine,
-  FaTicketAlt,
-  FaChalkboardTeacher,
-  FaVideo,
-  FaUserGraduate,
-  FaClock,
-} from "react-icons/fa";
+  Users,
+  BookOpen,
+  TrendingUp,
+  LifeBuoy,
+  UserCheck,
+  Video,
+  GraduationCap,
+  Clock,
+  ShieldCheck,
+  CreditCard,
+  Layers,
+  Settings,
+  Package,
+  Activity,
+  ArrowUpRight,
+  Server,
+  Database,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  ChevronRight,
+  Sparkles,
+  CalendarCheck,
+} from "lucide-react";
 
 function AdminDashboardContent() {
   const router = useRouter();
+
+  // Bilingual support
+  const [language, setLanguage] = useState<"bn" | "en">("bn");
+  useEffect(() => {
+    const savedLang = (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn";
+    setLanguage(savedLang);
+    const handleLangChange = (e: any) => {
+      setLanguage(e.detail?.language || (localStorage.getItem("preferredLanguage") as "bn" | "en") || "bn");
+    };
+    window.addEventListener("languageChange", handleLangChange);
+    return () => window.removeEventListener("languageChange", handleLangChange);
+  }, []);
+  const isBn = language === "bn";
 
   // Fetch dashboard stats
   const { data: statsData, isLoading: statsLoading } = useGetAdminDashboardStatsQuery(undefined);
   const { data: countData } = useGetCoursesCountQuery({});
   const { data: ticketStatsData } = useGetTicketStatsQuery(undefined);
+  const { data: trialBookingsData } = useGetTrialBookingsQuery();
+
+  const totalTrials = trialBookingsData?.count ?? trialBookingsData?.data?.length ?? 0;
+  const pendingTrials = (trialBookingsData?.data || []).filter((t: any) => t.status === "pending").length;
 
   // Calculate stats from real data
   const stats = useMemo(() => {
@@ -50,327 +85,437 @@ function AdminDashboardContent() {
 
   const quickActions = [
     {
-      title: "Support Tickets",
-      description: "Manage support tickets",
-      icon: <FaTicketAlt className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-red-500",
+      title: isBn ? "ফ্রি ট্রায়াল রিকোয়েস্ট" : "Free Trial Leads",
+      description: isBn ? "অভিভাবকদের ট্রায়াল ক্লাস আবেদন ও ফলো-আপ" : "Review & nurture trial bookings",
+      icon: <CalendarCheck className="w-5 h-5" />,
+      color: "text-amber-600 bg-amber-50 border-amber-100 group-hover:bg-amber-600 group-hover:text-white",
+      badge: pendingTrials,
+      badgeColor: "bg-amber-500",
+      href: "/admin/trials",
+    },
+    {
+      title: isBn ? "সাপোর্ট টিকিট" : "Support Tickets",
+      description: isBn ? "শিক্ষার্থী ও অভিভাবকদের সহায়তা" : "Manage help desk tickets",
+      icon: <LifeBuoy className="w-5 h-5" />,
+      color: "text-rose-600 bg-rose-50 border-rose-100 group-hover:bg-rose-600 group-hover:text-white",
       badge: stats.openTickets,
+      badgeColor: "bg-rose-500",
       href: "/admin/tickets",
     },
     {
-      title: "Students",
-      description: "Manage students",
-      icon: <FaUserGraduate className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-blue-500",
+      title: isBn ? "শিক্ষার্থী তালিকা" : "Student Registry",
+      description: isBn ? "শিক্ষার্থী অ্যাকাউন্ট ও অগ্রগতি" : "View enrolled students",
+      icon: <GraduationCap className="w-5 h-5" />,
+      color: "text-blue-600 bg-blue-50 border-blue-100 group-hover:bg-blue-600 group-hover:text-white",
+      badge: stats.totalStudents,
+      badgeColor: "bg-blue-500",
       href: "/admin/students",
     },
     {
-      title: "Instructors",
-      description: "Review and approve instructors",
-      icon: <FaChalkboardTeacher className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-yellow-500",
+      title: isBn ? "শিক্ষক ও মেন্টর" : "Instructors",
+      description: isBn ? "শিক্ষক আবেদন ও অনুমোদন" : "Review & approve instructors",
+      icon: <UserCheck className="w-5 h-5" />,
+      color: "text-amber-600 bg-amber-50 border-amber-100 group-hover:bg-amber-600 group-hover:text-white",
+      badge: stats.totalInstructors,
+      badgeColor: "bg-amber-500",
       href: "/admin/instructors",
     },
     {
-      title: "Courses",
-      description: "Approve and manage courses",
-      icon: <FaBook className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-green-500",
+      title: isBn ? "কোর্স ম্যানেজমেন্ট" : "Courses & Curriculum",
+      description: isBn ? "কোর্স অনুমোদন ও মডিউল আপডেট" : "Publish & manage courses",
+      icon: <BookOpen className="w-5 h-5" />,
+      color: "text-emerald-600 bg-emerald-50 border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white",
+      badge: stats.totalCourses,
+      badgeColor: "bg-emerald-500",
       href: "/admin/courses",
     },
     {
-      title: "Live Classes",
-      description: "Manage live classes",
-      icon: <FaVideo className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-blue-500",
+      title: isBn ? "লাইভ ক্লাস শিডিউল" : "Live Classes",
+      description: isBn ? "Google Meet / Zoom সেশন মনিটরিং" : "Schedule & manage live sessions",
+      icon: <Video className="w-5 h-5" />,
+      color: "text-indigo-600 bg-indigo-50 border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white",
       href: "/admin/live-classes",
     },
     {
-      title: "Analytics",
-      description: "View platform analytics",
-      icon: <FaChartLine className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-purple-500",
+      title: isBn ? "অর্ডার ও পেমেন্ট" : "Orders & Billing",
+      description: isBn ? "bKash / Nagad পেমেন্ট ও কিট ডেলিভারি" : "Review orders & hardware kits",
+      icon: <Package className="w-5 h-5" />,
+      color: "text-purple-600 bg-purple-50 border-purple-100 group-hover:bg-purple-600 group-hover:text-white",
+      href: "/admin/orders",
+    },
+    {
+      title: isBn ? "কম্বো ও বান্ডেল" : "Bundles & Combos",
+      description: isBn ? "স্পেশাল প্যাকেজ ও ছাড় নির্ধারণ" : "Manage course bundle offers",
+      icon: <Layers className="w-5 h-5" />,
+      color: "text-cyan-600 bg-cyan-50 border-cyan-100 group-hover:bg-cyan-600 group-hover:text-white",
+      href: "/admin/combos",
+    },
+    {
+      title: isBn ? "প্ল্যাটফর্ম অ্যানালিটিক্স" : "Analytics & Reports",
+      description: isBn ? "রেভিনিউ, এনগেজমেন্ট ও গ্রোথ" : "Platform growth & revenue trends",
+      icon: <TrendingUp className="w-5 h-5" />,
+      color: "text-teal-600 bg-teal-50 border-teal-100 group-hover:bg-teal-600 group-hover:text-white",
       href: "/admin/analytics",
     },
     {
-      title: "Team Management",
-      description: "Manage team members and roles",
-      icon: <FaUsers className="text-2xl sm:text-3xl" />,
-      iconBg: "bg-indigo-500",
+      title: isBn ? "টিম ও অ্যাডমিন" : "Team & Security",
+      description: isBn ? "রোল, পারমিশন ও এক্সেস কন্ট্রোল" : "Roles & system permissions",
+      icon: <ShieldCheck className="w-5 h-5" />,
+      color: "text-slate-700 bg-slate-100 border-slate-200 group-hover:bg-slate-800 group-hover:text-white",
       href: "/admin/team-management",
     },
   ];
 
-  const recentActivity = [
-    {
-      icon: FaUsers,
-      message: `Total ${stats.totalStudents} students registered`,
-      time: "Real-time data",
-    },
-    {
-      icon: FaBook,
-      message: `${stats.totalCourses} courses available on platform`,
-      time: "Real-time data",
-    },
-    {
-      icon: FaChalkboardTeacher,
-      message: `${stats.totalInstructors} instructors enrolled`,
-      time: "Real-time data",
-    },
-  ];
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8 animate-fade-in">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900">
-          Admin Dashboard
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600">
-          Manage and oversee the entire platform
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#F8FAFC] pb-20">
+      {/* Ambient Platform Command Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-10 pb-16 px-6 rounded-b-[36px] shadow-lg">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#3B82F6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8 lg:mb-10">
-        {/* Total Users Card */}
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1">
-          <CardBody className="text-white p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 font-medium mb-1 sm:mb-2 truncate">
-                  Total Users
-                </p>
-                <Skeleton isLoaded={!statsLoading} className="rounded-lg bg-white/20">
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                    {stats.totalUsers}
-                  </p>
-                </Skeleton>
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 backdrop-blur-md">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-300" />
+                  {isBn ? "অ্যাডমিন কমান্ড সেন্টার" : "Admin Command Center"}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {isBn ? "সার্ভার অনলাইন" : "Server Online"}
+                </span>
               </div>
-              <div className="bg-white/20 p-2 sm:p-3 rounded-full ml-2 flex-shrink-0">
-                <FaUsers className="text-xl sm:text-2xl lg:text-3xl" />
-              </div>
+
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+                {isBn ? "প্ল্যাটফর্ম ওভারভিউ ও পরিচালনা" : "Platform Administration & Control"}
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 max-w-xl">
+                {isBn 
+                  ? "লার্ন অ্যান্ড গ্রো-এর লাইভ ব্যাচ, শিক্ষার্থী তালিকা, পেমেন্ট ও ইনস্ট্রাক্টর অনুমোদন রিয়েল-টাইমে নিয়ন্ত্রণ করুন।"
+                  : "Monitor live batches, verify tuition orders, approve educator courses, and manage global platform operations."}
+              </p>
             </div>
-          </CardBody>
-        </Card>
 
-        {/* Total Courses Card */}
-        <Card className="bg-gradient-to-br from-green-500 to-green-600 border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1">
-          <CardBody className="text-white p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 font-medium mb-1 sm:mb-2 truncate">
-                  Total Courses
-                </p>
-                <Skeleton isLoaded={!statsLoading} className="rounded-lg bg-white/20">
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                    {stats.totalCourses}
-                  </p>
-                </Skeleton>
-              </div>
-              <div className="bg-white/20 p-2 sm:p-3 rounded-full ml-2 flex-shrink-0">
-                <FaBook className="text-xl sm:text-2xl lg:text-3xl" />
-              </div>
+            {/* Header Action Shortcuts */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                color="warning"
+                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-amber-500/25 bg-amber-500 hover:bg-amber-400 text-white"
+                onPress={() => router.push("/admin/trials")}
+                startContent={<CalendarCheck className="w-4 h-4" />}
+              >
+                {isBn ? `ফ্রি ট্রায়াল লিডস (${pendingTrials || 0})` : `Trial Leads (${pendingTrials || 0})`}
+              </Button>
+              <Button
+                color="primary"
+                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 bg-blue-600 hover:bg-blue-500"
+                onPress={() => router.push("/admin/orders")}
+                startContent={<Package className="w-4 h-4" />}
+              >
+                {isBn ? "অর্ডার ম্যানেজমেন্ট" : "Manage Orders"}
+              </Button>
+              <Button
+                variant="bordered"
+                className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10"
+                onPress={() => router.push("/admin/tickets")}
+                startContent={<LifeBuoy className="w-4 h-4 text-rose-400" />}
+              >
+                {isBn ? "সাপোর্ট ডেস্ক" : "Support Desk"}
+              </Button>
             </div>
-          </CardBody>
-        </Card>
-
-        {/* Instructors Card */}
-        <Card className="bg-gradient-to-br from-yellow-500 to-orange-500 border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1">
-          <CardBody className="text-white p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 font-medium mb-1 sm:mb-2 truncate">
-                  Instructors
-                </p>
-                <Skeleton isLoaded={!statsLoading} className="rounded-lg bg-white/20">
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                    {stats.totalInstructors}
-                  </p>
-                </Skeleton>
-              </div>
-              <div className="bg-white/20 p-2 sm:p-3 rounded-full ml-2 flex-shrink-0">
-                <FaChalkboardTeacher className="text-xl sm:text-2xl lg:text-3xl" />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Open Tickets Card */}
-        <Card className="bg-gradient-to-br from-red-500 to-rose-600 border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1">
-          <CardBody className="text-white p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm opacity-90 font-medium mb-1 sm:mb-2 truncate">
-                  Open Tickets
-                </p>
-                <Skeleton isLoaded={!statsLoading} className="rounded-lg bg-white/20">
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                    {stats.openTickets}
-                  </p>
-                </Skeleton>
-              </div>
-              <div className="bg-white/20 p-2 sm:p-3 rounded-full ml-2 flex-shrink-0">
-                <FaTicketAlt className="text-xl sm:text-2xl lg:text-3xl" />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mb-6 sm:mb-8 lg:mb-10">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-5 lg:mb-6">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-          {quickActions.map((action, index) => (
-            <Card
-              key={index}
-              isPressable
-              onPress={() => router.push(action.href)}
-              className="bg-white hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200 hover:scale-105 cursor-pointer group"
-            >
-              <CardBody className="p-4 sm:p-5 lg:p-6">
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div
-                    className={`${action.iconBg} text-white p-3 sm:p-4 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
-                  >
-                    {action.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base sm:text-lg font-bold mb-1 flex items-center gap-2 flex-wrap">
-                      <span className="truncate">{action.title}</span>
-                      {action.badge !== undefined && action.badge > 0 && (
-                        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full flex-shrink-0 min-h-[20px] flex items-center">
-                          {action.badge}
-                        </span>
-                      )}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
-                      {action.description}
-                    </p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Recent Activity & System Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
-        {/* Recent Activity */}
-        <Card className="shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-          <CardBody className="p-4 sm:p-5 lg:p-6">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-5">
-              Recent Activity
-            </h2>
-            <div className="space-y-3 sm:space-y-4">
-              {recentActivity.map((activity, index) => {
-                const Icon = activity.icon;
-                return (
-                  <div
-                    key={index}
-                    className="flex items-start gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
-                  >
-                    <div className="bg-blue-500 text-white p-2 sm:p-2.5 rounded-lg flex-shrink-0">
-                      <Icon className="text-base sm:text-lg lg:text-xl" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-900 break-words">
-                        {activity.message}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
-                        {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+      {/* Main Content Area */}
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 -mt-8 relative z-20">
+        {/* 4 Executive KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Card 1: Total Users */}
+          <div 
+            onClick={() => router.push("/admin/users")}
+            className="cursor-pointer rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-4"
+          >
+            <div className="space-y-1 min-w-0">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                {isBn ? "মোট নিবন্ধিত ইউজার" : "Total Users"}
+              </p>
+              <Skeleton isLoaded={!statsLoading} className="rounded-lg">
+                <p className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
+                  {stats.totalUsers}
+                </p>
+              </Skeleton>
+              <p className="text-[11px] font-medium text-slate-400">
+                {stats.totalStudents} {isBn ? "জন শিক্ষার্থী অন্তর্ভুক্ত" : "students"}
+              </p>
             </div>
-          </CardBody>
-        </Card>
-
-        {/* System Status */}
-        <Card className="shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-          <CardBody className="p-4 sm:p-5 lg:p-6">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-5">
-              System Status
-            </h2>
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl hover:shadow-md transition-all duration-300">
-                <span className="font-medium text-gray-700 text-sm sm:text-base">
-                  Server Status
-                </span>
-                <span className="flex items-center gap-2 text-green-600 font-semibold text-sm sm:text-base">
-                  <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                  Online
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl hover:shadow-md transition-all duration-300">
-                <span className="font-medium text-gray-700 text-sm sm:text-base">
-                  Database
-                </span>
-                <span className="flex items-center gap-2 text-green-600 font-semibold text-sm sm:text-base">
-                  <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                  Healthy
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl hover:shadow-md transition-all duration-300">
-                <span className="font-medium text-gray-700 text-sm sm:text-base">
-                  Payment Gateway
-                </span>
-                <span className="flex items-center gap-2 text-green-600 font-semibold text-sm sm:text-base">
-                  <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                  Active
-                </span>
-              </div>
+            <div className="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 bg-blue-50 border-blue-100 text-blue-600">
+              <Users className="w-5 h-5" />
             </div>
+          </div>
 
-            {/* Pending Actions */}
-            <div className="mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-gray-200">
-              <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4">
-                Pending Actions
-              </h3>
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
-                  <span className="text-xs sm:text-sm text-gray-700 font-medium">
-                    Course Approvals
-                  </span>
-                  <span className="text-orange-600 font-bold text-sm sm:text-base">
-                    3
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-xs sm:text-sm text-gray-700 font-medium">
-                    Payment Requests
-                  </span>
-                  <span className="text-gray-600 font-bold text-sm sm:text-base">
-                    0
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                  <span className="text-xs sm:text-sm text-gray-700 font-medium">
-                    Support Tickets
-                  </span>
-                  <span className="text-red-600 font-bold text-sm sm:text-base">
-                    {stats.openTickets}
-                  </span>
-                </div>
-              </div>
-              <Button
-                color="primary"
-                variant="shadow"
-                className="w-full mt-4 sm:mt-5 font-semibold text-sm sm:text-base min-h-[44px] hover:scale-105 transition-transform"
-                startContent={<FaClock className="text-base sm:text-lg" />}
-                onPress={() => router.push("/admin/orders")}
+          {/* Card 2: Total Courses */}
+          <div 
+            onClick={() => router.push("/admin/courses")}
+            className="cursor-pointer rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-4"
+          >
+            <div className="space-y-1 min-w-0">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                {isBn ? "প্রকাশিত কোর্সসমূহ" : "Active Courses"}
+              </p>
+              <Skeleton isLoaded={!statsLoading} className="rounded-lg">
+                <p className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
+                  {stats.totalCourses}
+                </p>
+              </Skeleton>
+              <p className="text-[11px] font-medium text-slate-400">
+                {isBn ? "লাইভ মাইক্রো-ব্যাচ কারিকুলাম" : "Micro-batch curriculum"}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 bg-emerald-50 border-emerald-100 text-emerald-600">
+              <BookOpen className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 3: Instructors */}
+          <div 
+            onClick={() => router.push("/admin/instructors")}
+            className="cursor-pointer rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-4"
+          >
+            <div className="space-y-1 min-w-0">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                {isBn ? "শিক্ষক ও মেন্টর" : "Instructors"}
+              </p>
+              <Skeleton isLoaded={!statsLoading} className="rounded-lg">
+                <p className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
+                  {stats.totalInstructors}
+                </p>
+              </Skeleton>
+              <p className="text-[11px] font-medium text-slate-400">
+                {isBn ? "যাচাইকৃত বিশেষজ্ঞ শিক্ষক" : "Verified educators"}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 bg-amber-50 border-amber-100 text-amber-600">
+              <UserCheck className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 4: Open Tickets */}
+          <div 
+            onClick={() => router.push("/admin/tickets")}
+            className="cursor-pointer rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-4"
+          >
+            <div className="space-y-1 min-w-0">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+                {isBn ? "ওপেন সাপোর্ট টিকিট" : "Open Tickets"}
+              </p>
+              <Skeleton isLoaded={!statsLoading} className="rounded-lg">
+                <p className="text-2xl sm:text-3xl font-black text-rose-600">
+                  {stats.openTickets}
+                </p>
+              </Skeleton>
+              <p className="text-[11px] font-medium text-slate-400">
+                {isBn ? "প্রয়োজনীয় সমাধান" : "Awaiting response"}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 bg-rose-50 border-rose-100 text-rose-600">
+              <LifeBuoy className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: Command Action Grid */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg sm:text-xl font-extrabold text-[#2C2C2C]">
+                {isBn ? "প্ল্যাটফর্ম কন্ট্রোল ও ম্যানেজমেন্ট" : "Platform Modules & Management"}
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                {isBn ? "সরাসরি যেকোনো মডিউলে প্রবেশ করে তথ্য আপডেট করুন" : "Quick access shortcuts to core management surfaces"}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickActions.map((action, index) => (
+              <div
+                key={index}
+                onClick={() => router.push(action.href)}
+                className="group cursor-pointer rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm hover:border-blue-400/60 hover:shadow-md transition-all duration-300 flex items-start gap-4"
               >
-                View Pending Orders (0)
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
+                <div className={`w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 transition-colors ${action.color}`}>
+                  {action.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-extrabold text-sm text-[#2C2C2C] group-hover:text-blue-600 transition-colors truncate">
+                      {action.title}
+                    </h3>
+                    {action.badge !== undefined && action.badge > 0 && (
+                      <span className={`text-[10px] font-bold text-white px-2 py-0.5 rounded-full ${action.badgeColor}`}>
+                        {action.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 line-clamp-1">
+                    {action.description}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all self-center" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 3: System Status & Recent Platform Pulse */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Platform Pulse */}
+          <Card className="rounded-[24px] border border-slate-200/80 shadow-sm overflow-hidden bg-white">
+            <CardHeader className="py-4 px-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Activity className="w-5 h-5 text-blue-600" />
+                <h3 className="font-extrabold text-base text-[#2C2C2C]">
+                  {isBn ? "লাইভ প্ল্যাটফর্ম সামারি" : "Live Platform Summary"}
+                </h3>
+              </div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Real-Time
+              </span>
+            </CardHeader>
+            <CardBody className="p-5 space-y-3">
+              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-100/80 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-xs text-[#2C2C2C]">
+                    {isBn ? `মোট ${stats.totalStudents} জন শিক্ষার্থী পোর্টালে যুক্ত আছেন` : `${stats.totalStudents} Students registered on platform`}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {isBn ? "১০-১৫ জনের মাইক্রো-ব্যাচে লাইভ ক্লাস করছেন" : "Engaging in live hands-on micro-batches"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100/80 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-xs text-[#2C2C2C]">
+                    {isBn ? `মোট ${stats.totalCourses}টি লাইভ কোর্স ও বান্ডেল সক্রিয়` : `${stats.totalCourses} Active courses and bundles`}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {isBn ? "রোবোটিক্স কিট ও পাইথন এআই কারিকুলাম অন্তর্ভুক্ত" : "Includes robotics hardware kit & Python AI curriculum"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-100/80 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-xs text-[#2C2C2C]">
+                    {isBn ? `মোট ${stats.totalInstructors} জন বিশেষজ্ঞ শিক্ষক ও মেন্টর যুক্ত` : `${stats.totalInstructors} Verified instructors mentoring`}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {isBn ? "সার্বক্ষণিক কোয়ালিটি গ্যারান্টি বজায় রাখছেন" : "Maintaining 100% interactive live teaching standards"}
+                  </p>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => router.push("/admin/trials")}
+                className="cursor-pointer p-4 rounded-2xl bg-gradient-to-r from-amber-50/90 to-orange-50/80 hover:from-amber-100/90 hover:to-orange-100/80 border border-amber-200/80 flex items-center gap-3 transition-all"
+              >
+                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <CalendarCheck className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-xs text-[#2C2C2C]">
+                      {isBn ? `মোট ${totalTrials}টি ফ্রি ট্রায়াল ক্লাস রিকোয়েস্ট প্রাপ্ত` : `${totalTrials} Free trial requests received`}
+                    </p>
+                    {pendingTrials > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white">
+                        {pendingTrials} {isBn ? "নতুন" : "New"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {isBn ? "অভিভাবকদের সাথে হোয়াটসঅ্যাপ ও কলে যোগাযোগের জন্য ক্লিক করুন" : "Click to view requests & contact parents via WhatsApp/Call"}
+                  </p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* System Health & Operations Card */}
+          <Card className="rounded-[24px] border border-slate-200/80 shadow-sm overflow-hidden bg-white">
+            <CardHeader className="py-4 px-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Server className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-extrabold text-base text-[#2C2C2C]">
+                  {isBn ? "সিস্টেম স্বাস্থ্য ও সার্ভিস স্ট্যাটাস" : "System Health & Infrastructure"}
+                </h3>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                {isBn ? "সব সার্ভিস সক্রিয়" : "Healthy"}
+              </span>
+            </CardHeader>
+            <CardBody className="p-5 space-y-3">
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <Server className="w-4 h-4 text-blue-600" />
+                  <span className="font-bold text-xs text-slate-700">{isBn ? "Next.js ও API সার্ভার" : "Application & API Server"}</span>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  {isBn ? "অনলাইন" : "Online"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <Database className="w-4 h-4 text-purple-600" />
+                  <span className="font-bold text-xs text-slate-700">{isBn ? "MongoDB ডাটাবেস" : "MongoDB Cluster"}</span>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  {isBn ? "কানেক্টেড" : "Connected"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="w-4 h-4 text-amber-600" />
+                  <span className="font-bold text-xs text-slate-700">{isBn ? "পেমেন্ট গেটওয়ে (bKash/Nagad)" : "Payment Gateway Verification"}</span>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  {isBn ? "সক্রিয়" : "Active"}
+                </span>
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  fullWidth
+                  color="primary"
+                  className="font-bold text-xs rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 h-10"
+                  onPress={() => router.push("/admin/orders")}
+                  startContent={<Package className="w-4 h-4" />}
+                >
+                  {isBn ? "পেন্ডিং অর্ডার ও কিট ডেলিভারি চেক করুন" : "View Orders & Kit Deliveries"}
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </div>
   );

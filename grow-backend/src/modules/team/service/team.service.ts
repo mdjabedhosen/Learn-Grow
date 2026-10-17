@@ -105,6 +105,9 @@ class TeamService {
     async createTeamMember(data: {
         name: string;
         role: string;
+        domain?: string;
+        yearsOfExperience?: string | number;
+        expertise?: string[] | string;
         image: string;
         linkedIn?: string;
         twitter?: string;
@@ -113,8 +116,16 @@ class TeamService {
         try {
             const uploadedImage = await uploadTeamImageIfNeeded(data.image, `team-${data.name}`);
 
+            let formattedExpertise: string[] = [];
+            if (Array.isArray(data.expertise)) {
+                formattedExpertise = data.expertise;
+            } else if (typeof data.expertise === "string" && data.expertise.trim()) {
+                formattedExpertise = data.expertise.split(",").map((s) => s.trim()).filter(Boolean);
+            }
+
             const newMember = new TeamMember({
                 ...data,
+                expertise: formattedExpertise,
                 image: uploadedImage.image,
                 imagePublicId: uploadedImage.imagePublicId,
                 imageSize: 0,
@@ -129,7 +140,7 @@ class TeamService {
     }
 
     // Update team member
-    async updateTeamMember(id: string, data: Partial<ITeamMember>) {
+    async updateTeamMember(id: string, data: Partial<ITeamMember> & { expertise?: string[] | string }) {
         try {
             const currentMember = await TeamMember.findById(id);
             if (!currentMember) {
@@ -156,7 +167,15 @@ class TeamService {
                 nextImagePublicId = uploadedPublicId;
             }
 
-            const member = await TeamMember.findByIdAndUpdate(id, data, {
+            const updatePayload: any = { ...data };
+            if (typeof updatePayload.expertise === "string") {
+                updatePayload.expertise = updatePayload.expertise
+                    .split(",")
+                    .map((s: string) => s.trim())
+                    .filter(Boolean);
+            }
+
+            const member = await TeamMember.findByIdAndUpdate(id, updatePayload, {
                 new: true,
                 runValidators: true,
             });

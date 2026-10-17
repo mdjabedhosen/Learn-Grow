@@ -8,10 +8,10 @@ export const defaultTeamData = {
     leadership: {
         cLevel: [
             {
-                name: "Dr. Mohammad Jabed",
+                name: "Md Jabed Hosen",
                 role: "Founder & CEO",
-                bio: "PhD in Computer Science. 15+ years in EdTech innovation.",
-                img: "https://i.pravatar.cc/150?u=ceo",
+                bio: "AI/ML Engineer and Data Science researcher pursuing MSc at University of Milano-Bicocca, Italy. Founder & CEO of Learn & Grow.",
+                img: "/images/tutors/tutor-jabed.png",
                 linkedin: "#",
                 twitter: "#"
             },
