@@ -193,7 +193,7 @@ export default function TutorsPage() {
         tags: ["Python", "Artificial Intelligence", "Data Science"],
         bio: "ইতালির ইউনিভার্সিটি অফ মিলানো-বিকোকার ডেটা সায়েন্স গবেষক ও উদ্যোক্তা। শিশু-কিশোরদের পাইথন কোডিং, মেশিন লার্নিং ও এআই প্রযুক্তির রোমাঞ্চকর জগতে দক্ষ করে তুলতে নিবেদিত।",
         experience: "3+ Years Exp",
-        rating: "5.0 ⭐",
+        rating: "5.0",
         themeIndex: 1,
       },
       {
@@ -211,7 +211,7 @@ export default function TutorsPage() {
         tags: ["Robotics & Arduino", "STEM Education", "Hardware"],
         bio: "উদ্ভাবনী হার্ডওয়্যার ইঞ্জিনিয়ার ও রোবটিক্স ট্রেইনার। শিশু ও তরুণদের প্রজেক্ট-ভিত্তিক আর্দুইনো, সেন্সর ও সার্কিট ডিজাইনে বাস্তব দক্ষতা গড়ে তোলেন।",
         experience: "6+ Years Exp",
-        rating: "4.9 ⭐",
+        rating: "4.9",
         themeIndex: 0,
       },
       {
@@ -229,7 +229,7 @@ export default function TutorsPage() {
         tags: ["Python", "AI & Machine Learning", "Coding"],
         bio: "কম্পিউটার সায়েন্স গবেষক ও অভিজ্ঞ বিশ্ববিদ্যালয় শিক্ষক। শিশুদের পাইথন কোডিং, মেশিন লার্নিং ও এআই অ্যালগরিদম সহজ ভাষায় বাস্তব প্রজেক্টের মাধ্যমে শেখান।",
         experience: "5+ Years Exp",
-        rating: "4.9 ⭐",
+        rating: "4.9",
         themeIndex: 1,
       },
       {
@@ -247,7 +247,7 @@ export default function TutorsPage() {
         tags: ["Data Science", "Python", "Algorithms"],
         bio: "ইতালির স্যাপিয়েনজা ইউনিভার্সিটির ডেটা সায়েন্স গবেষক। শিশুদের ক্রিটিক্যাল থিংকিং, অ্যালগরিদম ও ক্রিয়েটিভ প্রবলেম সলভিংয়ে বিশ্বমানের দক্ষতা তৈরিতে নিবেদিত।",
         experience: "7+ Years Exp",
-        rating: "4.9 ⭐",
+        rating: "4.9",
         themeIndex: 2,
       },
       {
@@ -265,7 +265,7 @@ export default function TutorsPage() {
         tags: ["Scratch", "Roblox", "Game Development"],
         bio: "জার্মানির ব্রেমেন ইউনিভার্সিটির এআই গবেষক। শিশু-কিশোরদের স্ক্র্যাচ, রবলক্স গেম ডেভেলপমেন্ট ও সৃজনশীল কোডিং শেখাতে নিবেদিত।",
         experience: "5+ Years Exp",
-        rating: "4.9 ⭐",
+        rating: "4.9",
         themeIndex: 3,
       },
       {
@@ -283,7 +283,7 @@ export default function TutorsPage() {
         tags: ["IoT", "Microcontrollers", "Circuits"],
         bio: "সিআরপি-র রিহ্যাবিলিটেশন ইঞ্জিনিয়ার ও আইওটি বিশেষজ্ঞ। শিশুদের হাতে-কলমে সার্কিট মেকিং, সেন্সর প্রোগ্রামিং এবং বাস্তব হার্ডওয়্যার রোবট প্রজেক্ট তৈরি শেখান।",
         experience: "5+ Years Exp",
-        rating: "4.9 ⭐",
+        rating: "4.9",
         themeIndex: 4,
       },
     ],
@@ -464,8 +464,8 @@ export default function TutorsPage() {
           </div>
         )}
 
-        {/* Error state */}
-        {!isLoading && isError && (
+        {/* Error state: only show when there is an error AND no fallback tutors available */}
+        {!isLoading && isError && filteredTutors.length === 0 && (
           <div className="text-center py-16 bg-red-50 rounded-3xl mb-20 p-8 border border-red-100">
             <p className="text-red-600 font-bold text-lg mb-2">
               শিক্ষকবৃন্দের তথ্য লোড করতে সমস্যা হয়েছে।
@@ -477,7 +477,7 @@ export default function TutorsPage() {
         )}
 
         {/* Empty Category State */}
-        {!isLoading && !isError && filteredTutors.length === 0 && (
+        {!isLoading && filteredTutors.length === 0 && !isError && (
           <div className="text-center py-16 bg-gray-50 rounded-3xl mb-20 p-8 border border-gray-100">
             <p className="text-gray-600 font-bold text-lg mb-4">
               এই ক্যাটাগরিতে শীঘ্রই আরও শিক্ষক যুক্ত হবেন।
@@ -491,8 +491,8 @@ export default function TutorsPage() {
           </div>
         )}
 
-        {/* Tutors Grid (Real Live Data from MongoDB Dashboard) */}
-        {!isLoading && !isError && filteredTutors.length > 0 && (
+        {/* Tutors Grid (Real Live Data from MongoDB Dashboard + Authentic Educators) */}
+        {!isLoading && filteredTutors.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 mb-20">
             {filteredTutors.map((tutor) => {
               const theme = TUTOR_THEMES[tutor.themeIndex % TUTOR_THEMES.length];

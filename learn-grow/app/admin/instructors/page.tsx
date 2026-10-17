@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, Button, Chip, Input, Tabs, Tab, Skeleton, Avatar, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import { FaCheckCircle, FaTimesCircle, FaUserCheck, FaUserClock, FaArrowLeft, FaSearch, FaChalkboardTeacher, FaEnvelope, FaPhone, FaIdCard, FaTrash } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaUserCheck, FaUserClock, FaArrowLeft, FaSearch, FaChalkboardTeacher, FaEnvelope, FaPhone, FaIdCard, FaTrash, FaKey, FaLock, FaEye, FaEyeSlash, FaDice, FaCopy, FaCheck } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
     useGetAllInstructorsQuery,
     useApproveInstructorMutation,
     useRejectInstructorMutation,
     useGetAdminDashboardStatsQuery,
     useDeleteUserMutation,
+    useUpdateUserMutation,
 } from "@/redux/api/userApi";
 
 export default function InstructorApprovalPage() {
@@ -55,12 +57,77 @@ export default function InstructorApprovalPage() {
     const [approveInstructor, { isLoading: isApproving }] = useApproveInstructorMutation();
     const [rejectInstructor, { isLoading: isRejecting }] = useRejectInstructorMutation();
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+    const [updateUser, { isLoading: isUpdatingPassword }] = useUpdateUserMutation();
     const [processingId, setProcessingId] = React.useState<string | null>(null);
 
     // Delete modal state
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [deleteConfirmText, setDeleteConfirmText] = useState("");
     const [instructorToDelete, setInstructorToDelete] = useState<any>(null);
+
+    // Reset password modal state
+    const {
+        isOpen: isPasswordModalOpen,
+        onOpen: onOpenPasswordModal,
+        onClose: onClosePasswordModal,
+    } = useDisclosure();
+    const [selectedInstructorForPassword, setSelectedInstructorForPassword] = useState<any>(null);
+    const [newPassword, setNewPassword] = useState("");
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [copiedPassword, setCopiedPassword] = useState(false);
+
+    const openPasswordModal = (instructor: any) => {
+        setSelectedInstructorForPassword(instructor);
+        setNewPassword("");
+        setShowNewPassword(false);
+        setCopiedPassword(false);
+        onOpenPasswordModal();
+    };
+
+    const handleGeneratePassword = () => {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+        let pwd = "";
+        for (let i = 0; i < 10; i++) {
+            pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setNewPassword(pwd);
+        setShowNewPassword(true);
+        toast.success("Generated random password!");
+    };
+
+    const handleCopyPassword = () => {
+        if (!newPassword) return;
+        navigator.clipboard.writeText(newPassword);
+        setCopiedPassword(true);
+        toast.success("Password copied to clipboard!");
+        setTimeout(() => setCopiedPassword(false), 2000);
+    };
+
+    const handleResetPassword = async () => {
+        if (!selectedInstructorForPassword) return;
+        if (!newPassword || newPassword.trim().length < 6) {
+            toast.error("Password must be at least 6 characters long.");
+            return;
+        }
+
+        try {
+            setProcessingId(selectedInstructorForPassword._id);
+            await updateUser({
+                id: selectedInstructorForPassword._id,
+                password: newPassword.trim(),
+            }).unwrap();
+
+            toast.success(`Password successfully updated for ${selectedInstructorForPassword.name}!`);
+            onClosePasswordModal();
+            setNewPassword("");
+            setSelectedInstructorForPassword(null);
+            refetch();
+        } catch (error: any) {
+            toast.error(error?.data?.message || "Failed to update instructor password");
+        } finally {
+            setProcessingId(null);
+        }
+    };
 
     const handleApprove = async (instructorId: string) => {
         if (confirm("Are you sure you want to approve this instructor?")) {
@@ -386,10 +453,23 @@ export default function InstructorApprovalPage() {
                                                 isLoading={processingId === instructor._id && isRejecting}
                                                 isDisabled={processingId !== null}
                                             >
-                                                rejected Approval
+                                                Revoke Approval
                                             </Button>
                                         )}
                                     </div>
+
+                                    {/* Reset Password Button */}
+                                    <Button
+                                        color="primary"
+                                        size="md"
+                                        className="w-full min-h-[44px] font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md hover:shadow-lg transition-all"
+                                        startContent={<FaKey className="text-amber-300" />}
+                                        onPress={() => openPasswordModal(instructor)}
+                                        isDisabled={processingId !== null}
+                                    >
+                                        Reset Password
+                                    </Button>
+
                                     <Button
                                         color="danger"
                                         size="md"
@@ -530,6 +610,172 @@ export default function InstructorApprovalPage() {
                                     startContent={<FaTrash />}
                                 >
                                     Delete Permanently
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Reset Password Modal */}
+            <Modal
+                isOpen={isPasswordModalOpen}
+                onClose={onClosePasswordModal}
+                size="lg"
+                backdrop="blur"
+                classNames={{
+                    base: "rounded-[28px] overflow-hidden border border-gray-100 shadow-2xl bg-white",
+                    closeButton: "top-5 right-5 z-20 bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition-all cursor-pointer",
+                }}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            {/* Modal Header */}
+                            <ModalHeader className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white p-6 relative overflow-hidden">
+                                <div className="absolute right-0 top-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                                <div className="relative z-10 flex items-center gap-3.5">
+                                    <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-amber-300 shadow-inner flex-shrink-0">
+                                        <FaKey className="text-xl" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
+                                                Instructor Access
+                                            </span>
+                                        </div>
+                                        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                                            Reset Instructor Password
+                                        </h2>
+                                        <p className="text-xs text-blue-100 font-medium">
+                                            Update user login credentials directly
+                                        </p>
+                                    </div>
+                                </div>
+                            </ModalHeader>
+
+                            {/* Modal Body */}
+                            <ModalBody className="p-6 space-y-4">
+                                {selectedInstructorForPassword && (
+                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50/60 rounded-2xl p-4 border border-blue-100/80">
+                                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Target Instructor
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar
+                                                src={selectedInstructorForPassword.profileImage}
+                                                name={selectedInstructorForPassword.name}
+                                                size="md"
+                                                fallback={
+                                                    <div className="bg-primary-500 text-white font-bold w-full h-full flex items-center justify-center">
+                                                        {selectedInstructorForPassword.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                }
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-bold text-gray-900 truncate">
+                                                    {selectedInstructorForPassword.name}
+                                                </p>
+                                                <p className="text-xs text-gray-600 truncate">
+                                                    {selectedInstructorForPassword.email}
+                                                </p>
+                                            </div>
+                                            <Chip size="sm" color="primary" variant="flat" className="font-semibold capitalize">
+                                                {selectedInstructorForPassword.role || "instructor"}
+                                            </Chip>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                            New Login Password <span className="text-rose-500">*</span>
+                                        </label>
+                                        <Button
+                                            size="sm"
+                                            variant="flat"
+                                            color="secondary"
+                                            className="text-xs font-bold h-7 rounded-lg"
+                                            startContent={<FaDice className="text-xs" />}
+                                            onPress={handleGeneratePassword}
+                                        >
+                                            Generate Strong Password
+                                        </Button>
+                                    </div>
+
+                                    <Input
+                                        type={showNewPassword ? "text" : "password"}
+                                        placeholder="Enter new password (min 6 characters)"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        size="lg"
+                                        variant="bordered"
+                                        startContent={<FaLock className="text-gray-400 text-base mr-1" />}
+                                        endContent={
+                                            <div className="flex items-center gap-1">
+                                                {newPassword && (
+                                                    <Button
+                                                        isIconOnly
+                                                        size="sm"
+                                                        variant="light"
+                                                        className="text-gray-500 hover:text-gray-800"
+                                                        onPress={handleCopyPassword}
+                                                        title="Copy password"
+                                                    >
+                                                        {copiedPassword ? (
+                                                            <FaCheck className="text-xs text-emerald-600" />
+                                                        ) : (
+                                                            <FaCopy className="text-xs" />
+                                                        )}
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    isIconOnly
+                                                    size="sm"
+                                                    variant="light"
+                                                    className="text-gray-500 hover:text-gray-800"
+                                                    onPress={() => setShowNewPassword(!showNewPassword)}
+                                                    title={showNewPassword ? "Hide password" : "Show password"}
+                                                >
+                                                    {showNewPassword ? (
+                                                        <FaEyeSlash className="text-sm" />
+                                                    ) : (
+                                                        <FaEye className="text-sm" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        }
+                                        classNames={{
+                                            inputWrapper: "min-h-[50px] rounded-2xl border-gray-200 hover:border-blue-400 focus-within:!border-blue-600 bg-gray-50/50 shadow-xs",
+                                        }}
+                                    />
+                                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                                        Once saved, the instructor can log in using their email and this new password immediately.
+                                    </p>
+                                </div>
+                            </ModalBody>
+
+                            {/* Modal Footer */}
+                            <ModalFooter className="bg-gray-50 border-t border-gray-100 p-4 sm:p-5 flex items-center justify-between">
+                                <Button
+                                    variant="bordered"
+                                    onPress={onClose}
+                                    size="md"
+                                    className="min-h-[44px] rounded-xl font-bold border-gray-300 text-gray-700"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    isLoading={isUpdatingPassword}
+                                    onPress={handleResetPassword}
+                                    isDisabled={!newPassword || newPassword.trim().length < 6}
+                                    size="md"
+                                    startContent={!isUpdatingPassword && <FaKey className="text-sm text-amber-300" />}
+                                    className="min-h-[44px] rounded-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md px-6"
+                                >
+                                    Save & Update Password
                                 </Button>
                             </ModalFooter>
                         </>
