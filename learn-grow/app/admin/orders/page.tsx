@@ -492,7 +492,7 @@ export default function OrdersAdminPage() {
                             size="sm"
                             className="font-semibold"
                           >
-                            {order.paymentStatus === "pending" && "⏳ Pending"}
+                            {order.paymentStatus === "pending" && "Pending"}
                             {order.paymentStatus === "approved" && "Approved"}
                             {order.paymentStatus === "rejected" && "Rejected"}
                           </Chip>
@@ -553,7 +553,7 @@ export default function OrdersAdminPage() {
                               variant="solid"
                               size="sm"
                             >
-                              {order.paymentStatus === "pending" && "⏳ Pending"}
+                              {order.paymentStatus === "pending" && "Pending"}
                               {order.paymentStatus === "approved" && "Approved"}
                               {order.paymentStatus === "rejected" && "Rejected"}
                             </Chip>
@@ -788,7 +788,8 @@ export default function OrdersAdminPage() {
                     {/* Status */}
                     <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
                       <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
-                        ⏰ Status
+                        <FaClock className="text-purple-600 w-3.5 h-3.5" />
+                        <span>Payment Status</span>
                       </h3>
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-gray-600 font-medium text-sm">Payment:</span>
@@ -797,7 +798,7 @@ export default function OrdersAdminPage() {
                           variant="solid"
                           size="sm"
                         >
-                          {selectedOrder.paymentStatus === "pending" && "⏳ Pending"}
+                          {selectedOrder.paymentStatus === "pending" && "Pending"}
                           {selectedOrder.paymentStatus === "approved" && "Approved"}
                           {selectedOrder.paymentStatus === "rejected" && "Rejected"}
                         </Chip>

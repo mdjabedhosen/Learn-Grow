@@ -583,7 +583,7 @@ export default function InstructorCourseDashboardClient({ params }: { params: { 
                                 </span>
                                 <div>
                                     <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Rating</p>
-                                    <p className="text-white font-bold">{courseData?.rating || 4.9} ⭐</p>
+                                    <p className="text-white font-bold">{courseData?.rating || 4.9} / 5.0</p>
                                 </div>
                             </div>
 

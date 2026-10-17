@@ -236,7 +236,10 @@ export default function ApplicationsPage() {
 
         <Card className="shadow-md border border-yellow-200 hover:shadow-lg transition-all rounded-2xl">
           <CardBody className="p-4 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-2xl">
-            <p className="text-xs opacity-90 font-semibold mb-1">⏳ Pending Review</p>
+            <p className="text-xs opacity-90 font-semibold mb-1 flex items-center gap-1.5">
+              <FaClock className="w-3 h-3 text-white/90" />
+              <span>Pending Review</span>
+            </p>
             <p className="text-2xl sm:text-3xl font-black">{pendingCount}</p>
           </CardBody>
         </Card>

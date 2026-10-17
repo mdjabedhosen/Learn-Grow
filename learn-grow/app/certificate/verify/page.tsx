@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card, CardBody, Button, Input, Spinner, Chip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FaCertificate, FaSearch, FaCheckCircle, FaTimesCircle, FaCalendar, FaUser, FaBook } from "react-icons/fa";
+import { FaCertificate, FaSearch, FaCheckCircle, FaTimesCircle, FaCalendar, FaUser, FaBook, FaInfoCircle } from "react-icons/fa";
 import { useVerifyCertificateQuery } from "@/redux/api/certificateApi";
 
 export default function CertificateVerificationPage() {
@@ -85,9 +85,10 @@ export default function CertificateVerificationPage() {
                 </div>
               </form>
 
-              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+                <FaInfoCircle className="text-blue-600 mt-0.5 text-base shrink-0" />
                 <p className="text-sm text-blue-800">
-                  <strong>ℹ️ Not sure about your certificate ID?</strong><br />
+                  <strong className="block font-semibold mb-0.5">Not sure about your certificate ID?</strong>
                   Check your email confirmation or visit your student dashboard to find your certificate ID.
                 </p>
               </div>

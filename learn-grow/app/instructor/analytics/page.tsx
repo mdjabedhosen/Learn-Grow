@@ -6,6 +6,7 @@ import {
   FaUsers,
   FaGraduationCap,
   FaChartLine,
+  FaStar,
 } from "react-icons/fa";
 import { useGetInstructorCoursesQuery } from "@/redux/api/courseApi";
 import { useGetInstructorStatsQuery } from "@/redux/api/userApi";
@@ -124,7 +125,10 @@ export default function InstructorAnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm opacity-90">Average Rating</p>
-                <p className="text-3xl font-bold mt-1">{avgRating} ⭐</p>
+                <p className="text-3xl font-bold mt-1 flex items-center">
+                  <span>{avgRating}</span>
+                  <FaStar className="w-5 h-5 ml-1.5 text-amber-300" />
+                </p>
                 <p className="text-xs opacity-75 mt-1">course ratings</p>
               </div>
               <FaChartLine className="text-4xl opacity-50" />
@@ -186,7 +190,10 @@ export default function InstructorAnalyticsPage() {
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                           <span>{course.enrolled || 0} students</span>
                           <span>৳{((course.price || 0) * (course.enrolled || 0)).toLocaleString()}</span>
-                          <span>⭐ {course.rating || 0}</span>
+                          <span className="inline-flex items-center gap-1">
+                            <FaStar className="w-3.5 h-3.5 text-amber-500" />
+                            <span>{course.rating || 0}</span>
+                          </span>
                           <span className={`px-2 py-1 rounded ${course.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                             {course.isPublished ? 'Published' : 'Draft'}
                           </span>

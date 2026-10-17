@@ -43,6 +43,7 @@ import {
     FaUserPlus,
     FaTimes,
     FaCheckCircle,
+    FaClock,
 } from "react-icons/fa";
 import {
     DndContext,
@@ -223,10 +224,11 @@ function SortableMemberItem({
                                 {member.showOnHome ? "On Home Slider" : "Hidden from Slider"}
                             </Chip>
                             {member.yearsOfExperience && (
-                                <span className="bg-[#2C2C2C] text-white px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
-                                    ⏳ {String(member.yearsOfExperience).toLowerCase().includes("year")
+                                <span className="bg-[#2C2C2C] text-white px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md inline-flex items-center gap-1">
+                                    <FaClock size={10} className="text-amber-400" />
+                                    <span>{String(member.yearsOfExperience).toLowerCase().includes("year")
                                         ? member.yearsOfExperience
-                                        : `${member.yearsOfExperience}+ Years`}
+                                        : `${member.yearsOfExperience}+ Years`}</span>
                                 </span>
                             )}
                         </div>

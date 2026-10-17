@@ -21,6 +21,7 @@ import {
   AlertCircle,
   KeyRound,
   RotateCcw,
+  Clock,
 } from "lucide-react";
 
 type Step = "contact" | "otp" | "details";
@@ -442,8 +443,9 @@ export default function RegistrationForm() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>
                     {timer > 0 ? (
-                      <span className="font-semibold text-blue-600">
-                        ⏱️ {language === "bn" ? `মেয়াদ: ${formatTimer()}` : `Expires in: ${formatTimer()}`}
+                      <span className="font-semibold text-blue-600 inline-flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 inline text-blue-600" />
+                        <span>{language === "bn" ? `মেয়াদ: ${formatTimer()}` : `Expires in: ${formatTimer()}`}</span>
                       </span>
                     ) : (
                       <span className="font-semibold text-red-500">

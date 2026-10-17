@@ -19,6 +19,7 @@ import {
   FaSave,
   FaUndo,
   FaEnvelope,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import {
@@ -362,7 +363,7 @@ export default function ContentManagerPage() {
 
                         {!isLoading && !apiData?.data?.content && (
                           <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 flex items-start gap-2">
-                            <span className="text-lg">ℹ️</span>
+                            <FaInfoCircle className="text-blue-500 mt-0.5 shrink-0 text-base" />
                             <div>
                               <strong>Default Content Loaded:</strong> The
                               database has no saved content for this page, so

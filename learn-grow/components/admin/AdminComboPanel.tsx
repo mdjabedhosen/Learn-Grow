@@ -14,6 +14,7 @@ import {
 } from "@nextui-org/react";
 import ComboManagement from "./ComboManagement";
 import AccessDurationManager from "./AccessDurationManager";
+import { Clock, Layers, ShieldCheck, ShoppingBag } from "lucide-react";
 
 export default function AdminComboPanel() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -22,28 +23,28 @@ export default function AdminComboPanel() {
     {
       title: "Combo Management",
       description: "Create, edit, and manage course combos",
-      icon: "",
+      icon: <Layers className="w-5 h-5" />,
       color: "primary",
       href: "/admin/combos",
     },
     {
       title: "Access Duration",
       description: "Manage student course access durations",
-      icon: "⏱️",
+      icon: <Clock className="w-5 h-5" />,
       color: "success",
       href: "/admin/access-duration",
     },
     {
       title: "Student Access",
       description: "View and modify student access status",
-      icon: "",
+      icon: <ShieldCheck className="w-5 h-5" />,
       color: "warning",
       href: "/admin/access-duration",
     },
     {
       title: "Orders",
       description: "View and manage student orders",
-      icon: "",
+      icon: <ShoppingBag className="w-5 h-5" />,
       color: "secondary",
       href: "/admin/orders",
     },
@@ -144,7 +145,9 @@ export default function AdminComboPanel() {
                   {/* Access Duration Info */}
                   <Card>
                     <CardHeader className="flex gap-3">
-                      <div className="text-2xl">⏱️</div>
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <Clock className="w-5 h-5" />
+                      </div>
                       <div className="flex flex-col">
                         <p className="text-lg font-semibold">
                           Access Duration Manager

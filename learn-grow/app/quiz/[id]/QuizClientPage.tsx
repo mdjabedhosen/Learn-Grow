@@ -12,7 +12,7 @@ import {
     Spinner,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FaClock, FaCheck, FaTimes, FaTrophy, FaArrowLeft } from "react-icons/fa";
+import { FaClock, FaCheck, FaTimes, FaTrophy, FaArrowLeft, FaInfoCircle } from "react-icons/fa";
 import { useGetQuizByIdQuery } from "@/redux/api/quizApi";
 
 interface Question {
@@ -197,8 +197,9 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
                 {previousAttempt && (
                     <Card className="mb-4 border-2 border-warning">
                         <CardBody className="p-4 bg-warning-50">
-                            <p className="text-center font-semibold text-warning-700">
-                                ℹ️ You have already taken this quiz. Retaking is not allowed. Below are your previous results.
+                            <p className="text-center font-semibold text-warning-700 flex items-center justify-center gap-2">
+                                <FaInfoCircle className="shrink-0 text-warning-600" />
+                                <span>You have already taken this quiz. Retaking is not allowed. Below are your previous results.</span>
                             </p>
                             <p className="text-center text-sm text-gray-600 mt-1">
                                 Submitted on: {submittedDate}

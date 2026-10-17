@@ -711,8 +711,9 @@ export default function CheckoutPage() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-xs font-bold px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">
-                            ⭐ {language === "bn" ? "প্রিমিয়াম স্টেম কিট" : "Premium STEM Kit"}
+                          <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full">
+                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                            <span>{language === "bn" ? "প্রিমিয়াম স্টেম কিট" : "Premium STEM Kit"}</span>
                           </span>
                           <span className="text-xs font-medium text-slate-500">
                             {language === "bn" ? "বয়স: ৯-১৬ বছর" : "Ages: 9-16 Yrs"}

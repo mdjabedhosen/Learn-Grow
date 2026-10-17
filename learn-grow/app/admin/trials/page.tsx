@@ -508,7 +508,7 @@ function TrialsContent() {
               aria-label="Filter by Status"
             >
               <SelectItem key="all">{isBn ? "সকল স্ট্যাটাস (All)" : "All Statuses"}</SelectItem>
-              <SelectItem key="pending">{isBn ? "⏳ নতুন রিকোয়েস্ট (Pending)" : "Pending"}</SelectItem>
+              <SelectItem key="pending">{isBn ? "নতুন রিকোয়েস্ট (Pending)" : "Pending"}</SelectItem>
               <SelectItem key="contacted">{isBn ? "যোগাযোগ সম্পন্ন (Contacted)" : "Contacted"}</SelectItem>
               <SelectItem key="scheduled">{isBn ? "শিডিউল্ড (Scheduled)" : "Scheduled"}</SelectItem>
               <SelectItem key="completed">{isBn ? "সম্পন্ন / ভর্তি (Completed)" : "Completed"}</SelectItem>
@@ -693,8 +693,9 @@ function TrialsContent() {
                               )}
                             </div>
                           ) : (
-                            <div className="mt-1 text-[11px] text-amber-600 font-semibold flex items-center gap-1">
-                              <span>⏳ {isBn ? "শিডিউল ও শিক্ষক প্রয়োজন" : "Schedule & mentor needed"}</span>
+                            <div className="mt-1 text-[11px] text-amber-600 font-semibold flex items-center gap-1.5">
+                              <FaClock className="text-amber-500 text-[10px]" />
+                              <span>{isBn ? "শিডিউল ও শিক্ষক প্রয়োজন" : "Schedule & mentor needed"}</span>
                             </div>
                           )}
                         </td>
@@ -717,7 +718,7 @@ function TrialsContent() {
                             }}
                             aria-label="Change Status"
                           >
-                            <SelectItem key="pending">⏳ Pending</SelectItem>
+                            <SelectItem key="pending">Pending</SelectItem>
                             <SelectItem key="contacted">Contacted</SelectItem>
                             <SelectItem key="scheduled">Scheduled</SelectItem>
                             <SelectItem key="completed">Completed</SelectItem>

@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { CheckCircle, AlertCircle, Lock, Check } from "lucide-react";
+import { CheckCircle, AlertCircle, Lock, Check, Clock } from "lucide-react";
 import { API_CONFIG } from "@/config/apiConfig";
 
 interface ProcessingState {
@@ -174,7 +174,7 @@ function PaymentProcessingContent() {
             {/* Admin Approval Notice */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-5 text-left">
               <div className="flex items-start gap-3 mb-3">
-                <span className="text-2xl">⏳</span>
+                <Clock className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-left">
                   <p className="text-blue-900 font-semibold text-sm mb-1 leading-relaxed">
                     Waiting for Admin Approval / অ্যাডমিন অনুমোদনের অপেক্ষায়

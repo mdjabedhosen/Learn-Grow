@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { submitQuizAttempt, type Quiz, type QuizAttempt } from "@/redux/slices/quizAssignmentSlice";
 import type { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
-import { Check, X } from "lucide-react";
+import { Check, X, Clock } from "lucide-react";
 
 interface QuizTakerProps {
     quiz: Quiz;
@@ -237,8 +237,9 @@ export default function QuizTaker({ quiz }: QuizTakerProps) {
                         size="lg"
                         variant="flat"
                         className="font-mono text-xl px-4 py-2"
+                        startContent={<Clock className="w-5 h-5 mr-1 text-primary-600" />}
                     >
-                        ⏱️ {formatTime(timeLeft)}
+                        {formatTime(timeLeft)}
                     </Chip>
                 )}
             </CardHeader>

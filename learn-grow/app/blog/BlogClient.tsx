@@ -26,6 +26,7 @@ import {
   TrendingUp,
   GraduationCap,
   Newspaper,
+  Star,
 } from "lucide-react";
 
 // Helper function to decode HTML entities
@@ -323,8 +324,9 @@ export default function BlogClient() {
                         </div>
                       )}
                       <div className="absolute top-4 left-4 flex items-center gap-2">
-                        <span className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-md">
-                          ⭐ {language === "bn" ? "ফিচার্ড আর্টিকেল" : "Featured Spotlight"}
+                        <span className="inline-flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-md">
+                          <Star className="w-3.5 h-3.5 fill-slate-950 text-slate-950" />
+                          <span>{language === "bn" ? "ফিচার্ড আর্টিকেল" : "Featured Spotlight"}</span>
                         </span>
                         {featuredBlog.category && (
                           <span className="bg-white/95 backdrop-blur-md text-[#7C3AED] font-black text-xs px-3 py-1 rounded-full shadow-sm">

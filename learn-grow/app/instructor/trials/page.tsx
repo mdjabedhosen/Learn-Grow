@@ -38,6 +38,7 @@ import {
   FaExternalLinkAlt,
   FaUsers,
   FaGraduationCap,
+  FaStar,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -172,8 +173,9 @@ function InstructorTrialsContent() {
                 <FaGraduationCap className="w-3.5 h-3.5 text-indigo-600" />
                 {isBn ? "শিক্ষক ড্যাশবোর্ড" : "Instructor Workspace"}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                ⭐ {isBn ? "ফ্রি ট্রায়াল সেশন" : "Free Trial Sessions"}
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1">
+                <FaStar className="w-3 h-3 text-amber-600" />
+                <span>{isBn ? "ফ্রি ট্রায়াল সেশন" : "Free Trial Sessions"}</span>
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">

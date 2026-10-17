@@ -307,8 +307,9 @@ export default function AssignmentDetailsPage({
                   </div>
                 )}
                 {submission.score === undefined && (
-                  <p className="text-sm text-gray-600 mt-3">
-                    ⏳ Waiting for instructor to grade your submission
+                  <p className="text-sm text-gray-600 mt-3 flex items-center gap-2">
+                    <FaClock className="text-amber-500 text-xs" />
+                    <span>Waiting for instructor to grade your submission</span>
                   </p>
                 )}
               </div>

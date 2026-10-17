@@ -21,7 +21,7 @@ import {
     Pagination,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { FaPlus, FaEdit, FaTrash, FaEye, FaUsers, FaChartLine } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaEye, FaUsers, FaChartLine, FaStar } from "react-icons/fa";
 import { useGetInstructorCoursesQuery, useCreateCourseMutation, useDeleteCourseMutation } from "@/redux/api/courseApi";
 import { useGetInstructorStatsQuery } from "@/redux/api/userApi";
 import { refreshUserStatus, getApprovalStatus } from "@/lib/utils/userStatus";
@@ -367,13 +367,14 @@ export default function InstructorCoursesPage() {
                         <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">
                             {lang === "bn" ? "গড় রেটিং" : "Avg. Rating"}
                         </p>
-                        <p className="text-3xl font-black text-amber-600">
-                            {(
+                        <p className="text-3xl font-black text-amber-600 flex items-center">
+                            <span>{(
                                 hydratedCourses
                                     .filter((c: any) => c.rating)
                                     .reduce((sum: number, c: any) => sum + (c.rating || 0), 0) /
                                 hydratedCourses.filter((c: any) => c.rating).length || 0
-                            ).toFixed(1)} ⭐
+                            ).toFixed(1)}</span>
+                            <FaStar className="w-5 h-5 text-amber-500 ml-1.5" />
                         </p>
                     </CardBody>
                 </Card>

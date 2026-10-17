@@ -620,7 +620,10 @@ export default function InstructorLiveClassesPage() {
                                         {/* Time Remaining - Show for scheduled classes */}
                                         {classItem.status === "Scheduled" && getTimeRemaining(classItem.scheduledAt) && (
                                             <div className="mb-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                                                <p className="text-xs font-semibold text-gray-700 mb-1">⏱️ Time Remaining</p>
+                                                <p className="text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                                                    <FaClock className="text-orange-500 w-3 h-3" />
+                                                    <span>Time Remaining</span>
+                                                </p>
                                                 <p className="text-lg font-bold text-orange-600">{getTimeRemaining(classItem.scheduledAt)}</p>
                                             </div>
                                         )}

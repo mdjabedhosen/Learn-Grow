@@ -118,11 +118,11 @@ export default function SendRegistrationEmailPage() {
       `
     },
     {
-      name: "⏰ Event Reminder",
+      name: "Event Reminder",
       subject: "Reminder: {{event}} Starts Soon!",
       body: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #dc2626; margin-bottom: 20px;">⏰ Don't Forget!</h2>
+          <h2 style="color: #dc2626; margin-bottom: 20px;">Don't Forget!</h2>
           <p>Hi there,</p>
           <p>This is a friendly reminder that <strong style="color: #dc2626;">{{event}}</strong> is coming up soon!</p>
           

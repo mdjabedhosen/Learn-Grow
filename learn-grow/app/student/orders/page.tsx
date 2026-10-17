@@ -302,8 +302,9 @@ export default function StudentOrdersPage() {
                     )}
 
                     {order.paymentStatus === "pending" && (
-                      <p className="text-xs text-amber-700 font-medium">
-                        ⏳ {isBn ? "পেমেন্ট যাচাইয়ের পর আপনার কোর্স সক্রিয় হবে।" : "Your access will be activated upon verification."}
+                      <p className="text-xs text-amber-700 font-medium inline-flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600 inline shrink-0" />
+                        <span>{isBn ? "পেমেন্ট যাচাইয়ের পর আপনার কোর্স সক্রিয় হবে।" : "Your access will be activated upon verification."}</span>
                       </p>
                     )}
                   </div>
