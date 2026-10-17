@@ -490,20 +490,21 @@ export default function AdminSettingsPage() {
           color="primary"
           variant="underlined"
           classNames={{
-            tabList: "gap-2 sm:gap-4 md:gap-6 w-full relative rounded-none p-0 border-b border-slate-200 px-4 sm:px-6 pt-3 overflow-x-auto scrollbar-none",
+            base: "w-full max-w-full overflow-x-auto scrollbar-none",
+            tabList: "w-full flex items-center justify-between sm:justify-start gap-1 sm:gap-2.5 md:gap-5 relative rounded-none p-0 border-b border-slate-200 px-2 sm:px-6 pt-2.5 overflow-x-auto scrollbar-none",
             cursor: "w-full bg-blue-600 h-[3px] rounded-full",
-            tab: "max-w-fit px-3 sm:px-4 h-14 min-w-fit whitespace-nowrap",
-            tabContent: "group-data-[selected=true]:text-blue-600 font-bold text-xs sm:text-sm md:text-base",
+            tab: "max-w-fit px-2 sm:px-3 md:px-4 h-12 sm:h-14 min-w-fit shrink-0 whitespace-nowrap",
+            tabContent: "group-data-[selected=true]:text-blue-600 font-bold text-xs sm:text-sm",
           }}
         >
           {/* TAB 1: Finance & Commission */}
           <Tab
             key="finance"
             title={
-              <div className="flex items-center gap-2 py-1">
-                <Coins className="w-4 h-4 text-purple-600" />
-                <span className="font-semibold">Finance & Commission</span>
-                <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200">
+              <div className="flex items-center gap-1.5 sm:gap-2 py-1">
+                <Coins className="w-4 h-4 text-purple-600 shrink-0" />
+                <span className="font-semibold text-xs sm:text-sm">Finance & Commission</span>
+                <span className="hidden lg:inline-block px-2 py-0.5 text-[10px] rounded-full bg-purple-50 text-purple-700 font-bold border border-purple-200">
                   {commission}% Platform
                 </span>
               </div>
@@ -660,11 +661,11 @@ export default function AdminSettingsPage() {
           <Tab
             key="smtp"
             title={
-              <div className="flex items-center gap-2 py-1">
-                <Mail className="w-4 h-4 text-blue-600" />
-                <span className="font-semibold">Email (SMTP)</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 py-1">
+                <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="font-semibold text-xs sm:text-sm">Email (SMTP)</span>
                 {smtp.host && (
-                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                  <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
                     {smtp.host}
                   </span>
                 )}
@@ -930,15 +931,15 @@ export default function AdminSettingsPage() {
           <Tab
             key="backup"
             title={
-              <div className="flex items-center gap-2 py-1">
-                <Database className="w-4 h-4 text-amber-600" />
-                <span className="font-semibold">Database Backup</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 py-1">
+                <Database className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="font-semibold text-xs sm:text-sm">Database Backup</span>
                 {!isSuperAdmin ? (
-                  <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-rose-100 text-rose-700 font-bold border border-rose-200">
+                  <span className="hidden md:inline-block px-1.5 py-0.5 text-[9px] rounded-full bg-rose-100 text-rose-700 font-bold border border-rose-200">
                     Admin Only
                   </span>
                 ) : (
-                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200">
+                  <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200">
                     MongoDB
                   </span>
                 )}
@@ -1058,12 +1059,12 @@ export default function AdminSettingsPage() {
           <Tab
             key="tracking"
             title={
-              <div className="flex items-center gap-2 py-1">
-                <Activity className="w-4 h-4 text-emerald-600" />
-                <span className="font-semibold">Server Tracking & CAPI</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+              <div className="flex items-center gap-1.5 sm:gap-2 py-1">
+                <Activity className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-semibold text-xs sm:text-sm">Server-Side & CAPI</span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live CAPI
+                  Live
                 </span>
               </div>
             }
@@ -1072,18 +1073,111 @@ export default function AdminSettingsPage() {
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-emerald-100/70 text-emerald-600 rounded-2xl border border-emerald-200">
+                  <div className="p-3 bg-emerald-100/70 text-emerald-600 rounded-2xl border border-emerald-200 shrink-0">
                     <Activity className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-800">
-                      Multi-Platform Server-Side Conversions API (CAPI)
-                    </h2>
-                    <p className="text-xs sm:text-sm text-slate-500">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                        Server-Side Tracking & Conversions API (CAPI)
+                      </h2>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                        Server Deduplication
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                       Direct server-to-server dispatch for Meta (Facebook/Instagram/WhatsApp), TikTok, GA4, and LinkedIn with SHA-256 deduplication.
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Quick Jump / Status Bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <a
+                  href="#meta-capi"
+                  className={`p-3 rounded-xl border flex items-center justify-between transition-all hover:shadow-sm ${
+                    tracking.metaPixelId && tracking.metaAccessToken
+                      ? "bg-blue-50/70 border-blue-200 hover:border-blue-300"
+                      : "bg-slate-50 border-slate-200 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center font-black text-xs shrink-0">f</div>
+                    <span className="font-bold text-xs text-slate-800">Meta CAPI</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    tracking.metaEnabled && tracking.metaPixelId
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-200 text-slate-600"
+                  }`}>
+                    {tracking.metaEnabled && tracking.metaPixelId ? "Active" : "Inactive"}
+                  </span>
+                </a>
+
+                <a
+                  href="#tiktok-capi"
+                  className={`p-3 rounded-xl border flex items-center justify-between transition-all hover:shadow-sm ${
+                    tracking.tiktokPixelId && tracking.tiktokAccessToken
+                      ? "bg-slate-100/80 border-slate-300 hover:border-slate-400"
+                      : "bg-slate-50 border-slate-200 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-black text-white flex items-center justify-center font-bold text-[10px] shrink-0">TT</div>
+                    <span className="font-bold text-xs text-slate-800">TikTok CAPI</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    tracking.tiktokEnabled && tracking.tiktokPixelId
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-200 text-slate-600"
+                  }`}>
+                    {tracking.tiktokEnabled && tracking.tiktokPixelId ? "Active" : "Inactive"}
+                  </span>
+                </a>
+
+                <a
+                  href="#ga4-capi"
+                  className={`p-3 rounded-xl border flex items-center justify-between transition-all hover:shadow-sm ${
+                    tracking.ga4MeasurementId
+                      ? "bg-amber-50/70 border-amber-200 hover:border-amber-300"
+                      : "bg-slate-50 border-slate-200 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-xs shrink-0">G</div>
+                    <span className="font-bold text-xs text-slate-800">Google GA4</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    tracking.googleEnabled && tracking.ga4MeasurementId
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-200 text-slate-600"
+                  }`}>
+                    {tracking.googleEnabled && tracking.ga4MeasurementId ? "Active" : "Inactive"}
+                  </span>
+                </a>
+
+                <a
+                  href="#linkedin-capi"
+                  className={`p-3 rounded-xl border flex items-center justify-between transition-all hover:shadow-sm ${
+                    tracking.linkedinPartnerId && tracking.linkedinAccessToken
+                      ? "bg-sky-50/70 border-sky-200 hover:border-sky-300"
+                      : "bg-slate-50 border-slate-200 opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-[#0A66C2] text-white flex items-center justify-center font-bold text-[10px] shrink-0">in</div>
+                    <span className="font-bold text-xs text-slate-800">LinkedIn</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    tracking.linkedinEnabled && tracking.linkedinPartnerId
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-200 text-slate-600"
+                  }`}>
+                    {tracking.linkedinEnabled && tracking.linkedinPartnerId ? "Active" : "Inactive"}
+                  </span>
+                </a>
               </div>
 
               {trackingLoading ? (
@@ -1113,7 +1207,7 @@ export default function AdminSettingsPage() {
                   </div>
 
                   {/* 1. META / FACEBOOK CAPI */}
-                  <Card className="border-2 border-blue-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
+                  <Card id="meta-capi" className="scroll-mt-6 border-2 border-blue-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
                     <CardBody className="p-5 sm:p-6 space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div className="flex items-center gap-3">
@@ -1217,7 +1311,7 @@ export default function AdminSettingsPage() {
                   </Card>
 
                   {/* 2. TIKTOK EVENTS API */}
-                  <Card className="border-2 border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:border-slate-400 transition-all">
+                  <Card id="tiktok-capi" className="scroll-mt-6 border-2 border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:border-slate-400 transition-all">
                     <CardBody className="p-5 sm:p-6 space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div className="flex items-center gap-3">
@@ -1305,7 +1399,7 @@ export default function AdminSettingsPage() {
                   </Card>
 
                   {/* 3. GOOGLE ANALYTICS 4 & GOOGLE ADS */}
-                  <Card className="border-2 border-amber-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-amber-300 transition-all">
+                  <Card id="ga4-capi" className="scroll-mt-6 border-2 border-amber-100/80 shadow-sm rounded-2xl overflow-hidden hover:border-amber-300 transition-all">
                     <CardBody className="p-5 sm:p-6 space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div className="flex items-center gap-3">
@@ -1403,7 +1497,7 @@ export default function AdminSettingsPage() {
                 </Card>
 
                 {/* 4. LINKEDIN CONVERSIONS API */}
-                <Card className="border-2 border-blue-100/60 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
+                <Card id="linkedin-capi" className="scroll-mt-6 border-2 border-blue-100/60 shadow-sm rounded-2xl overflow-hidden hover:border-blue-300 transition-all">
                   <CardBody className="p-5 sm:p-6 space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div className="flex items-center gap-3">
