@@ -19,7 +19,7 @@ export default function LayoutWrapper({
                           pathname.startsWith("/manager");
 
   return (
-    <div className="relative flex flex-col min-h-screen">
+    <div className="relative flex flex-col min-h-screen w-full overflow-x-hidden">
       {!isDashboardRoute && <Navbar />}
 
       <main className={`flex-grow ${!isDashboardRoute ? 'pt-24 sm:pt-28 md:pt-24' : ''}`}>{children}</main>

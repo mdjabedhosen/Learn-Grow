@@ -30,7 +30,7 @@ const ModernBanner = () => {
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#EAF4FB]/80 via-white to-white pt-24 sm:pt-32 pb-12 sm:pb-16">
       {/* Background Soft Aura */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[400px] bg-gradient-to-b from-blue-100/40 via-purple-50/20 to-transparent rounded-[50%] blur-3xl -z-10 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[350px] bg-gradient-to-b from-blue-100/40 via-purple-50/20 to-transparent rounded-[50%] blur-3xl -z-10 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -47,7 +47,7 @@ const ModernBanner = () => {
             </div>
 
             {/* Main Title - Compact, confident, natural */}
-            <h1 className={`text-3xl sm:text-5xl lg:text-[56px] font-black text-[#2C2C2C] tracking-tight leading-[1.12] mb-3.5 ${isBn ? "font-siliguri" : ""}`}>
+            <h1 className={`text-2xl sm:text-4xl lg:text-5xl font-black text-[#2C2C2C] tracking-tight leading-[1.18] mb-3.5 break-words ${isBn ? "font-siliguri" : ""}`}>
               {isBn ? (
                 <>
                   কোডিং ও রোবোটিক্সে গড়ে উঠুক{" "}
@@ -90,18 +90,18 @@ const ModernBanner = () => {
             </div>
 
             {/* Micro Trust Points */}
-            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 pt-2 border-t border-slate-100 w-full">
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs font-semibold text-slate-600 pt-3 border-t border-slate-100 w-full">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Video className="w-4 h-4 text-blue-600" />
                 <span>{isBn ? "১০০% সরাসরি লাইভ ক্লাস" : "100% Live Classes"}</span>
               </div>
-              <span className="text-slate-300">•</span>
-              <div className="flex items-center gap-1.5">
+              <span className="text-slate-300 hidden xs:inline">•</span>
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Cpu className="w-4 h-4 text-purple-600" />
                 <span>{isBn ? "প্র্যাকটিক্যাল হার্ডওয়্যার কিট" : "Hands-on Project Kit"}</span>
               </div>
-              <span className="text-slate-300">•</span>
-              <div className="flex items-center gap-1.5">
+              <span className="text-slate-300 hidden xs:inline">•</span>
+              <div className="flex items-center gap-1.5 shrink-0">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>{isBn ? "১:১ পার্সোনালাইজড কেয়ার" : "Personalized Care"}</span>
               </div>
