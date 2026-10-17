@@ -771,7 +771,13 @@ export const getApprovedInstructorsPublic = async (): Promise<{
   data?: any[];
 }> => {
   try {
-    const instructors = await User.find({ role: "instructor", isApproved: true })
+    const instructors = await User.find({
+      $or: [
+        { role: "instructor" },
+        { email: { $in: ["m.riyad3834@gmail.com", "jabed@learngrow.academy"] } },
+      ],
+      isApproved: true,
+    })
       .select("_id name email role profileImage bio expertise qualification institution yearsOfExperience phone createdAt")
       .sort({ createdAt: 1 });
 

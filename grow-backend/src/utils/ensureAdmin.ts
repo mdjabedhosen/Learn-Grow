@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { User } from "../modules/user/model/user.model.js";
-
 import { Course } from "../modules/course/model/course.model.js";
+import { ensureAllTutors } from "./ensureTutors.js";
 
 export const ensureCourseMetadata = async () => {
   try {
@@ -259,7 +259,7 @@ export const ensureEvents = async () => {
         detailedDescription: `
           <div class="space-y-6">
             <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">🚀 সেশনের মূল উদ্দেশ্য</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">সেশনের মূল উদ্দেশ্য</h3>
               <p class="text-base text-gray-700 leading-relaxed">
                 এআই-এর যুগে আপনার সন্তানকে শুধু প্রযুক্তির ব্যবহারকারী না বানিয়ে মেকার হিসেবে গড়ে তুলতে Learn & Grow নিয়ে এসেছে ১ ঘণ্টার স্পেশাল ফ্রি লাইভ পাইথন কোডিং ওয়ার্কশপ। কোনো পূর্ব অভিজ্ঞতা ছাড়াই, শিক্ষার্থীরা পাইথনের বেসিক (Syntax, Variables, Conditions) শিখে সরাসরি নিজস্ব একটি কাস্টম AI Chatbot তৈরি করবে।
               </p>
@@ -267,25 +267,25 @@ export const ensureEvents = async () => {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100">
-                <h4 class="font-bold text-sm text-blue-900 mb-1">🤖 লাইভ প্রজেক্ট মেকিং</h4>
+                <h4 class="font-bold text-sm text-blue-900 mb-1">লাইভ প্রজেক্ট মেকিং</h4>
                 <p class="text-xs text-blue-800 leading-relaxed">সরাসরি ব্রাউজারে কোড লিখে বুদ্ধিমান চ্যাটবট তৈরি ও রান করার বাস্তব অভিজ্ঞতা।</p>
               </div>
               <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-100">
-                <h4 class="font-bold text-sm text-amber-900 mb-1">👥 ১০-১৫ জনের ছোট ব্যাচ</h4>
+                <h4 class="font-bold text-sm text-amber-900 mb-1">১০-১৫ জনের ছোট ব্যাচ</h4>
                 <p class="text-xs text-amber-800 leading-relaxed">প্রতিটি শিক্ষার্থী পাবে ওয়ান-টু-ওয়ান সহায়তা ও ইনস্ট্যান্ট কোড ডিবাগিং গাইডেন্স।</p>
               </div>
               <div class="p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
-                <h4 class="font-bold text-sm text-purple-900 mb-1">🏆 সার্টিফিকেট ও অ্যাসেসমেন্ট</h4>
+                <h4 class="font-bold text-sm text-purple-900 mb-1">সার্টিফিকেট ও অ্যাসেসমেন্ট</h4>
                 <p class="text-xs text-purple-800 leading-relaxed">সফলভাবে সম্পন্ন করার পর ভেরিফায়েড সার্টিফিকেট এবং প্রজেক্ট ফাইল প্রদান করা হবে।</p>
               </div>
               <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-                <h4 class="font-bold text-sm text-emerald-900 mb-1">🎁 এক্সক্লুসিভ স্কলারশিপ</h4>
+                <h4 class="font-bold text-sm text-emerald-900 mb-1">এক্সক্লুসিভ স্কলারশিপ</h4>
                 <p class="text-xs text-emerald-800 leading-relaxed">ট্রায়াল ক্লাসের সেরা পারফর্মারদের জন্য ১২ সপ্তাহের পূর্ণাঙ্গ কোর্সে বিশেষ ছাড়।</p>
               </div>
             </div>
 
             <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3">⏱️ সেশন টাইমলাইন (১ ঘণ্টা)</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-3">সেশন টাইমলাইন (১ ঘণ্টা)</h3>
               <div class="space-y-2.5">
                 <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
                   <span class="px-2.5 py-1 text-xs font-bold rounded-lg bg-gray-200 text-gray-800">প্রথম ১৫ মি.</span>
@@ -312,7 +312,7 @@ export const ensureEvents = async () => {
             </div>
 
             <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">🎒 ক্লাসের প্রস্তুতি</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">ক্লাসের প্রস্তুতি</h3>
               <ul class="list-disc pl-5 space-y-1.5 text-sm text-gray-700">
                 <li>একটি সচল ল্যাপটপ বা কম্পিউটার (উইন্ডোজ, ম্যাক বা লিনাক্স)।</li>
                 <li>ইন্টারনেট কানেকশন এবং গুগল ক্রোম ব্রাউজার।</li>
@@ -409,6 +409,7 @@ export const ensureAdminUsers = async () => {
 
     await ensureCourseMetadata();
     await ensureEvents();
+    await ensureAllTutors();
 
     // Fix phone conflict: +393463275710 belongs to CEO/Founder Md Jabed Hosen (m.riyad3834@gmail.com)
     await User.updateOne(
