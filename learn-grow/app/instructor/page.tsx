@@ -27,7 +27,6 @@ import {
     CalendarCheck,
     MessageCircle,
     ExternalLink,
-    Users,
     User
 } from "lucide-react";
 import { useGetInstructorCoursesQuery } from "@/redux/api/courseApi";
