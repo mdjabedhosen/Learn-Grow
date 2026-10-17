@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronDown, FaCheck } from "react-icons/fa";
+import { Sparkles } from "lucide-react";
 
 const faqData = {
   bn: {
-    pill: "💡 কেন আমরা?",
+    pill: "কেন আমরা?",
     title: "সাধারণ প্রশ্নোত্তর",
     subtitle: "আমাদের সম্পর্কে আপনার সব প্রশ্নের উত্তর এখানে পাবেন।",
-    featuresTitle: "আমাদের সুবিধাসমূহ ✅",
+    featuresTitle: "আমাদের বিশেষ সুবিধাসমূহ",
     features: [
       "১০০% বাংলা ভাষায় শিক্ষা",
       "লাইভ ইন্টারঅ্যাক্টিভ ক্লাস",
@@ -45,10 +46,10 @@ const faqData = {
     ],
   },
   en: {
-    pill: "💡 Why Us?",
+    pill: "Why Us?",
     title: "Frequently Asked Questions",
     subtitle: "Find answers to all your common questions about our platform and courses.",
-    featuresTitle: "Our Advantages ✅",
+    featuresTitle: "Our Key Advantages",
     features: [
       "100% Native Language Instruction",
       "Live Interactive Classes",
@@ -128,6 +129,7 @@ export default function WhyBestCourses() {
         {/* Header */}
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-2 px-5 py-2 bg-[#3b82f6] text-white text-xs font-black rounded-full uppercase tracking-widest mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
             {content.pill}
           </span>
           <h2

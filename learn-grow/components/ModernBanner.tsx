@@ -5,6 +5,7 @@ import { Button } from "@nextui-org/react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { openTrialModal } from "@/components/TrialBookingModal";
+import { Check, ArrowRight } from "lucide-react";
 
 const ModernBanner = () => {
   const router = useRouter();
@@ -95,7 +96,7 @@ const ModernBanner = () => {
                   {language === "en" ? "Book a free trial class" : "ফ্রি ট্রায়াল বুক করুন"}
                 </span>
                 <span className="w-11 h-11 bg-[#F59E0B] rounded-full flex items-center justify-center text-black font-extrabold group-hover:translate-x-1 transition-transform">
-                  →
+                  <ArrowRight className="w-5 h-5" />
                 </span>
               </button>
 
@@ -117,11 +118,11 @@ const ModernBanner = () => {
                 {language === "en" ? "LIVE INTERACTIVE" : "সরাসরি লাইভ ক্লাস"}
               </span>
               <span>•</span>
-              <span>✓ {language === "en" ? "FREE TRIAL" : "ফ্রি ট্রায়াল"}</span>
+              <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-emerald-600" /> {language === "en" ? "FREE TRIAL" : "ফ্রি ট্রায়াল"}</span>
               <span>•</span>
-              <span>✓ {language === "en" ? "UP TO 60 MIN" : "৬০ মিনিট ডেমো"}</span>
+              <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-emerald-600" /> {language === "en" ? "UP TO 60 MIN" : "৬০ মিনিট ডেমো"}</span>
               <span>•</span>
-              <span>✓ {language === "en" ? "1-TO-1 DEMO" : "১:১ গাইডেন্স"}</span>
+              <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-emerald-600" /> {language === "en" ? "1-TO-1 DEMO" : "১:১ গাইডেন্স"}</span>
             </div>
           </div>
 

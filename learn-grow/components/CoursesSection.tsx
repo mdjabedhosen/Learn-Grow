@@ -12,6 +12,7 @@ import {
 import { useGetFeaturedCoursesQuery } from "@/redux/api/courseApi";
 import { useRouter } from "next/navigation";
 import { getCourseSlug } from "@/lib/coursesData";
+import { Clock, Users as UsersIcon, PhoneCall, BookOpen, ArrowRight } from "lucide-react";
 
 const CoursesSection = () => {
   const [language, setLanguage] = useState<"en" | "bn">("bn");
@@ -174,7 +175,7 @@ const CoursesSection = () => {
                   <div className="flex gap-4 mb-4 border-t border-black/5 pt-4">
                     {course.duration && (
                       <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
-                        <span>⏱️</span>
+                        <Clock className="w-3.5 h-3.5 text-blue-500" />
                         <span className={language === "bn" ? "font-siliguri" : ""}>
                           {course.duration}
                         </span>
@@ -182,7 +183,7 @@ const CoursesSection = () => {
                     )}
                     {course.ageRange && (
                       <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
-                        <span>👥</span>
+                        <UsersIcon className="w-3.5 h-3.5 text-purple-500" />
                         <span className={language === "bn" ? "font-siliguri" : ""}>
                           {course.ageRange}
                         </span>
@@ -248,25 +249,28 @@ const CoursesSection = () => {
               ? "Can't decide? We'll help you choose the perfect track!"
               : "আপনার সন্তানের জন্য সঠিক প্রোগ্রাম সিলেক্ট করতে পরামর্শ পেতে চান?"}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button
-              className="border-2 border-primary-500 text-primary-600 font-bold hover:bg-primary-50 rounded-[20px]"
+              className="border-2 border-primary-500 text-primary-600 font-bold hover:bg-primary-50 rounded-full px-6 py-6"
               size="lg"
               variant="bordered"
               onPress={() => router.push("/contact")}
             >
+              <PhoneCall className="w-4 h-4 mr-1 text-primary-500" />
               <span className={language === "bn" ? "font-siliguri" : ""}>
-                {language === "en" ? "📞 Talk to Advisor" : "📞 অ্যাডভাইজরের সাথে কথা বলুন"}
+                {language === "en" ? "Talk to Advisor" : "অ্যাডভাইজরের সাথে কথা বলুন"}
               </span>
             </Button>
             <Button
-              className="bg-primary text-white font-bold shadow-glow-primary rounded-[20px]"
+              className="bg-primary text-white font-bold shadow-glow-primary rounded-full px-7 py-6 flex items-center"
               size="lg"
               onPress={() => router.push("/courses")}
             >
+              <BookOpen className="w-4 h-4 mr-2" />
               <span className={language === "bn" ? "font-siliguri" : ""}>
-                {language === "en" ? "🎁 View All Courses" : "🎁 সকল কোর্স দেখুন"}
+                {language === "en" ? "View All Courses" : "সকল কোর্স দেখুন"}
               </span>
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
         </div>

@@ -82,7 +82,7 @@ const PricingSection: React.FC = () => {
     },
     {
       id: "combo",
-      badge: language === "en" ? "⭐ Best Value Bundle" : "⭐ সবচেয়ে জনপ্রিয় বান্ডেল",
+      badge: language === "en" ? "Best Value Bundle" : "সবচেয়ে জনপ্রিয় বান্ডেল",
       name: language === "en" ? "Course + Robotics Kit" : "কোর্স + রোবটিক্স কিট",
       subtitle:
         language === "en"
@@ -93,7 +93,7 @@ const PricingSection: React.FC = () => {
       currency: language === "en" ? "BDT" : "৳",
       period: language === "en" ? "complete bundle" : "এককালীন বান্ডেল",
       priceNote: language === "en" ? "Lifetime kit ownership & course access" : "কিটের আজীবন মালিকানা ও লাইভ ক্লাস",
-      saveBadge: language === "en" ? "🔥 Save 1,750 BDT!" : "🔥 ১,৭৫০ টাকা সাশ্রয়!",
+      saveBadge: language === "en" ? "Save ৳1,750" : "১,৭৫০ টাকা সাশ্রয়",
       popular: true,
       comboId: firstCombo?._id,
       features: [
@@ -204,6 +204,7 @@ const PricingSection: React.FC = () => {
                 {isFeatured && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-30">
                     <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#3B82F6] to-[#7C3AED] text-white font-extrabold text-xs shadow-lg uppercase tracking-wider whitespace-nowrap">
+                      <HiOutlineSparkles className="text-sm" />
                       {card.badge}
                     </span>
                   </div>
