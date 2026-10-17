@@ -13,8 +13,10 @@ export interface TutorSeedSpec {
   bio: string;
   expertise: string[];
   yearsOfExperience: number;
+  originalDatasetPasswordHash?: string;
 }
 
+// Strictly authentic Learn & Grow educators matching the original database dataset
 export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
   {
     name: "Md Jabed Hosen",
@@ -51,6 +53,8 @@ export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
     bio: "উদ্ভাবনী হার্ডওয়্যার ইঞ্জিনিয়ার ও রোবটিক্স ট্রেইনার। শিশু ও তরুণদের প্রজেক্ট-ভিত্তিক আর্দুইনো, সেন্সর ও সার্কিট ডিজাইনে বাস্তব দক্ষতা গড়ে তোলেন।",
     expertise: ["Robotics & Arduino", "STEM Education", "Hardware"],
     yearsOfExperience: 6,
+    // Original bcrypt hash from users.json backup dataset
+    originalDatasetPasswordHash: "$2b$10$rA5gSsl1OWVGVN5gNhUjMeG0kySlQm5H.WaTF8.iZb7TKBUF5u9uC",
   },
   {
     name: "Tasnim Jahan Tonni",
@@ -63,6 +67,8 @@ export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
     bio: "কম্পিউটার সায়েন্স গবেষক ও অভিজ্ঞ বিশ্ববিদ্যালয় শিক্ষক। শিশুদের পাইথন কোডিং, মেশিন লার্নিং ও এআই অ্যালগরিদম সহজ ভাষায় বাস্তব প্রজেক্টের মাধ্যমে শেখান।",
     expertise: ["Python", "AI & Machine Learning", "Coding"],
     yearsOfExperience: 5,
+    // Original bcrypt hash from users.json backup dataset
+    originalDatasetPasswordHash: "$2b$10$T9OzX8kEN4ORsuFoyMuGi.i4CBfklFLoqzhuN48j8ehKezZJHVJUK",
   },
   {
     name: "Saiful Islam",
@@ -100,58 +106,22 @@ export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
     expertise: ["IoT", "Microcontrollers", "Circuits"],
     yearsOfExperience: 5,
   },
-  {
-    name: "Marko Vidakovic",
-    email: "marko@learngrow.academy",
-    phone: "+8801700000028",
-    role: "instructor",
-    qualification: "Lead Full-Stack & Systems Mentor",
-    institution: "Senior Software Engineer & Mentor",
-    profileImage: "/images/tutors/tutor-marko.jpg",
-    bio: "অভিজ্ঞ ফুল-স্ট্যাক ও ক্লাউড সফটওয়্যার ইঞ্জিনিয়ার। শিশু-কিশোরদের আধুনিক ওয়েব টেকনোলজি ও সফটওয়্যার আর্কিটেকচার শেখাতে নিবেদিত।",
-    expertise: ["Full-Stack", "JavaScript", "Cloud Systems"],
-    yearsOfExperience: 6,
-  },
-  {
-    name: "Antonia Popovic",
-    email: "antonia@learngrow.academy",
-    phone: "+8801700000029",
-    role: "instructor",
-    qualification: "Curriculum Designer & Creative Coding Lead",
-    institution: "EdTech Curriculum Specialist",
-    profileImage: "/images/tutors/tutor-antonia.jpg",
-    bio: "এডটেক কারিকুলাম ডিজাইনার ও কোডিং মেন্টর। শিশুদের জন্য সহজবোধ্য ও আনন্দময় কোডিং লেসন তৈরিতে পারদর্শী।",
-    expertise: ["Creative Coding", "Scratch", "Logic Building"],
-    yearsOfExperience: 5,
-  },
-  {
-    name: "Nenad Tomic",
-    email: "nenad@learngrow.academy",
-    phone: "+8801700000030",
-    role: "instructor",
-    qualification: "AI & Embedded Systems Specialist",
-    institution: "Hardware & AI Researcher",
-    profileImage: "/images/tutors/tutor-nenad.jpg",
-    bio: "এআই ও এমবেডেড সিস্টেমস গবেষক। শিশু ও তরুণদের জন্য মাইক্রোকন্ট্রোলার প্রোগ্রামিং ও ইন্টেলিজেন্ট রোবট তৈরিতে নিবেদিত।",
-    expertise: ["Embedded Systems", "Robotics", "AI"],
-    yearsOfExperience: 8,
-  },
-  {
-    name: "Antonella Rossi",
-    email: "antonella@learngrow.academy",
-    phone: "+8801700000031",
-    role: "instructor",
-    qualification: "Game Design & Interactive Media Mentor",
-    institution: "Interactive Media Designer",
-    profileImage: "/images/tutors/tutor-antonella.jpg",
-    bio: "গেম ডিজাইন ও ইন্টারেক্টিভ মিডিয়া বিশেষজ্ঞ। শিশুদের অ্যানিমেশন, রবলক্স ও স্ক্র্যাচে নিজস্ব গেম বানাতে দক্ষ করে তোলেন।",
-    expertise: ["Game Design", "Roblox", "Animation"],
-    yearsOfExperience: 5,
-  },
 ];
 
 export const ensureAllTutors = async () => {
   try {
+    // 1. Purge any random / dummy tutors so only authentic team members exist
+    const DUMMY_EMAILS = [
+      "marko@learngrow.academy",
+      "antonia@learngrow.academy",
+      "nenad@learngrow.academy",
+      "antonella@learngrow.academy",
+    ];
+    await User.deleteMany({ email: { $in: DUMMY_EMAILS } });
+    await TeamMember.deleteMany({
+      name: { $in: ["Marko Vidakovic", "Antonia Popovic", "Nenad Tomic", "Antonella Rossi"] },
+    });
+
     const defaultPassword = "Instructor@123";
     const hashedDefaultPassword = await bcrypt.hash(defaultPassword, 10);
 
@@ -161,15 +131,18 @@ export const ensureAllTutors = async () => {
 
       if (user) {
         let changed = false;
-        // Ensure user can log in with Instructor@123
-        if (!user.password) {
-          user.password = hashedDefaultPassword;
+
+        // AUTHENTIC PASSWORD PRESERVATION RULE:
+        // 1. If this account is from the original dataset and has a known original hash, enforce/restore it if corrupted
+        if (t.originalDatasetPasswordHash && user.password !== t.originalDatasetPasswordHash) {
+          user.password = t.originalDatasetPasswordHash;
           changed = true;
-        } else {
-          // If password exists, ensure it is set to default Instructor@123 so admin can log in as requested
+        } else if (!user.password || user.password.trim() === "") {
+          // 2. Only if the user has NO password set, assign the standard default password
           user.password = hashedDefaultPassword;
           changed = true;
         }
+        // 3. If the user already has a valid password, DO NOT OVERWRITE IT.
 
         if (user.role !== t.role && user.role !== "admin") {
           user.role = t.role;
@@ -214,14 +187,15 @@ export const ensureAllTutors = async () => {
 
         if (changed) {
           await user.save();
-          console.log(`[Tutor Seeder] Verified and updated instructor account for ${t.name} (${t.email})`);
+          console.log(`[Tutor Seeder] Verified authentic instructor account for ${t.name} (${t.email})`);
         }
       } else {
+        const passwordToSet = t.originalDatasetPasswordHash || hashedDefaultPassword;
         user = await User.create({
           name: t.name,
           email: t.email.toLowerCase(),
           phone: t.phone,
-          password: hashedDefaultPassword,
+          password: passwordToSet,
           role: t.role,
           profileImage: t.profileImage,
           bio: t.bio,
@@ -233,7 +207,7 @@ export const ensureAllTutors = async () => {
           isVerified: true,
           isBlocked: false,
         });
-        console.log(`[Tutor Seeder] Created new instructor account for ${t.name} (${t.email})`);
+        console.log(`[Tutor Seeder] Created new authentic instructor account for ${t.name} (${t.email})`);
       }
 
       // Sync with TeamMember collection so home page & team API link to real user profile
@@ -260,7 +234,7 @@ export const ensureAllTutors = async () => {
       }
     }
 
-    console.log(`[Tutor Seeder] Successfully verified all ${ALL_TUTORS_SPEC.length} tutors in User collection with login credentials.`);
+    console.log(`[Tutor Seeder] Successfully verified all ${ALL_TUTORS_SPEC.length} authentic tutors with preserved dataset credentials.`);
   } catch (error) {
     console.error("[Tutor Seeder] Failed to ensure tutors:", error);
   }
