@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { openTrialModal } from "@/components/TrialBookingModal";
-import { Star, ShieldCheck, Video, ArrowRight, Zap, Sparkles } from "lucide-react";
+import { Star, ArrowRight, Cpu, Video, ShieldCheck, Sparkles } from "lucide-react";
 
 const ModernBanner = () => {
   const router = useRouter();
@@ -28,155 +28,134 @@ const ModernBanner = () => {
   const isBn = language === "bn";
 
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#E7FB76]/45 via-[#F7FDC9]/20 to-white pt-24 sm:pt-32 pb-14 sm:pb-20">
-      {/* Subtle curved background overlay */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[420px] sm:h-[500px] bg-gradient-to-b from-[#E5F970]/30 to-transparent rounded-[50%] blur-2xl -z-10 pointer-events-none" />
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#EAF4FB]/80 via-white to-white pt-24 sm:pt-32 pb-12 sm:pb-16">
+      {/* Background Soft Aura */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[400px] bg-gradient-to-b from-blue-100/40 via-purple-50/20 to-transparent rounded-[50%] blur-3xl -z-10 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="relative flex flex-col items-center justify-center text-center">
-
-          {/* Left Floating Student Card (Kodland "Brian" style - Desktop only) */}
-          <div className="hidden lg:block absolute left-0 xl:-left-4 top-1/2 -translate-y-1/2 -rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 pointer-events-auto">
-            <div className="relative w-48 xl:w-56 h-60 xl:h-72 rounded-[28px] overflow-hidden bg-[#3B82F6] p-2.5 shadow-xl shadow-blue-500/15 border-4 border-white">
-              <div className="relative w-full h-full rounded-[22px] overflow-hidden bg-slate-100">
-                <Image
-                  src="/hero-illustration.jpg"
-                  alt="Student coding"
-                  fill
-                  className="object-cover"
-                  sizes="240px"
-                  priority
-                />
-                <span className="absolute top-2.5 left-2.5 bg-white text-slate-800 text-xs font-black px-3 py-1 rounded-full shadow-sm">
-                  {isBn ? "রায়ান" : "Rayan"}
-                </span>
-                <span className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-[#F59E0B] text-slate-900 flex items-center justify-center shadow-md">
-                  <Zap className="w-4 h-4 fill-current" />
-                </span>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: Authentic Brand Messaging & Action */}
+          <div className="lg:col-span-7 text-left flex flex-col items-start">
+            
+            {/* Category / Target Age Pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 rounded-full mb-3.5">
+              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+              <span className={`text-xs font-bold text-blue-800 tracking-wide ${isBn ? "font-siliguri" : ""}`}>
+                {isBn ? "৭–১৬ বছর বয়সীদের জন্য • লাইভ স্টেম শিক্ষা" : "Ages 7–16 • Live Interactive STEM Learning"}
+              </span>
             </div>
-          </div>
 
-          {/* Right Floating Student Card (Kodland "Kate" style - Desktop only) */}
-          <div className="hidden lg:block absolute right-0 xl:-right-4 top-1/2 -translate-y-1/2 rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 pointer-events-auto">
-            <div className="relative w-48 xl:w-56 h-60 xl:h-72 rounded-[28px] overflow-hidden bg-[#EE4D90] p-2.5 shadow-xl shadow-pink-500/15 border-4 border-white">
-              <div className="relative w-full h-full rounded-[22px] overflow-hidden bg-slate-100">
-                <Image
-                  src="/workshop/bpsc-students-2.jpg"
-                  alt="Student with robotics"
-                  fill
-                  className="object-cover"
-                  sizes="240px"
-                  priority
-                />
-                <span className="absolute top-2.5 left-2.5 bg-white text-slate-800 text-xs font-black px-3 py-1 rounded-full shadow-sm">
-                  {isBn ? "সায়রা" : "Saira"}
-                </span>
-                <span className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-md">
-                  <Sparkles className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Center Content Block */}
-          <div className="max-w-2xl mx-auto px-2">
-            {/* Main Headline - Simple, Punchy, Kodland style */}
-            <h1 className={`text-4xl sm:text-6xl lg:text-7xl font-black text-[#23272A] tracking-tight leading-[1.08] mb-3 sm:mb-4 ${isBn ? "font-siliguri" : ""}`}>
+            {/* Main Title - Compact, confident, natural */}
+            <h1 className={`text-3xl sm:text-5xl lg:text-[56px] font-black text-[#2C2C2C] tracking-tight leading-[1.12] mb-3.5 ${isBn ? "font-siliguri" : ""}`}>
               {isBn ? (
                 <>
-                  শিশুদের অনলাইন স্কুল
-                  <br />
-                  <span className="inline-block bg-[#EE4D90] text-white px-5 sm:px-7 py-1 sm:py-1.5 rounded-full shadow-sm mt-1 text-2xl sm:text-4xl lg:text-5xl font-black tracking-normal align-middle">
-                    ৮–১৭ বছর বয়সীদের জন্য
-                  </span>
+                  কোডিং ও রোবোটিক্সে গড়ে উঠুক{" "}
+                  <span className="text-[#3B82F6]">আপনার সন্তানের</span> ভবিষ্যৎ
                 </>
               ) : (
                 <>
-                  Online school
-                  <br />
-                  <span className="inline-block bg-[#EE4D90] text-white px-5 sm:px-7 py-1 sm:py-1.5 rounded-full shadow-sm mt-1 text-3xl sm:text-5xl lg:text-6xl font-black tracking-normal align-middle">
-                    for kids ages 8–17
-                  </span>
+                  Empower Your Child&apos;s Future with{" "}
+                  <span className="text-[#3B82F6]">Coding</span> &{" "}
+                  <span className="text-[#7C3AED]">Robotics</span>
                 </>
               )}
             </h1>
 
-            {/* Subtitle - Clean, Human, Compact (Not AI odd phrasing) */}
-            <p className={`text-sm sm:text-base md:text-lg text-slate-600 max-w-xl mx-auto leading-snug sm:leading-normal mb-6 sm:mb-7 font-medium ${isBn ? "font-siliguri" : ""}`}>
+            {/* Subtitle - Professional, direct, human */}
+            <p className={`text-sm sm:text-base lg:text-lg text-slate-600 leading-normal sm:leading-relaxed max-w-xl mb-6 font-medium ${isBn ? "font-siliguri" : ""}`}>
               {isBn
-                ? "শিশুদের আগ্রহকে রূপান্তর করি ভবিষ্যতের দক্ষতায়। আমরা সরাসরি লাইভ ক্লাসে হাতে-কলমে শেখাই কোডিং, রোবোটিক্স এবং ক্রিয়েটিভ থিংকিং।"
-                : "We turn casual interests into skills for the future. We teach coding, robotics, and creative problem solving through live interactive classes."}
+                ? "অভিজ্ঞ মেন্টরদের সরাসরি লাইভ ক্লাসে শিশুরা শিখবে প্রোগ্রামিং লজিক, সার্কিট তৈরি এবং ক্রিয়েটিভ প্রজেক্ট—যা তাদের প্রযুক্তিগত চিন্তাভাবনাকে করবে আরো শাণিত।"
+                : "Live interactive classes where kids build real circuits, master coding fundamentals, and bring their creative ideas to life with dedicated mentors."}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto mb-6">
               <button
                 onClick={() => openTrialModal({ source: "hero_banner" })}
-                className={`w-full sm:w-auto bg-[#23272A] hover:bg-black text-white font-bold text-sm sm:text-base px-7 sm:px-9 py-3.5 sm:py-4 rounded-full shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 cursor-pointer ${isBn ? "font-siliguri" : ""}`}
+                className={`bg-[#2C2C2C] hover:bg-black text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer group hover:-translate-y-0.5 active:translate-y-0 ${isBn ? "font-siliguri" : ""}`}
               >
-                <span>{isBn ? "ফ্রি ট্রায়াল ক্লাসে জয়েন করুন" : "Sign up for a free trial class"}</span>
-                <ArrowRight className="w-4 h-4 text-[#E7FB76]" />
+                <span>{isBn ? "ফ্রি ট্রায়াল ক্লাস বুক করুন" : "Book a Free Trial Class"}</span>
+                <span className="w-7 h-7 rounded-full bg-[#F59E0B] text-slate-900 flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </span>
               </button>
 
               <button
                 onClick={() => router.push("/courses")}
-                className={`w-full sm:w-auto border-2 border-[#23272A] hover:bg-[#23272A]/5 text-[#23272A] font-bold text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5 rounded-full transition-all ${isBn ? "font-siliguri" : ""}`}
+                className={`border-2 border-slate-300 hover:border-slate-800 text-slate-800 font-bold text-sm sm:text-base px-6 py-3 rounded-full hover:bg-slate-50 transition-all ${isBn ? "font-siliguri" : ""}`}
               >
-                {isBn ? "সব কোর্স দেখুন" : "Explore Courses"}
+                {isBn ? "কোর্সসমূহ দেখুন" : "Explore Courses"}
               </button>
             </div>
 
-            {/* Social Proof & Trust Badges Row (Kodland style) */}
-            <div className="pt-4 border-t border-slate-200/80 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-slate-600 font-semibold">
-              {/* Parent reviews */}
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-1.5 overflow-hidden">
-                  <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-black border border-white">
-                    P
-                  </div>
-                  <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black border border-white">
-                    S
-                  </div>
-                  <div className="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-black border border-white">
-                    R
-                  </div>
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center text-amber-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-current" />
-                    ))}
-                    <span className="ml-1 text-[11px] font-black text-slate-900">4.9</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500">
-                    {isBn ? "১,২০০+ অভিভাবকের ভরসা" : "1,200+ Parent Reviews"}
-                  </span>
-                </div>
-              </div>
-
-              <span className="hidden sm:inline text-slate-300">•</span>
-
-              {/* 100% Live */}
+            {/* Micro Trust Points */}
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 pt-2 border-t border-slate-100 w-full">
               <div className="flex items-center gap-1.5">
                 <Video className="w-4 h-4 text-blue-600" />
-                <span className="text-[11px] font-bold text-slate-800">
-                  {isBn ? "১০০% সরাসরি লাইভ ক্লাস" : "100% Live Interactive"}
-                </span>
+                <span>{isBn ? "১০০% সরাসরি লাইভ ক্লাস" : "100% Live Classes"}</span>
               </div>
-
-              <span className="hidden sm:inline text-slate-300">•</span>
-
-              {/* STEM Accredited */}
+              <span className="text-slate-300">•</span>
+              <div className="flex items-center gap-1.5">
+                <Cpu className="w-4 h-4 text-purple-600" />
+                <span>{isBn ? "প্র্যাকটিক্যাল হার্ডওয়্যার কিট" : "Hands-on Project Kit"}</span>
+              </div>
+              <span className="text-slate-300">•</span>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span className="text-[11px] font-bold text-slate-800">
-                  {isBn ? "হাতে-কলমে প্র্যাকটিক্যাল প্রজেক্ট" : "Hands-on STEM Projects"}
+                <span>{isBn ? "১:১ পার্সোনালাইজড কেয়ার" : "Personalized Care"}</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Visual Showcase (Clean, Rounded, High-Quality) */}
+          <div className="lg:col-span-5 relative flex justify-center items-center mt-4 lg:mt-0">
+            {/* Decorative background aura card */}
+            <div className="absolute w-[92%] h-[92%] bg-gradient-to-tr from-blue-100 to-purple-100 rounded-[32px] -rotate-2 -z-10" />
+
+            {/* Main Showcase Card */}
+            <div className="relative w-full max-w-[420px] rounded-[32px] overflow-hidden bg-white border-4 border-white shadow-2xl">
+              <div className="relative aspect-[4/3] sm:aspect-[1/1] w-full">
+                <Image
+                  src="/hero-illustration.jpg"
+                  alt="Student learning coding and robotics"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 420px"
+                  priority
+                />
+              </div>
+
+              {/* Floating Bottom Card: Parent Trust Badge */}
+              <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-100 shadow-lg flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">
+                    <Sparkles className="w-4 h-4 fill-amber-500" />
+                  </div>
+                  <div className="text-left">
+                    <p className={`text-xs font-black text-slate-900 ${isBn ? "font-siliguri" : ""}`}>
+                      {isBn ? "অভিভাবকদের আস্থায় সেরা" : "Trusted by 1,200+ Parents"}
+                    </p>
+                    <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-current" />
+                        ))}
+                      </div>
+                      <span className="font-bold text-slate-800">4.9/5</span>
+                    </div>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg">
+                  {isBn ? "লাইভ ক্লাস" : "Live Class"}
                 </span>
               </div>
             </div>
 
           </div>
+
         </div>
       </div>
     </section>
