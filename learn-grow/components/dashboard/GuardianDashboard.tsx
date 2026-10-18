@@ -16,31 +16,14 @@ export default function GuardianDashboard() {
         }
     }, []);
 
-    // Mock data for children/students
-    const children = [
-        {
-            id: "1",
-            name: "Ahmed Khan",
-            grade: "Class 8",
-            enrolledCourses: 2,
-            progress: 65,
-            img: "https://i.pravatar.cc/150?u=child1"
-        },
-        {
-            id: "2",
-            name: "Fatima Khan",
-            grade: "Class 5",
-            enrolledCourses: 1,
-            progress: 80,
-            img: "https://i.pravatar.cc/150?u=child2"
-        }
-    ];
+    // Real linked children data
+    const children: any[] = user?.children || [];
 
     const stats = [
         { label: "Total Children", value: children.length, color: "bg-blue-500", icon: <Users className="w-6 h-6 text-white" /> },
-        { label: "Active Courses", value: 3, color: "bg-green-500", icon: <BookOpen className="w-6 h-6 text-white" /> },
-        { label: "Upcoming Classes", value: 2, color: "bg-orange-500", icon: <Video className="w-6 h-6 text-white" /> },
-        { label: "Pending Payments", value: 0, color: "bg-purple-500", icon: <CreditCard className="w-6 h-6 text-white" /> },
+        { label: "Active Courses", value: user?.activeCoursesCount || 0, color: "bg-green-500", icon: <BookOpen className="w-6 h-6 text-white" /> },
+        { label: "Upcoming Classes", value: user?.upcomingClassesCount || 0, color: "bg-orange-500", icon: <Video className="w-6 h-6 text-white" /> },
+        { label: "Pending Payments", value: user?.pendingPaymentsCount || 0, color: "bg-purple-500", icon: <CreditCard className="w-6 h-6 text-white" /> },
     ];
 
     return (
@@ -99,8 +82,13 @@ export default function GuardianDashboard() {
                                 </Button>
                             </CardHeader>
                             <CardBody className="space-y-4">
-                                {children.map((child) => (
-                                    <Card key={child.id} className="bg-gray-50">
+                                {children.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        No children registered yet. Click &quot;Add Child&quot; to link your student.
+                                    </div>
+                                ) : (
+                                    children.map((child) => (
+                                        <Card key={child.id || child._id} className="bg-gray-50">
                                         <CardBody>
                                             <div className="flex items-center gap-4 mb-4">
                                                 <Avatar src={child.img} name={child.name} size="lg" />
@@ -133,7 +121,7 @@ export default function GuardianDashboard() {
                                             </div>
                                         </CardBody>
                                     </Card>
-                                ))}
+                                )))}
                             </CardBody>
                         </Card>
 

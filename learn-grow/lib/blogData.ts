@@ -5,13 +5,13 @@ export const defaultBlogData = {
     tag: "Blog"
   },
   featuredPost: {
-    title: "The Future of AI in Youth Education",
-    excerpt: "How interactive Artificial Intelligence and Python problem-solving are transforming young minds in Bangladesh.",
+    title: "স্ক্রিন টাইম থেকে প্রোগ্রামিং: মাত্র ২ দিনে ৩০০ শিক্ষার্থী বানিয়ে ফেলল নিজের প্রথম রোবট!",
+    excerpt: "বিপিএসসি স্কুলে লার্ন অ্যান্ড গ্রোর বিশেষ রোবটিক্স ওয়ার্কশপে খুদে শিক্ষার্থীরা হাতে-কলমে তৈরি করল নিজেদের প্রথম রোবট।",
     author: "Md Jabed Hosen",
-    date: "October 18, 2026",
-    category: "Technology",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop",
-    readTime: "8 min read"
+    date: "October 17, 2026",
+    category: "Robotics",
+    image: "/workshop/bpsc-main.png",
+    readTime: "6 min read"
   },
   posts: [
     {

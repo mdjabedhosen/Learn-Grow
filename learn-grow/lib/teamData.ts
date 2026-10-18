@@ -18,17 +18,17 @@ export const defaultTeamData = {
             {
                 name: "Md. Hasibur Rahman",
                 role: "Chief Technology Officer (CTO)",
-                bio: "Software Architect and Full-Stack Engineering Lead directing platform scalability and learning systems.",
-                img: "/images/tutors/tutor-tanvir.png",
-                linkedin: "#",
+                bio: "Software Architect and Assistant Manager at UCB Investment LTD directing platform scalability and learning systems.",
+                img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1792213463/team/members/team-Md.Hasibur%20Rahman-1792213462971.png",
+                linkedin: "https://www.linkedin.com/in/md-hasibur-rh/",
                 twitter: "#"
             },
             {
                 name: "Taj Uddin",
                 role: "Chief Operating Officer (COO)",
-                bio: "Operations and student success director ensuring seamless delivery of live cohorts and robotics hardware.",
-                img: "/images/tutors/tutor-sovon.png",
-                linkedin: "#",
+                bio: "Academic counsellor, Educator & selective. Studies EEE. Directing student success and live cohort delivery.",
+                img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1776030975/team/members/team-Taj%20Uddin-1776030975447.jpg",
+                linkedin: "https://www.linkedin.com/in/tajuddinshakib/",
                 twitter: "#"
             }
         ],
@@ -36,17 +36,17 @@ export const defaultTeamData = {
             {
                 name: "Sabbir Bin Sazid",
                 role: "Robotics & IoT Coordinator",
-                bio: "Leading live hardware cohort delivery and maker lab logistics.",
-                img: "/images/tutors/tutor-tanvir.png",
+                bio: "IoT Engineer leading live hardware cohort delivery and maker lab logistics.",
+                img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1792213479/team/members/team-Sabbir%20Bin%20Sazid-1792213479190.png",
                 linkedin: "#",
                 twitter: "#"
             },
             {
                 name: "Joy Md Sajol",
                 role: "Marketing Head",
-                bio: "Driving student outreach, community engagement, and digital growth.",
-                img: "/images/tutors/tutor-jabed.png",
-                linkedin: "#",
+                bio: "Strategic digital growth specialist driving student outreach, YouTube SEO, and high-impact digital growth.",
+                img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1792213496/team/members/team-Joy%20Md%20Sajol-1792213495855.png",
+                linkedin: "https://www.linkedin.com/in/joymdsajol/",
                 twitter: "#"
             }
         ]
@@ -95,13 +95,13 @@ export const defaultTeamData = {
             name: "Sabbir Bin Sazid",
             role: "Program Coordinator",
             bio: "Supporting student onboarding and batch scheduling.",
-            img: "/images/tutors/tutor-tanvir.png"
+            img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1792213479/team/members/team-Sabbir%20Bin%20Sazid-1792213479190.png"
         },
         {
             name: "Joy Md Sajol",
             role: "Community Manager",
             bio: "Ensuring top-tier support and community engagement.",
-            img: "/images/tutors/tutor-jabed.png"
+            img: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1792213496/team/members/team-Joy%20Md%20Sajol-1792213495855.png"
         }
     ]
 };

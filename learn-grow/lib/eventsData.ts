@@ -6,40 +6,48 @@ export const defaultEventsData = {
     },
     upcomingEvents: [
         {
-            title: "Robotics Competition 2026",
-            date: "January 15, 2026",
-            time: "10:00 AM - 4:00 PM",
-            location: "Dhaka Science Museum",
-            type: "Competition",
+            title: "Build Your First AI Chatbot in Python (Free Live Trial Class)",
+            date: "October 24, 2026",
+            time: "7:00 PM - 8:00 PM",
+            location: "Online (Google Meet)",
+            type: "Workshop",
             color: "primary"
         },
         {
-            title: "Web Development Workshop",
-            date: "January 20, 2026",
-            time: "2:00 PM - 5:00 PM",
-            location: "Online (Zoom)",
-            type: "Workshop",
-            color: "success"
+            title: "National Junior Robotics & STEM Olympiad 2026",
+            date: "November 28, 2026",
+            time: "9:30 AM - 5:30 PM",
+            location: "National Science and Technology Complex, Agargaon, Dhaka",
+            type: "Competition",
+            color: "secondary"
         },
         {
-            title: "AI & Machine Learning Seminar",
-            date: "January 25, 2026",
+            title: "Teen AI & Python Chatbot Bootcamp 2026",
+            date: "November 14, 2026",
             time: "6:00 PM - 8:00 PM",
-            location: "Learn & Grow HQ, Dhaka",
-            type: "Seminar",
-            color: "secondary"
+            location: "Online (Google Meet)",
+            type: "Bootcamp",
+            color: "primary"
+        },
+        {
+            title: "Hands-on Arduino & Sensor Circuit Workshop",
+            date: "November 07, 2026",
+            time: "3:00 PM - 6:00 PM",
+            location: "Learn & Grow STEM Lab, Dhanmondi, Dhaka",
+            type: "Workshop",
+            color: "success"
         },
     ],
     pastEvents: [
         {
-            title: "Python Bootcamp",
-            date: "December 10, 2026",
-            attendees: 45,
+            title: "Junior Robotics Workshop (BPSC Mirpur)",
+            date: "May 05, 2026",
+            attendees: 300,
         },
         {
-            title: "Career Fair 2026",
-            date: "November 20, 2026",
-            attendees: 120,
+            title: "STEM Hands-on Arduino Circuit Day",
+            date: "April 18, 2026",
+            attendees: 150,
         },
     ]
 };
