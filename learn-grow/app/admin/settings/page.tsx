@@ -784,7 +784,7 @@ export default function AdminSettingsPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                           label="SMTP Username / Email"
-                          placeholder="info@learngrowedu.com"
+                          placeholder="info@learnandgrow.io"
                           value={smtp.user}
                           onChange={(e) => setSMTP({ ...smtp, user: e.target.value })}
                           variant="bordered"
@@ -842,7 +842,7 @@ export default function AdminSettingsPage() {
                         <Input
                           type="email"
                           label="From Sender Email"
-                          placeholder="noreply@learngrowedu.com"
+                          placeholder="noreply@learnandgrow.io"
                           value={smtp.fromEmail}
                           onChange={(e) => setSMTP({ ...smtp, fromEmail: e.target.value })}
                           variant="bordered"
@@ -852,7 +852,7 @@ export default function AdminSettingsPage() {
                       <Input
                         type="email"
                         label="Reply-To Email Address (Optional)"
-                        placeholder="support@learngrowedu.com"
+                        placeholder="support@learnandgrow.io"
                         value={smtp.replyTo}
                         onChange={(e) => setSMTP({ ...smtp, replyTo: e.target.value })}
                         variant="bordered"

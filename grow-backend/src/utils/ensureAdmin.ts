@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { User } from "../modules/user/model/user.model.js";
 import { Course } from "../modules/course/model/course.model.js";
+import { SiteContent } from "../modules/siteContent/model/siteContent.model.js";
 import { ensureAllTutors } from "./ensureTutors.js";
 
 export const ensureCourseMetadata = async () => {
@@ -359,9 +360,153 @@ export const ensureEvents = async () => {
   }
 };
 
+export const ensureSitePolicies = async () => {
+  try {
+    const policies = [
+      {
+        page: "privacy-policy",
+        defaultHtml: `
+<div class="space-y-6">
+  <p class="text-sm text-gray-500">সর্বশেষ আপডেট: অক্টোবর ১৮, ২০২৬ | Last Updated: October 18, 2026</p>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold text-gray-900">১. ভূমিকা ও তথ্যের সুরক্ষা (Introduction)</h2>
+    <p class="text-gray-700 leading-relaxed">Learn & Grow (ওয়েবসাইট: <a href="https://learnandgrow.io" class="text-blue-600 underline">https://learnandgrow.io</a>) শিক্ষার্থীদের, বিশেষ করে শিশু ও কিশোরদের ব্যক্তিগত তথ্যের সর্বোচ্চ গোপনীয়তা ও নিরাপত্তা নিশ্চিত করতে প্রতিশ্রুতিবদ্ধ। এই পলিসিতে বিস্তারিত ব্যাখ্যা করা হয়েছে কীভাবে আমরা আপনার তথ্য সংগ্রহ, সংরক্ষণ, ব্যবহার ও সুরক্ষিত রাখি।</p>
+  </section>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold text-gray-900">২. আমরা যেসব তথ্য সংগ্রহ করি (Information We Collect)</h2>
+    <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
+      <li><strong>অ্যাকাউন্ট তথ্য:</strong> শিক্ষার্থী ও অভিভাবকের নাম, ইমেইল ঠিকানা, ফোন নম্বর এবং বয়স/শ্রেণি।</li>
+      <li><strong>শেখার অগ্রগতি:</strong> ক্লাসে উপস্থিতি, হোমওয়ার্ক সাবমিশন, কুইজ রেজাল্ট ও ব্যাচ শিডিউল।</li>
+      <li><strong>পেমেন্ট ও ডেলিভারি:</strong> লেনদেনের ট্রানজ্যাকশন আইডি ও রোবটিক্স কিট ডেলিভারির ঠিকানা।</li>
+    </ul>
+  </section>
+  <section class="space-y-3 bg-blue-50/60 p-6 rounded-2xl border border-blue-100">
+    <h2 class="text-lg font-bold text-blue-900">৩. প্রাইভেসী ও ডেটা প্রটেকশন অফিসার যোগাযোগ (Contact Us)</h2>
+    <p class="text-sm text-blue-800 leading-relaxed mb-3">প্রাইভেসী পলিসি বা আপনার ডেটা সম্পর্কিত যেকোনো প্রশ্ন বা অনুরোধের জন্য যোগাযোগ করুন:</p>
+    <ul class="text-sm text-blue-900 space-y-1 font-medium">
+      <li>• <strong>প্রাইভেসী ইনকোয়ারি:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-blue-600">privacy@learnandgrow.io</a></li>
+      <li>• <strong>ডেটা প্রটেকশন অফিসার (DPO):</strong> <a href="mailto:dpo@learnandgrow.io" class="underline font-bold text-blue-600">dpo@learnandgrow.io</a></li>
+      <li>• <strong>গ্রাহক সেবা:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-blue-600">support@learnandgrow.io</a></li>
+    </ul>
+  </section>
+</div>
+        `.trim(),
+      },
+      {
+        page: "terms-of-use",
+        defaultHtml: `
+<div class="space-y-6">
+  <p class="text-sm text-gray-500">কার্যকরী তারিখ: অক্টোবর ১৮, ২০২৬ | Effective Date: October 18, 2026</p>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold text-gray-900">১. প্ল্যাটফর্ম ব্যবহার নীতিমালা (Acceptance of Terms)</h2>
+    <p class="text-gray-700 leading-relaxed">Learn & Grow (ওয়েবসাইট: <a href="https://learnandgrow.io" class="text-blue-600 underline">https://learnandgrow.io</a>) ব্যবহার করার মাধ্যমে আপনি এবং আপনার অভিভাবক এই শর্তাবলী সম্পূর্ণভাবে মেনে নিচ্ছেন। প্ল্যাটফর্মটি শিশু ও কিশোরদের ইন্টারঅ্যাক্টিভ কোডিং, রোবটিক্স ও স্টেম শিক্ষার জন্য নির্মিত।</p>
+  </section>
+  <section class="space-y-3 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+    <h2 class="text-lg font-bold text-gray-900">২. আইনি ও প্রাতিষ্ঠানিক যোগাযোগ (Legal Inquiries)</h2>
+    <ul class="text-sm text-gray-800 space-y-1 font-medium">
+      <li>• <strong>আইনি বিভাগ:</strong> <a href="mailto:legal@learnandgrow.io" class="underline font-bold text-blue-600">legal@learnandgrow.io</a></li>
+      <li>• <strong>সাধারণ তথ্য:</strong> <a href="mailto:info@learnandgrow.io" class="underline font-bold text-blue-600">info@learnandgrow.io</a></li>
+      <li>• <strong>হেল্পলাইন:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-blue-600">support@learnandgrow.io</a></li>
+    </ul>
+  </section>
+</div>
+        `.trim(),
+      },
+      {
+        page: "refund-policy",
+        defaultHtml: `
+<div class="space-y-6">
+  <p class="text-sm text-gray-500">সর্বশেষ সংস্করণ: অক্টোবর ১৮, ২০২৬ | Version Date: October 18, 2026</p>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold text-gray-900">১. আমাদের প্রতিশ্রুতি ও রিফান্ড গ্যারান্টি (Money-Back Guarantee)</h2>
+    <p class="text-gray-700 leading-relaxed">Learn & Grow-এ আমাদের প্রতিটি কোর্স ১০০% লাইভ প্র্যাকটিক্যাল ল্যাবে পরিচালিত হয়। আপনি যদি কোর্সের প্রথম ২টি ক্লাসের পর সন্তুষ্ট না হন, তবে কোনো শর্ত ছাড়াই ১০০% অর্থ ফেরতের আবেদন করতে পারবেন।</p>
+  </section>
+  <section class="space-y-3 bg-emerald-50/60 p-6 rounded-2xl border border-emerald-100">
+    <h2 class="text-lg font-bold text-emerald-900">২. রিফান্ডের আবেদন পাঠানোর মাধ্যম (How to Request a Refund)</h2>
+    <ul class="text-sm text-emerald-900 space-y-1.5 font-medium">
+      <li>• <strong>রিফান্ড ও হিসাব বিভাগ:</strong> <a href="mailto:refund@learnandgrow.io" class="underline font-bold text-emerald-700">refund@learnandgrow.io</a></li>
+      <li>• <strong>বিলিং সহায়তা:</strong> <a href="mailto:billing@learnandgrow.io" class="underline font-bold text-emerald-700">billing@learnandgrow.io</a></li>
+      <li>• <strong>গ্রাহক সেবা ডেস্ক:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-emerald-700">support@learnandgrow.io</a></li>
+    </ul>
+  </section>
+</div>
+        `.trim(),
+      },
+      {
+        page: "cookie-policy",
+        defaultHtml: `
+<div class="space-y-6">
+  <p class="text-sm text-gray-500">সর্বশেষ সংস্করণ: অক্টোবর ১৮, ২০২৬ | Last Updated: October 18, 2026</p>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold text-gray-900">১. কুকি নীতি (Cookie Policy)</h2>
+    <p class="text-gray-700 leading-relaxed">কুকি হলো ছোট টেক্সট ফাইল যা আপনার ব্রাউজারে সংরক্ষিত হয় যাতে প্ল্যাটফর্মে আপনার লগইন সেশন ও ভাষা অগ্রাধিকার সুরক্ষিত থাকে।</p>
+  </section>
+  <section class="space-y-3 bg-amber-50/60 p-6 rounded-2xl border border-amber-100">
+    <h2 class="text-lg font-bold text-amber-900">২. যোগাযোগ</h2>
+    <ul class="text-sm text-amber-900 space-y-1 font-medium">
+      <li>• <strong>প্রাইভেসী ডেস্ক:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-amber-700">privacy@learnandgrow.io</a></li>
+      <li>• <strong>সহায়তা:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-amber-700">support@learnandgrow.io</a></li>
+    </ul>
+  </section>
+</div>
+        `.trim(),
+      },
+    ];
+
+    for (const p of policies) {
+      const existing = await SiteContent.findOne({ page: p.page });
+      if (!existing || !existing.content || (typeof existing.content === "string" && existing.content.trim() === "")) {
+        await SiteContent.findOneAndUpdate(
+          { page: p.page },
+          { $set: { content: p.defaultHtml } },
+          { upsert: true, new: true }
+        );
+        console.log(`[Site Content Seeder] Seeded default policy for ${p.page} with @learnandgrow.io emails.`);
+      } else if (typeof existing.content === "string") {
+        // Replace any outdated domains with learnandgrow.io
+        let updated = existing.content
+          .replace(/@learn-grow\.com/gi, "@learnandgrow.io")
+          .replace(/@learngrowedu\.com/gi, "@learnandgrow.io")
+          .replace(/@learngrow\.academy/gi, "@learnandgrow.io")
+          .replace(/@learngrow\.com/gi, "@learnandgrow.io");
+        if (updated !== existing.content) {
+          existing.content = updated;
+          await existing.save();
+          console.log(`[Site Content Seeder] Updated contact emails in ${p.page} to @learnandgrow.io.`);
+        }
+      }
+    }
+
+    // Also verify contact page and press page emails in database
+    const contactDoc = await SiteContent.findOne({ page: "contact" });
+    if (contactDoc && typeof contactDoc.content === "object" && contactDoc.content.info) {
+      if (contactDoc.content.info.email && !contactDoc.content.info.email.endsWith("@learnandgrow.io")) {
+        contactDoc.content.info.email = "info@learnandgrow.io";
+        contactDoc.markModified("content");
+        await contactDoc.save();
+        console.log("[Site Content Seeder] Updated contact page email to info@learnandgrow.io.");
+      }
+    }
+
+    const pressDoc = await SiteContent.findOne({ page: "press" });
+    if (pressDoc && typeof pressDoc.content === "object" && pressDoc.content.mediaContact) {
+      if (pressDoc.content.mediaContact.email && !pressDoc.content.mediaContact.email.endsWith("@learnandgrow.io")) {
+        pressDoc.content.mediaContact.email = "press@learnandgrow.io";
+        pressDoc.markModified("content");
+        await pressDoc.save();
+        console.log("[Site Content Seeder] Updated press page email to press@learnandgrow.io.");
+      }
+    }
+
+    console.log("[Site Content Seeder] All site legal and contact emails verified under @learnandgrow.io.");
+  } catch (error) {
+    console.error("[Site Content Seeder] Error ensuring site policies:", error);
+  }
+};
+
 export const ensureAdminUsers = async () => {
   try {
-    const adminEmails = ["admin@learn-grow.com", "admin@learngrow.com"];
+    const adminEmails = ["admin@learn-grow.com", "admin@learngrow.com", "admin@learnandgrow.io"];
     const hashedPassword = await bcrypt.hash("Admin@123", 10);
 
     for (const email of adminEmails) {
@@ -410,6 +555,7 @@ export const ensureAdminUsers = async () => {
     await ensureCourseMetadata();
     await ensureEvents();
     await ensureAllTutors();
+    await ensureSitePolicies();
 
     // Fix phone conflict: +393463275710 belongs to CEO/Founder Md Jabed Hosen (m.riyad3834@gmail.com)
     await User.updateOne(

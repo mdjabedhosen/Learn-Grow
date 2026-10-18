@@ -305,7 +305,7 @@ export default function PressPage() {
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <Button
                     as="a"
-                    href={`mailto:press@learn-grow.com?subject=Press Release Inquiry: ${encodeURIComponent(pr.titleEn)}`}
+                    href={`mailto:${pressContent.mediaContact.email}?subject=Press Release Inquiry: ${encodeURIComponent(pr.titleEn)}`}
                     size="sm"
                     color="primary"
                     variant="flat"

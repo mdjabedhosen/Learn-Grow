@@ -225,7 +225,7 @@ export const defaultPressData: PressData = {
     },
   ],
   mediaContact: {
-    email: "press@learn-grow.com",
+    email: "press@learnandgrow.io",
     whatsapp: "https://wa.me/8801810184511",
     phone: "+8801810184511",
   },

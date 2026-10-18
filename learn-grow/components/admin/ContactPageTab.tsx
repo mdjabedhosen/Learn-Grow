@@ -145,7 +145,7 @@ export default function ContactPageTab() {
           <div className="space-y-4">
             <Input
               label="Email"
-              placeholder="info@example.com"
+              placeholder="info@learnandgrow.io"
               type="email"
               value={contactData.info.email}
               onChange={(e) => {

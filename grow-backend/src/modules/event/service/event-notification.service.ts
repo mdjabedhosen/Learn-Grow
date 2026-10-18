@@ -118,7 +118,7 @@ export const sendRegistrationConfirmation = async (
   
   const transporter = await getTransporter();
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learngrow.com>',
+    from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learnandgrow.io>',
     to: registration.email,
     subject: `Registration Confirmed: ${event.title}`,
     html: htmlContent,
@@ -224,7 +224,7 @@ export const sendMeetingLinkToAllAttendees = async (eventId: string) => {
   const transporter = await getTransporter();
   const emailPromises = registrations.map((registration) =>
     transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learngrow.com>',
+      from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learnandgrow.io>',
       to: registration.email,
       subject: `Meeting Link: ${event.title}`,
       html: htmlTemplate(registration.fullName),
@@ -270,7 +270,7 @@ export const sendCustomEmailToRegistrations = async ({
   const emailResults = await Promise.allSettled(
     registrations.map((registration) =>
       transporter.sendMail({
-        from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learngrow.com>',
+        from: process.env.EMAIL_FROM || '"Learn & Grow" <noreply@learnandgrow.io>',
         to: registration.email,
         subject,
         html: content,

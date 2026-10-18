@@ -276,7 +276,7 @@ export default function RecruitmentModal() {
                     <input
                       type="email"
                       required
-                      placeholder="yourname@gmail.com"
+                      placeholder="name@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full bg-white text-[#2C2C2C] font-semibold text-sm px-4 py-3 rounded-2xl border-2 border-black/10 focus:border-[#3B82F6] focus:outline-none shadow-sm"

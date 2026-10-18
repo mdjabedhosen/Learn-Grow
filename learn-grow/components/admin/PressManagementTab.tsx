@@ -676,7 +676,7 @@ export default function PressManagementTab() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               label="প্রেস ইমেইল (Press Inquiries Email)"
-              placeholder="press@learn-grow.com"
+              placeholder="press@learnandgrow.io"
               value={pressData.mediaContact.email}
               onChange={(e) => {
                 setPressData({

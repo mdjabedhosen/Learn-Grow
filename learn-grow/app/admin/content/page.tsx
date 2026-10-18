@@ -70,12 +70,19 @@ const SECTION_COLORS: Record<string, any> = {
   },
 };
 
+import {
+  DEFAULT_PRIVACY_POLICY_HTML,
+  DEFAULT_TERMS_OF_USE_HTML,
+  DEFAULT_REFUND_POLICY_HTML,
+  DEFAULT_COOKIE_POLICY_HTML,
+} from "@/lib/legalPolicies";
+
 // Map UI names to API page keys and default data
 const SECTIONS = {
-  "Privacy Policy": { key: "privacy-policy", default: "" },
-  "Terms & Conditions": { key: "terms-of-use", default: "" },
-  "Refund Policy": { key: "refund-policy", default: "" },
-  "Cookie Policy": { key: "cookie-policy", default: "" },
+  "Privacy Policy": { key: "privacy-policy", default: DEFAULT_PRIVACY_POLICY_HTML },
+  "Terms & Conditions": { key: "terms-of-use", default: DEFAULT_TERMS_OF_USE_HTML },
+  "Refund Policy": { key: "refund-policy", default: DEFAULT_REFUND_POLICY_HTML },
+  "Cookie Policy": { key: "cookie-policy", default: DEFAULT_COOKIE_POLICY_HTML },
 };
 
 export default function ContentManagerPage() {
