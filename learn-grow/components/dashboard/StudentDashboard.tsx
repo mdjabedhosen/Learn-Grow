@@ -37,7 +37,8 @@ import {
     Headphones,
     Star,
     Users,
-    Check
+    Check,
+    Video
 } from "lucide-react";
 import StudentLiveClasses from "./StudentLiveClasses";
 
@@ -295,7 +296,7 @@ export default function StudentDashboard() {
                             <Button
                                 variant="bordered"
                                 className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10 h-10 sm:h-11 w-full sm:w-auto"
-                                onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
+                                onPress={() => window.open("https://wa.me/8801706276447", "_blank")}
                                 startContent={<MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
                             >
                                 {isBn ? "মেন্টর হেল্পলাইন" : "Mentor Helpline"}
@@ -374,7 +375,7 @@ export default function StudentDashboard() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => window.open("https://wa.me/8801886064560", "_blank")}
+                            onClick={() => window.open("https://wa.me/8801706276447", "_blank")}
                             className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs shadow-xs active:scale-95 transition-transform"
                         >
                             <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -744,7 +745,7 @@ export default function StudentDashboard() {
                             <Button
                                 size="sm"
                                 className="w-full font-bold text-xs rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20"
-                                onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
+                                onPress={() => window.open("https://wa.me/8801706276447", "_blank")}
                                 startContent={<MessageCircle className="w-4 h-4" />}
                             >
                                 {isBn ? "WhatsApp-এ কথা বলুন" : "Chat on WhatsApp"}
