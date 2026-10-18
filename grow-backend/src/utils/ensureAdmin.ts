@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { User } from "../modules/user/model/user.model.js";
 import { Course } from "../modules/course/model/course.model.js";
 import { SiteContent } from "../modules/siteContent/model/siteContent.model.js";
+import { SMTPConfig } from "../modules/settings/model/smtpConfig.model.js";
 import { ensureAllTutors } from "./ensureTutors.js";
 
 export const ensureCourseMetadata = async () => {
@@ -957,6 +958,27 @@ export const ensureAdminUsers = async () => {
     await ensureCourseMetadata();
     await ensureEvents();
     await ensureSitePolicies();
+
+    // Ensure active SMTP configuration
+    try {
+      const activeSMTP = await SMTPConfig.findOne({ isActive: true });
+      if (!activeSMTP) {
+        await SMTPConfig.create({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          user: "learngroweducation@gmail.com",
+          password: "pcdfwflixgfkxzji",
+          fromName: "Learn & Grow STEM Academy",
+          fromEmail: "noreply@learnandgrow.io",
+          replyTo: "info@learnandgrow.io",
+          isActive: true,
+        });
+        console.log("[SMTP Seeder] Configured active SMTP configuration for learngroweducation@gmail.com");
+      }
+    } catch (smtpErr) {
+      console.error("[SMTP Seeder] Failed to ensure SMTP config:", smtpErr);
+    }
 
     // Fix phone conflict: +393463275710 belongs to CEO/Founder Md Jabed Hosen (m.riyad3834@gmail.com)
     await User.updateOne(
