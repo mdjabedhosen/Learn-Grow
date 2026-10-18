@@ -115,13 +115,13 @@ const ModernBanner = () => {
             <div className="absolute w-[92%] h-[92%] bg-gradient-to-tr from-blue-100 to-purple-100 rounded-[32px] -rotate-2 -z-10" />
 
             {/* Main Showcase Card */}
-            <div className="relative w-full max-w-[420px] rounded-[32px] overflow-hidden bg-white border-4 border-white shadow-2xl">
-              <div className="relative aspect-[4/3] sm:aspect-[1/1] w-full">
+            <div className="relative w-full max-w-[380px] lg:max-w-[420px] rounded-[32px] overflow-hidden bg-white border-4 border-white shadow-2xl">
+              <div className="relative aspect-[3/4] w-full bg-[#EAF4FB]">
                 <Image
                   src="/hero-illustration.jpg"
                   alt="Student learning coding and robotics"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   sizes="(max-width: 768px) 100vw, 420px"
                   priority
                 />
