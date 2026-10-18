@@ -62,24 +62,34 @@ export const createApp = () => {
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void
     ) => {
-      // Allowed origins: Strictly locked down to https://learnandgrow.io
-      const allowedOrigins = ENV.NODE_ENV === "production"
-        ? [
-            "https://learnandgrow.io",
-            "https://www.learnandgrow.io",
-          ]
-        : [
-            "https://learnandgrow.io",
-            "https://www.learnandgrow.io",
-            "http://localhost:3000",
-            "http://localhost:3001",
-          ];
+      // Allowed origins
+      const isLocalOrLan = (orig: string) => {
+        return (
+          /^https?:\/\/localhost(:\d+)?$/.test(orig) ||
+          /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(orig) ||
+          /^https?:\/\/10\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(orig) ||
+          /^https?:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(orig) ||
+          /^https?:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(orig)
+        );
+      };
+
+      const isProduction = ENV.NODE_ENV === "production";
+      const allowedOrigins = [
+        "https://learnandgrow.io",
+        "https://www.learnandgrow.io",
+        "http://localhost:3000",
+        "http://localhost:3001",
+      ];
 
       // Normalize incoming origin (remove trailing slashes)
       const normalizedOrigin = origin?.replace(/\/+$/, "");
 
-      // Allow requests with no origin (mobile native apps, internal server-to-server, or curl)
-      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+      // Allow requests with no origin, matched origins, or local network IPs in development
+      if (
+        !normalizedOrigin ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        (!isProduction && isLocalOrLan(normalizedOrigin))
+      ) {
         callback(null, true);
       } else {
         console.error(`[CORS Blocked] Unauthorized origin: ${origin}. Only https://learnandgrow.io is allowed.`);

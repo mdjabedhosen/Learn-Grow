@@ -1406,22 +1406,26 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                                                 </Button>
                                             </div>
                                         </div>
-                                        {/* Mobile Mark Complete Button */}
-                                        {!currentLesson?.isCompleted && (
-                                            <div className="mt-3 grid grid-cols-3 gap-2 md:hidden">
+                                        {/* Mobile Navigation Controls */}
+                                        <div className="mt-3 space-y-2 md:hidden">
+                                            {!currentLesson?.isCompleted && (
                                                 <Button
                                                     size="sm"
                                                     color="success"
                                                     variant="flat"
-                                                    startContent={<FaCheckCircle />}
+                                                    className="w-full font-bold h-10 active:scale-95 transition-transform"
+                                                    startContent={<FaCheckCircle className="text-sm" />}
                                                     onPress={onOpenCompleteConfirm}
                                                 >
                                                     Mark as Complete
                                                 </Button>
+                                            )}
+                                            <div className="grid grid-cols-2 gap-2">
                                                 <Button
                                                     size="sm"
                                                     color="default"
                                                     variant="flat"
+                                                    className="w-full font-semibold h-10 active:scale-95 transition-transform"
                                                     onPress={goToPreviousLesson}
                                                 >
                                                     Previous
@@ -1430,12 +1434,13 @@ export default function StudentCourseDashboardClient({ params }: { params: { cou
                                                     size="sm"
                                                     color="primary"
                                                     variant="flat"
+                                                    className="w-full font-semibold h-10 active:scale-95 transition-transform"
                                                     onPress={handleNextLessonClick}
                                                 >
                                                     Next
                                                 </Button>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 )}
 

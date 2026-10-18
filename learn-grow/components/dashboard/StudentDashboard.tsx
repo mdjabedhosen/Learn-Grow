@@ -240,41 +240,41 @@ export default function StudentDashboard() {
     return (
         <div className="min-h-screen bg-[#F8FAFC] pb-20">
             {/* Ambient Ed-Tech Welcome Hero Banner */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-10 pb-16 px-6 rounded-b-[36px] shadow-lg">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-6 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-6 rounded-b-[28px] sm:rounded-b-[36px] shadow-lg">
                 {/* Ambient Glow Orbs */}
                 <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute inset-0 bg-[radial-gradient(#3B82F6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
                 <div className="container mx-auto max-w-7xl relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <div className="relative">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+                        <div className="flex items-center sm:items-start gap-3.5 sm:gap-5">
+                            <div className="relative shrink-0">
                                 <Avatar
                                     src={user?.img}
                                     name={studentName}
-                                    className="w-20 h-20 text-2xl font-black bg-gradient-to-br from-blue-500 to-indigo-600 text-white ring-4 ring-white/10 ring-offset-2 ring-offset-[#0F172A]"
+                                    className="w-14 h-14 sm:w-20 sm:h-20 text-lg sm:text-2xl font-black bg-gradient-to-br from-blue-500 to-indigo-600 text-white ring-4 ring-white/10 ring-offset-2 ring-offset-[#0F172A] shrink-0"
                                 />
-                                <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0F172A] shadow" />
+                                <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-500 border-2 border-[#0F172A] shadow" />
                             </div>
 
-                            <div>
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 backdrop-blur-md">
-                                        <Sparkles className="w-3 h-3 text-amber-400" />
-                                        {isBn ? "লার্ন অ্যান্ড গ্রো শিক্ষার্থী পোর্টাল" : "Student Learning Portal"}
+                            <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 backdrop-blur-md">
+                                        <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                                        <span>{isBn ? "শিক্ষার্থী পোর্টাল" : "Student Portal"}</span>
                                     </span>
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                                        <Users className="w-3 h-3 text-amber-300" />
-                                        {isBn ? "১০-১৫ জন মাইক্রো-ব্যাচ" : "10-15 Micro-Batch"}
+                                    <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                        <Users className="w-3 h-3 text-amber-300 shrink-0" />
+                                        <span>{isBn ? "১০-১৫ জন ব্যাচ" : "10-15 Batch"}</span>
                                     </span>
                                 </div>
 
-                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+                                <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight truncate">
                                     {isBn ? `স্বাগতম, ${studentName}!` : `Welcome back, ${studentName}!`}
                                 </h1>
                                 
-                                <p className="text-sm text-slate-300 mt-1 max-w-xl">
+                                <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl line-clamp-2">
                                     {hasAllAccess 
                                         ? (isBn ? "আপনার সকল কোর্সে অল-অ্যাক্সেস সক্রিয় রয়েছে! নতুন লাইভ ব্যাচ ও প্রোজেক্ট অন্বেষণ করুন।" : "You have full All Access to all interactive live courses & projects!")
                                         : (isBn ? "আপনার ভবিষ্যৎ কোডিং ও রোবোটিক্স স্কিল তৈরির যাত্রা সফল হোক।" : "Empower your future with hands-on coding, robotics & AI skills.")}
@@ -282,21 +282,21 @@ export default function StudentDashboard() {
                             </div>
                         </div>
 
-                        {/* Top Hero Quick CTAs */}
-                        <div className="flex flex-wrap items-center gap-3">
+                        {/* Top Hero Quick CTAs - Mobile Thumb-friendly */}
+                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto mt-1 sm:mt-0">
                             <Button
                                 color="primary"
-                                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 bg-blue-600 hover:bg-blue-500"
+                                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 bg-blue-600 hover:bg-blue-500 h-10 sm:h-11 w-full sm:w-auto"
                                 onPress={() => router.push("/courses")}
-                                startContent={<Compass className="w-4 h-4" />}
+                                startContent={<Compass className="w-4 h-4 shrink-0" />}
                             >
                                 {isBn ? "কোর্স খুঁজুন" : "Browse Catalog"}
                             </Button>
                             <Button
                                 variant="bordered"
-                                className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10"
+                                className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10 h-10 sm:h-11 w-full sm:w-auto"
                                 onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
-                                startContent={<MessageCircle className="w-4 h-4 text-emerald-400" />}
+                                startContent={<MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
                             >
                                 {isBn ? "মেন্টর হেল্পলাইন" : "Mentor Helpline"}
                             </Button>
@@ -306,39 +306,85 @@ export default function StudentDashboard() {
             </div>
 
             {/* Main Content Area */}
-            <div className="container mx-auto max-w-7xl px-4 sm:px-6 -mt-8 relative z-20">
-                {/* 4 Interactive Metric / Stat Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="container mx-auto max-w-7xl px-3 sm:px-6 -mt-6 sm:-mt-8 relative z-20">
+                {/* 4 Interactive Metric Cards - Responsive 2x2 Grid on Mobile */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5 sm:mb-8">
                     {stats.map((stat, index) => (
                         <div
                             key={index}
                             onClick={stat.clickable ? stat.onClick : undefined}
-                            className={`rounded-[24px] bg-white p-5 border border-slate-200/80 shadow-sm transition-all duration-300 flex items-center justify-between gap-4 ${
+                            className={`rounded-2xl sm:rounded-[24px] bg-white p-3.5 sm:p-5 border border-slate-200/80 shadow-sm transition-all duration-300 flex items-center justify-between gap-2 sm:gap-4 ${
                                 stat.clickable 
-                                    ? "cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-blue-400/50" 
+                                    ? "cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-blue-400/50 active:scale-95" 
                                     : ""
                             }`}
                         >
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+                                <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
                                     {stat.label}
                                 </p>
-                                <p className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
+                                <p className="text-xl sm:text-3xl font-black text-[#2C2C2C] truncate">
                                     {stat.value}
                                 </p>
-                                <p className="text-[11px] font-medium text-slate-400">
+                                <p className="text-[10px] sm:text-[11px] font-medium text-slate-400 truncate">
                                     {stat.subText}
                                 </p>
                             </div>
-                            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 ${stat.bg} ${stat.color}`}>
+                            <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 ${stat.bg} ${stat.color}`}>
                                 {stat.icon}
                             </div>
                         </div>
                     ))}
                 </div>
 
+                {/* Mobile Quick Action Strip (Touch-friendly 1-tap shortcuts for phone users) */}
+                <div className="lg:hidden mb-5 -mx-1 px-1 overflow-x-auto scrollbar-none">
+                    <div className="flex items-center gap-2 min-w-max pb-1">
+                        <button
+                            type="button"
+                            onClick={() => router.push("/student/my-courses")}
+                            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-sm shadow-blue-500/20 active:scale-95 transition-transform"
+                        >
+                            <GraduationCap className="w-4 h-4 shrink-0" />
+                            <span>{isBn ? "আমার কোর্স" : "My Courses"}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/student/live-classes")}
+                            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold text-xs shadow-xs active:scale-95 transition-transform"
+                        >
+                            <Video className="w-4 h-4 text-rose-500 shrink-0" />
+                            <span>{isBn ? "লাইভ ক্লাস" : "Live Classes"}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/student/orders")}
+                            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold text-xs shadow-xs active:scale-95 transition-transform"
+                        >
+                            <Package className="w-4 h-4 text-amber-500 shrink-0" />
+                            <span>{isBn ? "অর্ডার ও রসিদ" : "Orders"}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/student/tickets")}
+                            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold text-xs shadow-xs active:scale-95 transition-transform"
+                        >
+                            <LifeBuoy className="w-4 h-4 text-cyan-500 shrink-0" />
+                            <span>{isBn ? "হেল্প ডেস্ক" : "Help Desk"}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => window.open("https://wa.me/8801886064560", "_blank")}
+                            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs shadow-xs active:scale-95 transition-transform"
+                        >
+                            <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span>WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+
                 {/* Main 2-Column Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {/* Left Column (Span 2): Live Classes & Enrolled Courses */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Live Classes Component */}

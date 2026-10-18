@@ -69,12 +69,12 @@ export default function MyCoursesPage() {
     return (
         <div className="min-h-screen bg-[#F8FAFC] pb-20">
             {/* Ambient Hero Header */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-10 pb-16 px-6 rounded-b-[36px] shadow-lg">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-6 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-6 rounded-b-[28px] sm:rounded-b-[36px] shadow-lg">
                 <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="container mx-auto max-w-7xl relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
@@ -88,33 +88,32 @@ export default function MyCoursesPage() {
                                     </span>
                                 )}
                             </div>
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+                            <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
                                 {isBn ? "আমার ভর্তিকৃত কোর্সসমূহ" : "My Enrolled Courses"}
                             </h1>
-                            <p className="text-sm text-slate-300 mt-1 max-w-xl">
+                            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
                                 {isBn 
                                     ? "১০-১৫ জনের মাইক্রো-ব্যাচে লাইভ ক্লাস, রেকর্ডিং ও হোমওয়ার্ক প্রজেক্ট সম্পন্ন করুন।"
                                     : "Access your 100% live micro-batch classes, homework feedback, and projects."}
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                             <Button
                                 color="primary"
-                                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 bg-blue-600 hover:bg-blue-500"
+                                className="font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-blue-500/25 bg-blue-600 hover:bg-blue-500 h-10 sm:h-11 w-full sm:w-auto"
                                 onPress={() => router.push("/courses")}
-                                startContent={<Compass className="w-4 h-4" />}
+                                startContent={<Compass className="w-4 h-4 shrink-0" />}
                             >
                                 {isBn ? "কোর্স ক্যাটালগ" : "Browse Catalog"}
                             </Button>
                             <Button
                                 variant="bordered"
-                                className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10"
+                                className="font-bold text-xs sm:text-sm rounded-xl border-white/20 text-white hover:bg-white/10 h-10 sm:h-11 w-full sm:w-auto"
                                 onPress={() => window.open("https://wa.me/8801886064560", "_blank")}
-                                startContent={<MessageCircle className="w-4 h-4 text-emerald-400" />}
+                                startContent={<MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
                             >
-                                {isBn ? "শিক্ষক সহায়তা" : "Mentor Support"}
-                            </Button>
+                                {isBn ? "মেন্টর সহায়তা" : "Mentor Support"}
                         </div>
                     </div>
                 </div>

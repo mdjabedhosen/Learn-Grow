@@ -117,7 +117,7 @@ export default function StudentLiveClassesPage() {
         <RequireAuth allowedRoles={["student"]}>
             <div className="min-h-screen bg-[#F8FAFC] pb-20">
                 {/* Ambient Hero Header */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-10 pb-16 px-6 rounded-b-[36px] shadow-lg">
+                <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#1E1B4B] text-white pt-6 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-6 rounded-b-[28px] sm:rounded-b-[36px] shadow-lg">
                     <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
                     <div className="absolute bottom-0 left-10 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 

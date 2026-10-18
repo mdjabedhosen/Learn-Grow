@@ -206,14 +206,14 @@ export default function StudentLiveClasses() {
 
     return (
         <Card className="rounded-[24px] border border-slate-200/80 shadow-sm overflow-hidden bg-white">
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 px-6 border-b border-slate-100 bg-gradient-to-r from-blue-50/60 via-purple-50/30 to-white">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 sm:py-4 px-4 sm:px-6 border-b border-slate-100 bg-gradient-to-r from-blue-50/60 via-purple-50/30 to-white">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
                         <Video className="w-5 h-5" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h3 className="font-extrabold text-base text-[#2C2C2C]">
+                            <h3 className="font-extrabold text-sm sm:text-base text-[#2C2C2C]">
                                 {isBn ? "আসন্ন লাইভ ক্লাসসমূহ" : "Upcoming Live Classes"}
                             </h3>
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
@@ -221,13 +221,13 @@ export default function StudentLiveClasses() {
                                 {isBn ? "লাইভ" : "LIVE"}
                             </span>
                         </div>
-                        <p className="text-xs text-slate-500 font-medium">
+                        <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
                             {isBn ? "পরবর্তী ৭ দিনের সময়সূচী • ১০-১৫ জনের মাইক্রো-ব্যাচ" : "Next 7 Days Schedule • 10-15 Micro-Batch"}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
                     {next7DaysClasses.length > 0 && (
                         <Chip size="sm" color="primary" variant="flat" className="text-xs font-bold">
                             {next7DaysClasses.length} {isBn ? "টি ক্লাস" : `class${next7DaysClasses.length !== 1 ? 'es' : ''}`}
@@ -245,7 +245,7 @@ export default function StudentLiveClasses() {
                 </div>
             </CardHeader>
 
-            <CardBody className="p-6 space-y-4">
+            <CardBody className="p-3.5 sm:p-6 space-y-3 sm:space-y-4">
                 {next7DaysClasses.length === 0 ? (
                     <div className="relative overflow-hidden rounded-2xl border border-blue-100/80 bg-gradient-to-br from-[#F8FAFC] via-[#EFF6FF]/40 to-[#FAF5FF]/50 p-6 sm:p-8 text-center">
                         <div className="w-14 h-14 rounded-2xl bg-white shadow-md border border-blue-100 flex items-center justify-center mx-auto mb-4 text-blue-600">
@@ -368,7 +368,7 @@ export default function StudentLiveClasses() {
                                                     size="sm"
                                                     color="default"
                                                     variant="flat"
-                                                    className="flex-1 text-xs font-bold rounded-xl"
+                                                    className="flex-1 text-xs font-bold rounded-xl h-10 sm:h-9"
                                                     isDisabled
                                                 >
                                                     {isBn ? "ক্লাস সমাপ্ত" : "Class Over"}
@@ -377,7 +377,7 @@ export default function StudentLiveClasses() {
                                                 <Button
                                                     size="sm"
                                                     color="primary"
-                                                    className="flex-1 text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                                                    className="flex-1 text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white h-10 sm:h-9 active:scale-95 transition-transform"
                                                     onPress={() => window.open(cls.meetingLink, "_blank")}
                                                     startContent={<Video className="w-3.5 h-3.5" />}
                                                 >
@@ -387,7 +387,7 @@ export default function StudentLiveClasses() {
                                             <Button
                                                 size="sm"
                                                 variant="bordered"
-                                                className="text-xs font-bold rounded-xl border-slate-200 text-slate-700"
+                                                className="text-xs font-bold rounded-xl border-slate-200 text-slate-700 h-10 sm:h-9 active:scale-95 transition-transform"
                                                 onPress={() =>
                                                     router.push(
                                                         `/courses/${typeof cls.courseId === "object" ? cls.courseId._id : cls.courseId}`
