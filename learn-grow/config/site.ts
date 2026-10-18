@@ -20,7 +20,6 @@ export const siteConfig = {
     "coding bootcamp",
     "technology education",
     "engineering courses",
-    "bornosoftnr",
     "learn and grow",
     "learn&grow",
     "learnandgrow",

@@ -240,24 +240,25 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section - Compact */}
-        <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
+        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400">
           {/* Copyright */}
           <p>
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
 
-          {/* Built By Credit */}
-          <p>
-            Built by{" "}
-            <Link
-              className="text-blue-400 hover:text-blue-300 transition-colors font-semibold"
-              href="https://bornosoftnr.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Bornosoftnr
+          <div className="flex items-center gap-4 text-xs text-gray-400">
+            <Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">
+              Privacy Policy
             </Link>
-          </p>
+            <span className="text-gray-600">•</span>
+            <Link href="/terms-of-use" className="hover:text-blue-400 transition-colors">
+              Terms of Use
+            </Link>
+            <span className="text-gray-600">•</span>
+            <Link href="/refund-policy" className="hover:text-blue-400 transition-colors">
+              Refund Policy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
