@@ -193,7 +193,7 @@ export default function ContactClient({ content }: ContactClientProps) {
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-full shadow-xs border border-gray-200">
                             <Phone className="w-3.5 h-3.5 text-blue-500" />
-                            <span>{language === "en" ? "Hotline: 10 AM - 10 PM Everyday" : "হটলাইন: প্রতিদিন সকাল ১০টা - রাত ১০টা"}</span>
+                            <span>{language === "en" ? "Hotline: 10 AM - 6 PM (Sat-Thu)" : "হটলাইন: সকাল ১০টা - সন্ধ্যা ৬টা (শনি-বৃহস্পতি)"}</span>
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-full shadow-xs border border-gray-200">
                             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -236,8 +236,8 @@ export default function ContactClient({ content }: ContactClientProps) {
                                     </p>
                                     <p className="text-xs text-gray-600 leading-relaxed">
                                         {language === "en"
-                                            ? "Direct chat with our admission advisors. Instant support."
-                                            : "আমাদের অ্যাডমিশন কাউন্সিলরের সাথে সরাসরি কথা বলুন (তাৎক্ষণিক রিপ্লাই)।"}
+                                            ? "Direct chat with our admission advisors (10 AM - 6 PM, Sat-Thu)."
+                                            : "আমাদের অ্যাডমিশন কাউন্সিলরের সাথে সরাসরি কথা বলুন (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি)।"}
                                     </p>
                                 </div>
                             </div>
@@ -263,7 +263,7 @@ export default function ContactClient({ content }: ContactClientProps) {
                                         {whatsappNumber}
                                     </p>
                                     <p className="text-xs text-gray-600">
-                                        {language === "en" ? "Available everyday from 10:00 AM to 10:00 PM" : "প্রতিদিন সকাল ১০:০০ টা থেকে রাত ১০:০০ টা পর্যন্ত খোলা"}
+                                        {language === "en" ? "Available 10:00 AM to 6:00 PM, Sat-Thu" : "শনিবার থেকে বৃহস্পতিবার সকাল ১০:০০ টা থেকে সন্ধ্যা ৬:০০ টা পর্যন্ত খোলা"}
                                     </p>
                                 </div>
                             </div>

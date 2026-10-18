@@ -19,7 +19,7 @@ export const defaultContactData = {
         phone: "+880 1706-276447",
         whatsapp: "+880 1706-276447",
         address: "Level 4, 35 Green Road, Dhanmondi, Dhaka - 1205",
-        hours: "Everyday 10:00 AM - 10:00 PM (BST)"
+        hours: "Sat-Thu 10:00 AM - 6:00 PM (BST)"
     },
     form: {
         en: {

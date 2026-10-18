@@ -427,6 +427,7 @@ export const ensureSitePolicies = async () => {
       <li>• <strong>রিফান্ড ও হিসাব বিভাগ:</strong> <a href="mailto:refund@learnandgrow.io" class="underline font-bold text-emerald-700">refund@learnandgrow.io</a></li>
       <li>• <strong>বিলিং সহায়তা:</strong> <a href="mailto:billing@learnandgrow.io" class="underline font-bold text-emerald-700">billing@learnandgrow.io</a></li>
       <li>• <strong>গ্রাহক সেবা ডেস্ক:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-emerald-700">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-emerald-700">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
@@ -446,6 +447,7 @@ export const ensureSitePolicies = async () => {
     <ul class="text-sm text-amber-900 space-y-1 font-medium">
       <li>• <strong>প্রাইভেসী ডেস্ক:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-amber-700">privacy@learnandgrow.io</a></li>
       <li>• <strong>সহায়তা:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-amber-700">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-amber-700">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
@@ -461,18 +463,22 @@ export const ensureSitePolicies = async () => {
           { $set: { content: p.defaultHtml } },
           { upsert: true, new: true }
         );
-        console.log(`[Site Content Seeder] Seeded default policy for ${p.page} with @learnandgrow.io emails.`);
+        console.log(`[Site Content Seeder] Seeded default policy for ${p.page} with @learnandgrow.io emails & WhatsApp.`);
       } else if (typeof existing.content === "string") {
-        // Replace any outdated domains with learnandgrow.io
+        // Replace any outdated domains with learnandgrow.io and update phone to WhatsApp
         let updated = existing.content
           .replace(/@learn-grow\.com/gi, "@learnandgrow.io")
           .replace(/@learngrowedu\.com/gi, "@learnandgrow.io")
           .replace(/@learngrow\.academy/gi, "@learnandgrow.io")
-          .replace(/@learngrow\.com/gi, "@learnandgrow.io");
+          .replace(/@learngrow\.com/gi, "@learnandgrow.io")
+          .replace(/Phone:\s*\+880-X+-[X]+[^\n<]*/gi, '<strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-emerald-700">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)')
+          .replace(/\+880-XXXX-XXXXXX/gi, "+880 1706-276447")
+          .replace(/\+880 1886-064560/gi, "+880 1706-276447")
+          .replace(/8801886064560/gi, "8801706276447");
         if (updated !== existing.content) {
           existing.content = updated;
           await existing.save();
-          console.log(`[Site Content Seeder] Updated contact emails in ${p.page} to @learnandgrow.io.`);
+          console.log(`[Site Content Seeder] Updated contact info in ${p.page} to @learnandgrow.io and WhatsApp +880 1706-276447.`);
         }
       }
     }
@@ -480,11 +486,27 @@ export const ensureSitePolicies = async () => {
     // Also verify contact page and press page emails in database
     const contactDoc = await SiteContent.findOne({ page: "contact" });
     if (contactDoc && typeof contactDoc.content === "object" && contactDoc.content.info) {
+      let changed = false;
       if (contactDoc.content.info.email && !contactDoc.content.info.email.endsWith("@learnandgrow.io")) {
         contactDoc.content.info.email = "info@learnandgrow.io";
+        changed = true;
+      }
+      if (contactDoc.content.info.phone !== "+880 1706-276447") {
+        contactDoc.content.info.phone = "+880 1706-276447";
+        changed = true;
+      }
+      if (contactDoc.content.info.whatsapp !== "+880 1706-276447") {
+        contactDoc.content.info.whatsapp = "+880 1706-276447";
+        changed = true;
+      }
+      if (contactDoc.content.info.hours !== "Sat-Thu 10:00 AM - 6:00 PM (BST)") {
+        contactDoc.content.info.hours = "Sat-Thu 10:00 AM - 6:00 PM (BST)";
+        changed = true;
+      }
+      if (changed) {
         contactDoc.markModified("content");
         await contactDoc.save();
-        console.log("[Site Content Seeder] Updated contact page email to info@learnandgrow.io.");
+        console.log("[Site Content Seeder] Updated contact page details to +880 1706-276447 & official email.");
       }
     }
 

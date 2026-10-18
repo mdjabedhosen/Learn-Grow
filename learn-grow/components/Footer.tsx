@@ -185,15 +185,16 @@ const Footer: React.FC = () => {
               <div className="flex items-start gap-2">
                 <FaWhatsapp className="text-green-400 text-lg mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-gray-400 text-xs mb-0.5">WhatsApp:</p>
+                  <p className="text-gray-400 text-xs mb-0.5">WhatsApp Helpline:</p>
                   <a
                     href="https://wa.me/8801706276447"
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-green-400 transition-colors"
+                    className="hover:text-green-400 transition-colors font-medium"
                   >
-                    +880-1706276447
+                    +880 1706-276447
                   </a>
+                  <p className="text-[11px] text-gray-400 mt-0.5">10 AM - 6 PM (Sat-Thu)</p>
                 </div>
               </div>
             </div>

@@ -15,6 +15,12 @@ export const OFFICIAL_EMAILS = {
   careers: "careers@learnandgrow.io",
 };
 
+export const OFFICIAL_PHONE = "+880 1706-276447";
+export const OFFICIAL_WHATSAPP = "+880 1706-276447";
+export const OFFICIAL_WHATSAPP_LINK = "https://wa.me/8801706276447";
+export const OFFICIAL_BUSINESS_HOURS_EN = "10 AM - 6 PM, Sat-Thu";
+export const OFFICIAL_BUSINESS_HOURS_BN = "সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি";
+
 export const DEFAULT_PRIVACY_POLICY_HTML = `
 <div class="space-y-6">
   <p class="text-sm text-gray-500">সর্বশেষ আপডেট: অক্টোবর ১৮, ২০২৬ | Last Updated: October 18, 2026</p>
@@ -58,6 +64,7 @@ export const DEFAULT_PRIVACY_POLICY_HTML = `
       <li>• <strong>প্রাইভেসী ইনকোয়ারি:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-blue-600">privacy@learnandgrow.io</a></li>
       <li>• <strong>ডেটা প্রটেকশন অফিসার (DPO):</strong> <a href="mailto:dpo@learnandgrow.io" class="underline font-bold text-blue-600">dpo@learnandgrow.io</a></li>
       <li>• <strong>সাধারণ গ্রাহক সেবা:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-blue-600">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ সহায়তা:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-blue-600">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
       <li>• <strong>অফিসিয়াল ওয়েবসাইট:</strong> <a href="https://learnandgrow.io" class="underline text-blue-600">https://learnandgrow.io</a></li>
     </ul>
   </section>
@@ -100,6 +107,7 @@ export const DEFAULT_TERMS_OF_USE_HTML = `
       <li>• <strong>আইনি বিভাগ:</strong> <a href="mailto:legal@learnandgrow.io" class="underline font-bold text-blue-600">legal@learnandgrow.io</a></li>
       <li>• <strong>সাধারণ তথ্য:</strong> <a href="mailto:info@learnandgrow.io" class="underline font-bold text-blue-600">info@learnandgrow.io</a></li>
       <li>• <strong>হেল্পলাইন:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-blue-600">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-blue-600">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
@@ -141,7 +149,7 @@ export const DEFAULT_REFUND_POLICY_HTML = `
       <li>• <strong>রিফান্ড ও হিসাব বিভাগ:</strong> <a href="mailto:refund@learnandgrow.io" class="underline font-bold text-emerald-700">refund@learnandgrow.io</a></li>
       <li>• <strong>বিলিং সহায়তা:</strong> <a href="mailto:billing@learnandgrow.io" class="underline font-bold text-emerald-700">billing@learnandgrow.io</a></li>
       <li>• <strong>গ্রাহক সেবা ডেস্ক:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-emerald-700">support@learnandgrow.io</a></li>
-      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801886064560" target="_blank" class="underline font-bold text-emerald-700">+880 1886-064560</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-emerald-700">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
@@ -175,6 +183,7 @@ export const DEFAULT_COOKIE_POLICY_HTML = `
     <ul class="text-sm text-amber-900 space-y-1 font-medium">
       <li>• <strong>কুকি ও প্রাইভেসি ডেস্ক:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-amber-700">privacy@learnandgrow.io</a></li>
       <li>• <strong>সাধারণ সহায়তা:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-amber-700">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ সাপোর্ট:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-amber-700">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
@@ -196,6 +205,7 @@ export const DEFAULT_APP_PRIVACY_POLICY_HTML = `
     <ul class="text-sm text-blue-900 space-y-1 font-medium">
       <li>• <strong>অ্যাপ প্রাইভেসী:</strong> <a href="mailto:privacy@learnandgrow.io" class="underline font-bold text-blue-600">privacy@learnandgrow.io</a></li>
       <li>• <strong>মোবাইল অ্যাপ সাপোর্ট:</strong> <a href="mailto:support@learnandgrow.io" class="underline font-bold text-blue-600">support@learnandgrow.io</a></li>
+      <li>• <strong>হোয়াটসঅ্যাপ হেল্পলাইন:</strong> <a href="https://wa.me/8801706276447" target="_blank" class="underline font-bold text-blue-600">+880 1706-276447</a> (সকাল ১০টা - সন্ধ্যা ৬টা, শনি-বৃহস্পতি / Business hours: 10 AM - 6 PM, Sat-Thu)</li>
     </ul>
   </section>
 </div>
