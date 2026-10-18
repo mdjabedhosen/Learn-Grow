@@ -368,6 +368,8 @@ export default function TeamManagementPage() {
     const [newRoleName, setNewRoleName] = useState("");
     const [localRoles, setLocalRoles] = useState<Role[]>([]);
     const [selectedRole, setSelectedRole] = useState<string>("");
+    const [editCustomRoleActive, setEditCustomRoleActive] = useState(false);
+    const [addCustomRoleActive, setAddCustomRoleActive] = useState(false);
 
     // Add Member Form
     const [formData, setFormData] = useState({
@@ -594,6 +596,7 @@ export default function TeamManagementPage() {
                 bio: "",
             });
             setImageUrl("");
+            setAddCustomRoleActive(false);
         } catch (error) {
             toast.error((error as any)?.data?.message || "Failed to add member");
         }
@@ -612,6 +615,7 @@ export default function TeamManagementPage() {
             toast.success("Team member updated successfully!");
             setIsEditOpen(false);
             setEditingMember(null);
+            setEditCustomRoleActive(false);
         } catch (error) {
             toast.error((error as any)?.data?.message || "Failed to update member");
         }
@@ -905,25 +909,55 @@ export default function TeamManagementPage() {
                                             startContent={<FaUser className="text-gray-400 text-sm" />}
                                         />
 
-                                        <Select
-                                            label="Designation / Role"
-                                            placeholder="Select an official role"
-                                            selectedKeys={formData.role ? [formData.role] : []}
-                                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                            variant="bordered"
-                                            radius="lg"
-                                            isRequired
-                                            classNames={{
-                                                label: "font-semibold text-gray-700 text-xs sm:text-sm",
-                                                trigger: "border-gray-200 hover:border-blue-400 focus:!border-blue-600 transition-colors bg-white",
-                                            }}
-                                        >
-                                            {roles.map((role) => (
-                                                <SelectItem key={role.name} value={role.name}>
-                                                    {role.name}
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
+                                        <div className="space-y-1.5">
+                                            <div className="flex items-center justify-between">
+                                                <label className="text-xs sm:text-sm font-semibold text-gray-700">
+                                                    Designation / Role <span className="text-danger">*</span>
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAddCustomRoleActive(!addCustomRoleActive)}
+                                                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                                                >
+                                                    {addCustomRoleActive ? "← Choose standard role" : "+ Custom role"}
+                                                </button>
+                                            </div>
+                                            {addCustomRoleActive ? (
+                                                <Input
+                                                    placeholder="e.g. Master Coder & Algorithms Lead"
+                                                    value={formData.role}
+                                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                                    variant="bordered"
+                                                    radius="lg"
+                                                    classNames={{
+                                                        inputWrapper: "border-gray-200 hover:border-blue-400 focus-within:!border-blue-600 transition-colors bg-white h-10",
+                                                    }}
+                                                    startContent={<FaUserTie className="text-gray-400 text-sm" />}
+                                                />
+                                            ) : (
+                                                <select
+                                                    value={formData.role}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === "__custom__") {
+                                                            setAddCustomRoleActive(true);
+                                                        } else {
+                                                            setFormData({ ...formData, role: val });
+                                                        }
+                                                    }}
+                                                    aria-label="Designation / Role"
+                                                    className="w-full h-10 px-3 py-2 text-xs sm:text-sm bg-white border border-gray-200 hover:border-blue-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 rounded-xl outline-none transition-colors text-gray-800 cursor-pointer"
+                                                >
+                                                    <option value="" disabled>Select an official role</option>
+                                                    {roles.map((role) => (
+                                                        <option key={role._id || role.name} value={role.name}>
+                                                            {role.name}
+                                                        </option>
+                                                    ))}
+                                                    <option value="__custom__">✏️ + Enter Custom Role...</option>
+                                                </select>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Domain & Experience of Year (Kodland Tutor & Faculty Profile Spec) */}
@@ -1426,7 +1460,10 @@ export default function TeamManagementPage() {
                 isOpen={isEditOpen || !!editingMember}
                 onOpenChange={(open) => {
                     setIsEditOpen(open);
-                    if (!open) setEditingMember(null);
+                    if (!open) {
+                        setEditingMember(null);
+                        setEditCustomRoleActive(false);
+                    }
                 }}
                 size="lg"
                 scrollBehavior="inside"
@@ -1472,23 +1509,61 @@ export default function TeamManagementPage() {
                                                 }
                                                 variant="bordered"
                                             />
-                                            <Select
-                                                label="Role"
-                                                selectedKeys={editingMember.role ? new Set([editingMember.role]) : new Set()}
-                                                onSelectionChange={(keys) => {
-                                                    const val = Array.from(keys)[0] as string;
-                                                    setEditingMember({ ...editingMember, role: val });
-                                                }}
-                                                variant="bordered"
-                                                selectionMode="single"
-                                                disallowEmptySelection
-                                            >
-                                                {roles.map((role) => (
-                                                    <SelectItem key={role.name} value={role.name}>
-                                                        {role.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </Select>
+                                            <div className="space-y-1.5">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-xs font-semibold text-gray-700">
+                                                        Designation / Role <span className="text-danger">*</span>
+                                                    </label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setEditCustomRoleActive(!editCustomRoleActive)}
+                                                        className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                                                    >
+                                                        {editCustomRoleActive ? "← Choose standard role" : "+ Custom role"}
+                                                    </button>
+                                                </div>
+                                                {editCustomRoleActive ? (
+                                                    <Input
+                                                        placeholder="e.g. Master Coder & Algorithms Lead"
+                                                        value={editingMember.role || ""}
+                                                        onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
+                                                        variant="bordered"
+                                                        radius="lg"
+                                                        size="sm"
+                                                        classNames={{
+                                                            inputWrapper: "border-gray-200 hover:border-blue-400 focus-within:!border-blue-600 bg-white h-10",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <select
+                                                        value={editingMember.role || ""}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === "__custom__") {
+                                                                setEditCustomRoleActive(true);
+                                                            } else {
+                                                                setEditingMember({ ...editingMember, role: val });
+                                                            }
+                                                        }}
+                                                        aria-label="Designation / Role"
+                                                        className="w-full h-10 px-3 py-2 text-xs sm:text-sm bg-white border border-gray-200 hover:border-blue-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 rounded-xl outline-none transition-colors text-gray-800 cursor-pointer"
+                                                    >
+                                                        <option value="" disabled>Select an official role</option>
+                                                        {/* If member has a custom role not in roles list, keep it visible and selected */}
+                                                        {editingMember.role && !roles.some((r) => r.name.toLowerCase() === editingMember.role.toLowerCase()) && (
+                                                            <option value={editingMember.role}>
+                                                                {editingMember.role} (Current)
+                                                            </option>
+                                                        )}
+                                                        {roles.map((role) => (
+                                                            <option key={role._id || role.name} value={role.name}>
+                                                                {role.name}
+                                                            </option>
+                                                        ))}
+                                                        <option value="__custom__">✏️ + Enter Custom Role...</option>
+                                                    </select>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Domain & Experience of Year for Edit Modal */}
