@@ -9,51 +9,43 @@ export const defaultTeamData = {
         cLevel: [
             {
                 name: "Md Jabed Hosen",
-                role: "Founder & CEO",
+                role: "Founder & CEO | Lead AI Mentor",
                 bio: "AI/ML Engineer and Data Science researcher pursuing MSc at University of Milano-Bicocca, Italy. Founder & CEO of Learn & Grow.",
                 img: "/images/tutors/tutor-jabed.png",
+                linkedin: "https://www.linkedin.com/in/md-jabed-hosen",
+                twitter: "#"
+            },
+            {
+                name: "Md. Hasibur Rahman",
+                role: "Chief Technology Officer (CTO)",
+                bio: "Software Architect and Full-Stack Engineering Lead directing platform scalability and learning systems.",
+                img: "/images/tutors/tutor-tanvir.png",
                 linkedin: "#",
                 twitter: "#"
             },
             {
-                name: "Sarah Ahmed",
-                role: "Chief Technical Officer",
-                bio: "Expert in system architecture and technology strategy.",
-                img: "https://i.pravatar.cc/150?u=cto",
-                linkedin: "#",
-                twitter: "#"
-            },
-            {
-                name: "James Wilson",
-                role: "Chief Operating Officer",
-                bio: "Operations specialist with 12+ years experience.",
-                img: "https://i.pravatar.cc/150?u=coo",
+                name: "Taj Uddin",
+                role: "Chief Operating Officer (COO)",
+                bio: "Operations and student success director ensuring seamless delivery of live cohorts and robotics hardware.",
+                img: "/images/tutors/tutor-sovon.png",
                 linkedin: "#",
                 twitter: "#"
             }
         ],
         teamLeads: [
             {
-                name: "Ahmed Khan",
-                role: "Technical Lead",
-                bio: "Leading product development and engineering team.",
-                img: "https://i.pravatar.cc/150?u=techlead",
+                name: "Sabbir Bin Sazid",
+                role: "Robotics & IoT Coordinator",
+                bio: "Leading live hardware cohort delivery and maker lab logistics.",
+                img: "/images/tutors/tutor-tanvir.png",
                 linkedin: "#",
                 twitter: "#"
             },
             {
-                name: "Fatima Rahman",
-                role: "Operations Manager",
-                bio: "Managing day-to-day operations and logistics.",
-                img: "https://i.pravatar.cc/150?u=opsmanager",
-                linkedin: "#",
-                twitter: "#"
-            },
-            {
-                name: "Omar Hassan",
+                name: "Joy Md Sajol",
                 role: "Marketing Head",
-                bio: "Driving marketing strategy and brand growth.",
-                img: "https://i.pravatar.cc/150?u=marketinghead",
+                bio: "Driving student outreach, community engagement, and digital growth.",
+                img: "/images/tutors/tutor-jabed.png",
                 linkedin: "#",
                 twitter: "#"
             }
@@ -62,71 +54,54 @@ export const defaultTeamData = {
     // Instructors: Section 2
     instructors: [
         {
-            name: "Nadia Islam",
-            role: "Senior Programming Instructor",
-            specialization: "Python, JavaScript, React",
-            img: "https://i.pravatar.cc/150?u=instructor1",
-            students: 500
-        },
-        {
-            name: "Hassan Ali",
-            role: "Robotics Lead Instructor",
-            specialization: "Arduino, Raspberry Pi, IoT",
-            img: "https://i.pravatar.cc/150?u=instructor2",
+            name: "Md. Tanvir Hassan",
+            role: "Senior Robotics & Hardware Engineer",
+            specialization: "Arduino, IoT, Electronics, Robotics",
+            img: "/images/tutors/tutor-tanvir.png",
             students: 350
         },
         {
-            name: "Zara Khan",
-            role: "Web Development Specialist",
-            specialization: "Full Stack Development",
-            img: "https://i.pravatar.cc/150?u=instructor3",
-            students: 425
+            name: "Tasnim Jahan Tonni",
+            role: "Lead Coding & AI Mentor",
+            specialization: "Python, AI & Machine Learning, OOP",
+            img: "/images/tutors/tutor-tonni.png",
+            students: 500
         },
         {
-            name: "Riyaz Ahmed",
-            role: "AI & Data Science Instructor",
-            specialization: "Machine Learning, Data Analytics",
-            img: "https://i.pravatar.cc/150?u=instructor4",
-            students: 280
-        },
-        {
-            name: "Amina Hassan",
-            role: "STEM Curriculum Designer",
-            specialization: "Educational Technology",
-            img: "https://i.pravatar.cc/150?u=instructor5",
+            name: "Shovan Parvez",
+            role: "Hands-on Robotics & IoT Specialist",
+            specialization: "Microcontrollers, Sensors, Circuits",
+            img: "/images/tutors/tutor-sovon.png",
             students: 320
+        },
+        {
+            name: "Saiful Islam",
+            role: "Master Coder & Algorithms Lead",
+            specialization: "Data Science, Python, Logic & Algorithms",
+            img: "/images/tutors/tutor-saiful.png",
+            students: 420
+        },
+        {
+            name: "Shakil Rana",
+            role: "Junior Game Creator & STEM Lead",
+            specialization: "Scratch, Roblox, Visual Coding",
+            img: "/images/tutors/tutor-shakil.png",
+            students: 280
         }
     ],
     // Executives: Section 3
     executives: [
         {
-            name: "Rashid Ali",
-            role: "Head of Student Success",
-            department: "Student Services",
-            img: "https://i.pravatar.cc/150?u=exec1",
-            linkedin: "#"
+            name: "Sabbir Bin Sazid",
+            role: "Program Coordinator",
+            bio: "Supporting student onboarding and batch scheduling.",
+            img: "/images/tutors/tutor-tanvir.png"
         },
         {
-            name: "Aisha Khan",
-            role: "Community & Partnerships Director",
-            department: "Business Development",
-            img: "https://i.pravatar.cc/150?u=exec2",
-            linkedin: "#"
-        },
-        {
-            name: "Mohammad Hasan",
-            role: "Finance & Administration Manager",
-            department: "Finance",
-            img: "https://i.pravatar.cc/150?u=exec3",
-            linkedin: "#"
-        },
-        {
-            name: "Sara Islam",
-            role: "Human Resources Manager",
-            department: "People & Culture",
-            img: "https://i.pravatar.cc/150?u=exec4",
-            linkedin: "#"
+            name: "Joy Md Sajol",
+            role: "Community Manager",
+            bio: "Ensuring top-tier support and community engagement.",
+            img: "/images/tutors/tutor-jabed.png"
         }
     ]
 };
-

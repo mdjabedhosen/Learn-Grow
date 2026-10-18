@@ -7,61 +7,76 @@ export const defaultEducatorsData = {
     leadership: [
         {
             name: "Md Jabed Hosen",
-            role: "Founder & CEO",
+            role: "Founder & CEO | Lead AI Mentor",
             bio: "AI/ML Engineer and Data Science researcher pursuing MSc at University of Milano-Bicocca, Italy. Founder & CEO of Learn & Grow.",
             img: "/images/tutors/tutor-jabed.png",
+            linkedin: "https://www.linkedin.com/in/md-jabed-hosen",
+            twitter: "#"
+        },
+        {
+            name: "Md. Hasibur Rahman",
+            role: "Chief Technology Officer (CTO)",
+            bio: "Software Architect and Full-Stack Engineering Lead directing platform scalability and learning systems.",
+            img: "/images/tutors/tutor-tanvir.png",
             linkedin: "#",
             twitter: "#"
         },
         {
-            name: "Sarah Ahmed",
-            role: "Chief Academic Officer",
-            bio: "Former IIT professor. Expert in curriculum design.",
-            img: "https://i.pravatar.cc/150?u=cao",
+            name: "Taj Uddin",
+            role: "Chief Operating Officer (COO)",
+            bio: "Operations and student success director ensuring seamless delivery of live cohorts and robotics hardware.",
+            img: "/images/tutors/tutor-sovon.png",
             linkedin: "#",
             twitter: "#"
         }
     ],
     instructors: [
         {
-            name: "Ahmed Khan",
-            role: "Senior Programming Instructor",
-            specialization: "Python, JavaScript, React",
-            img: "https://i.pravatar.cc/150?u=instructor1",
-            students: 500
-        },
-        {
-            name: "Fatima Rahman",
-            role: "Robotics Lead",
-            specialization: "Arduino, Raspberry Pi, IoT",
-            img: "https://i.pravatar.cc/150?u=instructor2",
+            name: "Md. Tanvir Hassan",
+            role: "Senior Robotics Lead",
+            specialization: "Arduino, Electronics & IoT Hardware",
+            img: "/images/tutors/tutor-tanvir.png",
             students: 350
         },
         {
-            name: "Omar Hassan",
-            role: "Web Development Expert",
-            specialization: "Full Stack Development",
-            img: "https://i.pravatar.cc/150?u=instructor3",
-            students: 425
+            name: "Tasnim Jahan Tonni",
+            role: "Lead Coding & AI Mentor",
+            specialization: "Python, Machine Learning & Algorithms",
+            img: "/images/tutors/tutor-tonni.png",
+            students: 500
         },
         {
-            name: "Nadia Islam",
-            role: "AI & Data Science Instructor",
-            specialization: "Machine Learning, Data Analytics",
-            img: "https://i.pravatar.cc/150?u=instructor4",
+            name: "Shovan Parvez",
+            role: "Hands-on Robotics & IoT Specialist",
+            specialization: "Microcontrollers, Sensors & Prototyping",
+            img: "/images/tutors/tutor-sovon.png",
+            students: 320
+        },
+        {
+            name: "Saiful Islam",
+            role: "Master Coder & Algorithms Lead",
+            specialization: "Data Science, Logic & Competitive Coding",
+            img: "/images/tutors/tutor-saiful.png",
+            students: 420
+        },
+        {
+            name: "Shakil Rana",
+            role: "Junior Game Creator & STEM Lead",
+            specialization: "Scratch, Roblox & Visual Coding",
+            img: "/images/tutors/tutor-shakil.png",
             students: 280
         }
     ],
     operations: [
         {
-            name: "Rashid Ali",
-            role: "Student Success Manager",
-            img: "https://i.pravatar.cc/150?u=ops1"
+            name: "Sabbir Bin Sazid",
+            role: "Robotics & IoT Program Coordinator",
+            img: "/images/tutors/tutor-tanvir.png"
         },
         {
-            name: "Aisha Khan",
-            role: "Community Manager",
-            img: "https://i.pravatar.cc/150?u=ops2"
+            name: "Joy Md Sajol",
+            role: "Growth & Community Lead",
+            img: "/images/tutors/tutor-jabed.png"
         }
     ]
 };

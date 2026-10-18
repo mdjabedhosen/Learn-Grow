@@ -16,6 +16,7 @@ import {
   CardBody,
   Chip,
   Divider,
+} from "@nextui-org/react";
 import { useApplyForJobMutation } from "@/redux/api/jobApi";
 import { trackEvent } from "@/utils/tracking";
 import { useRef } from "react";

@@ -88,136 +88,18 @@ export const ensureCourseMetadata = async () => {
         instructorId: jabed?._id || fallbackInstructor,
         instructorIds: [jabed?._id || fallbackInstructor, tonni?._id || fallbackInstructor].filter(Boolean),
       },
-      {
-        slug: "junior-scratch-game-design",
-        title: "Junior Scratch & Game Design",
-        category: "Game Development",
-        level: "Beginner" as const,
-        price: 5000,
-        discountPrice: 3500,
-        duration: 6,
-        maxBatchSize: 15,
-        type: "live" as const,
-        language: "Bangla & English",
-        isPublished: true,
-        isAdminApproved: true,
-        isFeatured: true,
-        isRegistrationOpen: true,
-        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop",
-        description:
-          "Ignite creativity with Scratch block coding and 2D game architecture. Kids design engaging animations, interactive stories, and classic arcade games while developing logical algorithmic reasoning.",
-        tags: ["Scratch", "Game Design", "Block Coding", "Creative Computing", "Kids STEM"],
-        learningOutcomes: [
-          "Understand core programming concepts: loops, conditionals, and variables",
-          "Design game mechanics, scoring systems, and player physics",
-          "Create custom animated sprites and interactive sound effects",
-          "Publish games online to share with friends and family",
-        ],
-        prerequisites: [
-          "Age 7-12 years",
-          "A computer or laptop with Google Chrome browser",
-          "No prior programming experience needed",
-        ],
-        instructorId: shakil?._id || fallbackInstructor,
-        instructorIds: [shakil?._id || fallbackInstructor, tonni?._id || fallbackInstructor].filter(Boolean),
-      },
-      {
-        slug: "math-for-coders",
-        title: "Math for Coders & Algorithmic Thinking",
-        category: "Mathematics",
-        level: "Beginner" as const,
-        price: 5500,
-        discountPrice: 3800,
-        duration: 6,
-        maxBatchSize: 15,
-        type: "live" as const,
-        language: "Bangla & English",
-        isPublished: true,
-        isAdminApproved: true,
-        isFeatured: true,
-        isRegistrationOpen: true,
-        thumbnail: "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=1200&auto=format&fit=crop",
-        description:
-          "Discover how math powers modern technology. Learn mathematical principles through interactive coding projects: geometry, trigonometry, logic, algorithms, and probability in games.",
-        tags: ["Mathematics", "Algorithms", "Geometry", "Logic", "Problem Solving", "STEM"],
-        learningOutcomes: [
-          "Apply geometric coordinate systems to draw dynamic art through code",
-          "Understand boolean logic, sorting, and search algorithms",
-          "Simulate probability and randomness in gaming engines",
-          "Develop strong critical thinking and competitive math skills",
-        ],
-        prerequisites: [
-          "Basic arithmetic skills (Addition, Subtraction, Multiplication)",
-          "A computer with internet access",
-        ],
-        instructorId: saiful?._id || fallbackInstructor,
-        instructorIds: [saiful?._id || fallbackInstructor, jabed?._id || fallbackInstructor].filter(Boolean),
-      },
-      {
-        slug: "science-lab-at-home",
-        title: "Science Lab at Home (Hands-On STEM)",
-        category: "Science",
-        level: "Beginner" as const,
-        price: 4500,
-        discountPrice: 3200,
-        duration: 4,
-        maxBatchSize: 15,
-        type: "live" as const,
-        language: "Bangla & English",
-        isPublished: true,
-        isAdminApproved: true,
-        isFeatured: true,
-        isRegistrationOpen: true,
-        thumbnail: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=1200&auto=format&fit=crop",
-        description:
-          "Turn home into a vibrant science laboratory! Conduct hands-on experiments in basic chemistry, physics, and biology with safe materials and our custom STEM experiment kit.",
-        tags: ["Science", "Physics", "Chemistry", "Experiments", "Hands-On", "STEM Lab"],
-        learningOutcomes: [
-          "Follow scientific inquiry and systematic observation methods",
-          "Conduct safe chemical reactions and polymer synthesis (slime making)",
-          "Explore physics forces, simple machines, sound waves, and optics",
-          "Document findings in a digital science journal",
-        ],
-        prerequisites: [
-          "Curiosity to explore the natural world",
-          "Parental supervision for hands-on activities",
-        ],
-        instructorId: shovan?._id || fallbackInstructor,
-        instructorIds: [shovan?._id || fallbackInstructor, tanvir?._id || fallbackInstructor].filter(Boolean),
-      },
-      {
-        slug: "web-development-kids",
-        title: "Web Development & Creative Coding for Kids",
-        category: "Programming",
-        level: "Intermediate" as const,
-        price: 5800,
-        discountPrice: 4200,
-        duration: 8,
-        maxBatchSize: 15,
-        type: "live" as const,
-        language: "Bangla & English",
-        isPublished: true,
-        isAdminApproved: true,
-        isFeatured: true,
-        isRegistrationOpen: true,
-        thumbnail: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
-        description:
-          "Build real responsive websites and dynamic web apps using HTML5, CSS3, and modern JavaScript. Learn how the web works and deploy personal portfolio projects online.",
-        tags: ["Web Development", "HTML", "CSS", "JavaScript", "Portfolio", "Frontend"],
-        learningOutcomes: [
-          "Structure modern responsive web pages using semantic HTML5",
-          "Style with modern CSS3 Flexbox, Grid, and subtle animations",
-          "Add interactivity with JavaScript DOM manipulation and event handling",
-          "Host and deploy live websites on GitHub Pages or Vercel",
-        ],
-        prerequisites: [
-          "Basic computer typing and browsing knowledge",
-          "A computer or laptop with VS Code and web browser",
-        ],
-        instructorId: mehedi?._id || fallbackInstructor,
-        instructorIds: [mehedi?._id || fallbackInstructor, shakil?._id || fallbackInstructor].filter(Boolean),
-      },
     ];
+
+    // Purge any dummy courses that are NOT in the authentic 2 courses
+    const authenticSlugs = coreCourses.map((c) => c.slug);
+    const dummyCourses = await Course.find({ slug: { $nin: authenticSlugs } });
+    if (dummyCourses.length > 0) {
+      const dummyCourseIds = dummyCourses.map((d) => d._id);
+      const { Batch } = await import("../modules/batch/model/batch.model.js");
+      await Batch.deleteMany({ courseId: { $in: dummyCourseIds } });
+      await Course.deleteMany({ _id: { $in: dummyCourseIds } });
+      console.log(`[Course Metadata] Purged ${dummyCourses.length} dummy courses and associated batches.`);
+    }
 
     for (const c of coreCourses) {
       let existing = await Course.findOne({ slug: c.slug });
@@ -226,14 +108,6 @@ export const ensureCourseMetadata = async () => {
           existing = await Course.findOne({ title: { $regex: /robot/i } });
         } else if (c.slug === "python-programming-for-teens") {
           existing = await Course.findOne({ title: { $regex: /python/i } });
-        } else if (c.slug === "junior-scratch-game-design") {
-          existing = await Course.findOne({ title: { $regex: /scratch/i } });
-        } else if (c.slug === "math-for-coders") {
-          existing = await Course.findOne({ title: { $regex: /math/i } });
-        } else if (c.slug === "science-lab-at-home") {
-          existing = await Course.findOne({ title: { $regex: /science/i } });
-        } else if (c.slug === "web-development-kids") {
-          existing = await Course.findOne({ title: { $regex: /web/i } });
         }
       }
 
@@ -243,7 +117,6 @@ export const ensureCourseMetadata = async () => {
           {
             $set: {
               ...c,
-              // Preserve original ID and creation timestamp
             },
           }
         );
@@ -253,7 +126,7 @@ export const ensureCourseMetadata = async () => {
       }
     }
 
-    // Ensure all existing courses in database have isPublished and isAdminApproved set to true
+    // Ensure all existing authentic courses have isPublished and isAdminApproved set to true
     await Course.updateMany(
       {},
       {
@@ -277,11 +150,28 @@ export const ensureCourseMetadata = async () => {
           "nafis.game@learngrow.com",
           "farhana.stem@learngrow.com",
           "arif.ai@learngrow.com",
+          "marko@learngrow.academy",
+          "antonia@learngrow.academy",
+          "nenad@learngrow.academy",
+          "antonella@learngrow.academy",
+          "sarah.ahmed@learngrow.academy",
+          "ahmed.khan@learngrow.academy",
+          "fatima.rahman@learngrow.academy",
+          "omar.hassan@learngrow.academy",
+          "nadia.islam@learngrow.academy",
+          "mdshakil526563@gmail.com",
+          "mdshakil26563@gmail.com",
+          "jabed@learngrow.academy",
+          "test@gmail.com",
+          "test1@gmail.com",
+          "admin@admin.com",
+          "demo@learngrow.com",
+          "instructor@learngrow.com",
         ],
       },
     });
 
-    console.log("[Course Metadata] All 6 platform courses verified with published status and authentic mentors.");
+    console.log("[Course Metadata] All authentic platform courses verified with published status and authentic mentors.");
   } catch (error) {
     console.error("[Course Metadata] Error ensuring course metadata:", error);
   }

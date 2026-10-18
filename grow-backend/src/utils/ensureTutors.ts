@@ -31,18 +31,6 @@ export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
     yearsOfExperience: 3,
   },
   {
-    name: "Md Jabed Hosen",
-    email: "jabed@learngrow.academy",
-    phone: "+8801700000034",
-    role: "instructor",
-    qualification: "Lead AI & Python Instructor | Founder & CEO",
-    institution: "M.Sc. in Data Science, University of Milano-Bicocca, Italy | Founder, Learn & Grow",
-    profileImage: "/images/tutors/tutor-jabed.png",
-    bio: "ইতালির ইউনিভার্সিটি অফ মিলানো-বিকোকার ডেটা সায়েন্স গবেষক ও উদ্যোক্তা। শিশু-কিশোরদের পাইথন কোডিং, মেশিন লার্নিং ও এআই প্রযুক্তির রোমাঞ্চকর জগতে দক্ষ করে তুলতে নিবেদিত।",
-    expertise: ["Python", "Artificial Intelligence", "Data Science"],
-    yearsOfExperience: 3,
-  },
-  {
     name: "Md. Tanvir Hassan",
     email: "tanvirhassan1201@gmail.com",
     phone: "+8801700000021",
@@ -110,16 +98,61 @@ export const ALL_TUTORS_SPEC: TutorSeedSpec[] = [
 
 export const ensureAllTutors = async () => {
   try {
-    // 1. Purge any random / dummy tutors so only authentic team members exist
+    // 1. Purge any random, test or dummy tutors so only authentic team members exist
     const DUMMY_EMAILS = [
       "marko@learngrow.academy",
       "antonia@learngrow.academy",
       "nenad@learngrow.academy",
       "antonella@learngrow.academy",
+      "tanvir.robotics@learngrow.com",
+      "sumaiya.python@learngrow.com",
+      "mahmudul.coder@learngrow.com",
+      "nafis.game@learngrow.com",
+      "farhana.stem@learngrow.com",
+      "arif.ai@learngrow.com",
+      "sarah.ahmed@learngrow.academy",
+      "ahmed.khan@learngrow.academy",
+      "fatima.rahman@learngrow.academy",
+      "omar.hassan@learngrow.academy",
+      "nadia.islam@learngrow.academy",
+      "hassan.ali@learngrow.academy",
+      "zara.khan@learngrow.academy",
+      "riyaz.ahmed@learngrow.academy",
+      "amina.hassan@learngrow.academy",
+      "rashid.ali@learngrow.academy",
+      "aisha.khan@learngrow.academy",
+      "mdshakil526563@gmail.com",
+      "mdshakil26563@gmail.com",
+      "jabed@learngrow.academy",
+      "test@gmail.com",
+      "test1@gmail.com",
+      "admin@admin.com",
+      "demo@learngrow.com",
+      "instructor@learngrow.com",
     ];
     await User.deleteMany({ email: { $in: DUMMY_EMAILS } });
     await TeamMember.deleteMany({
-      name: { $in: ["Marko Vidakovic", "Antonia Popovic", "Nenad Tomic", "Antonella Rossi"] },
+      name: { 
+        $in: [
+          "Marko Vidakovic", 
+          "Antonia Popovic", 
+          "Nenad Tomic", 
+          "Antonella Rossi",
+          "Sarah Ahmed",
+          "James Wilson",
+          "Ahmed Khan",
+          "Fatima Rahman",
+          "Omar Hassan",
+          "Nadia Islam",
+          "Hassan Ali",
+          "Zara Khan",
+          "Riyaz Ahmed",
+          "Amina Hassan",
+          "Rashid Ali",
+          "Aisha Khan",
+          "Pending User",
+        ] 
+      },
     });
 
     const defaultPassword = "Instructor@123";
