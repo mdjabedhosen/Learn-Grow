@@ -27,7 +27,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Newspaper
 } from "lucide-react";
 
 interface NavItem {
@@ -88,6 +89,7 @@ export default function AdminSidebar() {
     { labelEn: "Events & Workshops", labelBn: "ইভেন্ট ও ওয়ার্কশপ", icon: Calendar, href: "/admin/events" },
     { labelEn: "Career & Jobs", labelBn: "জব সার্কুলার", icon: Briefcase, href: "/admin/jobs" },
     { labelEn: "Blog Articles", labelBn: "ব্লগ পোস্ট", icon: FileText, href: "/admin/blog" },
+    { labelEn: "Press & Media", labelBn: "প্রেস ও মিডিয়া", icon: Newspaper, href: "/admin/press" },
     { labelEn: "Team & Roles", labelBn: "টিম ও রোলস", icon: ShieldCheck, href: "/admin/team-management" },
     { labelEn: "Analytics", labelBn: "অ্যানালিটিক্স", icon: TrendingUp, href: "/admin/analytics" },
     { labelEn: "Settings", labelBn: "সিস্টেম সেটিংস", icon: Settings, href: "/admin/settings" },
@@ -99,7 +101,7 @@ export default function AdminSidebar() {
     if (!isManager) return href;
     if (href === "/admin") return "/manager";
     const segment = href.replace("/admin/", "");
-    const managerRoutes = ["trials", "courses", "batches", "orders", "users", "instructors", "live-classes", "team-management", "settings", "jobs", "combos"];
+    const managerRoutes = ["trials", "courses", "batches", "orders", "users", "instructors", "live-classes", "team-management", "settings", "jobs", "combos", "press"];
     if (managerRoutes.includes(segment)) {
       return `/manager/${segment}`;
     }

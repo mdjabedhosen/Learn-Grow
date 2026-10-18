@@ -29,6 +29,8 @@ import {
 import "react-quill-new/dist/quill.snow.css";
 import AboutPageTab from "@/components/admin/AboutPageTab";
 import ContactPageTab from "@/components/admin/ContactPageTab";
+import PressManagementTab from "@/components/admin/PressManagementTab";
+import { FaNewspaper } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -413,6 +415,21 @@ export default function ContentManagerPage() {
           >
             <div className="p-3 sm:p-4 lg:p-6 xl:p-8 w-full">
               <ContactPageTab />
+            </div>
+          </Tab>
+
+          <Tab
+            key="press"
+            title={
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <FaNewspaper className="text-sm sm:text-base" />
+                <span className="hidden sm:inline">Press & Media</span>
+                <span className="sm:hidden">Press</span>
+              </div>
+            }
+          >
+            <div className="p-3 sm:p-4 lg:p-6 xl:p-8 w-full">
+              <PressManagementTab />
             </div>
           </Tab>
         </Tabs>
