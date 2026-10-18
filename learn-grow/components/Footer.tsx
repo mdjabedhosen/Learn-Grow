@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
           {/* Column 1: Logo & Description */}
           <div className="lg:col-span-1 space-y-4">
             <NextLink className="inline-block group select-none" href="/" title="Learn & Grow Home">
-              <LearnGrowBrand className="h-7 w-auto text-white group-hover:text-blue-400 transition-colors" />
+              <LearnGrowBrand className="h-5 sm:h-7 w-auto text-white group-hover:text-blue-400 transition-colors" />
             </NextLink>
             <p className="text-sm text-gray-400">
               Empowering students with quality education in Programming, Robotics, Math, and Science.

@@ -1,6 +1,6 @@
 import React from "react";
 
-export const LearnGrowBrand = ({ className = "h-7 w-auto" }: { className?: string }) => {
+export const LearnGrowBrand = ({ className = "h-5 sm:h-7 md:h-8 w-auto" }: { className?: string }) => {
   return (
     <svg
       viewBox="0 0 1160 148"

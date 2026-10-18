@@ -511,9 +511,54 @@ export const ensureSitePolicies = async () => {
     }
 
     const pressDoc = await SiteContent.findOne({ page: "press" });
-    if (pressDoc && typeof pressDoc.content === "object" && pressDoc.content.mediaContact) {
-      if (pressDoc.content.mediaContact.email && !pressDoc.content.mediaContact.email.endsWith("@learnandgrow.io")) {
-        pressDoc.content.mediaContact.email = "press@learnandgrow.io";
+    if (!pressDoc) {
+      await SiteContent.create({
+        page: "press",
+        content: {
+          mediaContact: {
+            email: "press@learnandgrow.io",
+            whatsapp: "https://wa.me/8801706276447",
+            phone: "+880 1706-276447"
+          }
+        }
+      });
+      console.log("[Site Content Seeder] Seeded default press document with press@learnandgrow.io.");
+    } else {
+      let changed = false;
+      if (typeof pressDoc.content === "string") {
+        try {
+          const parsed = JSON.parse(pressDoc.content);
+          if (parsed && typeof parsed === "object") {
+            if (!parsed.mediaContact) parsed.mediaContact = {};
+            if (parsed.mediaContact.email !== "press@learnandgrow.io") {
+              parsed.mediaContact.email = "press@learnandgrow.io";
+              changed = true;
+            }
+            if (changed) {
+              pressDoc.content = parsed;
+            }
+          }
+        } catch {
+          let updated = pressDoc.content
+            .replace(/press@learn-grow\.com/gi, "press@learnandgrow.io")
+            .replace(/press@learngrowedu\.com/gi, "press@learnandgrow.io")
+            .replace(/press@learngrow\.academy/gi, "press@learnandgrow.io")
+            .replace(/press@learngrow\.com/gi, "press@learnandgrow.io");
+          if (updated !== pressDoc.content) {
+            pressDoc.content = updated;
+            changed = true;
+          }
+        }
+      } else if (typeof pressDoc.content === "object" && pressDoc.content !== null) {
+        if (!pressDoc.content.mediaContact) {
+          pressDoc.content.mediaContact = {};
+        }
+        if (pressDoc.content.mediaContact.email !== "press@learnandgrow.io") {
+          pressDoc.content.mediaContact.email = "press@learnandgrow.io";
+          changed = true;
+        }
+      }
+      if (changed) {
         pressDoc.markModified("content");
         await pressDoc.save();
         console.log("[Site Content Seeder] Updated press page email to press@learnandgrow.io.");

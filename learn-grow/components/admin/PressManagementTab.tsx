@@ -112,7 +112,9 @@ export default function PressManagementTab() {
           ? remote.pressReleases 
           : defaultPressData.pressReleases,
         mediaContact: {
-          email: remote.mediaContact?.email || defaultPressData.mediaContact.email,
+          email: (remote.mediaContact?.email && remote.mediaContact.email.endsWith("@learnandgrow.io"))
+            ? remote.mediaContact.email
+            : "press@learnandgrow.io",
           whatsapp: remote.mediaContact?.whatsapp || defaultPressData.mediaContact.whatsapp,
           phone: remote.mediaContact?.phone || defaultPressData.mediaContact.phone,
         },

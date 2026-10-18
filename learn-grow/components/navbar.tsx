@@ -342,7 +342,7 @@ export const Navbar = () => {
             href="/"
             title="Learn & Grow Home"
           >
-            <LearnGrowBrand className="h-7 sm:h-8 w-auto text-[#2C2C2C] group-hover:text-[#3B82F6] transition-colors" />
+            <LearnGrowBrand className="h-5 sm:h-7 md:h-8 w-auto text-[#2C2C2C] group-hover:text-[#3B82F6] transition-colors" />
           </NextLink>
         </NavbarBrand>
       </NavbarContent>

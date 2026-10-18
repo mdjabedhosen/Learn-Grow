@@ -84,7 +84,9 @@ export default function PressPage() {
         newsCoverage: Array.isArray(c.newsCoverage) && c.newsCoverage.length > 0 ? c.newsCoverage : defaultPressData.newsCoverage,
         pressReleases: Array.isArray(c.pressReleases) && c.pressReleases.length > 0 ? c.pressReleases : defaultPressData.pressReleases,
         mediaContact: {
-          email: c.mediaContact?.email || defaultPressData.mediaContact.email,
+          email: (c.mediaContact?.email && c.mediaContact.email.endsWith("@learnandgrow.io"))
+            ? c.mediaContact.email
+            : "press@learnandgrow.io",
           whatsapp: c.mediaContact?.whatsapp || defaultPressData.mediaContact.whatsapp,
           phone: c.mediaContact?.phone || defaultPressData.mediaContact.phone,
         },
@@ -92,6 +94,10 @@ export default function PressPage() {
     }
     return defaultPressData;
   }, [siteContentData]);
+
+  const mediaEmail = (pressContent?.mediaContact?.email && pressContent.mediaContact.email.endsWith("@learnandgrow.io"))
+    ? pressContent.mediaContact.email
+    : "press@learnandgrow.io";
 
   const filteredNews = useMemo(() => {
     if (selectedFilter === "all") return pressContent.newsCoverage;
@@ -305,7 +311,7 @@ export default function PressPage() {
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <Button
                     as="a"
-                    href={`mailto:${pressContent.mediaContact.email}?subject=Press Release Inquiry: ${encodeURIComponent(pr.titleEn)}`}
+                    href={`mailto:${mediaEmail}?subject=Press Release Inquiry: ${encodeURIComponent(pr.titleEn)}`}
                     size="sm"
                     color="primary"
                     variant="flat"
@@ -451,12 +457,12 @@ export default function PressPage() {
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <Button
                 as="a"
-                href={`mailto:${pressContent.mediaContact.email}?subject=Media Inquiry - Learn & Grow`}
+                href={`mailto:${mediaEmail}?subject=Media Inquiry - Learn & Grow`}
                 size="lg"
                 className="bg-white text-[#1E3A8A] font-black text-sm rounded-2xl shadow-lg hover:bg-gray-100"
                 startContent={<FaEnvelope />}
               >
-                {pressContent.mediaContact.email}
+                {mediaEmail}
               </Button>
               <Button
                 as="a"
