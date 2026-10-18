@@ -106,7 +106,7 @@ export const getAllCourses = async (filters: any = {}) => {
       }
     }
 
-    const { page, skip, limit: boundedLimit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 50 });
+    const { page, skip, limit: boundedLimit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 200 });
     const limit = filters.enrolledOnly ? 6 : boundedLimit;
 
     const courses = await Course.find(query)
@@ -138,7 +138,7 @@ export const getPublishedCourses = async (filters: any = {}) => {
     // Only show courses that are both published AND admin approved
     const query = { isPublished: true, isAdminApproved: true } as const;
 
-    const { page, skip, limit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 50 });
+    const { page, skip, limit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 200 });
 
     const courses = await Course.find(query)
       .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")

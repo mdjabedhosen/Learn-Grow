@@ -478,17 +478,76 @@ export const getStudentBatch = async (courseId: string, studentId: string) => {
 };
 
 /**
- * Sync / Backfill existing enrollments into batches
- * Automatically groups enrolled students 15 by 15 into Batch 1, Batch 2...
+ * Ensure all active courses have standard batches (Batch 1 Weekday, Batch 2 Weekend)
+ * and backfills any unassigned enrollments into batches.
  */
-export const syncExistingEnrollmentsToBatches = async () => {
+export const ensureAllCourseBatches = async () => {
   try {
     const courses = await Course.find();
+    console.log(`[Batch Seeder] Verifying active batches for ${courses.length} courses...`);
+
+    const defaultInstructor = await User.findOne({
+      role: { $in: ["instructor", "admin"] },
+      isApproved: true,
+    }).sort({ createdAt: 1 });
 
     for (const course of courses) {
-      const enrollments = await Enrollment.find({ courseId: course._id }).sort({ createdAt: 1 });
-      if (enrollments.length === 0) continue;
+      const courseInstructor =
+        course.instructorId ||
+        (Array.isArray(course.instructorIds) && course.instructorIds[0]) ||
+        defaultInstructor?._id;
 
+      const coInstructor =
+        (Array.isArray(course.instructorIds) && course.instructorIds[1]) ||
+        courseInstructor;
+
+      const titleLower = (course.title || "").toLowerCase();
+      const isRobotics = titleLower.includes("robot") || titleLower.includes("arduino");
+
+      const existingBatches = await Batch.find({ courseId: course._id }).sort({ batchNumber: 1 });
+
+      // 1. Ensure Batch 1 exists
+      let batch1 = existingBatches.find((b) => b.batchNumber === 1);
+      if (!batch1) {
+        batch1 = await Batch.create({
+          courseId: course._id,
+          batchNumber: 1,
+          batchName: "Batch 1 - Regular (Weekday Cohort)",
+          instructorId: courseInstructor,
+          maxStudents: course.maxBatchSize || 15,
+          enrolledStudents: [],
+          status: "ongoing",
+          schedule: isRobotics ? "Sat & Tue 7:00 PM - 8:30 PM" : "Mon & Wed 7:00 PM - 8:30 PM",
+          startDate: new Date(),
+          zoomLink: "https://meet.google.com/smr-qqhn-sox",
+          whatsappGroupUrl: "https://chat.whatsapp.com/learngrow-batch-1",
+          notes: "Official weekday live interactive cohort.",
+        });
+        console.log(`[Batch Seeder] Created Batch 1 for: ${course.title}`);
+      }
+
+      // 2. Ensure Batch 2 exists
+      let batch2 = existingBatches.find((b) => b.batchNumber === 2);
+      if (!batch2) {
+        batch2 = await Batch.create({
+          courseId: course._id,
+          batchNumber: 2,
+          batchName: "Batch 2 - Weekend Special Cohort",
+          instructorId: coInstructor,
+          maxStudents: course.maxBatchSize || 15,
+          enrolledStudents: [],
+          status: "upcoming",
+          schedule: "Fri & Sat 5:00 PM - 6:30 PM",
+          startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          zoomLink: "https://meet.google.com/smr-qqhn-sox",
+          whatsappGroupUrl: "https://chat.whatsapp.com/learngrow-batch-2",
+          notes: "Official weekend live interactive cohort.",
+        });
+        console.log(`[Batch Seeder] Created Batch 2 for: ${course.title}`);
+      }
+
+      // 3. Backfill any existing course enrollments without batchId into batches
+      const enrollments = await Enrollment.find({ courseId: course._id }).sort({ createdAt: 1 });
       for (const enr of enrollments) {
         if (!enr.batchId) {
           await autoAssignStudentToBatch(course._id, enr.studentId);
@@ -496,8 +555,17 @@ export const syncExistingEnrollmentsToBatches = async () => {
       }
     }
 
-    console.log("[Batch Sync] Finished syncing existing enrollments to batches.");
+    console.log("[Batch Seeder] All courses now have verified active batches and synced enrollments.");
   } catch (error) {
-    console.error("[Batch Sync Error]:", error);
+    console.error("[Batch Seeder Error]:", error);
   }
 };
+
+/**
+ * Sync / Backfill existing enrollments into batches
+ * Automatically groups enrolled students 15 by 15 into Batch 1, Batch 2...
+ */
+export const syncExistingEnrollmentsToBatches = async () => {
+  return await ensureAllCourseBatches();
+};
+

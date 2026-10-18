@@ -168,6 +168,37 @@ function TrialsContent() {
 
   const batches = batchesData?.data || [];
 
+  // Categorize batches: prioritized for the course currently selected in schedule modal
+  const { selectedCourseBatches, otherBatches } = useMemo(() => {
+    if (!batches || !Array.isArray(batches)) {
+      return { selectedCourseBatches: [], otherBatches: [] };
+    }
+
+    const selectedCourseId = scheduleForm.courseId;
+    const selectedCourse = courses.find((c: any) => c._id === selectedCourseId);
+    const selectedCourseTitle = (selectedCourse?.title || "").toLowerCase();
+
+    const matching: any[] = [];
+    const others: any[] = [];
+
+    batches.forEach((b: any) => {
+      const bCourseId = b.courseId?._id || b.courseId?.id || b.courseId;
+      const bCourseTitle = (b.courseId?.title || "").toLowerCase();
+
+      const isMatch =
+        (selectedCourseId && bCourseId && bCourseId.toString() === selectedCourseId.toString()) ||
+        (selectedCourseTitle && bCourseTitle && (bCourseTitle.includes(selectedCourseTitle) || selectedCourseTitle.includes(bCourseTitle)));
+
+      if (isMatch) {
+        matching.push(b);
+      } else {
+        others.push(b);
+      }
+    });
+
+    return { selectedCourseBatches: matching, otherBatches: others };
+  }, [batches, scheduleForm.courseId, courses]);
+
   const instructors = useMemo(() => {
     const listA = allInstructorsData?.data || [];
     const listB = approvedInstructorsData?.data || [];
@@ -220,25 +251,49 @@ function TrialsContent() {
   // Open Schedule Modal
   const handleOpenScheduleModal = (booking: any) => {
     setSelectedBookingForSchedule(booking);
+
+    const interest = (booking.trackInterest || "").toLowerCase().trim();
+    const bCourseId = booking.courseId?._id || booking.courseId || "";
+
+    const matchedCourse = courses.find((c: any) => {
+      const cId = (c._id || c.id || "").toString();
+      const cTitle = (c.title || "").toLowerCase();
+      const cSlug = (c.slug || "").toLowerCase();
+      return (
+        (bCourseId && cId === bCourseId.toString()) ||
+        cTitle === interest ||
+        cSlug === interest ||
+        (interest && (cTitle.includes(interest) || interest.includes(cTitle))) ||
+        (interest.includes("robot") && cTitle.includes("robot")) ||
+        (interest.includes("python") && cTitle.includes("python")) ||
+        (interest.includes("scratch") && cTitle.includes("scratch")) ||
+        (interest.includes("math") && cTitle.includes("math")) ||
+        (interest.includes("science") && cTitle.includes("science")) ||
+        (interest.includes("web") && cTitle.includes("web"))
+      );
+    }) || courses[0];
+
+    const courseInstructorId =
+      matchedCourse?.instructorId?._id ||
+      matchedCourse?.instructorId ||
+      (Array.isArray(matchedCourse?.instructorIds) && matchedCourse.instructorIds[0]?._id) ||
+      (Array.isArray(matchedCourse?.instructorIds) && matchedCourse.instructorIds[0]) ||
+      "";
+
     const existingInstructorId =
       booking.assignedInstructorId?._id ||
       booking.assignedInstructorId ||
+      courseInstructorId ||
       instructors[0]?._id ||
       "";
 
-    const matchedCourse = courses.find(
-      (c: any) =>
-        c.title?.toLowerCase() === booking.trackInterest?.toLowerCase() ||
-        c._id === booking.courseId
-    ) || courses[0];
-
     setScheduleForm({
       courseId: matchedCourse?._id || "",
-      trackInterest: booking.trackInterest || matchedCourse?.title || "Robotics & Arduino",
+      trackInterest: matchedCourse?.title || booking.trackInterest || "Junior Robotics with Arduino",
       assignedInstructorId: existingInstructorId,
       scheduledDate: booking.scheduledDate || new Date().toISOString().split("T")[0],
-      scheduledTime: booking.scheduledTime || "07:00 PM - 08:00 PM",
-      meetingLink: booking.meetingLink || "https://meet.google.com/new",
+      scheduledTime: booking.scheduledTime || "07:00 PM - 08:30 PM",
+      meetingLink: booking.meetingLink || "https://meet.google.com/smr-qqhn-sox",
       assignedBatchId: booking.assignedBatchId?._id || booking.assignedBatchId || "",
       notes: booking.notes || "",
     });
@@ -871,20 +926,32 @@ function TrialsContent() {
 
             {/* Select Course / Program */}
             <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 block">
-                {isBn ? "কোর্স / প্রোগ্রাম নির্বাচন করুন *" : "Select Course / Program *"}
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-700">
+                  {isBn ? "কোর্স / প্রোগ্রাম নির্বাচন করুন *" : "Select Course / Program *"}
+                </label>
+                <span className="text-[10px] text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded-md">
+                  {courses.length} {isBn ? "টি কোর্স উপলব্ধ" : "courses available"}
+                </span>
+              </div>
               <select
                 value={scheduleForm.courseId}
                 onChange={(e) => {
                   const cId = e.target.value;
                   const foundCourse = courses.find((c: any) => c._id === cId);
-                  setScheduleForm({
-                    ...scheduleForm,
+                  const courseInstructorId =
+                    foundCourse?.instructorId?._id ||
+                    foundCourse?.instructorId ||
+                    (Array.isArray(foundCourse?.instructorIds) && foundCourse.instructorIds[0]?._id) ||
+                    (Array.isArray(foundCourse?.instructorIds) && foundCourse.instructorIds[0]) ||
+                    "";
+                  setScheduleForm((prev) => ({
+                    ...prev,
                     courseId: cId,
-                    trackInterest: foundCourse?.title || scheduleForm.trackInterest,
+                    trackInterest: foundCourse?.title || prev.trackInterest,
                     assignedBatchId: "",
-                  });
+                    assignedInstructorId: courseInstructorId ? courseInstructorId.toString() : prev.assignedInstructorId,
+                  }));
                 }}
                 aria-label="Select Course"
                 className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800"
@@ -892,7 +959,7 @@ function TrialsContent() {
                 <option value="">{isBn ? "-- কোর্স নির্বাচন করুন --" : "-- Select a Course --"}</option>
                 {courses.map((c: any) => (
                   <option key={c._id} value={c._id}>
-                    {c.title}
+                    {c.title} ({c.level || "Beginner"}) • {c.duration || 8} Weeks • ৳{c.discountPrice || c.price || 4500}
                   </option>
                 ))}
               </select>
@@ -990,22 +1057,61 @@ function TrialsContent() {
                 <label className="text-xs font-bold text-slate-700">
                   {isBn ? "কোর্স ব্যাচ / কোহোর্ট সংযুক্ত করুন (ঐচ্ছিক)" : "Link to Course Batch / Cohort (Optional)"}
                 </label>
-                <span className="text-[10px] text-slate-400">
-                  {batches.length} {isBn ? "টি ব্যাচ সক্রিয়" : "batches available"}
+                <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                  {selectedCourseBatches.length > 0
+                    ? (isBn ? `এই কোর্সে ${selectedCourseBatches.length}টি ব্যাচ (${batches.length}টি মোট)` : `${selectedCourseBatches.length} batches for this course (${batches.length} total)`)
+                    : (isBn ? `${batches.length}টি ব্যাচ সক্রিয়` : `${batches.length} batches available`)}
                 </span>
               </div>
               <select
                 value={scheduleForm.assignedBatchId}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, assignedBatchId: e.target.value })}
+                onChange={(e) => {
+                  const batchId = e.target.value;
+                  const foundBatch = batches.find((b: any) => b._id === batchId);
+                  setScheduleForm((prev) => {
+                    const nextState = { ...prev, assignedBatchId: batchId };
+                    if (foundBatch) {
+                      const bCourseId = foundBatch.courseId?._id || foundBatch.courseId;
+                      if (bCourseId && (!prev.courseId || prev.courseId !== bCourseId.toString())) {
+                        nextState.courseId = bCourseId.toString();
+                        nextState.trackInterest = foundBatch.courseId?.title || prev.trackInterest;
+                      }
+                      const bInstructorId = foundBatch.instructorId?._id || foundBatch.instructorId;
+                      if (bInstructorId) {
+                        nextState.assignedInstructorId = bInstructorId.toString();
+                      }
+                      if (foundBatch.zoomLink) {
+                        nextState.meetingLink = foundBatch.zoomLink;
+                      }
+                      if (foundBatch.schedule) {
+                        nextState.scheduledTime = foundBatch.schedule;
+                      }
+                    }
+                    return nextState;
+                  });
+                }}
                 aria-label="Link to Course Batch"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800"
               >
                 <option value="">{isBn ? "-- কোনো নির্দিষ্ট ব্যাচ নয় / একক ট্রায়াল --" : "-- Standalone Trial (No Batch) --"}</option>
-                {batches.map((b: any) => (
-                  <option key={b._id} value={b._id}>
-                    {b.courseId?.title ? `${b.courseId.title} - ` : ""}{b.batchName} ({b.schedule || "Regular"}) • {b.enrolledStudents?.length || 0}/{b.maxStudents || 15} Students
-                  </option>
-                ))}
+                {selectedCourseBatches.length > 0 && (
+                  <optgroup label={isBn ? `নির্বাচিত কোর্সের সক্রিয় ব্যাচসমূহ (${selectedCourseBatches.length})` : `Batches for Selected Course (${selectedCourseBatches.length})`}>
+                    {selectedCourseBatches.map((b: any) => (
+                      <option key={b._id} value={b._id}>
+                        {b.batchName} ({b.schedule || "Regular"}) • {b.enrolledStudents?.length || 0}/{b.maxStudents || 15} Students {b.instructorId?.name ? `• Mentor: ${b.instructorId.name}` : ""}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {otherBatches.length > 0 && (
+                  <optgroup label={isBn ? `অন্যান্য সকল কোর্সের ব্যাচসমূহ (${otherBatches.length})` : `All Other Course Batches (${otherBatches.length})`}>
+                    {otherBatches.map((b: any) => (
+                      <option key={b._id} value={b._id}>
+                        {b.courseId?.title ? `${b.courseId.title} - ` : ""}{b.batchName} ({b.schedule || "Regular"}) • {b.enrolledStudents?.length || 0}/{b.maxStudents || 15} Students {b.instructorId?.name ? `• Mentor: ${b.instructorId.name}` : ""}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 
