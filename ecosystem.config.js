@@ -19,7 +19,7 @@ module.exports = {
       script: "/root/learn-grow-fullstack/grow-backend/dist/server.js", // ✅ FIXED
       cwd: "/root/learn-grow-fullstack/grow-backend",
 
-      instances: 2,
+      instances: 1,
       exec_mode: "fork",
 
       env: {
