@@ -114,6 +114,7 @@ export default function MyCoursesPage() {
                                 startContent={<MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
                             >
                                 {isBn ? "মেন্টর সহায়তা" : "Mentor Support"}
+                            </Button>
                         </div>
                     </div>
                 </div>
