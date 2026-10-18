@@ -15,6 +15,7 @@ npm run build
 
 echo "🎨 [3/4] Building Next.js Frontend..."
 cd ../learn-grow
+export NODE_OPTIONS="--max-old-space-size=2560"
 npm install --legacy-peer-deps
 npm run build
 
