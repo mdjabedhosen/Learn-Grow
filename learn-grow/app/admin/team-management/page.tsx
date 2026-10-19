@@ -23,6 +23,7 @@ import {
     Textarea,
 } from "@nextui-org/react";
 import toast from "react-hot-toast";
+import { resolveImageSrc } from "@/utils/image";
 import {
     FaTrash,
     FaEdit,
@@ -111,13 +112,6 @@ interface Instructor {
     name: string;
     profileImage?: string;
 }
-
-const resolveImageSrc = (value?: string) => {
-    if (!value || value === "placeholder") return "";
-    if (value.startsWith("data:image")) return value;
-    if (value.startsWith("http")) return value;
-    return `data:image/jpeg;base64,${value}`;
-};
 
 // Sortable Role Item Component
 function SortableRoleItem({ role, onDelete }: { role: Role; onDelete: (id: string) => void }) {

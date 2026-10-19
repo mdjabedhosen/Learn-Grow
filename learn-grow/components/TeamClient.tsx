@@ -7,6 +7,7 @@ import { FaLinkedin, FaTwitter } from "react-icons/fa";
 import { HiOutlineUser, HiOutlineSparkles } from "react-icons/hi2";
 import { openTrialModal } from "@/components/TrialBookingModal";
 import { Sparkles, GraduationCap, Briefcase, Target, Rocket, Bot, Clock } from "lucide-react";
+import { resolveImageSrc } from "@/utils/image";
 
 interface TeamClientProps {
     content: any;
@@ -26,13 +27,6 @@ interface TeamMember {
     twitter?: string;
     position?: number;
 }
-
-const resolveImageSrc = (value?: string) => {
-    if (!value || value === "placeholder" || value.trim() === "") return "";
-    if (value.startsWith("data:image")) return value;
-    if (value.startsWith("http")) return value;
-    return `data:image/jpeg;base64,${value}`;
-};
 
 const TEAM_THEMES = [
     {

@@ -18,13 +18,7 @@ import { openTrialModal } from "@/components/TrialBookingModal";
 import { openRecruitmentModal } from "@/components/RecruitmentModal";
 import RecruitmentProcess from "@/components/RecruitmentProcess";
 import { GraduationCap, Sparkles, Rocket, Globe, Clock, Star, Award, ArrowRight } from "lucide-react";
-
-const resolveImageSrc = (value?: string) => {
-  if (!value || value === "placeholder" || value.trim() === "") return "";
-  if (value.startsWith("data:image")) return value;
-  if (value.startsWith("http")) return value;
-  return `data:image/jpeg;base64,${value}`;
-};
+import { resolveImageSrc } from "@/utils/image";
 
 type InstructorItem = {
   id: string;
@@ -346,7 +340,7 @@ export default function TutorsPage() {
           categoryLabelEn: spec.categoryLabelEn,
           categoryLabelBn: spec.categoryLabelBn,
           tags,
-          image: dynamicImg || spec.image,
+          image: resolveImageSrc(dynamicImg) || spec.image,
           themeIndex: spec.themeIndex,
           bio: teamRecord?.bio || userRecord?.bio || spec.bio,
           experience: exp,
@@ -538,7 +532,7 @@ export default function TutorsPage() {
                     {/* Tutor Cutout / Portrait Image (Flush with bottom border) */}
                     <div className="relative z-10 w-full h-full flex items-end justify-center overflow-hidden">
                       <img
-                        src={tutor.image}
+                        src={resolveImageSrc(tutor.image)}
                         alt={tutor.name}
                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105 select-none drop-shadow-xl"
                         loading="lazy"

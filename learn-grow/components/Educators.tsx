@@ -13,6 +13,7 @@ import { useGetHomeTeamMembersQuery } from "@/redux/api/teamApi";
 import { useGetApprovedInstructorsPublicQuery } from "@/redux/api/userApi";
 import { openTrialModal } from "@/components/TrialBookingModal";
 import { GraduationCap, Sparkles, ArrowRight } from "lucide-react";
+import { resolveImageSrc } from "@/utils/image";
 
 type TutorCardItem = {
   id: string;
@@ -168,13 +169,6 @@ const REAL_TUTOR_SPECS: (Omit<TutorCardItem, "theme"> & { matchKeys: string[] })
     bioBn: "সিআরপি-র রিহ্যাবিলিটেশন ইঞ্জিনিয়ার ও আইওটি বিশেষজ্ঞ। শিশুদের হাতে-কলমে সার্কিট মেকিং, সেন্সর প্রোগ্রামিং এবং বাস্তব হার্ডওয়্যার রোবট প্রজেক্ট তৈরি শেখান।",
   },
 ];
-
-const resolveImageSrc = (value?: string) => {
-  if (!value || value === "placeholder" || value.trim() === "") return "";
-  if (value.startsWith("data:image")) return value;
-  if (value.startsWith("http")) return value;
-  return `data:image/jpeg;base64,${value}`;
-};
 
 export default function Educators() {
   const [language, setLanguage] = useState<"en" | "bn">("bn");

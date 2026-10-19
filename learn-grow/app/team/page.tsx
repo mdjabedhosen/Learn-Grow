@@ -3,11 +3,10 @@
 import React, { useMemo } from "react";
 import { Spinner } from "@nextui-org/react";
 import TeamClient from "@/components/TeamClient";
-import { useGetAllTeamMembersQuery, useGetAllRolesQuery } from "@/redux/api/teamApi";
+import { useGetAllTeamMembersQuery } from "@/redux/api/teamApi";
 
 export default function TeamPage() {
     const { data: teamData, isLoading: teamLoading } = useGetAllTeamMembersQuery({});
-    const { data: rolesData, isLoading: rolesLoading } = useGetAllRolesQuery({});
 
     // Organize team members by role/category
     const organizedTeam = useMemo(() => {
@@ -97,10 +96,10 @@ export default function TeamPage() {
         };
     }, [teamData]);
 
-    if (teamLoading || rolesLoading) {
+    if (teamLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Spinner size="lg" label="Loading team members..." />
+                <Spinner size="lg" label="Loading team members..." color="primary" />
             </div>
         );
     }
