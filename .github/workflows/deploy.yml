@@ -29,7 +29,7 @@ jobs:
 
             if [ ! -d "/root/learn-grow-fullstack" ]; then
               echo "📥 Cloning repository..."
-              git clone https://github.com/kazinayeem/learn-grow-fullstack.git /root/learn-grow-fullstack
+              git clone https://github.com/mdjabedhosen/Learn-Grow.git /root/learn-grow-fullstack
             fi
 
             cd /root/learn-grow-fullstack
