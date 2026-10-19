@@ -25,6 +25,11 @@ export const metadata: Metadata = {
     "engineering education",
     "hands-on STEM learning"
   ],
+  verification: {
+    other: {
+      "facebook-domain-verification": ["s0sqyyoipbx48e6z8fjx5lyxxpkpdm"],
+    },
+  },
   openGraph: {
     title: "Learn & Grow - Premier Robotics Courses & STEM Education Kits",
     description: "Master robotics and coding with expert instructors. Shop premium STEM kits and enroll in world-class courses designed for all skill levels.",

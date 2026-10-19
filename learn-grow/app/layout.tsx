@@ -36,6 +36,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  verification: {
+    other: {
+      "facebook-domain-verification": ["s0sqyyoipbx48e6z8fjx5lyxxpkpdm"],
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -117,6 +122,10 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en">
       <head>
+        <meta
+          name="facebook-domain-verification"
+          content="s0sqyyoipbx48e6z8fjx5lyxxpkpdm"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
