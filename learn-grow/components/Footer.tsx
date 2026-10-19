@@ -166,9 +166,10 @@ const Footer: React.FC = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
                 <MdLocationOn className="text-blue-400 text-lg mt-0.5 flex-shrink-0" />
-                <p className="text-gray-400">
-                  Level-4, 34, Green Road, Dhanmondi, Dhaka
-                </p>
+                <div>
+                  <p className="text-gray-300 font-medium">Dhaka, Bangladesh</p>
+                  <p className="text-gray-400 text-xs">100% Online Live Academy</p>
+                </div>
               </div>
               <div className="flex items-start gap-2">
                 <MdEmail className="text-blue-400 text-lg mt-0.5 flex-shrink-0" />

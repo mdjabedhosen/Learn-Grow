@@ -33,7 +33,7 @@ export const defaultEventsData = {
             title: "Hands-on Arduino & Sensor Circuit Workshop",
             date: "November 07, 2026",
             time: "3:00 PM - 6:00 PM",
-            location: "Learn & Grow STEM Lab, Dhanmondi, Dhaka",
+            location: "Live Online Workshop (Zoom)",
             type: "Workshop",
             color: "success"
         },

@@ -295,29 +295,29 @@ export default function ContactClient({ content }: ContactClientProps) {
                             </div>
                         </a>
 
-                        {/* Channel 4: Physical Learning Hub (Dhaka) */}
+                        {/* Channel 4: Virtual Campus (100% Online) */}
                         <div className="p-5 sm:p-6 bg-white border border-gray-200 rounded-[24px] shadow-sm">
                             <div className="flex items-start gap-4">
-                                <div className="w-13 h-13 rounded-2xl bg-[#F59E0B] text-white flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
+                                <div className="w-13 h-13 rounded-2xl bg-[#3B82F6] text-white flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
                                     <MdLocationOn />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-[#92400E]">
-                                            {language === "en" ? "Dhaka STEM Hub" : "ধানমন্ডি লার্নিং হাব"}
+                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-700">
+                                            {language === "en" ? "Virtual Campus" : "ভার্চুয়াল ক্যাম্পাস"}
                                         </span>
-                                        <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">
-                                            HQ
+                                        <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">
+                                            100% Online
                                         </span>
                                     </div>
                                     <h3 className="text-base font-black text-[#1E1E1E]">
-                                        {language === "en" ? "Main Learning Center" : "হেড অফিস ও ল্যাব"}
+                                        {language === "en" ? "Dhaka, Bangladesh" : "ঢাকা, বাংলাদেশ"}
                                     </h3>
                                     <p className="text-xs sm:text-sm text-gray-700 font-semibold my-1 leading-snug">
-                                        Level 4, 35 Green Road, Dhanmondi, Dhaka - 1205
+                                        {language === "en" ? "100% Online Live STEM Academy" : "১০০% অনলাইন লাইভ স্টেম একাডেমি"}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        {language === "en" ? "In-person kit collection & curriculum review by appointment" : "রোবটিক্স ল্যাব পরিদর্শন ও কিট সংগ্রহের জন্য স্বাগতম"}
+                                        {language === "en" ? "Interactive live 1-on-1 and batch classes nationwide via Zoom" : "সারা দেশ ও দেশের বাইরে থেকে ঘরে বসেই লাইভ ক্লাসে অংশ নিন"}
                                     </p>
                                 </div>
                             </div>

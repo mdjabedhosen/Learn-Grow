@@ -230,7 +230,7 @@ async function run() {
 
   <h2 class="text-2xl font-bold text-gray-900 mt-10 mb-4">What Comes Next</h2>
   <p class="text-gray-600 mb-6">
-    We are expanding the workshop model across Dhaka — Dhanmondi, Mohammadpur, Gulshan, Banani, and Uttara. If you are an educator, parent, or school administrator interested in bringing hands-on STEM to your institution, visit our Dhanmondi hub at <strong>Level 4, 35 Green Road, Dhanmondi, Dhaka</strong> or reach out to us at <a href="/contact" class="text-primary-600 underline font-bold">our contact page</a>.
+    We are expanding the workshop model across Dhaka and all over Bangladesh through interactive online sessions. If you are an educator, parent, or school administrator interested in bringing hands-on STEM to your institution, reach out to us directly through <a href="/contact" class="text-primary-600 underline font-bold">our contact page</a> or our WhatsApp helpline.
   </p>
 </div>
 `;

@@ -51,7 +51,7 @@ export const siteConfig = {
   publisher: "Learn & Grow Academy",
   email: "info@learnandgrow.io",
   phone: "+880 1706-276447",
-  address: "Your Business Address",
+  address: "Dhaka, Bangladesh (100% Online Academy)",
   navItems: [
     {
       label: "Courses",
