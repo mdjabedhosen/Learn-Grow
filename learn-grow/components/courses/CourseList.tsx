@@ -15,6 +15,8 @@ import { useGetPublishedCoursesQuery } from "@/redux/api/courseApi";
 import { useGetAllCategoriesQuery } from "@/redux/api/categoryApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCourseSlug } from "@/lib/coursesData";
+import { getCoursePricing } from "@/utils/pricing";
+import { formatLocalizedPrice } from "@/utils/bengaliNumerals";
 import {
   FaSearch,
   FaClock,
@@ -116,6 +118,14 @@ export default function CourseList() {
     const isPython = title.includes("python") || course._id === "69ce553ce9e96ed805295101";
     const isRobotics = title.includes("robot") || title.includes("arduino") || course._id === "69ca5603e9e96ed80529474a";
 
+    // Pricing always comes from the backend record: `price` is the original
+    // price and `discountPrice` (when set) is the price after the discount.
+    // The percentage is derived, never hardcoded.
+    const pricing = getCoursePricing(course);
+    const price = pricing.effectivePrice;
+    const regularPrice = pricing.originalPrice;
+    const discountPercent = pricing.discountPercent;
+
     if (isPython) {
       return {
         displayTitle: language === "bn" ? "টিনএজারদের জন্য পাইথন প্রোগ্রামিং ও এআই" : "Python Programming & AI for Teens",
@@ -124,8 +134,9 @@ export default function CourseList() {
           : "Master Python from scratch to building real AI chatbots, 2D games, and automation.",
         ageRange: language === "bn" ? "১২-১৮ বছর" : "Ages 12-18",
         duration: "10 Weeks",
-        price: course.price || 2999,
-        regularPrice: 4999,
+        price,
+        regularPrice,
+        discountPercent,
         badge: "Programming & AI",
         features: language === "bn" 
           ? ["১০০% লাইভ ক্লাস (সপ্তাহে ২ দিন)", "৫+ বাস্তব প্রজেক্ট পোর্টফোলিও", "ভেরিফায়েড কোর্স সমাপন সনদ"]
@@ -141,8 +152,9 @@ export default function CourseList() {
           : "Build real physical robots, program Arduino, and master sensor electronics with hardware kit.",
         ageRange: language === "bn" ? "১০-১৬ বছর" : "Ages 10-16",
         duration: "8 Weeks",
-        price: course.price || 3499,
-        regularPrice: 5499,
+        price,
+        regularPrice,
+        discountPercent,
         badge: "Robotics & STEM",
         features: language === "bn" 
           ? ["১০০% লাইভ ক্লাস ও হার্ডওয়্যার গাইড", "অবস্ট্যাকল ও লাইন-ফলোয়ার রোবট", "ভেরিফায়েড কোর্স সমাপন সনদ"]
@@ -155,8 +167,9 @@ export default function CourseList() {
       displayTagline: course.subtitle || "Comprehensive hands-on STEM curriculum.",
       ageRange: "All Ages",
       duration: `${course.duration || 8}h`,
-      price: course.price || 2999,
-      regularPrice: Math.round((course.price || 2999) * 1.5),
+      price,
+      regularPrice,
+      discountPercent,
       badge: "STEM Course",
       features: ["Live interactive class", "Hands-on projects", "Verified Certificate"]
     };
@@ -407,16 +420,18 @@ export default function CourseList() {
                 {/* Card Footer with Price and Action */}
                 <div className="p-6 sm:p-7 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400 line-through font-semibold">
-                        ৳{meta.regularPrice.toLocaleString()}
-                      </span>
-                      <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-black rounded-md border border-amber-200">
-                        40% OFF
-                      </span>
-                    </div>
+                    {meta.discountPercent > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400 line-through font-semibold">
+                          {formatLocalizedPrice(meta.regularPrice, language)}
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-black rounded-md border border-amber-200">
+                          {meta.discountPercent}% OFF
+                        </span>
+                      </div>
+                    ) : null}
                     <span className="text-2xl sm:text-3xl font-black text-[#2C2C2C]">
-                      ৳{meta.price.toLocaleString()}
+                      {formatLocalizedPrice(meta.price, language)}
                     </span>
                   </div>
 

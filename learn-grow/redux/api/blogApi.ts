@@ -53,7 +53,10 @@ export const blogApi = baseApi.injectEndpoints({
     }),
 
     // Category endpoints
-    getAllBlogCategories: build.query({
+    getAllBlogCategories: build.query<
+      { success: boolean; message?: string; data: any[] },
+      void
+    >({
       query: () => ({ url: "/blog/category/list", method: "GET" }),
       providesTags: ["BlogCategory"],
     }),

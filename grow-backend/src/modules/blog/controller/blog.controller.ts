@@ -26,7 +26,11 @@ export const createBlog = async (req: Request, res: Response) => {
 
 export const getBlogById = async (req: Request, res: Response) => {
   try {
-    const blog = await service.getBlogById(req.params.id);
+    // SECURITY: drafts and unapproved posts must not be readable by the
+    // public. Only an admin/manager may see them.
+    const canViewUnpublished =
+      req.userRole === "admin" || req.userRole === "manager";
+    const blog = await service.getBlogById(req.params.id, canViewUnpublished);
 
     if (!blog) {
       return res.status(404).json({
@@ -51,7 +55,9 @@ export const getBlogById = async (req: Request, res: Response) => {
 
 export const getBlogBySlug = async (req: Request, res: Response) => {
   try {
-    const blog = await service.getBlogBySlug(req.params.slug);
+    const canViewUnpublished =
+      req.userRole === "admin" || req.userRole === "manager";
+    const blog = await service.getBlogBySlug(req.params.slug, canViewUnpublished);
 
     if (!blog) {
       return res.status(404).json({
@@ -78,9 +84,18 @@ export const getAllBlogs = async (req: Request, res: Response) => {
   try {
     const filters: any = { ...req.query };
 
-    // Public blogs (published and approved) - shown to all users
-    // Remove the automatic author filter - let the service handle public vs personal blogs
-    // Users can filter by their own blogs if needed via query parameter
+    // SECURITY: `includeUnpublished` used to be passed straight through as a
+    // truthy check, so the literal string "false" enabled it. Combined with
+    // the route being public, `GET /api/blog?includeUnpublished=false`
+    // returned every DRAFT and unapproved blog to anonymous callers.
+    // It now has to be the exact string "true" AND the caller has to be an
+    // admin or a manager.
+    const wantsUnpublished = filters.includeUnpublished === "true";
+    const isPrivileged = req.userRole === "admin" || req.userRole === "manager";
+
+    if (!wantsUnpublished || !isPrivileged) {
+      delete filters.includeUnpublished;
+    }
 
     const result = await service.getAllBlogs(filters);
 
@@ -110,8 +125,15 @@ export const updateBlog = async (req: Request, res: Response) => {
       });
     }
 
-    // Check ownership
-    if (req.userRole === "instructor" && blog.author.toString() !== req.userId) {
+    // Check ownership.
+    // SECURITY: this only fired for the "instructor" role, so a STUDENT
+    // could update ANY blog - including publishing someone else's post.
+    // Only an admin/manager may edit a post they do not own.
+    const isStaff = req.userRole === "admin" || req.userRole === "manager";
+    const isOwner =
+      blog.author && String(blog.author) === String(req.userId);
+
+    if (!isStaff && !isOwner) {
       return res.status(403).json({
         success: false,
         message: "You can only edit your own blogs",
@@ -145,8 +167,14 @@ export const deleteBlog = async (req: Request, res: Response) => {
       });
     }
 
-    // Check ownership
-    if (req.userRole === "instructor" && blog.author.toString() !== req.userId) {
+    // Check ownership.
+    // SECURITY: this only fired for the "instructor" role, so a STUDENT
+    // could delete ANY blog.
+    const isStaff = req.userRole === "admin" || req.userRole === "manager";
+    const isOwner =
+      blog.author && String(blog.author) === String(req.userId);
+
+    if (!isStaff && !isOwner) {
       return res.status(403).json({
         success: false,
         message: "You can only delete your own blogs",

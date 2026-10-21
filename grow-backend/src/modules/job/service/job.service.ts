@@ -1,5 +1,23 @@
 import { JobPost, IJobPost } from "../model/jobPost.model";
 import { parsePagination } from "@/utils/pagination";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable job post fields. `postedAt` is stamped by the service/Mongoose and
+ * must not be accepted from a request body.
+ */
+const JOB_POST_UPDATABLE_FIELDS = [
+  "title",
+  "jobType",
+  "department",
+  "location",
+  "salaryRange",
+  "description",
+  "requirements",
+  "isPublished",
+  "isRemote",
+  "expiresAt",
+] as const;
 
 interface GetJobPostsQuery {
   department?: string;
@@ -68,7 +86,8 @@ export const getJobPostById = (id: string) => {
 };
 
 export const updateJobPost = async (id: string, data: Partial<IJobPost>) => {
-  return JobPost.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  const safeData = pickDefined(data, JOB_POST_UPDATABLE_FIELDS);
+  return JobPost.findByIdAndUpdate(id, safeData, { new: true, runValidators: true });
 };
 
 export const deleteJobPost = (id: string) => {

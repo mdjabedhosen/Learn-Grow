@@ -156,7 +156,7 @@ export default function ComboCheckoutSummary() {
 
         {/* Terms Notice */}
         <Alert
-          color="info"
+          color="primary"
           title="Terms & Conditions"
           description="By proceeding, you agree to our terms and conditions. Access will be granted immediately after payment verification."
         />

@@ -55,8 +55,11 @@ export const listByCourse = async (req: Request, res: Response) => {
 export const getById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    // The requester id lets the service decide whether to strip the answer
+    // key (students) or return the full quiz (owner / admin).
+    const requesterId = req.userId;
 
-    const result = await service.getQuizById(id);
+    const result = await service.getQuizById(id, requesterId);
 
     if (result.success) {
       return res.status(200).json(result);

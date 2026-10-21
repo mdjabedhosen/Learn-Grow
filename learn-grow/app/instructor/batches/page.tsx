@@ -450,7 +450,7 @@ function InstructorBatchesContent() {
                       <Avatar
                         src={selectedBatchForStudents.instructorId.profileImage}
                         name={selectedBatchForStudents.instructorId.name || "Tutor"}
-                        size="xs"
+                        size="sm"
                         className="ring-1 ring-blue-400"
                       />
                       <span className="font-extrabold text-blue-700">

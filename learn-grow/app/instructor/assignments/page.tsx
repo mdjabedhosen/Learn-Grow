@@ -69,9 +69,12 @@ export default function InstructorAssignmentsPage() {
     }
   }, []);
 
-  const { data: coursesResp } = useGetInstructorCoursesQuery(instructorId as string, {
-    skip: !instructorId,
-  });
+  const { data: coursesResp } = useGetInstructorCoursesQuery(
+    { instructorId: instructorId ?? "", page: 1, limit: 12 },
+    {
+      skip: !instructorId,
+    }
+  );
 
   const courses = Array.isArray(coursesResp?.data) ? coursesResp!.data : [];
 

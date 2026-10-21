@@ -75,6 +75,32 @@ export const quizApi = createApi({
             }),
             invalidatesTags: ["Quizzes"],
         }),
+
+        /**
+         * Submit a quiz attempt.
+         *
+         * The quiz used to be scored entirely in the browser, so the student
+         * chose their own score and the server never learned that the quiz
+         * was completed. Grading now happens on the server against the stored
+         * answer key.
+         */
+        submitQuiz: builder.mutation({
+            query: ({ id, answers }: { id: string; answers: Record<string, string | number> }) => ({
+                url: `/${id}/submit`,
+                method: "POST",
+                body: { answers },
+            }),
+            // NOTE: deliberately no tag invalidation. Submitting an attempt
+            // does not change the quiz definition, and refetching it made the
+            // "you have already taken this quiz" effect re-run and announce a
+            // previous attempt for the attempt the student had just made.
+        }),
+
+        // The student's own attempts for a quiz
+        getMyQuizSubmissions: builder.query({
+            query: (id: string) => `/${id}/my-submissions`,
+            transformResponse: (response: any) => response?.data ?? response,
+        }),
     }),
 });
 
@@ -85,4 +111,6 @@ export const {
     useUpdateQuizMutation,
     usePublishQuizMutation,
     useDeleteQuizMutation,
+    useSubmitQuizMutation,
+    useGetMyQuizSubmissionsQuery,
 } = quizApi;

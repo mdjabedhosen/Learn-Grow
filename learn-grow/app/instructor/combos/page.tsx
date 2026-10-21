@@ -26,8 +26,19 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { useGetAllCombosQuery, useDisableComboMutation } from "@/redux/api/comboApi";
+import { getCoursePricing } from "@/utils/pricing";
 
 const ROWS_PER_PAGE = 10;
+
+/**
+ * The backend combo model stores only `price` and `discountPrice` - there is
+ * no `discountPercentage` field. The percentage shown here is therefore always
+ * DERIVED from those two values, exactly like the customer facing surfaces.
+ */
+const getComboDiscountPercent = (combo: {
+  price?: number | null;
+  discountPrice?: number | null;
+}): number => getCoursePricing(combo).discountPercent;
 
 export default function InstructorCombosPage() {
   const router = useRouter();
@@ -154,7 +165,7 @@ export default function InstructorCombosPage() {
                     </TableCell>
                     <TableCell>
                       <span className="font-semibold">
-                        {combo.discountPercentage}%
+                        {getComboDiscountPercent(combo)}%
                       </span>
                     </TableCell>
                     <TableCell>

@@ -4,6 +4,62 @@ import { EventRegistration } from "../model/event-registration.model";
 import { Types } from "mongoose";
 import { parsePagination } from "@/utils/pagination";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable event fields.
+ *
+ * `registeredCount` is maintained by registerForEvent/deleteRegistration and
+ * `createdBy` is set when the event is created - neither may come from a
+ * request body.
+ */
+const EVENT_UPDATABLE_FIELDS = [
+  "title",
+  "type",
+  "shortDescription",
+  "detailedDescription",
+  "bannerImage",
+  "eventDate",
+  "startTime",
+  "endTime",
+  "registrationDeadline",
+  "mode",
+  "venueName",
+  "venueAddress",
+  "googleMapLink",
+  "platformType",
+  "meetingLink",
+  "platformInstructions",
+  "maxSeats",
+  "isRegistrationOpen",
+  "status",
+  "guests",
+] as const;
+
+/** Editable guest fields (no ownership or system flags on this model). */
+const EVENT_GUEST_UPDATABLE_FIELDS = [
+  "fullName",
+  "role",
+  "email",
+  "phoneNumber",
+  "bio",
+  "profileImage",
+  "organization",
+  "designation",
+  "linkedinUrl",
+  "twitterUrl",
+  "websiteUrl",
+] as const;
+
+/**
+ * Editable registration fields. `event`, `registeredAt`, `notificationSent`
+ * and `emailHistory` are owned by the registration/notification flow.
+ */
+const EVENT_REGISTRATION_UPDATABLE_FIELDS = [
+  "fullName",
+  "email",
+  "phoneNumber",
+] as const;
 
 // ===== EVENT SERVICES =====
 
@@ -89,7 +145,8 @@ export const getEventById = async (id: string, includeMeetingLink = false) => {
 };
 
 export const updateEvent = async (id: string, data: Partial<IEvent>) => {
-  return Event.findByIdAndUpdate(id, data, {
+  const safeData = pickDefined(data, EVENT_UPDATABLE_FIELDS);
+  return Event.findByIdAndUpdate(id, safeData, {
     new: true,
     runValidators: true,
   }).populate("guests");
@@ -186,7 +243,8 @@ export const getGuestById = async (id: string) => {
 };
 
 export const updateGuest = async (id: string, data: any) => {
-  return EventGuest.findByIdAndUpdate(id, data, {
+  const safeData = pickDefined(data, EVENT_GUEST_UPDATABLE_FIELDS);
+  return EventGuest.findByIdAndUpdate(id, safeData, {
     new: true,
     runValidators: true,
   });
@@ -324,7 +382,8 @@ export const getRegistrationsByEmail = async (email: string) => {
 };
 
 export const updateRegistration = async (id: string, data: { fullName?: string; email?: string; phoneNumber?: string }) => {
-  return EventRegistration.findByIdAndUpdate(id, data, {
+  const safeData = pickDefined(data, EVENT_REGISTRATION_UPDATABLE_FIELDS);
+  return EventRegistration.findByIdAndUpdate(id, safeData, {
     new: true,
     runValidators: true,
   });

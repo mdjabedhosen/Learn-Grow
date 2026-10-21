@@ -12,6 +12,8 @@ import {
 import { useGetFeaturedCoursesQuery } from "@/redux/api/courseApi";
 import { useRouter } from "next/navigation";
 import { getCourseSlug } from "@/lib/coursesData";
+import { getCoursePricing } from "@/utils/pricing";
+import { formatLocalizedPrice } from "@/utils/bengaliNumerals";
 import { Clock, Users as UsersIcon, PhoneCall, BookOpen, ArrowRight, Check } from "lucide-react";
 
 const CoursesSection = () => {
@@ -213,14 +215,36 @@ const CoursesSection = () => {
                 </CardBody>
 
                 <CardFooter className="p-6 pt-0 flex items-center justify-between border-t border-black/5">
-                  {/* Price Display */}
+                  {/* Price Display - original price + discount from the backend */}
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
                       {language === "en" ? "Course Price" : "কোর্স ফি"}
                     </span>
-                    <span className="text-2xl font-black text-gray-900">
-                      ৳{course.price || 0}
-                    </span>
+                    {(() => {
+                      const pricing = getCoursePricing(course);
+                      if (pricing.hasDiscount) {
+                        return (
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-gray-400 line-through font-semibold">
+                                {formatLocalizedPrice(pricing.originalPrice, language)}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-black rounded-md border border-amber-200">
+                                {pricing.discountPercent}% OFF
+                              </span>
+                            </div>
+                            <span className="text-2xl font-black text-gray-900">
+                              {formatLocalizedPrice(pricing.effectivePrice, language)}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <span className="text-2xl font-black text-gray-900">
+                          {formatLocalizedPrice(pricing.effectivePrice, language)}
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {/* Enroll Button */}

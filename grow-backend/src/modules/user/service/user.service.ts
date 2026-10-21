@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { User } from "../model/user.model";
+import { User, USER_ROLES, isValidUserRole, type UserRole } from "../model/user.model";
+import { buildAdminUserUpdate } from "./adminUserUpdate";
 import { StudentProfile } from "../model/studentProfile.model";
 import { GuardianProfile } from "../model/guardianProfile.model";
 import {
@@ -394,6 +395,16 @@ export const login = async (input: LoginInput): Promise<AuthResponse> => {
       };
     }
 
+    // A blocked account must not be able to log in. `isBlocked` was set by
+    // admins but never read, so blocking someone did nothing.
+    if (user.isBlocked) {
+      return {
+        success: false,
+        message:
+          "Your account has been blocked. Please contact support if you believe this is a mistake.",
+      };
+    }
+
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(
       user._id.toString(),
@@ -472,6 +483,30 @@ export const refreshAccessToken = async (
       };
     }
 
+    // A blocked account must not be able to mint a new access token.
+    if (user.isBlocked) {
+      return {
+        success: false,
+        message:
+          "Your account has been blocked. Please contact support if you believe this is a mistake.",
+      };
+    }
+
+    // A session that was logged out must not be able to refresh itself back
+    // into existence.
+    const validAfter = (user as any).tokenValidAfter;
+    const refreshIssuedAt = (decoded as any)?.iat;
+    if (
+      validAfter &&
+      refreshIssuedAt &&
+      refreshIssuedAt * 1000 < new Date(validAfter).getTime()
+    ) {
+      return {
+        success: false,
+        message: "Session expired. Please log in again.",
+      };
+    }
+
     // Generate new access token
     const newAccessToken = generateAccessToken(user._id.toString(), user.role);
 
@@ -504,7 +539,13 @@ export const refreshAccessToken = async (
  */
 export const logout = async (userId: string): Promise<{ success: boolean; message: string }> => {
   try {
-    await User.findByIdAndUpdate(userId, { refreshToken: undefined });
+    // SECURITY: clearing the refresh token alone did NOT end the session - the
+    // access token stayed valid for up to 7 days. `tokenValidAfter` makes the
+    // auth middleware reject every access token issued before this moment.
+    await User.findByIdAndUpdate(userId, {
+      refreshToken: undefined,
+      tokenValidAfter: new Date(),
+    });
     return {
       success: true,
       message: "Logged out successfully",
@@ -575,8 +616,10 @@ export const sendPasswordChangeOtp = async (
     const otp = generateOTP();
     const otpExpiresAt = getOTPExpirationTime();
 
-    user.otp = otp;
-    user.otpExpiresAt = otpExpiresAt;
+    // Its own field, so a verification OTP can never be used to change a
+    // password and vice versa.
+    user.passwordChangeOtp = otp;
+    user.passwordChangeOtpExpiresAt = otpExpiresAt;
     await user.save();
 
     if (email || user.email) {
@@ -634,22 +677,22 @@ export const verifyPasswordChangeOtp = async (
       return { success: false, message: "User not found" };
     }
 
-    if (!user.otp || !user.otpExpiresAt) {
+    if (!user.passwordChangeOtp || !user.passwordChangeOtpExpiresAt) {
       return { success: false, message: "No OTP found. Please request a new OTP" };
     }
 
-    if (isOTPExpired(user.otpExpiresAt)) {
+    if (isOTPExpired(user.passwordChangeOtpExpiresAt)) {
       return { success: false, message: "OTP has expired. Please request a new OTP" };
     }
 
-    if (user.otp !== otp) {
+    if (user.passwordChangeOtp !== otp) {
       return { success: false, message: "Invalid OTP" };
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.otp = undefined;
-    user.otpExpiresAt = undefined;
+    user.passwordChangeOtp = undefined;
+    user.passwordChangeOtpExpiresAt = undefined;
     await user.save();
 
     return { success: true, message: "Password changed successfully" };
@@ -891,7 +934,13 @@ export const rejectInstructor = async (
  */
 export const getUserProfile = async (userId: string): Promise<AuthResponse> => {
   try {
-    const user = await User.findById(userId).select("-password -refreshToken");
+    // SECURITY: the live OTP used to be included in the response. The OTP is
+    // accepted by `reset-password` and `verify-password-change-otp`, so
+    // anyone with a session on a shared device could read it and take over
+    // the account.
+    const user = await User.findById(userId).select(
+      "-password -refreshToken -otp -otpExpiresAt -verificationToken"
+    );
 
     if (!user) {
       return {
@@ -1091,18 +1140,24 @@ export const listUsersAdmin = async (params: { page?: number; limit?: number; se
 };
 
 /** Admin: Create a user */
-export const createUserAdmin = async (input: { name: string; email?: string; phone?: string; password: string; role: "student" | "instructor" | "guardian" | "admin" | "manager"; }) => {
+export const createUserAdmin = async (input: { name: string; email?: string; phone?: string; password: string; role: UserRole | string; }) => {
   try {
     const { name, email, phone, password, role } = input;
     if (!email && !phone) {
       return { success: false, message: "Email or phone is required" };
+    }
+    if (!isValidUserRole(role)) {
+      return {
+        success: false,
+        message: `Invalid role "${role}". Must be one of: ${USER_ROLES.join(", ")}`,
+      };
     }
     const existing = await User.findOne({ $or: [ email ? { email } : undefined, phone ? { phone } : undefined ].filter(Boolean) as any });
     if (existing) {
       return { success: false, message: "User with provided email/phone already exists" };
     }
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, phone, password: hashed, role, isVerified: true });
+    const user = await User.create({ name, email, phone, password: hashed, role, isVerified: true, isApproved: role !== "instructor" });
     const safe = await User.findById(user._id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "User created", data: safe };
   } catch (error: any) {
@@ -1124,13 +1179,12 @@ export const getUserByIdAdmin = async (id: string) => {
 /** Admin: Update user */
 export const updateUserAdmin = async (id: string, updates: Partial<{ name: string; email: string; phone: string; password: string; role: string; isBlocked: boolean }>) => {
   try {
-    const toSet: any = {};
-    if (updates.name) toSet.name = updates.name;
-    if (updates.email) toSet.email = updates.email;
-    if (updates.phone) toSet.phone = updates.phone;
-    if (updates.password) toSet.password = await bcrypt.hash(updates.password, 10);
-    if (typeof updates.isBlocked === 'boolean') toSet.isBlocked = updates.isBlocked;
-    const user = await User.findByIdAndUpdate(id, { $set: toSet }, { new: true });
+    const built = await buildAdminUserUpdate(updates);
+    if (!built.ok) {
+      return { success: false, message: built.message || "Failed to update user" };
+    }
+
+    const user = await User.findByIdAndUpdate(id, { $set: built.toSet }, { new: true, runValidators: true });
     if (!user) return { success: false, message: "User not found" };
     const safe = await User.findById(id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "User updated", data: safe };
@@ -1150,9 +1204,19 @@ export const deleteUserAdmin = async (id: string) => {
 };
 
 /** Admin: Update user role */
-export const updateUserRoleAdmin = async (id: string, role: "student" | "instructor" | "guardian" | "admin") => {
+export const updateUserRoleAdmin = async (id: string, role: UserRole | string) => {
   try {
-    const user = await User.findByIdAndUpdate(id, { $set: { role } }, { new: true });
+    if (!isValidUserRole(role)) {
+      return {
+        success: false,
+        message: `Invalid role "${role}". Must be one of: ${USER_ROLES.join(", ")}`,
+      };
+    }
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: { role, isApproved: true } },
+      { new: true, runValidators: true }
+    );
     if (!user) return { success: false, message: "User not found" };
     const safe = await User.findById(id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "Role updated", data: safe };
@@ -1215,7 +1279,7 @@ export const getInstructorStudents = async (
       courseFilter._id = new Types.ObjectId(params.courseId);
     }
     const instructorCourses = await Course.find(courseFilter)
-      .select("_id title thumbnail price")
+      .select("_id title thumbnail price discountPrice")
       .lean();
     const instructorCourseIds = instructorCourses.map((c) => c._id);
 
@@ -1613,8 +1677,17 @@ export const getInstructorDashboardStats = async (instructorId: string) => {
 /**
  * Select role for new Google OAuth user and generate tokens
  */
+/**
+ * Complete the sign-up of a brand new Google user by picking their role.
+ *
+ * SECURITY: the target account is taken from the authenticated caller, never
+ * from a URL parameter. The previous implementation accepted any `userId` and
+ * any role from the request body with no authentication at all, so anyone
+ * could rewrite an administrator's role and receive a valid token for that
+ * account.
+ */
 export const selectRoleForGoogleUser = async (
-  userId: string,
+  authenticatedUserId: string,
   role: "student" | "instructor" | "guardian"
 ): Promise<{
   success: boolean;
@@ -1626,12 +1699,22 @@ export const selectRoleForGoogleUser = async (
   };
 }> => {
   try {
-    // Find user
-    const user = await User.findById(userId);
+    // Find the CALLER's own account
+    const user = await User.findById(authenticatedUserId);
     if (!user) {
       return {
         success: false,
         message: "User not found",
+      };
+    }
+
+    // Only an account that is still pending role selection may do this, so the
+    // endpoint cannot be used to re-role an established account later.
+    if (user.isNewGoogleUser !== true) {
+      return {
+        success: false,
+        message:
+          "Role selection is only available while completing a new Google sign-up.",
       };
     }
 
@@ -1640,8 +1723,11 @@ export const selectRoleForGoogleUser = async (
     user.isNewGoogleUser = false;
     await user.save();
 
-    // Generate tokens
-    const { accessToken, refreshToken } = generateTokens(userId, role);
+    // Generate tokens for the caller's own account
+    const { accessToken, refreshToken } = generateTokens(
+      user._id.toString(),
+      role
+    );
 
     // Save refresh token
     user.refreshToken = refreshToken;
@@ -1687,9 +1773,11 @@ export const forgotPassword = async (email: string): Promise<{ success: boolean;
     const otp = generateOTP();
     const otpExpiresAt = getOTPExpirationTime();
 
-    // Save OTP to user
-    user.otp = otp;
-    user.otpExpiresAt = otpExpiresAt;
+    // Save OTP to user. Its own field: a password-reset OTP must not be
+    // consumable by the email-verification endpoint (which also wiped it,
+    // breaking the reset).
+    user.resetOtp = otp;
+    user.resetOtpExpiresAt = otpExpiresAt;
     await user.save();
 
     // Send OTP via email
@@ -1713,7 +1801,7 @@ export const forgotPassword = async (email: string): Promise<{ success: boolean;
 export const verifyForgotPasswordOtp = async (
   email: string,
   otp: string
-): Promise<{ success: boolean; message: string }> => {
+): Promise<{ success: boolean; message: string; resetToken?: string }> => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -1723,23 +1811,36 @@ export const verifyForgotPasswordOtp = async (
       };
     }
 
-    if (!user.otp || user.otp !== otp) {
+    if (!user.resetOtp || user.resetOtp !== otp) {
       return {
         success: false,
         message: "Invalid OTP",
       };
     }
 
-    if (isOTPExpired(user.otpExpiresAt!)) {
+    if (isOTPExpired(user.resetOtpExpiresAt!)) {
       return {
         success: false,
         message: "OTP expired",
       };
     }
 
+    // SECURITY: the OTP used to stay valid for its whole window, so it could
+    // be replayed. It is now consumed here and replaced by a single-use
+    // grant, which `resetPassword` accepts. A client that resets without
+    // verifying first still works (the OTP is still there).
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetOtp = undefined;
+    user.resetOtpExpiresAt = undefined;
+    user.resetToken = resetToken;
+    user.resetTokenExpiresAt = getOTPExpirationTime();
+    await user.save();
+
     return {
       success: true,
       message: "OTP verified",
+      resetToken,
     };
   } catch (error: any) {
     return {
@@ -1755,7 +1856,8 @@ export const verifyForgotPasswordOtp = async (
 export const resetPassword = async (
   email: string,
   otp: string,
-  newPassword: string
+  newPassword: string,
+  resetToken?: string
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const user = await User.findOne({ email });
@@ -1766,28 +1868,35 @@ export const resetPassword = async (
       };
     }
 
-    // Verify OTP
-    if (!user.otp || user.otp !== otp) {
-      return {
-        success: false,
-        message: "Invalid OTP",
-      };
-    }
+    // Either the single-use grant issued by `verifyForgotPasswordOtp`, or
+    // the raw OTP (for a client that resets without verifying first).
+    const grantValid =
+      !!resetToken &&
+      !!user.resetToken &&
+      user.resetToken === resetToken &&
+      !isOTPExpired(user.resetTokenExpiresAt);
 
-    if (isOTPExpired(user.otpExpiresAt!)) {
+    const otpValid =
+      !!user.resetOtp &&
+      user.resetOtp === otp &&
+      !isOTPExpired(user.resetOtpExpiresAt!);
+
+    if (!grantValid && !otpValid) {
       return {
         success: false,
-        message: "OTP expired",
+        message: "Invalid or expired OTP",
       };
     }
 
     // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update password and clear OTP
+    // Update password and clear the OTP (and the grant, so it is single use)
     user.password = hashedPassword;
-    user.otp = undefined;
-    user.otpExpiresAt = undefined;
+    user.resetOtp = undefined;
+    user.resetOtpExpiresAt = undefined;
+    user.resetToken = undefined;
+    user.resetTokenExpiresAt = undefined;
     await user.save();
 
     // Send confirmation email

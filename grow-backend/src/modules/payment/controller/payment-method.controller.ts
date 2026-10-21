@@ -1,3 +1,4 @@
+import { escapeRegex } from "@/utils/sanitizeSearch";
 import { Request, Response } from "express";
 import { PaymentMethod } from "../model/payment-method.model";
 
@@ -17,9 +18,11 @@ export const getAllPaymentMethods = async (req: Request, res: Response) => {
 
     // Search filter
     if (search) {
+      // SECURITY: the raw search string was used as a $regex (ReDoS risk).
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { accountNumber: { $regex: search, $options: "i" } },
+        { name: { $regex: safeSearch, $options: "i" } },
+        { accountNumber: { $regex: safeSearch, $options: "i" } },
       ];
     }
 

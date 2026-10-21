@@ -38,8 +38,8 @@ export default function AccessStatusDisplay({
   const isValid = hasValidAccess(access);
   const remaining = getRemainingDays(access.accessEndDate);
   const expiringIn7Days = isExpiringSoon(access.accessEndDate);
-  const statusColor = getAccessStatusColor(access);
-  const statusText = getAccessStatus(access);
+  const statusColor = getAccessStatusColor(access.accessEndDate);
+  const statusText = getAccessStatus(access.accessEndDate).formattedAccess;
 
   // Calculate progress
   let progress = 0;
@@ -89,7 +89,7 @@ export default function AccessStatusDisplay({
               </div>
               <Progress
                 value={progress}
-                color={statusColor as any}
+                color={statusColor}
                 className="h-2"
               />
             </div>

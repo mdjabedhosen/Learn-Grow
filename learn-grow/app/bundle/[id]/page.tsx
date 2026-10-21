@@ -2,7 +2,7 @@ import React from "react";
 import ComboDetails from "@/components/combo/ComboDetails";
 
 interface BundleDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export const metadata = {

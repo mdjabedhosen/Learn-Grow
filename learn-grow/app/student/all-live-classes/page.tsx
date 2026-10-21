@@ -104,7 +104,7 @@ export default function AllLiveClassesPage() {
             .forEach(order => {
                 const combo = typeof order.comboId === "object" ? order.comboId : null;
                 if (combo && combo.courses && Array.isArray(combo.courses)) {
-                    combo.courses.forEach((course: any) => {
+                    combo.courses.forEach((course: { _id: string; title: string } | string) => {
                         const courseId = typeof course === "object" ? course._id : course;
                         if (courseId) comboCourseIds.push(courseId.toString());
                     });

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import axios from "axios";
 import { Input, Button, Card, CardBody, CardHeader, Link, Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -43,7 +44,7 @@ export default function ForgotPasswordPage() {
         setStep("otp");
       } else {
         setError(response.data.message || "Failed to send OTP");
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to send OTP");
       }
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to send OTP";
@@ -75,7 +76,7 @@ export default function ForgotPasswordPage() {
         setStep("password");
       } else {
         setError(response.data.message || "Invalid OTP");
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Invalid OTP");
       }
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to verify OTP";
@@ -113,7 +114,7 @@ export default function ForgotPasswordPage() {
         router.push("/login");
       } else {
         setError(response.data.message || "Failed to reset password");
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to reset password");
       }
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to reset password";

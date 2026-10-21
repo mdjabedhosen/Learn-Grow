@@ -38,11 +38,15 @@ import {
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useGetCommissionQuery } from "@/redux/api/settingsApi";
 import { trackPurchaseEvent } from "@/utils/tracking";
+import { getCoursePricing } from "@/utils/pricing";
 
 interface CourseData {
   _id: string;
   title: string;
+  /** The ORIGINAL / list price of the course. */
   price: number;
+  /** The price AFTER the discount. Undefined / 0 means "no discount". */
+  discountPrice?: number | null;
   thumbnail?: string;
   category?: { name: string };
   level?: string;
@@ -233,6 +237,17 @@ export default function CheckoutPage() {
   const [existingComboOrder, setExistingComboOrder] = useState<any>(null);
   const [language, setLanguage] = useState<"bn" | "en">("bn");
 
+  // Coupon state - the coupon discount applies on top of the (already
+  // discounted) course price and is validated on the server.
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountAmount: number;
+    description?: string;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = (localStorage.getItem("language") || localStorage.getItem("preferredLanguage")) as "bn" | "en";
@@ -247,22 +262,83 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  // Pricing based on plan type
+  // Pricing based on plan type.
+  // For a single course the price comes from the backend record: `price` is
+  // the original price and `discountPrice` (when set) is the price after the
+  // discount. The percentage is derived, never hardcoded.
+  const coursePricing = React.useMemo(
+    () => getCoursePricing(courseData),
+    [courseData]
+  );
+
   const planPrice = React.useMemo(() => {
     switch (planType) {
       case "single":
-        return courseData?.price || 3500;
+        return coursePricing.effectivePrice;
       case "quarterly":
         return 9999;
       case "kit":
         return resolvedKitPrice;
       case "combo":
-        return courseData?.price || 0;
+        return courseData?.discountPrice ?? courseData?.price ?? 0;
       case "school":
       default:
         return 0;
     }
-  }, [planType, courseData?.price, resolvedKitPrice]);
+  }, [planType, coursePricing.effectivePrice, courseData, resolvedKitPrice]);
+
+  // Coupon discount applies on top of the discounted course price.
+  const couponDiscount = appliedCoupon?.discountAmount ?? 0;
+  const finalPrice = Math.max(0, planPrice - couponDiscount);
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Enter a coupon code");
+      return;
+    }
+
+    setApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const response = await axios.post(
+        `${API_CONFIG.BASE_URL}/coupon/validate`,
+        {
+          code,
+          orderAmount: planPrice,
+          courseId: planType === "single" ? courseData?._id : undefined,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data?.success && response.data?.data) {
+        setAppliedCoupon(response.data.data);
+        setCouponError("");
+        toast.success(
+          language === "bn" ? "কুপন প্রয়োগ হয়েছে!" : "Coupon applied!"
+        );
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(response.data?.message || "Invalid coupon code");
+      }
+    } catch (error: any) {
+      setAppliedCoupon(null);
+      setCouponError(
+        error?.response?.data?.message || "Could not apply the coupon"
+      );
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
 
   const getAuthToken = () => {
     const cookieToken = Cookies.get("accessToken");
@@ -464,7 +540,7 @@ export default function CheckoutPage() {
         paymentMethodId: selectedPaymentMethod,
         transactionId: transactionId.trim(),
         senderNumber: senderNumber.trim(),
-        price: planType === "combo" ? (courseData?.price || 0) : planPrice,
+        price: finalPrice,
       };
 
       // Add courseId only for single course plan
@@ -475,6 +551,12 @@ export default function CheckoutPage() {
       // Add comboId for combo plan
       if (planType === "combo") {
         orderPayload.comboId = effectiveComboId;
+      }
+
+      // Add the coupon code. The backend re-validates it and re-derives the
+      // discount itself - the client never decides the discount amount.
+      if (appliedCoupon?.code) {
+        orderPayload.couponCode = appliedCoupon.code;
       }
 
       // Add delivery address for kit and quarterly plans
@@ -893,26 +975,112 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-slate-900">৳{(courseData?.price || planPrice).toLocaleString()}</p>
+                      <p className="font-bold text-slate-900">৳{finalPrice.toLocaleString()}</p>
                       <p className="text-xs text-slate-600 mt-1">{language === "bn" ? "পরিমাণ: ১" : "Qty: 1"}</p>
                     </div>
+                  </div>
+
+                  {/* Coupon Code */}
+                  <div className="mt-6">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      {language === "bn" ? "কুপন কোড" : "Coupon Code"}
+                    </label>
+                    {appliedCoupon ? (
+                      <div className="flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-green-800 truncate">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-xs text-green-700">
+                            {language === "bn"
+                              ? `৳${appliedCoupon.discountAmount.toLocaleString()} ছাড় প্রয়োগ হয়েছে`
+                              : `You saved ৳${appliedCoupon.discountAmount.toLocaleString()}`}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-xs font-bold text-green-700 hover:text-green-900 underline shrink-0"
+                        >
+                          {language === "bn" ? "সরান" : "Remove"}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value);
+                            if (couponError) setCouponError("");
+                          }}
+                          placeholder={language === "bn" ? "কুপন কোড লিখুন" : "Enter coupon code"}
+                          className={`flex-1 rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 ${
+                            couponError
+                              ? "border-red-300 focus:ring-red-400"
+                              : "border-slate-300 focus:border-blue-400"
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={applyingCoupon}
+                          className="shrink-0 rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 disabled:opacity-50"
+                        >
+                          {applyingCoupon
+                            ? language === "bn"
+                              ? "প্রয়োগ হচ্ছে..."
+                              : "Applying..."
+                            : language === "bn"
+                              ? "প্রয়োগ করুন"
+                              : "Apply"}
+                        </button>
+                      </div>
+                    )}
+                    {couponError && (
+                      <p className="mt-2 text-xs font-semibold text-red-600">{couponError}</p>
+                    )}
                   </div>
 
                   {/* Pricing Breakdown */}
                   <div className="space-y-3 text-sm mt-6">
                     <div className="flex justify-between text-slate-600">
                       <span>{language === "bn" ? "সাবটোটাল" : "Subtotal"}</span>
-                      <span>৳{(courseData?.price || planPrice).toLocaleString()}</span>
+                      <span>৳{planPrice.toLocaleString()}</span>
                     </div>
+                    {coursePricing.hasDiscount ? (
+                      <div className="flex justify-between text-slate-600">
+                        <span>
+                          {language === "bn"
+                            ? `কোর্স ছাড় (${coursePricing.discountPercent}%)`
+                            : `Course discount (${coursePricing.discountPercent}%)`}
+                        </span>
+                        <span className="text-green-600">
+                          -৳{(coursePricing.originalPrice - planPrice).toLocaleString()}
+                        </span>
+                      </div>
+                    ) : null}
+                    {appliedCoupon ? (
+                      <div className="flex justify-between text-slate-600">
+                        <span>
+                          {language === "bn"
+                            ? `কুপন ছাড় (${appliedCoupon.code})`
+                            : `Coupon (${appliedCoupon.code})`}
+                        </span>
+                        <span className="text-green-600">
+                          -৳{appliedCoupon.discountAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="flex justify-between text-slate-600">
                       <span>{language === "bn" ? "ভ্যাট / ট্যাক্স (০%)" : "Tax (0%)"}</span>
                       <span>৳0</span>
                     </div>
-                    
+
                     <div className="border-t border-slate-200 pt-3 mt-3">
                       <div className="flex justify-between font-bold text-lg text-slate-900">
                         <span>{language === "bn" ? "মোট টাকা" : "Total Amount"}</span>
-                        <span className="text-blue-600">৳{(courseData?.price || planPrice).toLocaleString()}</span>
+                        <span className="text-blue-600">৳{finalPrice.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>

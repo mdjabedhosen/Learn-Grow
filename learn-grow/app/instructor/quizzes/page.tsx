@@ -77,7 +77,7 @@ export default function InstructorQuizzesPage() {
   }, []);
 
   const { data: coursesResp } = useGetInstructorCoursesQuery(
-    instructorId ? { instructorId, page: 1, limit: 100 } : null,
+    { instructorId: instructorId ?? "", page: 1, limit: 100 },
     {
       skip: !instructorId,
     }

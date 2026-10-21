@@ -279,8 +279,7 @@ export default function EditBlogPage() {
                   onValueChange={(value) =>
                     handleInputChange("slug", value)
                   }
-                  description="Unique URL-friendly identifier. Auto-generated from title but can be manually edited."
-                  helperText="Use only lowercase letters, numbers, and hyphens"
+                  description="Unique URL-friendly identifier. Auto-generated from title but can be manually edited. Use only lowercase letters, numbers, and hyphens."
                 />
               </div>
 

@@ -12,8 +12,15 @@ router.post("/send-otp", otpRateLimiter, validate(schema.sendOtpSchema), control
 router.post("/verify-otp", otpRateLimiter, validate(schema.verifyOtpSchema), controller.verifyOtp);
 router.post("/register", authRateLimiter, validate(schema.registerSchema), controller.register);
 router.post("/login", authRateLimiter, validate(schema.loginSchema), controller.login);
-router.post("/refresh-token", validate(schema.refreshTokenSchema), controller.refreshToken);
-router.post("/select-role/:userId", controller.selectRoleForGoogleUser); // For new Google OAuth users
+// SECURITY: the refresh endpoint had no rate limiter, so the 30-day refresh
+// token could be brute-forced without any throttling.
+router.post("/refresh-token", authRateLimiter, validate(schema.refreshTokenSchema), controller.refreshToken);
+// SECURITY: was unauthenticated and took the target account from the URL,
+// which allowed anyone to rewrite any account's role (account takeover).
+// The account is now the authenticated caller, and the service additionally
+// requires the account to still be pending role selection.
+router.post("/select-role", requireAuth, controller.selectRoleForGoogleUser); // For new Google OAuth users
+router.post("/select-role/:userId", requireAuth, controller.selectRoleForGoogleUser); // Backwards-compatible alias (the :userId is ignored)
 router.post("/forgot-password", otpRateLimiter, validate(schema.forgotPasswordSchema), controller.forgotPassword); // Request password reset
 router.post("/verify-forgot-password-otp", otpRateLimiter, validate(schema.verifyForgotPasswordOtpSchema), controller.verifyForgotPasswordOtp); // Verify OTP for password reset
 router.post("/reset-password", authRateLimiter, validate(schema.resetPasswordSchema), controller.resetPassword); // Reset password with OTP

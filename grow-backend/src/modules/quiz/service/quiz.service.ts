@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Quiz, IQuiz } from "../model/quiz.model";
 import { Assessment } from "@/modules/assessment/model/assessment.model";
 import { User } from "@/modules/user/model/user.model";
+import { sanitizeQuizForStudent } from "./sanitizeQuiz";
 
 interface CreateQuizInput {
   courseId: string;
@@ -95,10 +96,19 @@ export const getQuizzes = async (
 
     const quizzes = await Quiz.find(query).sort({ createdAt: -1 });
 
+    // Students get the quiz list without the answer key. Instructors/admins
+    // (who are scoped to their own quizzes) keep the full document.
+    const isPrivileged =
+      !!user && (user.role === "instructor" || user.role === "admin" || user.role === "manager");
+
+    const data = isPrivileged
+      ? quizzes
+      : quizzes.map((quiz) => sanitizeQuizForStudent(quiz.toObject()));
+
     return {
       success: true,
       message: "Quizzes retrieved",
-      data: quizzes,
+      data,
     };
   } catch (error: any) {
     return {
@@ -108,7 +118,7 @@ export const getQuizzes = async (
   }
 };
 
-export const getQuizById = async (quizId: string) => {
+export const getQuizById = async (quizId: string, requesterId?: string) => {
   try {
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
@@ -118,10 +128,27 @@ export const getQuizById = async (quizId: string) => {
       };
     }
 
+    // Do not leak the answer key to students. The owner of the quiz, and
+    // admins, keep the full document; everyone else gets it sanitized.
+    let data: any = quiz;
+    if (requesterId) {
+      const requester = await User.findById(requesterId).select("role").lean();
+      const isPrivileged =
+        requester?.role === "admin" ||
+        requester?.role === "manager" ||
+        String(quiz.createdBy) === String(requesterId);
+
+      if (!isPrivileged) {
+        data = sanitizeQuizForStudent(quiz.toObject());
+      }
+    } else {
+      data = sanitizeQuizForStudent(quiz.toObject());
+    }
+
     return {
       success: true,
       message: "Quiz retrieved",
-      data: quiz,
+      data,
     };
   } catch (error: any) {
     return {

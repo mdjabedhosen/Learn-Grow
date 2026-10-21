@@ -29,8 +29,11 @@ interface Question {
     id: string;
     questionText: string;
     questionImage?: string;
-    questionType: "multiple-choice";
-    options: { text: string; image?: string; isCorrect: boolean }[];
+    // Mirrors the backend quiz schema: a question is one of three types and
+    // only non-multiple-choice questions carry a free-text `correctAnswer`.
+    questionType: "multiple-choice" | "short-answer" | "true-false";
+    options?: { text: string; image?: string; isCorrect: boolean }[];
+    correctAnswer?: string;
     points: number;
 }
 
@@ -79,7 +82,7 @@ function CreateQuizContent() {
     const [createQuiz] = useCreateQuizMutation();
 
     const { data: coursesResp } = useGetInstructorCoursesQuery(
-        instructorId ? { instructorId, page: 1, limit: 100 } : null,
+        { instructorId: instructorId ?? "", page: 1, limit: 100 },
         {
             skip: !instructorId,
         }

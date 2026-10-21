@@ -179,7 +179,10 @@ router.patch("/:id/extend-days", requireAuth, requireRoles("admin", "manager"), 
   }
 });
 
-router.post("/send-email", sendOrderEmail);
+// SECURITY: was unauthenticated, which turned the org's SMTP account into an
+// open mail relay. Admin-only now, and the controller additionally pins the
+// recipient to the order's own user.
+router.post("/send-email", requireAuth, requireRoles("admin", "manager"), sendOrderEmail);
 
 // ===== ADMIN: Access Duration Management =====
 router.post(

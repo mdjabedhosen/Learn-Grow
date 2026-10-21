@@ -5,7 +5,41 @@ on:
     branches: [ main ]
 
 jobs:
+  # ===== QUALITY GATE =====
+  # The deploy used to build on the server and ship whatever compiled, so
+  # type errors, failing tests and broken pages all reached production.
+  # Nothing deploys until the checks pass.
+  verify:
+    name: Verify (typecheck, test, build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Backend typecheck
+        working-directory: grow-backend
+        run: |
+          npm install --legacy-peer-deps
+          npx tsc --noEmit
+
+      - name: Backend tests
+        working-directory: grow-backend
+        run: npm test
+
+      - name: Frontend typecheck
+        working-directory: learn-grow
+        run: |
+          npm install --legacy-peer-deps
+          npx tsc --noEmit
+
   deploy:
+    needs: verify
     runs-on: ubuntu-latest
 
     steps:
@@ -34,12 +68,53 @@ jobs:
 
             cd /root/learn-grow-fullstack
 
+            # ======== ENVIRONMENT FILES =====
+            # The .env files are git-ignored (they hold live credentials), so
+            # `git clean -fd` below would DELETE them and the backend would
+            # fail to start. Back them up to a location outside the repo
+            # first, and restore them after the pull.
+            ENV_BACKUP_DIR="/root/.learn-grow/env"
+            mkdir -p "$ENV_BACKUP_DIR"
+
+            echo "🔐 Preserving environment files..."
+            for env_file in .env grow-backend/.env learn-grow/.env learn-grow/.env.production; do
+              if [ -f "$env_file" ]; then
+                mkdir -p "$ENV_BACKUP_DIR/$(dirname "$env_file")"
+                cp -p "$env_file" "$ENV_BACKUP_DIR/$env_file"
+                echo "   backed up: $env_file"
+              fi
+            done
+
             echo "🧹 Cleaning repo"
             git reset --hard
             git clean -fd
 
             echo "🔄 Pulling latest code"
             git pull origin main
+
+            echo "🔐 Restoring environment files..."
+            if [ -d "$ENV_BACKUP_DIR" ]; then
+              while IFS= read -r -d '' backed_up; do
+                relative="${backed_up#$ENV_BACKUP_DIR/}"
+                mkdir -p "/root/learn-grow-fullstack/$(dirname "$relative")"
+                cp -p "$backed_up" "/root/learn-grow-fullstack/$relative"
+                echo "   restored: $relative"
+              done < <(find "$ENV_BACKUP_DIR" -type f -name ".env*" -print0)
+            fi
+
+            # The backend refuses to start without a real JWT_SECRET, so a
+            # missing env file must fail the deploy loudly instead of silently
+            # leaving a broken API behind.
+            if [ ! -f "/root/learn-grow-fullstack/grow-backend/.env" ]; then
+              echo "❌ grow-backend/.env is missing - the backend will not start."
+              echo "   Restore it to /root/.learn-grow/env/grow-backend/.env and re-run the deploy."
+              exit 1
+            fi
+            if [ ! -f "/root/learn-grow-fullstack/learn-grow/.env.production" ]; then
+              echo "❌ learn-grow/.env.production is missing - the frontend would be built with the wrong API URL."
+              echo "   Restore it to /root/.learn-grow/env/learn-grow/.env.production and re-run the deploy."
+              exit 1
+            fi
 
             # ======== NGINX SETUP ========
             echo "🌐 Setting up optimized Nginx..."

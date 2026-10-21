@@ -1,5 +1,19 @@
 import { Assessment, IAssessment } from "../model/assessment.model";
 import { Course } from "@/modules/course/model/course.model";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable assessment fields. `courseId` and `createdBy` are ownership ids
+ * fixed at creation time and `submissionsCount` is a system counter.
+ */
+const ASSESSMENT_UPDATABLE_FIELDS = [
+  "type",
+  "title",
+  "description",
+  "questions",
+  "dueDate",
+  "status",
+] as const;
 
 export const createAssessment = async (data: Partial<IAssessment>, userId: string) => {
   const course = await Course.findById(data.courseId);
@@ -24,7 +38,8 @@ export const updateAssessment = async (id: string, data: Partial<IAssessment>, u
   const item = await Assessment.findById(id);
   if (!item) throw new Error("Not found");
   if (role !== "admin" && item.createdBy.toString() !== userId) throw new Error("Unauthorized");
-  return Assessment.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  const safeData = pickDefined(data, ASSESSMENT_UPDATABLE_FIELDS);
+  return Assessment.findByIdAndUpdate(id, safeData, { new: true, runValidators: true });
 };
 
 export const deleteAssessment = async (id: string, userId: string, role: string) => {

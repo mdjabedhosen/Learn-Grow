@@ -498,8 +498,18 @@ export const getInstructorDashboardStats = async (req: Request, res: Response) =
  */
 export const selectRoleForGoogleUser = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    // SECURITY: the target account is the authenticated caller. The route
+    // parameter is ignored on purpose - accepting it allowed anyone to
+    // rewrite another account's role and take it over.
+    const userId = req.userId;
     const { role } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
+    }
 
     if (!role || !["student", "instructor", "guardian"].includes(role)) {
       return res.status(400).json({
@@ -570,8 +580,11 @@ export const verifyForgotPasswordOtp = async (req: Request, res: Response) => {
  */
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { email, otp, newPassword } = req.body;
-    const result = await service.resetPassword(email, otp, newPassword);
+    // `resetToken` is the single-use grant issued by
+    // `verifyForgotPasswordOtp`; `otp` still works for a client that resets
+    // without verifying first.
+    const { email, otp, newPassword, resetToken } = req.body;
+    const result = await service.resetPassword(email, otp, newPassword, resetToken);
 
     if (result.success) {
       return res.status(200).json(result);

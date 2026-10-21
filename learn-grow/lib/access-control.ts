@@ -94,8 +94,12 @@ export const formatDate = (dateString: string | Date | undefined | null): string
 
 /**
  * Get color for access status badge
+ *
+ * The returned union matches the NextUI `Badge` / `Progress` colour props.
  */
-export const getAccessStatusColor = (accessEndDate: string | null | undefined): string => {
+export const getAccessStatusColor = (
+  accessEndDate: string | null | undefined
+): "success" | "danger" | "warning" | "primary" => {
   const status = getAccessStatus(accessEndDate);
 
   if (status.isLifetime) return "success";

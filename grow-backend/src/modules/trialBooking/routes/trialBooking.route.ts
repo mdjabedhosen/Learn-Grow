@@ -1,3 +1,4 @@
+import { publicFormRateLimiter } from "@/middleware/security.middleware";
 import express from "express";
 import { requireAuth, requireRoles } from "../../../middleware/auth.js";
 import {
@@ -10,7 +11,7 @@ import {
 const router = express.Router();
 
 // Public: Submit a free trial booking
-router.post("/", createTrialBooking);
+router.post("/", publicFormRateLimiter, createTrialBooking);
 
 // Admin / Manager / Instructor: List bookings (instructors filtered to their assigned sessions)
 router.get("/", requireAuth, requireRoles("admin", "manager", "instructor"), getTrialBookings);

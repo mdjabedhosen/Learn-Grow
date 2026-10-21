@@ -5,9 +5,45 @@ import * as thumbnailController from "../controller/thumbnail.controller";
 import * as schema from "../schema/course.schema";
 import { validate } from "@/middleware/validate";
 import { requireAuth, requireRoles, requireApprovedInstructor, optionalAuth } from "@/middleware/auth";
+import { checkCourseAccess, checkContentAccess } from "@/middleware/course-access";
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 1 * 1024 * 1024 } });
+/**
+ * Only image uploads are accepted.
+ *
+ * SECURITY: multer had no `fileFilter`, so any file type could be uploaded
+ * and then hosted on the organisation's Cloudinary account.
+ */
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+
+const imageFileFilter = (
+  _req: any,
+  file: { mimetype: string; originalname?: string },
+  cb: (error: Error | null, acceptFile?: boolean) => void
+) => {
+  if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
+    return cb(null, true);
+  }
+
+  return cb(
+    new Error(
+      `Unsupported file type "${file.mimetype}". Only images (JPEG, PNG, WebP, GIF, AVIF) are allowed.`
+    )
+  );
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1 * 1024 * 1024 },
+  fileFilter: imageFileFilter,
+});
 
 // ===== COURSE ROUTES =====
 
@@ -117,13 +153,20 @@ router.post(
   controller.createLesson
 );
 
+// SECURITY: these returned lesson content URLs (video/PDF links) to
+// anonymous callers. They are now behind an authentication + course-access
+// check. Free-preview lessons stay reachable.
 router.get(
   "/get-lessons/:moduleId",
+  requireAuth,
+  checkContentAccess,
   controller.getLessonsByModule
 );
 
 router.get(
   "/get-lesson/:id",
+  requireAuth,
+  checkContentAccess,
   validate(schema.lessonIdSchema),
   controller.getLessonById
 );

@@ -24,8 +24,11 @@ function PaymentConfirmContent() {
         const amount = searchParams.get("amount");
         const method = searchParams.get("method");
 
-        // Simulate payment verification
-        setTimeout(() => {
+        // Simulate payment verification.
+        // The timer is cleaned up on unmount: without the cleanup this effect
+        // set state after the component was gone, and changing `searchParams`
+        // stacked another timer on top of the running one.
+        const timer = setTimeout(() => {
             const isSuccess = searchParams.get("status") !== "failed";
 
             if (isSuccess && paymentId && courseId) {
@@ -53,6 +56,8 @@ function PaymentConfirmContent() {
                 setStatus("failed");
             }
         }, 2000);
+
+        return () => clearTimeout(timer);
     }, [searchParams, dispatch]);
 
     if (status === "loading") {

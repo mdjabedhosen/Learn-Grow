@@ -23,6 +23,8 @@ import { openTrialModal } from "@/components/TrialBookingModal";
 import { findCourseDetail, getCourseSlug } from "@/lib/coursesData";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { trackViewContentEvent } from "@/utils/tracking";
+import { formatLocalizedPrice, formatLocalizedNumber, toBengaliDigits } from "@/utils/bengaliNumerals";
+import { getCoursePricing } from "@/utils/pricing";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import {
@@ -522,9 +524,14 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
 
     const instructor = instructorsList[0];
 
-    // Pricing calculation
-    const currentPrice = course?.price || (isPython ? 2999 : 3499);
-    const regularPrice = Math.round(currentPrice * 1.6); // 37-40% discount display
+    // Pricing calculation - read from the backend record.
+    // `price` is the ORIGINAL price, `discountPrice` (when set) is the price
+    // after the discount. The percentage is derived, never hardcoded.
+    const pricing = getCoursePricing(course);
+    const currentPrice = pricing.effectivePrice;
+    const regularPrice = pricing.originalPrice;
+    const discountPercent = pricing.discountPercent;
+    const hasDiscount = pricing.hasDiscount;
 
     if (isLoading) {
         return (
@@ -1107,21 +1114,83 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             </div>
 
                             {/* Price Block */}
-                            <div className="text-center pt-1 pb-2">
+                            <div className="text-center pt-1 pb-1">
                                 <div className="flex items-center justify-center gap-2 mb-1">
-                                    <span className="text-sm text-gray-400 line-through font-semibold">
-                                        ৳{regularPrice.toLocaleString()}
-                                    </span>
-                                    <span className="px-2 py-0.5 bg-[#FFF8E1] text-[#92620A] text-xs font-black rounded-full border border-[#FFE082]">
-                                        {language === "en" ? "SAVE 40%" : "৪০% ছাড়"}
-                                    </span>
-                                </div>
+                                    {hasDiscount ? (
+                                        <>
+                                            <span className="text-sm text-gray-400 line-through font-semibold">
+                                                {formatLocalizedPrice(regularPrice, language)}
+                                            </span>
+                                            <span className="px-2.5 py-0.5 bg-[#FFF8E1] text-[#92620A] text-xs font-black rounded-full border border-[#FFE082]">
+                                                {language === "en"
+                                                    ? `SAVE ${discountPercent}%`
+                                                    : `${toBengaliDigits(String(discountPercent))}% ছাড়`}
+                                            </span>
+                                        </>
+                                    ) : null}
+                                    </div>
                                 <div className="text-3xl sm:text-4xl font-black text-[#2C2C2C] tracking-tight">
-                                    ৳ {currentPrice.toLocaleString()}
+                                    {formatLocalizedPrice(currentPrice, language)}
                                 </div>
                                 <p className="text-[11px] text-gray-400 mt-1">
                                     {language === "en" ? "Full Course Tuition • No Hidden Fees" : "সম্পূর্ণ কোর্সের ফি • কোনো অতিরিক্ত ফি নেই"}
                                 </p>
+                            </div>
+
+                            {/* Action Buttons (Placed Directly Above the Fold) */}
+                            <div className="space-y-2.5 pt-1">
+                                {isAwaitingApproval ? (
+                                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-center">
+                                        <p className="text-amber-800 text-xs font-bold">
+                                            {language === "en"
+                                                ? "Your order is pending admin verification."
+                                                : "আপনার এনরোলমেন্ট অনুমোদনের অপেক্ষায় রয়েছে।"}
+                                        </p>
+                                    </div>
+                                ) : hasAccess ? (
+                                    <Button
+                                        color="success"
+                                        size="lg"
+                                        radius="full"
+                                        className="w-full font-black text-white shadow-lg shadow-emerald-500/25 py-6 text-base"
+                                        onPress={() => router.push(`/student/course/${actualCourseId}/dashboard`)}
+                                        startContent={<GraduationCap className="w-5 h-5" />}
+                                    >
+                                        {language === "en" ? "Start Learning Now" : "ক্লাস শুরু করুন"}
+                                    </Button>
+                                ) : isFree ? (
+                                    <Button
+                                        color="success"
+                                        size="lg"
+                                        radius="full"
+                                        className="w-full font-black text-white shadow-lg py-6 text-base"
+                                        onPress={handleEnrollClick}
+                                        startContent={<GraduationCap className="w-5 h-5" />}
+                                    >
+                                        {language === "en" ? "Enroll for Free" : "ফ্রিতে এনরোল করুন"}
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button
+                                            className="w-full font-black text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-xl shadow-blue-500/30 py-6 text-base rounded-2xl transition-all hover:scale-[1.02]"
+                                            onPress={handleEnrollClick}
+                                            isDisabled={!isEnrollmentOpen(course)}
+                                        >
+                                            {isEnrollmentOpen(course) 
+                                                ? `${language === "en" ? "Enroll Now — " : "এনরোল করুন — "}${formatLocalizedPrice(currentPrice, language)}`
+                                                : (language === "en" ? "Enrollment Closed" : "ভর্তি বন্ধ রয়েছে")}
+                                        </Button>
+
+                                        {/* Book Free Trial Button */}
+                                        <Button
+                                            variant="bordered"
+                                            className="w-full font-extrabold text-[#3B82F6] border-2 border-[#3B82F6] hover:bg-blue-50 py-5 text-sm rounded-2xl transition-all"
+                                            onPress={() => openTrialModal({ program: displayTitle, source: "course_sidebar" })}
+                                        >
+                                            {language === "en" ? "Book Free Trial Class" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}
+                                        </Button>
+                                    </>
+                                )}
                             </div>
 
                             <Divider className="my-1" />
@@ -1136,7 +1205,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                     </span>
                                     {instructorsList.length > 1 && (
                                         <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-full border border-blue-200">
-                                            {instructorsList.length} {language === "en" ? "Mentors" : "জন শিক্ষক"}
+                                            {formatLocalizedNumber(instructorsList.length, language)} {language === "en" ? "Mentors" : "জন শিক্ষক"}
                                         </span>
                                     )}
                                 </div>
@@ -1168,7 +1237,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                                                         </span>
                                                     )}
                                                 </div>
-                                                <p className="text-[11px] text-[#3B82F6] font-medium truncate">{inst.institution || inst.role}</p>
+                                                <p className="text-[11px] text-[#3B82F6] font-medium leading-tight mt-0.5 break-words" title={inst.institution || inst.role}>{inst.institution || inst.role}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -1215,61 +1284,7 @@ export default function CourseDetails({ courseId }: CourseDetailsProps) {
                             {/* Urgency Countdown info */}
                             <RegistrationInfo course={course} language={language} />
 
-                            {/* Action Buttons */}
-                            <div className="space-y-2.5 pt-2">
-                                {isAwaitingApproval ? (
-                                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-center">
-                                        <p className="text-amber-800 text-xs font-bold">
-                                            {language === "en"
-                                                ? "Your order is pending admin verification."
-                                                : "আপনার এনরোলমেন্ট অনুমোদনের অপেক্ষায় রয়েছে।"}
-                                        </p>
-                                    </div>
-                                ) : hasAccess ? (
-                                    <Button
-                                        color="success"
-                                        size="lg"
-                                        radius="full"
-                                        className="w-full font-black text-white shadow-lg shadow-emerald-500/25 py-6 text-base"
-                                        onPress={() => router.push(`/student/course/${actualCourseId}/dashboard`)}
-                                        startContent={<GraduationCap className="w-5 h-5" />}
-                                    >
-                                        {language === "en" ? "Start Learning Now" : "ক্লাস শুরু করুন"}
-                                    </Button>
-                                ) : isFree ? (
-                                    <Button
-                                        color="success"
-                                        size="lg"
-                                        radius="full"
-                                        className="w-full font-black text-white shadow-lg py-6 text-base"
-                                        onPress={handleEnrollClick}
-                                        startContent={<GraduationCap className="w-5 h-5" />}
-                                    >
-                                        {language === "en" ? "Enroll for Free" : "ফ্রিতে এনরোল করুন"}
-                                    </Button>
-                                ) : (
-                                    <>
-                                        <Button
-                                            className="w-full font-black text-white bg-[#3B82F6] hover:bg-[#2563EB] shadow-xl shadow-blue-500/30 py-6 text-base rounded-2xl transition-all hover:scale-[1.02]"
-                                            onPress={handleEnrollClick}
-                                            isDisabled={!isEnrollmentOpen(course)}
-                                        >
-                                            {isEnrollmentOpen(course) 
-                                                ? `${language === "en" ? "Enroll Now — ৳" : "এনরোল করুন — ৳"}${currentPrice.toLocaleString()}`
-                                                : (language === "en" ? "Enrollment Closed" : "ভর্তি বন্ধ রয়েছে")}
-                                        </Button>
 
-                                        {/* Book Free Trial Button */}
-                                        <Button
-                                            variant="bordered"
-                                            className="w-full font-extrabold text-[#3B82F6] border-2 border-[#3B82F6] hover:bg-blue-50 py-5 text-sm rounded-2xl transition-all"
-                                            onPress={() => openTrialModal({ program: displayTitle, source: "course_sidebar" })}
-                                        >
-                                            {language === "en" ? "Book Free Trial Class" : "ফ্রি ট্রায়াল ক্লাস বুক করুন"}
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
 
                             <Divider className="my-1" />
 

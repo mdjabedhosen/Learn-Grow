@@ -29,7 +29,7 @@ import {
   FaCheckDouble,
 } from "react-icons/fa";
 import { useGetInstructorStudentByIdQuery } from "@/redux/api/userApi";
-import { useGetStudentOrdersQuery } from "@/redux/api/orderApi";
+import { useGetStudentOrdersQuery, type Order } from "@/redux/api/orderApi";
 import RequireAuth from "@/components/Auth/RequireAuth";
 
 function InstructorStudentDetailContent() {
@@ -63,12 +63,16 @@ function InstructorStudentDetailContent() {
 
   const orders = ordersData?.data || [];
 
-  // Find active quarterly subscription
+  // Find active quarterly subscription.
+  //
+  // The predicate also guarantees a defined `endDate`: an order without an end
+  // date produces an Invalid Date, which never compares greater than "now".
   const activeQuarterlyOrder = orders.find(
-    (order: any) =>
+    (order): order is Order & { endDate: string } =>
       order.planType === "quarterly" &&
       order.paymentStatus === "approved" &&
       order.isActive &&
+      !!order.endDate &&
       new Date(order.endDate) > new Date()
   );
 
@@ -287,7 +291,9 @@ function InstructorStudentDetailContent() {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-700">Started</span>
                   <span className="text-sm text-gray-600">
-                    {new Date(activeQuarterlyOrder.startDate).toLocaleDateString("en-GB")}
+                    {activeQuarterlyOrder.startDate
+                      ? new Date(activeQuarterlyOrder.startDate).toLocaleDateString("en-GB")
+                      : "-"}
                   </span>
                 </div>
               </CardBody>

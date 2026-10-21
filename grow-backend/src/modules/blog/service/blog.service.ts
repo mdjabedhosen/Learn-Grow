@@ -1,6 +1,28 @@
 import { Blog, IBlog } from "../model/blog.model";
 import { BlogCategory } from "../model/blog-category.model";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Fields that may be edited through the blog API.
+ *
+ * `isApproved` is owned by approveBlog/rejectBlog, `author` is set when the
+ * post is created, `viewCount` is a counter and `readTime` is recomputed from
+ * the content - none of them may come from the request body.
+ */
+const BLOG_UPDATABLE_FIELDS = [
+  "title",
+  "content",
+  "excerpt",
+  "category",
+  "metaTags",
+  "image",
+  "slug",
+  "isPublished",
+] as const;
+
+/** Editable fields of a blog category (slug is derived from the name). */
+const BLOG_CATEGORY_UPDATABLE_FIELDS = ["name", "slug", "description"] as const;
 
 // Generate slug from title
 const generateSlug = (title: string): string => {
@@ -32,7 +54,23 @@ export const createBlog = async (data: Partial<IBlog>) => {
   });
 };
 
-export const getBlogById = async (id: string) => {
+/**
+ * Fetch a single blog for public display.
+ *
+ * SECURITY: these used to return ANY blog - drafts and unapproved posts
+ * included - to anonymous callers, because the routes are public. A draft is
+ * now only visible to an admin/manager (or the author).
+ */
+const publicBlogFilter = (canViewUnpublished: boolean) =>
+  canViewUnpublished ? {} : { isPublished: true, isApproved: true };
+
+export const getBlogById = async (id: string, canViewUnpublished = false) => {
+  const filter = { _id: id, ...publicBlogFilter(canViewUnpublished) };
+
+  // Only count a view for a blog that is actually served.
+  const existing = await Blog.findOne(filter).select("_id").lean();
+  if (!existing) return null;
+
   return Blog.findByIdAndUpdate(
     id,
     { $inc: { viewCount: 1 } },
@@ -42,7 +80,15 @@ export const getBlogById = async (id: string) => {
     .populate("category", "name slug");
 };
 
-export const getBlogBySlug = async (slug: string) => {
+export const getBlogBySlug = async (
+  slug: string,
+  canViewUnpublished = false
+) => {
+  const filter = { slug, ...publicBlogFilter(canViewUnpublished) };
+
+  const existing = await Blog.findOne(filter).select("_id").lean();
+  if (!existing) return null;
+
   return Blog.findOneAndUpdate(
     { slug },
     { $inc: { viewCount: 1 } },
@@ -55,8 +101,16 @@ export const getBlogBySlug = async (slug: string) => {
 export const getAllBlogs = async (filters: any = {}) => {
   const query: any = {};
 
-  // Public blogs (published and approved)
-  if (!filters.includeUnpublished) {
+  // Public blogs (published and approved).
+  // SECURITY: this used to be `if (!filters.includeUnpublished)`, and the
+  // flag arrived from the query string as the literal string "false" - which
+  // is truthy, so the filter was skipped and drafts leaked to anonymous
+  // callers. It must be the exact string "true", and the controller only
+  // passes it through for an admin/manager.
+  const includeUnpublished =
+    filters.includeUnpublished === true || filters.includeUnpublished === "true";
+
+  if (!includeUnpublished) {
     query.isPublished = true;
     query.isApproved = true;
   }
@@ -113,20 +167,23 @@ export const getApprovalPendingBlogs = async () => {
 };
 
 export const updateBlog = async (id: string, data: Partial<IBlog>) => {
+  // Drop every key that is not explicitly editable (mass-assignment guard).
+  const safeData = pickDefined(data, BLOG_UPDATABLE_FIELDS);
+
   // Recalculate slug if title changed, but allow custom slug
-  if (data.title && !data.slug) {
-    data.slug = generateSlug(data.title);
-  } else if (data.slug) {
+  if (safeData.title && !safeData.slug) {
+    safeData.slug = generateSlug(safeData.title);
+  } else if (safeData.slug) {
     // Validate and normalize provided slug
-    data.slug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    safeData.slug = safeData.slug.trim().toLowerCase().replace(/\s+/g, "-");
   }
 
   // Recalculate read time if content changed
-  if (data.content) {
-    data.readTime = calculateReadTime(data.content);
+  if (safeData.content) {
+    safeData.readTime = calculateReadTime(safeData.content);
   }
 
-  return Blog.findByIdAndUpdate(id, data, {
+  return Blog.findByIdAndUpdate(id, safeData, {
     new: true,
     runValidators: true,
   });
@@ -163,10 +220,11 @@ export const getCategoryBySlug = async (slug: string) => {
 };
 
 export const updateCategory = async (id: string, data: any) => {
-  if (data.name) {
-    data.slug = generateSlug(data.name);
+  const safeData = pickDefined(data, BLOG_CATEGORY_UPDATABLE_FIELDS);
+  if (safeData.name) {
+    safeData.slug = generateSlug(safeData.name);
   }
-  return BlogCategory.findByIdAndUpdate(id, data, { new: true });
+  return BlogCategory.findByIdAndUpdate(id, safeData, { new: true });
 };
 
 export const deleteCategory = async (id: string) => {

@@ -1,5 +1,12 @@
 import { Role, IRole } from "../model/role.model";
 import { TeamMember } from "../model/team.model";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable role fields. `isActive` is the soft-delete flag owned by the
+ * delete endpoint and the timestamps belong to Mongoose.
+ */
+const ROLE_UPDATABLE_FIELDS = ["name", "position"] as const;
 
 class RoleService {
     // Get all roles
@@ -54,7 +61,7 @@ class RoleService {
     // Update role
     async updateRole(id: string, data: Partial<IRole>) {
         try {
-            const role = await Role.findByIdAndUpdate(id, data, {
+            const role = await Role.findByIdAndUpdate(id, pickDefined(data, ROLE_UPDATABLE_FIELDS), {
                 new: true,
                 runValidators: true,
             });

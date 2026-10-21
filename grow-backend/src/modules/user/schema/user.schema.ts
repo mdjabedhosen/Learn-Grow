@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { USER_ROLES } from "../model/user.model";
 
 export const createUserSchema = z.object({
   body: z.object({
@@ -6,9 +7,9 @@ export const createUserSchema = z.object({
     phone: z.string().min(10, "Phone must be at least 10 characters"),
     email: z.string().email("Invalid email address").optional().or(z.literal("")),
     password: z.string().min(6, "Password must be at least 6 characters"),
-    role: z.enum(["student", "instructor", "guardian", "admin", "manager"]).refine(
-      (val) => ["student", "instructor", "guardian", "admin", "manager"].includes(val),
-      { message: "Role must be student, instructor, guardian, admin, or manager" }
+    role: z.enum(USER_ROLES).refine(
+      (val) => (USER_ROLES as readonly string[]).includes(val),
+      { message: `Role must be one of: ${USER_ROLES.join(", ")}` }
     ),
   }),
 });
@@ -36,7 +37,7 @@ export const registerSchema = z.object({
     email: z.string().email("Invalid email address").optional(),
     phone: z.string().min(10, "Phone must be at least 10 characters").optional(),
     password: z.string().min(6, "Password must be at least 6 characters"),
-    role: z.enum(["student", "instructor", "guardian", "admin", "manager"]),
+    role: z.enum(USER_ROLES),
   }).refine((data) => data.email || data.phone, {
     message: "Either email or phone is required",
   }),

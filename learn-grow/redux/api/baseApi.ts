@@ -179,6 +179,7 @@ export const baseApi = createApi({
         "EventRegistration",
         "PaymentMethod",
         "Order",
+        "Coupon",
         "Team",
         "Roles",
         "Instructors",

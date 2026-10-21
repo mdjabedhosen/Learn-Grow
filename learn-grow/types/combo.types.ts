@@ -4,7 +4,10 @@ export interface ICourse {
   title: string;
   description?: string;
   thumbnail?: string;
+  /** The ORIGINAL / list price of the course. */
   price: number;
+  /** The price AFTER the discount. Undefined / 0 means "no discount". */
+  discountPrice?: number | null;
   level?: string;
   rating?: number;
   studentsEnrolled?: number;
@@ -19,6 +22,7 @@ export interface ICombo {
   discountPrice?: number;
   duration: "1-month" | "2-months" | "3-months" | "lifetime";
   isActive: boolean;
+  featured?: boolean;
   thumbnail?: string;
   createdAt?: string;
   updatedAt?: string;

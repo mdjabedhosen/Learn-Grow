@@ -18,14 +18,43 @@ import { useGetSiteContentQuery, useUpdateSiteContentMutation } from "@/redux/ap
 import { defaultTeamData } from "@/lib/teamData";
 import toast from "react-hot-toast";
 
+interface LeadershipMember {
+  name: string;
+  role: string;
+  bio: string;
+  img: string;
+  linkedin: string;
+  twitter: string;
+}
+
+interface InstructorMember {
+  name: string;
+  role: string;
+  specialization: string;
+  img: string;
+  students: number;
+}
+
+// `bio`, `department` and `linkedin` are optional: the shipped defaults only
+// carry a bio for executives, while newly added entries in the editor carry a
+// department and a LinkedIn link.
+interface ExecutiveMember {
+  name: string;
+  role: string;
+  bio?: string;
+  department?: string;
+  img: string;
+  linkedin?: string;
+}
+
 interface TeamData {
   hero: { title: string; subtitle: string; tag: string };
   leadership: {
-    cLevel: Array<{ name: string; role: string; bio: string; img: string; linkedin: string; twitter: string }>;
-    teamLeads: Array<{ name: string; role: string; bio: string; img: string; linkedin: string; twitter: string }>;
+    cLevel: LeadershipMember[];
+    teamLeads: LeadershipMember[];
   };
-  instructors: Array<{ name: string; role: string; specialization: string; img: string; students: number }>;
-  executives: Array<{ name: string; role: string; department: string; img: string; linkedin: string }>;
+  instructors: InstructorMember[];
+  executives: ExecutiveMember[];
 }
 
 export default function TeamPageTab() {
@@ -353,7 +382,19 @@ export default function TeamPageTab() {
 }
 
 // Helper Components
-function MemberCard({ member, index, type, onUpdate, onDelete }: any) {
+function MemberCard({
+  member,
+  index,
+  type,
+  onUpdate,
+  onDelete,
+}: {
+  member: LeadershipMember;
+  index: number;
+  type: "cLevel" | "teamLeads";
+  onUpdate: (member: LeadershipMember) => void;
+  onDelete: () => void;
+}) {
   return (
     <Card className="bg-white border border-gray-200">
       <CardBody className="p-4 space-y-3">
@@ -413,7 +454,17 @@ function MemberCard({ member, index, type, onUpdate, onDelete }: any) {
   );
 }
 
-function InstructorCard({ instructor, index, onUpdate, onDelete }: any) {
+function InstructorCard({
+  instructor,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  instructor: InstructorMember;
+  index: number;
+  onUpdate: (instructor: InstructorMember) => void;
+  onDelete: () => void;
+}) {
   return (
     <Card className="bg-white border border-gray-200">
       <CardBody className="p-4 space-y-3">
@@ -466,7 +517,17 @@ function InstructorCard({ instructor, index, onUpdate, onDelete }: any) {
   );
 }
 
-function ExecutiveCard({ executive, index, onUpdate, onDelete }: any) {
+function ExecutiveCard({
+  executive,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  executive: ExecutiveMember;
+  index: number;
+  onUpdate: (executive: ExecutiveMember) => void;
+  onDelete: () => void;
+}) {
   return (
     <Card className="bg-white border border-gray-200">
       <CardBody className="p-4 space-y-3">
@@ -489,7 +550,7 @@ function ExecutiveCard({ executive, index, onUpdate, onDelete }: any) {
         <Input
           label="Department"
           placeholder="e.g., Student Services"
-          value={executive.department}
+          value={executive.department ?? ""}
           onChange={(e) => onUpdate({ ...executive, department: e.target.value })}
           size="sm"
           variant="bordered"
@@ -505,7 +566,7 @@ function ExecutiveCard({ executive, index, onUpdate, onDelete }: any) {
         <Input
           label="LinkedIn URL"
           placeholder="https://linkedin.com/..."
-          value={executive.linkedin}
+          value={executive.linkedin ?? ""}
           onChange={(e) => onUpdate({ ...executive, linkedin: e.target.value })}
           size="sm"
           variant="bordered"

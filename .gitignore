@@ -8,3 +8,28 @@ learn-grow-original
 /grow-backend/dist
 /grow-backend/backups
 *.docx
+
+# ===== Environment files (NEVER commit - they contain live credentials) =====
+# Use the matching *.example file as a template and keep real values in your
+# deployment secret manager.
+.env
+.env.local
+.env.*.local
+.grow-backend/.env.local
+
+# Per-package environment files
+/grow-backend/.env
+/learn-grow/.env
+/learn-grow/.env.production
+
+# Keep the templates
+!.env.example
+!/grow-backend/.env.example
+!/grow-backend/.env.security.example
+!/learn-grow/.env.example
+
+# ===== Secrets =====
+*.pem
+*.key
+service-account*.json
+gcp-*.json

@@ -63,6 +63,11 @@ const courseSchema = new Schema<ICourse>(
     discountPrice: {
       type: Number,
       min: 0,
+      // A "discount" may never raise the price: it must be strictly lower
+      // than the list price. `price` is the ORIGINAL price, `discountPrice`
+      // the price AFTER the discount. The cross-field check is enforced in
+      // the service layer (see validateDiscountPrice in utils/pricing.ts),
+      // where both values are available at once.
     },
     thumbnail: String,
     level: {

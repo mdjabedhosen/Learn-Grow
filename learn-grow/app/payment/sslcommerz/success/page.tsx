@@ -52,7 +52,7 @@ function SSLCommerzSuccessContent() {
                 <CardBody className="py-10 text-center flex flex-col items-center gap-6">
                     {status === "processing" && (
                         <>
-                            <Spinner size="lg" color="blue" />
+                            <Spinner size="lg" color="primary" />
                             <h2 className="text-xl font-bold">Verifying Payment...</h2>
                         </>
                     )}

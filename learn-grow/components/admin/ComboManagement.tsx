@@ -115,6 +115,10 @@ export default function ComboManagement() {
       await createCombo({
         ...formData,
         courses: formData.courseIds,
+        // `null` means "no discount" in the form; the API models "no discount"
+        // as an absent value.
+        discountPrice: formData.discountPrice ?? undefined,
+        isActive: true,
       }).unwrap();
       toast.success("Combo created successfully!");
       setIsCreateModalOpen(false);
@@ -153,6 +157,9 @@ export default function ComboManagement() {
         data: {
           ...formData,
           courses: formData.courseIds,
+          // `null` means "no discount" in the form; the API models "no
+          // discount" as an absent value.
+          discountPrice: formData.discountPrice ?? undefined,
         },
       }).unwrap();
       toast.success("Combo updated successfully!");

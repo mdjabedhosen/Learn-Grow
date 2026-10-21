@@ -16,23 +16,14 @@ import { useGetSiteContentQuery, useUpdateSiteContentMutation } from "@/redux/ap
 import { defaultAboutData } from "@/lib/aboutData";
 import toast from "react-hot-toast";
 
-interface AboutData {
-  hero: {
-    title: string;
-    subtitle: string;
-  };
-  mission: {
-    title: string;
-    image: string;
-    p1: string;
-    p2: string;
-  };
-  features: Array<{
-    title: string;
-    desc: string;
-    icon: string;
-  }>;
-}
+/**
+ * The shape of the About page content.
+ *
+ * Derived from the shipped defaults so the admin editor and the public
+ * `AboutClient` can never drift apart. The content is bilingual: every
+ * editable text field has an `...En` and a `...Bn` variant.
+ */
+type AboutData = typeof defaultAboutData;
 
 export default function AboutPageTab() {
   const [aboutData, setAboutData] = useState<AboutData>(defaultAboutData);
@@ -47,12 +38,15 @@ export default function AboutPageTab() {
     if (apiData?.data?.content && typeof apiData.data.content === "object") {
       // Create a deep copy to avoid read-only issues
       const content = JSON.parse(JSON.stringify(apiData.data.content));
-      // Ensure features array has proper structure
-      if (content.features && Array.isArray(content.features)) {
-        content.features = content.features.map((f: any) => ({
-          icon: f.icon || "",
-          title: f.title || "",
-          desc: f.desc || f.description || "",
+      // Ensure the pillar array has the proper structure
+      if (content.pillars && Array.isArray(content.pillars)) {
+        content.pillars = content.pillars.map((p: any) => ({
+          icon: p.icon || "",
+          titleEn: p.titleEn || "",
+          titleBn: p.titleBn || "",
+          descEn: p.descEn || p.desc || "",
+          descBn: p.descBn || "",
+          color: p.color || "blue",
         }));
       }
       setAboutData(content);
@@ -104,13 +98,27 @@ export default function AboutPageTab() {
           <h2 className="text-2xl font-bold mb-4 text-orange-700">Hero Section</h2>
           <div className="space-y-4">
             <Input
-              label="Hero Title"
+              label="Hero Title (English)"
               placeholder="Enter hero title"
-              value={aboutData.hero.title}
+              value={aboutData.hero.titleEn}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  hero: { ...aboutData.hero, title: e.target.value },
+                  hero: { ...aboutData.hero, titleEn: e.target.value },
+                });
+                setHasChanges(true);
+              }}
+              size="lg"
+              variant="bordered"
+            />
+            <Input
+              label="Hero Title (Bangla)"
+              placeholder="Enter hero title"
+              value={aboutData.hero.titleBn}
+              onChange={(e) => {
+                setAboutData({
+                  ...aboutData,
+                  hero: { ...aboutData.hero, titleBn: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -118,13 +126,27 @@ export default function AboutPageTab() {
               variant="bordered"
             />
             <Textarea
-              label="Hero Subtitle"
+              label="Hero Subtitle (English)"
               placeholder="Enter hero subtitle"
-              value={aboutData.hero.subtitle}
+              value={aboutData.hero.subtitleEn}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  hero: { ...aboutData.hero, subtitle: e.target.value },
+                  hero: { ...aboutData.hero, subtitleEn: e.target.value },
+                });
+                setHasChanges(true);
+              }}
+              minRows={2}
+              variant="bordered"
+            />
+            <Textarea
+              label="Hero Subtitle (Bangla)"
+              placeholder="Enter hero subtitle"
+              value={aboutData.hero.subtitleBn}
+              onChange={(e) => {
+                setAboutData({
+                  ...aboutData,
+                  hero: { ...aboutData.hero, subtitleBn: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -135,19 +157,19 @@ export default function AboutPageTab() {
         </CardBody>
       </Card>
 
-      {/* Mission Section */}
+      {/* Story Section */}
       <Card className="shadow-lg border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
         <CardBody className="p-6">
-          <h2 className="text-2xl font-bold mb-4 text-purple-700">Mission Section</h2>
+          <h2 className="text-2xl font-bold mb-4 text-purple-700">Our Story</h2>
           <div className="space-y-4">
             <Input
-              label="Mission Title"
-              placeholder="Enter mission title"
-              value={aboutData.mission.title}
+              label="Story Title (English)"
+              placeholder="Enter story title"
+              value={aboutData.story.titleEn}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  mission: { ...aboutData.mission, title: e.target.value },
+                  story: { ...aboutData.story, titleEn: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -155,13 +177,27 @@ export default function AboutPageTab() {
               variant="bordered"
             />
             <Input
-              label="Mission Image URL"
-              placeholder="https://example.com/image.jpg"
-              value={aboutData.mission.image}
+              label="Story Title (Bangla)"
+              placeholder="Enter story title"
+              value={aboutData.story.titleBn}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  mission: { ...aboutData.mission, image: e.target.value },
+                  story: { ...aboutData.story, titleBn: e.target.value },
+                });
+                setHasChanges(true);
+              }}
+              size="lg"
+              variant="bordered"
+            />
+            <Input
+              label="Story Image URL"
+              placeholder="https://example.com/image.jpg"
+              value={aboutData.story.image}
+              onChange={(e) => {
+                setAboutData({
+                  ...aboutData,
+                  story: { ...aboutData.story, image: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -169,13 +205,13 @@ export default function AboutPageTab() {
               variant="bordered"
             />
             <Textarea
-              label="Mission Paragraph 1"
+              label="Story Paragraph 1 (English)"
               placeholder="Enter first paragraph"
-              value={aboutData.mission.p1}
+              value={aboutData.story.p1En}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  mission: { ...aboutData.mission, p1: e.target.value },
+                  story: { ...aboutData.story, p1En: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -183,13 +219,41 @@ export default function AboutPageTab() {
               variant="bordered"
             />
             <Textarea
-              label="Mission Paragraph 2"
-              placeholder="Enter second paragraph"
-              value={aboutData.mission.p2}
+              label="Story Paragraph 1 (Bangla)"
+              placeholder="Enter first paragraph"
+              value={aboutData.story.p1Bn}
               onChange={(e) => {
                 setAboutData({
                   ...aboutData,
-                  mission: { ...aboutData.mission, p2: e.target.value },
+                  story: { ...aboutData.story, p1Bn: e.target.value },
+                });
+                setHasChanges(true);
+              }}
+              minRows={3}
+              variant="bordered"
+            />
+            <Textarea
+              label="Story Paragraph 2 (English)"
+              placeholder="Enter second paragraph"
+              value={aboutData.story.p2En}
+              onChange={(e) => {
+                setAboutData({
+                  ...aboutData,
+                  story: { ...aboutData.story, p2En: e.target.value },
+                });
+                setHasChanges(true);
+              }}
+              minRows={3}
+              variant="bordered"
+            />
+            <Textarea
+              label="Story Paragraph 2 (Bangla)"
+              placeholder="Enter second paragraph"
+              value={aboutData.story.p2Bn}
+              onChange={(e) => {
+                setAboutData({
+                  ...aboutData,
+                  story: { ...aboutData.story, p2Bn: e.target.value },
                 });
                 setHasChanges(true);
               }}
@@ -200,11 +264,11 @@ export default function AboutPageTab() {
         </CardBody>
       </Card>
 
-      {/* Features Section */}
+      {/* Pillars / Features Section */}
       <Card className="shadow-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
         <CardBody className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-green-700">Features</h2>
+            <h2 className="text-2xl font-bold text-green-700">Learning Tracks</h2>
             <Button
               isIconOnly
               color="success"
@@ -213,19 +277,26 @@ export default function AboutPageTab() {
               onPress={() => {
                 setAboutData({
                   ...aboutData,
-                  features: [
-                    ...aboutData.features,
-                    { title: "", desc: "", icon: "" },
+                  pillars: [
+                    ...aboutData.pillars,
+                    {
+                      icon: "",
+                      titleEn: "",
+                      titleBn: "",
+                      descEn: "",
+                      descBn: "",
+                      color: "blue",
+                    },
                   ],
                 });
                 setHasChanges(true);
               }}
-              title="Add new feature"
+              title="Add new track"
             />
           </div>
 
           <div className="space-y-4">
-            {aboutData.features.map((feature, index) => (
+            {aboutData.pillars.map((pillar, index) => (
               <div key={index}>
                 <Card className="bg-white border border-gray-200 hover:border-green-300 transition-colors">
                   <CardBody className="p-4">
@@ -235,11 +306,11 @@ export default function AboutPageTab() {
                           <label className="text-sm font-semibold text-gray-700 mb-2 block">Icon/Emoji</label>
                           <Input
                             placeholder="(paste icon code or text)"
-                            value={feature.icon}
+                            value={pillar.icon}
                             onChange={(e) => {
-                              const newFeatures = [...aboutData.features];
-                              newFeatures[index].icon = e.target.value;
-                              setAboutData({ ...aboutData, features: newFeatures });
+                              const newPillars = [...aboutData.pillars];
+                              newPillars[index] = { ...newPillars[index], icon: e.target.value };
+                              setAboutData({ ...aboutData, pillars: newPillars });
                               setHasChanges(true);
                             }}
                             size="sm"
@@ -248,14 +319,14 @@ export default function AboutPageTab() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Feature Title</label>
+                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Title (English)</label>
                           <Input
-                            placeholder="Enter feature title"
-                            value={feature.title}
+                            placeholder="Enter title"
+                            value={pillar.titleEn}
                             onChange={(e) => {
-                              const newFeatures = [...aboutData.features];
-                              newFeatures[index].title = e.target.value;
-                              setAboutData({ ...aboutData, features: newFeatures });
+                              const newPillars = [...aboutData.pillars];
+                              newPillars[index] = { ...newPillars[index], titleEn: e.target.value };
+                              setAboutData({ ...aboutData, pillars: newPillars });
                               setHasChanges(true);
                             }}
                             size="sm"
@@ -264,14 +335,46 @@ export default function AboutPageTab() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Feature Description</label>
-                          <Textarea
-                            placeholder="Enter feature description"
-                            value={feature.desc}
+                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Title (Bangla)</label>
+                          <Input
+                            placeholder="Enter title"
+                            value={pillar.titleBn}
                             onChange={(e) => {
-                              const newFeatures = [...aboutData.features];
-                              newFeatures[index].desc = e.target.value;
-                              setAboutData({ ...aboutData, features: newFeatures });
+                              const newPillars = [...aboutData.pillars];
+                              newPillars[index] = { ...newPillars[index], titleBn: e.target.value };
+                              setAboutData({ ...aboutData, pillars: newPillars });
+                              setHasChanges(true);
+                            }}
+                            size="sm"
+                            variant="bordered"
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Description (English)</label>
+                          <Textarea
+                            placeholder="Enter description"
+                            value={pillar.descEn}
+                            onChange={(e) => {
+                              const newPillars = [...aboutData.pillars];
+                              newPillars[index] = { ...newPillars[index], descEn: e.target.value };
+                              setAboutData({ ...aboutData, pillars: newPillars });
+                              setHasChanges(true);
+                            }}
+                            minRows={3}
+                            variant="bordered"
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 mb-2 block">Description (Bangla)</label>
+                          <Textarea
+                            placeholder="Enter description"
+                            value={pillar.descBn}
+                            onChange={(e) => {
+                              const newPillars = [...aboutData.pillars];
+                              newPillars[index] = { ...newPillars[index], descBn: e.target.value };
+                              setAboutData({ ...aboutData, pillars: newPillars });
                               setHasChanges(true);
                             }}
                             minRows={3}
@@ -287,13 +390,13 @@ export default function AboutPageTab() {
                           variant="flat"
                           startContent={<FaTrash />}
                           onPress={() => {
-                            const newFeatures = aboutData.features.filter(
+                            const newPillars = aboutData.pillars.filter(
                               (_, i) => i !== index
                             );
-                            setAboutData({ ...aboutData, features: newFeatures });
+                            setAboutData({ ...aboutData, pillars: newPillars });
                             setHasChanges(true);
                           }}
-                          title="Delete feature"
+                          title="Delete track"
                           className="min-h-[44px]"
                         />
                       </div>

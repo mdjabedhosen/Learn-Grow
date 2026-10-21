@@ -3,16 +3,15 @@ import Link from "next/link";
 import ComboDetails from "@/components/combo/ComboDetails";
 
 interface ComboDetailPageProps {
-  params: {
-    comboId: string;
-  };
+  params: Promise<{ comboId: string }>;
 }
 
 export async function generateMetadata({ params }: ComboDetailPageProps) {
+  const { comboId } = await params;
+
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const res = await fetch(`${baseUrl}/combo/${params.comboId}`, {
-      cache: "revalidate",
+    const res = await fetch(`${baseUrl}/combo/${comboId}`, {
       next: { revalidate: 3600 }, // Revalidate every hour
     });
 
@@ -43,7 +42,9 @@ export async function generateMetadata({ params }: ComboDetailPageProps) {
   }
 }
 
-export default function ComboDetailPage({ params }: ComboDetailPageProps) {
+export default async function ComboDetailPage({ params }: ComboDetailPageProps) {
+  const { comboId } = await params;
+
   return (
     <div className="min-h-screen bg-default-50">
       {/* Header Section */}
@@ -67,7 +68,7 @@ export default function ComboDetailPage({ params }: ComboDetailPageProps) {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        <ComboDetails comboId={params.comboId} />
+        <ComboDetails comboId={comboId} />
       </div>
     </div>
   );

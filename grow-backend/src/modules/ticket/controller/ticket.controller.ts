@@ -188,6 +188,20 @@ export const addReply = async (req: Request, res: Response) => {
       });
     }
 
+    // SECURITY: there was no ownership check, so ANY signed-in student could
+    // reply to ANY ticket (an IDOR write). Only the ticket's creator, the
+    // assignee, and staff may reply.
+    const isStaff = user.role === "admin" || user.role === "manager";
+    const isOwner = String(ticket.createdBy) === String(userId);
+    const isAssignee = ticket.assignedTo && String(ticket.assignedTo) === String(userId);
+
+    if (!isStaff && !isOwner && !isAssignee) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to reply to this ticket.",
+      });
+    }
+
     ticket.replies.push({
       userId: userId as any,
       userRole: user.role as any,

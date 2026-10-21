@@ -21,6 +21,9 @@ export interface IOrder extends Document {
   endDate?: Date;
   isActive: boolean;
   price: number;
+  originalPrice?: number;
+  discountAmount?: number;
+  couponCode?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -97,6 +100,18 @@ const orderSchema = new Schema<IOrder>(
     price: {
       type: Number,
       required: true,
+    },
+    originalPrice: {
+      type: Number,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+    },
+    couponCode: {
+      type: String,
+      trim: true,
+      uppercase: true,
     },
   },
   {

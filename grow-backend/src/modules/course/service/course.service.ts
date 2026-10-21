@@ -9,12 +9,24 @@ import { Order } from "../../order/model/order.model";
 import { sendCourseApprovalEmail } from "@/utils/otp";
 import { parsePagination } from "@/utils/pagination";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { validateDiscountPrice } from "@/utils/pricing";
+import { pickDefined } from "@/utils/pickFields";
 
 // ===== COURSE SERVICES =====
 
 export const createCourse = async (data: Partial<ICourse>) => {
   try {
     const createData: any = { ...data };
+    const discountValidation = validateDiscountPrice(
+      createData.price,
+      createData.discountPrice
+    );
+    if (!discountValidation.valid) {
+      throw new Error(discountValidation.error || "Invalid discount price");
+    }
+    if (createData.discountPrice === undefined || createData.discountPrice === null) {
+      delete createData.discountPrice;
+    }
     if (data.instructorId && typeof data.instructorId === "string" && Types.ObjectId.isValid(data.instructorId)) {
       createData.instructorId = new Types.ObjectId(data.instructorId);
     }
@@ -106,8 +118,14 @@ export const getAllCourses = async (filters: any = {}) => {
       }
     }
 
-    const { page, skip, limit: boundedLimit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 200 });
+    const { page, limit: boundedLimit } = parsePagination(filters, { defaultLimit: 6, maxLimit: 200 });
+    // The enrolled-only view is always paginated six at a time.
     const limit = filters.enrolledOnly ? 6 : boundedLimit;
+    // The skip MUST be computed from the limit that is actually applied.
+    // It used to come from parsePagination, which used the requested limit,
+    // so `?enrolledOnly=true&limit=20&page=2` skipped 20 rows but then
+    // returned 6 - skipping a whole page of courses.
+    const skip = (page - 1) * limit;
 
     const courses = await Course.find(query)
       .populate("instructorId", "name email profileImage role qualification institution bio expertise yearsOfExperience")
@@ -119,8 +137,20 @@ export const getAllCourses = async (filters: any = {}) => {
 
     const total = await Course.countDocuments(query);
 
+    const mappedCourses = courses.map((c: any) => {
+      let thumb = c.thumbnail;
+      if (!thumb) {
+        if (c._id?.toString() === "69ca5603e9e96ed80529474a" || c.slug?.includes("robot")) {
+          thumb = "/courses/robotics-course-banner.jpg";
+        } else if (c._id?.toString() === "69ce553ce9e96ed805295101" || c.slug?.includes("python")) {
+          thumb = "/courses/python-course-banner.jpg";
+        }
+      }
+      return { ...c, thumbnail: thumb };
+    });
+
     return {
-      courses,
+      courses: mappedCourses,
       pagination: {
         total,
         page,
@@ -150,8 +180,20 @@ export const getPublishedCourses = async (filters: any = {}) => {
 
     const total = await Course.countDocuments(query);
 
+    const mappedCourses = courses.map((c: any) => {
+      let thumb = c.thumbnail;
+      if (!thumb) {
+        if (c._id?.toString() === "69ca5603e9e96ed80529474a" || c.slug?.includes("robot")) {
+          thumb = "/courses/robotics-course-banner.jpg";
+        } else if (c._id?.toString() === "69ce553ce9e96ed805295101" || c.slug?.includes("python")) {
+          thumb = "/courses/python-course-banner.jpg";
+        }
+      }
+      return { ...c, thumbnail: thumb };
+    });
+
     return {
-      courses,
+      courses: mappedCourses,
       pagination: {
         total,
         page,
@@ -392,8 +434,19 @@ export const getCourseById = async (
 
       const lessonId = lesson.id;
       const isThisLessonCompleted = completedLessonIds.includes(lessonId);
+      const isFreePreview = !!(
+        lesson.isFreePreview ??
+        lesson.isFree ??
+        lesson.isPreview ??
+        false
+      );
 
-      if (isModuleLocked) {
+      if (isFreePreview) {
+        // A free preview is free by definition - it must stay open even
+        // inside a locked module, otherwise "free preview" means nothing.
+        isLessonLocked = false;
+        lessonLockReason = "";
+      } else if (isModuleLocked) {
         isLessonLocked = true;
         lessonLockReason = moduleLockReason;
       } else {
@@ -420,13 +473,18 @@ export const getCourseById = async (
         isLocked: isLessonLocked,
         lockReason: isLessonLocked ? lessonLockReason : undefined,
         isCompleted: isThisLessonCompleted,
+        isFreePreview,
         // Explicitly include contentLinks if it exists
         contentLinks: lesson.contentLinks || []
       };
 
-      // Remove contentUrl for locked lessons (but keep for privileged users)
+      // SECURITY: a locked lesson must not leak its paid content. `contentUrl`
+      // was already removed, but `contentLinks[].url` (video / Drive / PDF
+      // links) was always sent, so an anonymous caller could read the paid
+      // material straight out of `GET /api/course/get-course/:id`.
       if (isLessonLocked && !isPrivileged) {
         delete resultLesson.contentUrl;
+        resultLesson.contentLinks = [];
       }
 
       return resultLesson;
@@ -475,8 +533,17 @@ export const getCourseById = async (
   const processedAssignments = assignments.map(a => processCourseLevelItem(a, "assignment"));
   const processedQuizzes = quizzes.map(q => processCourseLevelItem(q, "quiz"));
 
+  const courseObj = course.toObject();
+  if (!courseObj.thumbnail) {
+    if (courseObj._id.toString() === "69ca5603e9e96ed80529474a" || courseObj.slug?.includes("robot")) {
+      courseObj.thumbnail = "/courses/robotics-course-banner.jpg";
+    } else if (courseObj._id.toString() === "69ce553ce9e96ed805295101" || courseObj.slug?.includes("python")) {
+      courseObj.thumbnail = "/courses/python-course-banner.jpg";
+    }
+  }
+
   return {
-    ...course.toObject(),
+    ...courseObj,
     modules: processedModules,
     assignments: processedAssignments,
     quizzes: processedQuizzes,
@@ -491,6 +558,25 @@ export const getCourseById = async (
 
 export const updateCourse = async (id: string, data: Partial<ICourse>) => {
   const updateData: any = { ...data };
+
+  // Validate the discount against the price. When only one of the two is
+  // supplied, fall back to the stored value for the other.
+  const existing = await Course.findById(id).select("price discountPrice").lean();
+  if (!existing) {
+    throw new Error("Course not found");
+  }
+  const effectivePrice = updateData.price ?? existing.price;
+  const effectiveDiscount =
+    updateData.discountPrice === undefined
+      ? existing.discountPrice
+      : updateData.discountPrice;
+  const discountValidation = validateDiscountPrice(effectivePrice, effectiveDiscount);
+  if (!discountValidation.valid) {
+    throw new Error(discountValidation.error || "Invalid discount price");
+  }
+  if (effectiveDiscount === undefined || effectiveDiscount === null) {
+    delete updateData.discountPrice;
+  }
 
   const rawInstId = typeof data.instructorId === "object" && (data.instructorId as any)?._id 
     ? (data.instructorId as any)._id.toString() 
@@ -651,7 +737,7 @@ export const getCoursesByInstructor = async (
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select('_id title description category type price level language duration thumbnail isPublished isAdminApproved isRegistrationOpen registrationDeadline createdAt updatedAt instructorId instructorIds')
+      .select('_id title description category type price discountPrice level language duration thumbnail isPublished isAdminApproved isRegistrationOpen registrationDeadline createdAt updatedAt instructorId instructorIds')
       .lean(),
     Course.countDocuments(query)
   ]);
@@ -695,6 +781,34 @@ export const getCoursesByCategory = (category: string) => {
 
 // ===== MODULE SERVICES =====
 
+/**
+ * Editable module fields. `courseId` is the ownership id fixed at creation
+ * time and the timestamps belong to Mongoose.
+ */
+const MODULE_UPDATABLE_FIELDS = [
+  "title",
+  "description",
+  "orderIndex",
+  "isPublished",
+  "resources",
+] as const;
+
+/**
+ * Editable lesson fields. `moduleId` is the ownership id fixed at creation
+ * time and the timestamps belong to Mongoose.
+ */
+const LESSON_UPDATABLE_FIELDS = [
+  "title",
+  "description",
+  "type",
+  "contentUrl",
+  "contentLinks",
+  "duration",
+  "orderIndex",
+  "isPublished",
+  "isFreePreview",
+] as const;
+
 export const createModule = async (data: Partial<IModule>) => {
   return Module.create(data);
 };
@@ -708,7 +822,10 @@ export const getModuleById = (id: string) => {
 };
 
 export const updateModule = async (id: string, data: Partial<IModule>) => {
-  return Module.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  // `courseId` is the ownership id set at creation time and the timestamps are
+  // owned by Mongoose - only these fields may come from the request body.
+  const safeData = pickDefined(data, MODULE_UPDATABLE_FIELDS);
+  return Module.findByIdAndUpdate(id, safeData, { new: true, runValidators: true });
 };
 
 export const deleteModule = (id: string) => {
@@ -871,9 +988,9 @@ export const getLessonById = async (
   });
 
   if (!enrollment) {
-    const isFree =
-      course.price === 0 ||
-      (course.discountPrice !== undefined && course.discountPrice === 0);
+    // A course is free when its list price is 0. A `discountPrice` of 0 means
+    // "no discount" (see utils/pricing.ts), NOT a free course.
+    const isFree = course.price === 0;
     throw new Error(
       isFree ? "🔒 Enroll to Unlock" : "🔒 Enroll & Pay to Unlock"
     );
@@ -922,8 +1039,10 @@ export const getLessonById = async (
 };
 
 export const updateLesson = async (id: string, data: Partial<ILesson> & { isFree?: boolean; isPreview?: boolean; contentLinks?: any[] }) => {
+  const safeData = pickDefined(data, LESSON_UPDATABLE_FIELDS);
+
   const normalizedData: any = {
-    ...data,
+    ...safeData,
   };
 
   if (data.isFreePreview !== undefined || data.isFree !== undefined || data.isPreview !== undefined) {

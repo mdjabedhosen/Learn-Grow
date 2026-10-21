@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -19,11 +19,27 @@ import {
 import { useCreateComboMutation } from "@/redux/api/comboApi";
 import { useGetInstructorCoursesQuery } from "@/redux/api/courseApi";
 import { FaPlus, FaTimes } from "react-icons/fa";
+import { getCoursePricing, validateDiscountPrice } from "@/utils/pricing";
 
 export default function CreateComboPage() {
   const router = useRouter();
   const [createCombo, { isLoading }] = useCreateComboMutation();
-  const { data: coursesData, isLoading: isLoadingCourses } = useGetInstructorCoursesQuery(undefined);
+  const [instructorId, setInstructorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setInstructorId(user._id || user.id || null);
+      }
+    }
+  }, []);
+
+  const { data: coursesData, isLoading: isLoadingCourses } = useGetInstructorCoursesQuery(
+    { instructorId: instructorId ?? "", page: 1, limit: 100 },
+    { skip: !instructorId }
+  );
 
   const courses = Array.isArray(coursesData?.data) ? coursesData.data : [];
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
@@ -32,9 +48,22 @@ export default function CreateComboPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    discountPercentage: "",
+    price: "",
+    discountPrice: "",
+    duration: "lifetime" as "1-month" | "2-months" | "3-months" | "lifetime",
     isActive: true,
   });
+
+  // The backend combo model stores `price` and `discountPrice` only - there is
+  // no `discountPercentage` field. The percentage shown to the user is always
+  // DERIVED from those two values.
+  const discountPercent = useMemo(() => {
+    const { discountPercent: pct } = getCoursePricing({
+      price: Number(form.price),
+      discountPrice: form.discountPrice ? Number(form.discountPrice) : null,
+    });
+    return pct > 0 ? pct : null;
+  }, [form.price, form.discountPrice]);
 
   const handleCourseToggle = (courseId: string) => {
     setSelectedCourses((prev) =>
@@ -50,10 +79,22 @@ export default function CreateComboPage() {
 
     if (form.name.length < 3) e.name = "Min 3 characters";
     if (form.description.length < 20) e.description = "Min 20 characters";
-    if (!form.discountPercentage) e.discountPercentage = "Required";
-    if (parseInt(form.discountPercentage) < 0 || parseInt(form.discountPercentage) > 100) {
-      e.discountPercentage = "Must be between 0-100";
+
+    const priceValue = Number(form.price);
+    if (!form.price.trim() || !Number.isFinite(priceValue) || priceValue <= 0) {
+      e.price = "Enter a price greater than 0";
     }
+
+    if (form.discountPrice.trim()) {
+      const validation = validateDiscountPrice(
+        priceValue,
+        Number(form.discountPrice)
+      );
+      if (!validation.valid) {
+        e.discountPrice = validation.error || "Invalid discount price";
+      }
+    }
+
     if (selectedCourses.length === 0) e.courses = "Select at least one course";
 
     if (Object.keys(e).length) {
@@ -62,17 +103,19 @@ export default function CreateComboPage() {
     }
 
     try {
-      const instructorRaw = localStorage.getItem("user");
-      const instructorId = instructorRaw ? JSON.parse(instructorRaw)?._id : undefined;
+      const discountValue = form.discountPrice.trim()
+        ? Number(form.discountPrice)
+        : undefined;
 
       await createCombo({
         name: form.name,
         description: form.description,
         courses: selectedCourses,
-        discountPercentage: parseInt(form.discountPercentage),
+        price: priceValue,
+        discountPrice: discountValue !== undefined && discountValue > 0 ? discountValue : undefined,
+        duration: form.duration,
         isActive: form.isActive,
-        instructorId,
-      } as any).unwrap();
+      }).unwrap();
 
       router.push("/instructor/combos");
     } catch (err: any) {
@@ -108,17 +151,46 @@ export default function CreateComboPage() {
               errorMessage={errors.name}
             />
             <Input
-              label="Discount Percentage"
+              label="Price (BDT)"
               type="number"
               min="0"
-              max="100"
-              placeholder="e.g., 20"
-              value={form.discountPercentage}
-              onChange={(e) => setForm({ ...form, discountPercentage: e.target.value })}
-              isInvalid={!!errors.discountPercentage}
-              errorMessage={errors.discountPercentage}
-              endContent={<span className="text-sm text-gray-500">%</span>}
+              placeholder="e.g., 7498"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              isInvalid={!!errors.price}
+              errorMessage={errors.price}
+              startContent={<span className="text-sm text-gray-500">৳</span>}
             />
+            <Input
+              label="Discount Price (BDT)"
+              type="number"
+              min="0"
+              placeholder="e.g., 4999"
+              value={form.discountPrice}
+              onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
+              isInvalid={!!errors.discountPrice}
+              errorMessage={errors.discountPrice}
+              description={
+                form.discountPrice && form.price
+                  ? `Leave empty for no discount. Currently ${discountPercent ?? 0}% off.`
+                  : "Leave empty for no discount."
+              }
+              startContent={<span className="text-sm text-gray-500">৳</span>}
+            />
+            <Select
+              label="Access Duration"
+              selectedKeys={new Set([form.duration])}
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as typeof form.duration;
+                if (value) setForm({ ...form, duration: value });
+              }}
+              variant="bordered"
+            >
+              <SelectItem key="1-month">1 Month</SelectItem>
+              <SelectItem key="2-months">2 Months</SelectItem>
+              <SelectItem key="3-months">3 Months</SelectItem>
+              <SelectItem key="lifetime">Lifetime</SelectItem>
+            </Select>
           </div>
 
           <Textarea

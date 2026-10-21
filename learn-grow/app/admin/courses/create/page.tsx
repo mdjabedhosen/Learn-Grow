@@ -22,11 +22,10 @@ import {
   useGetUsersAdminQuery,
 } from "@/redux/api/userApi";
 import { FaUserTie } from "react-icons/fa";
-
+import { getCoursePricing, validateDiscountPrice } from "@/utils/pricing";
 export default function CreateCoursePage() {
   const router = useRouter();
-  const [createCourse, { isLoading }] = useCreateCourseMutation();
-  const { data: allInstructorsData } = useGetAllInstructorsQuery({ limit: 100 });
+  const [createCourse, { isLoading }] = useCreateCourseMutation();  const { data: allInstructorsData } = useGetAllInstructorsQuery({ limit: 100 });
   const { data: approvedInstructorsData } = useGetApprovedInstructorsPublicQuery();
   const { data: adminInstructorsData } = useGetUsersAdminQuery({ role: "instructor", limit: 100 });
   const { data: adminAdminsData } = useGetUsersAdminQuery({ role: "admin", limit: 50 });
@@ -54,6 +53,7 @@ export default function CreateCoursePage() {
     title: "",
     description: "",
     price: "",
+    discountPrice: "",
     level: "Beginner",
     category: "",
     thumbnail: "",
@@ -66,6 +66,15 @@ export default function CreateCoursePage() {
     maxBatchSize: 15,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Live preview of the discount the admin is about to save.
+  const discountPercent = React.useMemo(() => {
+    const { discountPercent: pct } = getCoursePricing({
+      price: Number(formData.price),
+      discountPrice: formData.discountPrice ? Number(formData.discountPrice) : null,
+    });
+    return pct > 0 ? pct : null;
+  }, [formData.price, formData.discountPrice]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +91,15 @@ export default function CreateCoursePage() {
       if (!formData.price) {
         nextErrors.price = "Price is required";
       }
+      if (formData.discountPrice.trim()) {
+        const validation = validateDiscountPrice(
+          Number(formData.price),
+          Number(formData.discountPrice)
+        );
+        if (!validation.valid) {
+          nextErrors.discountPrice = validation.error || "Invalid discount price";
+        }
+      }
       if (!formData.level) {
         nextErrors.level = "Level is required";
       }
@@ -96,6 +114,9 @@ export default function CreateCoursePage() {
       const payload = {
         ...formData,
         price: Number(formData.price),
+        discountPrice: formData.discountPrice.trim()
+          ? Number(formData.discountPrice)
+          : undefined,
         registrationDeadline: formData.registrationDeadline || undefined,
         modules: [], // Start with empty modules
       };
@@ -186,6 +207,23 @@ export default function CreateCoursePage() {
                   variant="bordered"
                   isInvalid={!!errors.price}
                   errorMessage={errors.price}
+                />
+
+                <Input
+                  type="number"
+                  label="Discount Price (BDT)"
+                  placeholder="Leave empty for no discount"
+                  name="discountPrice"
+                  value={formData.discountPrice}
+                  onChange={handleChange}
+                  variant="bordered"
+                  isInvalid={!!errors.discountPrice}
+                  errorMessage={errors.discountPrice}
+                  description={
+                    discountPercent !== null
+                      ? `${discountPercent}% off — the original price stays visible.`
+                      : "Leave empty for no discount."
+                  }
                 />
 
                 <Select

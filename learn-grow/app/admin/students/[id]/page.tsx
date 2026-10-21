@@ -38,7 +38,7 @@ import {
   FaBox,
 } from "react-icons/fa";
 import { useGetUserByIdQuery } from "@/redux/api/userApi";
-import { useGetStudentOrdersQuery } from "@/redux/api/orderApi";
+import { useGetStudentOrdersQuery, type Order } from "@/redux/api/orderApi";
 import axios from "axios";
 import { API_CONFIG } from "@/config/apiConfig";
 import Cookies from "js-cookie";
@@ -67,24 +67,34 @@ export default function AdminStudentDetailPage() {
 
   const orders = ordersData?.data || [];
 
-  // Find active quarterly subscription
+  // Find active quarterly subscription.
+  //
+  // The predicate also guarantees a defined `endDate`: an order without an end
+  // date produces an Invalid Date, which never compares greater than "now".
   const activeQuarterlyOrder = orders.find(
-    (order: any) =>
+    (order): order is Order & { endDate: string } =>
       order.planType === "quarterly" &&
       order.paymentStatus === "approved" &&
       order.isActive &&
+      !!order.endDate &&
       new Date(order.endDate) > new Date()
   );
 
   // Find single-course orders that are approved
   const approvedSingleCourseOrders = orders.filter(
-    (order: any) =>
+    (order): order is Order & { endDate: string } =>
       order.planType === "single" &&
       order.paymentStatus === "approved" &&
       order.isActive &&
-      order.courseId &&
+      !!order.courseId &&
+      !!order.endDate &&
       new Date(order.endDate) > new Date()
   );
+
+  // The single-course order whose access is currently being extended.
+  const selectedOrder = selectedOrderIdForDays
+    ? approvedSingleCourseOrders.find((order) => order._id === selectedOrderIdForDays)
+    : undefined;
 
   // Calculate remaining time
   const calculateRemainingTime = (endDate: string) => {
@@ -344,7 +354,9 @@ export default function AdminStudentDetailPage() {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-700">Started</span>
                   <span className="text-sm text-gray-600">
-                    {new Date(activeQuarterlyOrder.startDate).toLocaleDateString("en-GB")}
+                    {activeQuarterlyOrder.startDate
+                      ? new Date(activeQuarterlyOrder.startDate).toLocaleDateString("en-GB")
+                      : "-"}
                   </span>
                 </div>
               </CardBody>
@@ -574,34 +586,29 @@ export default function AdminStudentDetailPage() {
                   <p className="text-sm text-gray-600">
                     Extend the student's course access by adding more days.
                   </p>
-                  {selectedOrderIdForDays && approvedSingleCourseOrders.find((o: any) => o._id === selectedOrderIdForDays) && (
+                  {selectedOrder && (
                     <>
-                      {(() => {
-                        const selectedOrder = approvedSingleCourseOrders.find((o: any) => o._id === selectedOrderIdForDays);
-                        return (
-                          <div className="bg-blue-50 p-4 rounded-lg space-y-2">
-                            <p className="text-sm font-semibold text-gray-900 mb-2">
-                              {selectedOrder.courseId?.title || "Course"}
-                            </p>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-600">Current End Date:</span>
-                              <span className="font-semibold">
-                                {new Date(selectedOrder.endDate).toLocaleDateString("en-GB")}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-green-700">New End Date:</span>
-                              <span className="font-bold text-green-700">
-                                {(() => {
-                                  const newDate = new Date(selectedOrder.endDate);
-                                  newDate.setDate(newDate.getDate() + extensionDays);
-                                  return newDate.toLocaleDateString("en-GB");
-                                })()}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })()}
+                      <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+                        <p className="text-sm font-semibold text-gray-900 mb-2">
+                          {selectedOrder.courseId?.title || "Course"}
+                        </p>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Current End Date:</span>
+                          <span className="font-semibold">
+                            {new Date(selectedOrder.endDate).toLocaleDateString("en-GB")}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-green-700">New End Date:</span>
+                          <span className="font-bold text-green-700">
+                            {(() => {
+                              const newDate = new Date(selectedOrder.endDate);
+                              newDate.setDate(newDate.getDate() + extensionDays);
+                              return newDate.toLocaleDateString("en-GB");
+                            })()}
+                          </span>
+                        </div>
+                      </div>
                       <div className="space-y-2">
                         <label className="text-sm font-semibold">Quick Options</label>
                         <div className="flex gap-2">

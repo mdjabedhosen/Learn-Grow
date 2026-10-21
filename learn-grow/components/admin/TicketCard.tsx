@@ -78,9 +78,11 @@ export default function TicketCard({ ticket, onDelete }: TicketCardProps) {
     ? "/instructor/tickets"
     : "/student/tickets";
 
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Prevent card click navigation
-    
+  const handleDelete = async () => {
+    // NextUI's `onPress` (react-aria's usePress) already stops the underlying
+    // pointer event from bubbling, so the pressable Card does not navigate
+    // when the delete button is used.
+
     const ok = window.confirm(
       `Are you sure you want to delete this ticket? This action cannot be undone.`
     );

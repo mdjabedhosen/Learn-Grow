@@ -225,6 +225,32 @@ export const submitAssignment = async (
       };
     }
 
+    // SECURITY/CORRECTNESS: neither the due date nor the student's own
+    // enrollment was checked, so a student could submit for a course they
+    // are not enrolled in, and could submit long after the deadline.
+    if (assignment.dueDate) {
+      const due = new Date(assignment.dueDate);
+      if (!isNaN(due.getTime()) && due.getTime() < Date.now()) {
+        return {
+          success: false,
+          message: `The deadline for this assignment has passed (${due.toISOString()}).`,
+        };
+      }
+    }
+
+    const { Enrollment } = await import("../../enrollment/model/enrollment.model");
+    const enrollment = await Enrollment.findOne({
+      studentId,
+      courseId: assignment.courseId,
+    });
+
+    if (!enrollment) {
+      return {
+        success: false,
+        message: "You are not enrolled in this course.",
+      };
+    }
+
     const existingSubmission = await AssignmentSubmission.findOne({
       assignmentId,
       studentId,
@@ -358,10 +384,55 @@ export const gradeSubmission = async (
       };
     }
 
+    // SECURITY: `assignment.maxScore` was loaded but never used, so an
+    // assignment worth 100 could be graded 5000. The score is now validated
+    // against the maximum.
+    const maxScore = assignment.maxScore ?? 100;
+    if (typeof score !== "number" || !Number.isFinite(score)) {
+      return {
+        success: false,
+        message: "Score must be a number",
+      };
+    }
+    if (score < 0) {
+      return {
+        success: false,
+        message: "Score cannot be negative",
+      };
+    }
+    if (score > maxScore) {
+      return {
+        success: false,
+        message: `Score cannot be higher than the maximum score (${maxScore})`,
+      };
+    }
+
     submission.score = score;
     submission.feedback = feedback;
     submission.status = "graded";
+    submission.gradedAt = new Date();
+    submission.gradedBy = instructorId as any;
     await submission.save();
+
+    // COMPLETION: `Enrollment.completedAssignments` was only ever written as
+    // `[]` - nothing ever pushed an id into it - so
+    // `completedAssignments.length >= totalAssignments` was always false and
+    // `isCompleted` stayed false forever. Grading is what marks the
+    // assignment as done for the student.
+    try {
+      const { Enrollment } = await import(
+        "../../enrollment/model/enrollment.model"
+      );
+      await Enrollment.updateOne(
+        { studentId: submission.studentId, courseId: assignment.courseId },
+        { $addToSet: { completedAssignments: assignment._id } }
+      );
+    } catch (enrollmentError) {
+      console.error(
+        "[Assignment Grading] Could not record completion:",
+        enrollmentError
+      );
+    }
 
     return {
       success: true,

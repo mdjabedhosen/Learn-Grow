@@ -80,12 +80,20 @@ export const apiRateLimiter = rateLimit({
 
 // 5. Prevent Parameter Pollution Attack
 export const preventParamPollution = (req: Request, res: Response, next: NextFunction) => {
-  // Only keep the last value for duplicate query parameters
-  Object.keys(req.query).forEach(key => {
-    if (Array.isArray(req.query[key])) {
-      req.query[key] = (req.query[key] as string[])[
-        (req.query[key] as string[]).length - 1
-      ];
+  // Only keep the last value for duplicate query parameters.
+  //
+  // Express 5 exposes `req.query` as a GETTER that re-parses the URL on
+  // every access, so writing to it used to mutate a throwaway object and
+  // had no effect at all. `mongoSanitize` (which runs first) replaces the
+  // getter with a real value, so this now really works.
+  const query = req.query as Record<string, any>;
+  if (!query || typeof query !== "object") {
+    return next();
+  }
+
+  Object.keys(query).forEach(key => {
+    if (Array.isArray(query[key])) {
+      query[key] = query[key][query[key].length - 1];
     }
   });
   next();
@@ -97,6 +105,23 @@ export const requestSizeLimiter = {
   urlencoded: { limit: '500kb', extended: true },
 };
 
+// 6b. Public form / anonymous-write rate limiter
+//
+// The coupon validation, contact form and trial booking endpoints are
+// intentionally public, but they were only covered by the global
+// 300-requests-per-15-minutes limiter, which is far too generous for an
+// anonymous write endpoint and made them usable as a spam relay.
+export const publicFormRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // Max 10 anonymous submissions per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many requests from this IP. Please try again after 15 minutes.',
+  },
+});
+
 // 7. Sanitize MongoDB Query Objects
 export const mongoSanitize = (req: Request, res: Response, next: NextFunction) => {
   const sanitize = (data: any): any => {
@@ -105,7 +130,10 @@ export const mongoSanitize = (req: Request, res: Response, next: NextFunction) =
       // BUT: Keep dots (.) as they're legitimate in emails and URLs
       return data.replace(/\$/g, '');
     }
-    if (data instanceof Object) {
+    // NOTE: `instanceof Object` is FALSE for a null-prototype object, which
+    // is what Express 5 can hand back for `req.query`. Check the type
+    // instead.
+    if (data && typeof data === 'object') {
       for (let key in data) {
         if (/^\$/.test(key)) {
           delete data[key];
@@ -118,8 +146,25 @@ export const mongoSanitize = (req: Request, res: Response, next: NextFunction) =
   };
 
   sanitize(req.body);
-  sanitize(req.query);
   sanitize(req.params);
+
+  // SECURITY: Express 5 defines `req.query` as a getter that re-parses the
+  // URL on EVERY access, so `sanitize(req.query)` used to sanitise a
+  // throwaway object and the real query kept its `$`-prefixed keys. Read it
+  // once, sanitise it, and replace the getter with the sanitised value.
+  const query = req.query;
+  sanitize(query);
+  try {
+    Object.defineProperty(req, "query", {
+      value: query,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+  } catch {
+    // A frozen request object: nothing we can do, but do not break the
+    // request over it.
+  }
 
   next();
 };

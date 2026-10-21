@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "test": "node --import tsx --test src/utils/__tests__/pricing.test.ts src/utils/__tests__/safeFetch.test.ts src/modules/user/service/__tests__/adminUserUpdate.test.ts src/modules/quiz/service/__tests__/sanitizeQuiz.test.ts src/middleware/__tests__/validate.test.ts src/config/__tests__/env.security.test.ts",
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "db:drop-phone-index": "tsx src/scripts/dropPhoneIndex.ts",
@@ -26,7 +27,17 @@
     "db:seed-live-classes": "node seed-500-classes.js",
     "db:seed-500-courses": "tsx src/scripts/seed500Courses.ts",
     "db:seed-tutors": "tsx src/scripts/seedTutors.ts",
-    "delete-team": "tsx src/scripts/seed-roles.ts"
+    "delete-team": "tsx src/scripts/seed-roles.ts",
+    "db:set-course-discounts": "tsx src/scripts/setCourseDiscounts.ts",
+    "db:set-course-discounts:apply": "tsx src/scripts/setCourseDiscounts.ts --apply",
+    "google:oauth:check": "tsx src/scripts/checkGoogleRedirectUris.ts",
+    "verify:role-change": "tsx src/scripts/verifyAdminRoleChange.ts",
+    "verify:role-change:http": "tsx src/scripts/verifyAdminRoleChangeHttp.ts",
+    "verify:role-change:ui": "tsx src/scripts/verifyAdminRoleChangeUi.ts",
+    "create-admin": "tsx src/scripts/createAdmin.ts",
+    "invalidate:default-passwords": "tsx src/scripts/invalidateDefaultPasswords.ts",
+    "verify:security": "tsx src/scripts/verifySecurityFixes.ts",
+    "verify:quiz-flow": "tsx src/scripts/verifyQuizFlowUi.ts"
   },
   "author": "",
   "license": "MIT",

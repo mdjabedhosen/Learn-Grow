@@ -1,0 +1,90 @@
+name: CI
+
+# Every push and pull request must pass typecheck, tests and build before it
+# can be deployed. Previously there was no CI at all: the deploy workflow
+# built on the server and shipped whatever compiled, so type errors, failing
+# tests and broken pages all reached production unnoticed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (typecheck, test, build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: grow-backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: grow-backend
+        run: npm install --legacy-peer-deps
+
+      - name: Typecheck
+        working-directory: grow-backend
+        run: npx tsc --noEmit
+
+      - name: Test
+        working-directory: grow-backend
+        run: npm test
+
+      - name: Build
+        working-directory: grow-backend
+        run: npm run build
+
+      - name: Fail if secrets are tracked
+        run: |
+          # The .env files hold live production credentials and must never be
+          # committed again (audit C-1).
+          if git ls-files --error-unmatch grow-backend/.env .env learn-grow/.env learn-grow/.env.production >/dev/null 2>&1; then
+            echo "::error::An environment file with secrets is tracked in git."
+            git ls-files | grep -E "(^|/)\.env$" || true
+            exit 1
+          fi
+          echo "No tracked environment files."
+
+  frontend:
+    name: Frontend (typecheck, build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: learn-grow/package-lock.json
+
+      - name: Install dependencies
+        working-directory: learn-grow
+        run: npm install --legacy-peer-deps
+
+      - name: Typecheck
+        working-directory: learn-grow
+        run: npx tsc --noEmit
+
+      - name: Build
+        working-directory: learn-grow
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://learnandgrow.io/api

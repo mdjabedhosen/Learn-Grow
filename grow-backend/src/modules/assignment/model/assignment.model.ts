@@ -25,6 +25,8 @@ export interface IAssignmentSubmission extends Document {
   score?: number;
   feedback?: string;
   status: "submitted" | "graded";
+  gradedAt?: Date;
+  gradedBy?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +58,8 @@ const assignmentSubmissionSchema = new Schema<IAssignmentSubmission>(
     score: { type: Number, min: 0 },
     feedback: { type: String },
     status: { type: String, enum: ["submitted", "graded"], default: "submitted" },
+    gradedAt: Date,
+    gradedBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

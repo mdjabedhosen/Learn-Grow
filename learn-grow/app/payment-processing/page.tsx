@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { CheckCircle, AlertCircle, Lock, Check, Clock } from "lucide-react";
 import { API_CONFIG } from "@/config/apiConfig";

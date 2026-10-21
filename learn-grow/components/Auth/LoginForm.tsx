@@ -34,6 +34,10 @@ export default function LoginForm() {
 
   const sessionExpired = searchParams?.get("session_expired") === "true";
   const redirectParam = searchParams?.get("redirect");
+  // The backend detects an unregistered OAuth redirect_uri before handing the
+  // browser to Google, and comes back with the URI that has to be registered.
+  const oauthError = searchParams?.get("error");
+  const oauthRedirectUri = searchParams?.get("redirect_uri");
 
   // Sync language with Navbar
   useEffect(() => {
@@ -59,6 +63,22 @@ export default function LoginForm() {
       );
     }
   }, [sessionExpired, language]);
+
+  useEffect(() => {
+    if (oauthError !== "google_not_configured") return;
+
+    const message =
+      language === "bn"
+        ? `Google সাইন-ইন এই পরিবেশে কনফিগার করা নেই। Google Cloud Console-এ OAuth client-এর "Authorized redirect URIs"-তে যোগ করুন: ${
+            oauthRedirectUri || "http://localhost:5005/api/auth/google/callback"
+          }`
+        : `Google sign-in is not configured for this environment. Add this URI to the OAuth client's "Authorized redirect URIs" in the Google Cloud Console: ${
+            oauthRedirectUri || "http://localhost:5005/api/auth/google/callback"
+          }`;
+
+    setError(message);
+    toast.error(message, { autoClose: 12000 });
+  }, [oauthError, oauthRedirectUri, language]);
 
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -107,7 +127,7 @@ export default function LoginForm() {
 
         // Redirect based on role
         const role = result.data?.user.role;
-        if (role === "admin" || role === "super_admin") {
+        if (role === "admin") {
           router.push("/admin");
         } else if (role === "instructor") {
           router.push("/instructor");

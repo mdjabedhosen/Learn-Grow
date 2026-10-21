@@ -5,11 +5,15 @@ import { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 import { Button, Card, CardBody, CardHeader, Input, Spinner } from "@nextui-org/react";
 import { toast } from "react-toastify";
+import { API_CONFIG } from "@/config/apiConfig";
 
 function SelectRoleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get("userId");
+  // The backend now issues a token for the new account before role selection,
+  // so the request that finalises the account can be authenticated.
+  const accessToken = searchParams.get("accessToken");
+  const refreshToken = searchParams.get("refreshToken");
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -17,40 +21,39 @@ function SelectRoleContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) {
-      setError("Invalid request. User ID not found.");
+    if (!accessToken) {
+      setError("Invalid request. Please sign in with Google again.");
     }
-  }, [userId]);
+  }, [accessToken]);
 
   const handleSubmit = async () => {
-    if (!userId) return;
+    if (!accessToken) return;
     setIsLoading(true);
     setError(null);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/users/select-role/${userId}`,
+        `${API_CONFIG.ORIGIN}/api/users/select-role`,
         {
           role: "student",
           name: name || undefined,
           phone: phone || undefined,
-        }
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
 
       if (response.data.success && response.data.data) {
-        const { accessToken, refreshToken, user } = response.data.data;
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken, user } =
+          response.data.data;
 
-        const Cookies = await import("js-cookie").then((m) => m.default);
-        Cookies.set("accessToken", accessToken, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-        Cookies.set("refreshToken", refreshToken, {
-          expires: 30,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-        Cookies.set("userRole", user.role || "student");
+        // Persist the (possibly rotated) tokens for the rest of the session.
+        document.cookie = `accessToken=${newAccessToken}; path=/; max-age=604800; SameSite=Lax`;
+        document.cookie = `refreshToken=${newRefreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+        document.cookie = `userRole=${user.role || "student"}; path=/`;
+        localStorage.setItem("token", newAccessToken);
+        localStorage.setItem("accessToken", newAccessToken);
+        localStorage.setItem("refreshToken", newRefreshToken || refreshToken || "");
+        localStorage.setItem("userRole", user.role || "student");
+        window.dispatchEvent(new Event("auth-change"));
 
         toast.success("You're all set! Redirecting to dashboard...");
         router.push("/student");
@@ -67,12 +70,14 @@ function SelectRoleContent() {
     }
   };
 
-  if (!userId) {
+  if (!accessToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <Card className="w-full max-w-md">
           <CardBody className="p-6">
-            <p className="text-red-600 font-semibold">Invalid request. User ID not found.</p>
+            <p className="text-red-600 font-semibold">
+              Invalid request. Please sign in with Google again.
+            </p>
           </CardBody>
         </Card>
       </div>

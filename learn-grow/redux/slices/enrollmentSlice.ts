@@ -3,7 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface EnrolledCourse {
     courseId: string;
     enrolledAt: string;
+    /**
+     * The number of COMPLETED LESSONS - a count, not a percentage.
+     * `completionPercentage` is the 0-100 percentage.
+     */
     progress: number;
+    /** 0-100. Use this for anything shown as a percentage. */
+    completionPercentage: number;
     completed: boolean;
 }
 
@@ -28,20 +34,28 @@ const enrollmentSlice = createSlice({
                     courseId: action.payload.courseId,
                     enrolledAt: new Date().toISOString(),
                     progress: 0,
+                    completionPercentage: 0,
                     completed: false,
                 });
             }
         },
         updateProgress: (
             state,
-            action: PayloadAction<{ courseId: string; progress: number }>
+            action: PayloadAction<{
+                courseId: string;
+                progress: number;
+                completionPercentage?: number;
+            }>
         ) => {
             const course = state.enrolledCourses.find(
                 (e) => e.courseId === action.payload.courseId
             );
             if (course) {
                 course.progress = action.payload.progress;
-                if (action.payload.progress >= 100) {
+                // The percentage is what the UI shows; `progress` is a count.
+                course.completionPercentage =
+                    action.payload.completionPercentage ?? course.completionPercentage;
+                if (course.completionPercentage >= 100) {
                     course.completed = true;
                 }
             }

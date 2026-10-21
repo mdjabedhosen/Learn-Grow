@@ -5,6 +5,22 @@ import { Spinner } from "@nextui-org/react";
 import TeamClient from "@/components/TeamClient";
 import { useGetAllTeamMembersQuery } from "@/redux/api/teamApi";
 
+/** A team member as rendered by `TeamClient`. */
+interface TeamMember {
+    _id: string;
+    image?: string;
+    name?: string;
+    role?: string;
+    domain?: string;
+    yearsOfExperience?: string | number;
+    expertise?: string[] | string;
+    bio?: string;
+    linkedIn?: string;
+    twitter?: string;
+    showOnHome?: boolean;
+    position?: number;
+}
+
 export default function TeamPage() {
     const { data: teamData, isLoading: teamLoading } = useGetAllTeamMembersQuery({});
 
@@ -14,9 +30,9 @@ export default function TeamPage() {
             return { hero: {}, leadership: { cLevel: [], teamLeads: [] }, instructors: [], executives: [] };
         }
 
-        const leadership = { cLevel: [], teamLeads: [] };
-        const instructors = [];
-        const executives = [];
+        const leadership: { cLevel: TeamMember[]; teamLeads: TeamMember[] } = { cLevel: [], teamLeads: [] };
+        const instructors: TeamMember[] = [];
+        const executives: TeamMember[] = [];
 
         const seenNames = new Set<string>();
 

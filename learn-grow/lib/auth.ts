@@ -78,6 +78,20 @@ export interface VerifyOTPResponse {
   message: string;
 }
 
+/**
+ * The roles a user account can hold.
+ *
+ * Mirrors `USER_ROLES` in
+ * `grow-backend/src/modules/user/model/user.model.ts` so a role can never be
+ * accepted by one layer and rejected by another.
+ */
+export type UserRole =
+  | "admin"
+  | "manager"
+  | "instructor"
+  | "student"
+  | "guardian";
+
 export interface RegisterResponse {
   success: boolean;
   message: string;
@@ -87,7 +101,7 @@ export interface RegisterResponse {
       name: string;
       email: string;
       phone: string;
-      role: "student" | "instructor" | "guardian";
+      role: UserRole;
       isVerified: boolean;
     };
     accessToken: string;
@@ -104,7 +118,7 @@ export interface LoginResponse {
       name: string;
       email: string;
       phone: string;
-      role: "student" | "instructor" | "guardian";
+      role: UserRole;
       isVerified: boolean;
     };
     accessToken: string;

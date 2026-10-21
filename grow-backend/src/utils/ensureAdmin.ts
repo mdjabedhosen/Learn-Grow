@@ -906,51 +906,54 @@ export const ensureSitePolicies = async () => {
   }
 };
 
+/**
+ * Verify the admin accounts exist and are usable.
+ *
+ * SECURITY: this used to CREATE missing admin accounts with a hardcoded
+ * password ("Admin@123") on every server boot, and to un-block them. That
+ * meant a published default credential gave anyone full admin access, and a
+ * deliberately blocked admin was silently re-enabled on the next restart.
+ *
+ * Now it only repairs the *flags* of accounts that already exist. Creating
+ * an administrator is an explicit, one-off operator action - see
+ * `src/scripts/createAdmin.ts`.
+ */
 export const ensureAdminUsers = async () => {
   try {
     const adminEmails = ["admin@learn-grow.com", "admin@learngrow.com", "admin@learnandgrow.io"];
-    const hashedPassword = await bcrypt.hash("Admin@123", 10);
 
     for (const email of adminEmails) {
       const existingUser = await User.findOne({ 
         email: { $regex: new RegExp(`^${email.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}$`, "i") } 
       });
 
-      if (existingUser) {
-        // SECURITY FIX: Never overwrite existing admin passwords on server boot!
-        let changed = false;
-        if (existingUser.role !== "admin") {
-          existingUser.role = "admin";
-          changed = true;
-        }
-        if (!existingUser.isVerified) {
-          existingUser.isVerified = true;
-          changed = true;
-        }
-        if (!existingUser.isApproved) {
-          existingUser.isApproved = true;
-          changed = true;
-        }
-        if (existingUser.isBlocked) {
-          existingUser.isBlocked = false;
-          changed = true;
-        }
-        if (changed) {
-          await existingUser.save();
-          console.log(`[Admin Seeder] Verified admin privileges for ${email}`);
-        }
-      } else {
-        await User.create({
-          name: "System Admin",
-          email,
-          password: hashedPassword,
-          role: "admin",
-          phone: email.includes("learn-grow") ? "01700000001" : "01700000002",
-          isVerified: true,
-          isApproved: true,
-          isBlocked: false,
-        });
-        console.log(`[Admin Seeder] Created new admin user for ${email}`);
+      if (!existingUser) {
+        // Deliberately NOT created: an implicit account with a known password
+        // is an open door. The operator must run `npm run create-admin`.
+        console.warn(
+          `[Admin Seeder] No admin account for ${email}. ` +
+            "Not creating one automatically - run `npm run create-admin` to provision an administrator."
+        );
+        continue;
+      }
+
+      // SECURITY FIX: Never overwrite existing admin passwords on server boot!
+      let changed = false;
+      if (existingUser.role !== "admin") {
+        existingUser.role = "admin";
+        changed = true;
+      }
+      if (!existingUser.isVerified) {
+        existingUser.isVerified = true;
+        changed = true;
+      }
+      if (!existingUser.isApproved) {
+        existingUser.isApproved = true;
+        changed = true;
+      }
+      if (changed) {
+        await existingUser.save();
+        console.log(`[Admin Seeder] Verified admin privileges for ${email}`);
       }
     }
 
@@ -963,18 +966,31 @@ export const ensureAdminUsers = async () => {
     try {
       const activeSMTP = await SMTPConfig.findOne({ isActive: true });
       if (!activeSMTP) {
-        await SMTPConfig.create({
-          host: "smtp.gmail.com",
-          port: 465,
-          secure: true,
-          user: "learngroweducation@gmail.com",
-          password: "pcdfwflixgfkxzji",
-          fromName: "Learn & Grow STEM Academy",
-          fromEmail: "noreply@learnandgrow.io",
-          replyTo: "info@learnandgrow.io",
-          isActive: true,
-        });
-        console.log("[SMTP Seeder] Configured active SMTP configuration for learngroweducation@gmail.com");
+        // The Gmail app password must come from the environment. It used to be
+        // hardcoded here, which put a live mail credential in the repository.
+        const smtpUser = process.env.SMTP_USER || "";
+        const smtpPassword = process.env.SMTP_APP_PASSWORD || "";
+
+        if (!smtpUser || !smtpPassword) {
+          console.warn(
+            "[SMTP Seeder] No active SMTP config found and SMTP_USER / " +
+              "SMTP_APP_PASSWORD are not set - skipping. Configure SMTP from " +
+              "the admin settings panel or set the environment variables."
+          );
+        } else {
+          await SMTPConfig.create({
+            host: process.env.SMTP_HOST || "smtp.gmail.com",
+            port: Number(process.env.SMTP_PORT || 465),
+            secure: true,
+            user: smtpUser,
+            password: smtpPassword,
+            fromName: "Learn & Grow STEM Academy",
+            fromEmail: "noreply@learnandgrow.io",
+            replyTo: "info@learnandgrow.io",
+            isActive: true,
+          });
+          console.log("[SMTP Seeder] Configured active SMTP configuration from the environment");
+        }
       }
     } catch (smtpErr) {
       console.error("[SMTP Seeder] Failed to ensure SMTP config:", smtpErr);

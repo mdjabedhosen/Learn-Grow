@@ -19,6 +19,8 @@ import {
 } from "@nextui-org/react";
 import { FaEdit, FaArrowLeft, FaBook, FaTags, FaPercent } from "react-icons/fa";
 import { useGetComboByIdQuery } from "@/redux/api/comboApi";
+import { getCoursePricing } from "@/utils/pricing";
+import { formatBDT } from "@/utils/format";
 
 export default function ComboDetailsPage() {
   const router = useRouter();
@@ -59,8 +61,16 @@ export default function ComboDetailsPage() {
     (sum: number, course: any) => sum + (course.price || 0),
     0
   );
-  const discountAmount = Math.round(totalOriginalPrice * (combo.discountPercentage / 100));
-  const totalComboPrice = totalOriginalPrice - discountAmount;
+  // Pricing comes from the backend record: `price` is the original price and
+  // `discountPrice` (when set) is the price after the discount. The percentage
+  // is derived, never hardcoded.
+  const comboPricing = getCoursePricing(combo);
+  const discountAmount = Math.max(
+    0,
+    totalOriginalPrice - comboPricing.effectivePrice
+  );
+  const discountPercentage = comboPricing.discountPercent;
+  const totalComboPrice = comboPricing.effectivePrice;
 
   return (
     <div className="w-full p-6 max-w-4xl mx-auto">
@@ -109,7 +119,7 @@ export default function ComboDetailsPage() {
               <FaPercent className="text-3xl text-green-600" />
               <div>
                 <p className="text-sm text-gray-600">Discount</p>
-                <p className="text-2xl font-bold">{combo.discountPercentage}%</p>
+                <p className="text-2xl font-bold">{discountPercentage}%</p>
               </div>
             </div>
           </CardBody>
@@ -142,17 +152,17 @@ export default function ComboDetailsPage() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Original Total Price:</span>
-              <span className="font-medium">৳{totalOriginalPrice.toLocaleString()}</span>
+              <span className="font-medium">{formatBDT(totalOriginalPrice)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Discount ({combo.discountPercentage}%):</span>
-              <span className="font-medium text-red-600">-৳{discountAmount.toLocaleString()}</span>
+              <span className="text-gray-600">Discount ({discountPercentage}%):</span>
+              <span className="font-medium text-red-600">-{formatBDT(discountAmount)}</span>
             </div>
             <Divider className="my-2" />
             <div className="flex justify-between">
               <span className="font-semibold">Combo Price:</span>
               <span className="text-xl font-bold text-green-600">
-                ৳{totalComboPrice.toLocaleString()}
+                {formatBDT(totalComboPrice)}
               </span>
             </div>
           </div>
@@ -193,7 +203,7 @@ export default function ComboDetailsPage() {
                         </Chip>
                       </TableCell>
                       <TableCell>
-                        <span className="font-semibold">৳{course.price}</span>
+                        <span className="font-semibold">{formatBDT(course.price)}</span>
                       </TableCell>
                       <TableCell>
                         <Chip

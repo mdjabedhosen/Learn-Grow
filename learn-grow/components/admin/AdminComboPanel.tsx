@@ -105,7 +105,7 @@ export default function AdminComboPanel() {
             <Tab key="overview" title="Overview">
               <div className="py-8 space-y-6">
                 <Alert
-                  color="info"
+                  color="primary"
                   title="Welcome to the Admin Dashboard"
                   description="Use the tabs below to access different management tools, or select from the quick action cards above."
                 />

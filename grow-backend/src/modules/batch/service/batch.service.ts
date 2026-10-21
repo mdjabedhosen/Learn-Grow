@@ -3,6 +3,53 @@ import { Batch, IBatch } from "../model/batch.model";
 import { Course } from "../../course/model/course.model";
 import { Enrollment } from "../../enrollment/model/enrollment.model";
 import { User } from "../../user/model/user.model";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Fields an admin may set when creating a batch.
+ * `enrolledStudents` is managed by the assign/remove endpoints and the
+ * timestamps belong to Mongoose.
+ */
+const BATCH_CREATE_FIELDS = [
+  "courseId",
+  "batchNumber",
+  "batchName",
+  "instructorId",
+  "maxStudents",
+  "schedule",
+  "startDate",
+  "zoomLink",
+  "whatsappGroupUrl",
+  "notes",
+  "status",
+] as const;
+
+/**
+ * Fields an admin may set when updating a batch.
+ * `batchNumber` is the auto-assigned sequence number and `enrolledStudents`
+ * is maintained by the assign/remove endpoints.
+ */
+const BATCH_ADMIN_UPDATE_FIELDS = [
+  "courseId",
+  "batchName",
+  "instructorId",
+  "maxStudents",
+  "schedule",
+  "startDate",
+  "endDate",
+  "zoomLink",
+  "whatsappGroupUrl",
+  "notes",
+  "status",
+] as const;
+
+/** Fields the assigned instructor may set on their own batch. */
+const BATCH_INSTRUCTOR_UPDATE_FIELDS = [
+  "schedule",
+  "zoomLink",
+  "whatsappGroupUrl",
+  "notes",
+] as const;
 
 /**
  * Automatically assign a student to an active batch of a course.
@@ -202,27 +249,30 @@ export const createBatchAdmin = async (data: {
 }) => {
   const courseObjId = new Types.ObjectId(data.courseId);
 
-  let batchNumber = data.batchNumber;
+  // Drop every key that is not explicitly editable (mass-assignment guard).
+  const safeData = pickDefined(data, BATCH_CREATE_FIELDS);
+
+  let batchNumber = safeData.batchNumber;
   if (!batchNumber) {
     const lastBatch = await Batch.findOne({ courseId: courseObjId }).sort({ batchNumber: -1 });
     batchNumber = lastBatch ? lastBatch.batchNumber + 1 : 1;
   }
 
-  const batchName = data.batchName?.trim() || `Batch ${batchNumber}`;
+  const batchName = safeData.batchName?.trim() || `Batch ${batchNumber}`;
 
   const newBatch = await Batch.create({
     courseId: courseObjId,
     batchNumber,
     batchName,
     instructorId: new Types.ObjectId(data.instructorId),
-    maxStudents: data.maxStudents || 15,
+    maxStudents: safeData.maxStudents || 15,
     enrolledStudents: [],
-    status: data.status || "ongoing",
-    schedule: data.schedule || "Sat & Tue 7:00 PM - 8:00 PM",
-    startDate: data.startDate || new Date(),
-    zoomLink: data.zoomLink || "",
-    whatsappGroupUrl: data.whatsappGroupUrl || "",
-    notes: data.notes || "",
+    status: safeData.status || "ongoing",
+    schedule: safeData.schedule || "Sat & Tue 7:00 PM - 8:00 PM",
+    startDate: safeData.startDate || new Date(),
+    zoomLink: safeData.zoomLink || "",
+    whatsappGroupUrl: safeData.whatsappGroupUrl || "",
+    notes: safeData.notes || "",
   });
 
   // Ensure this instructor is also included in course.instructorIds
@@ -246,10 +296,10 @@ export const updateBatchAdmin = async (
   batchId: string,
   updates: Partial<IBatch> & { instructorId?: string }
 ) => {
-  const updateData: any = { ...updates };
+  const updateData: any = { ...pickDefined(updates, BATCH_ADMIN_UPDATE_FIELDS) };
 
-  if (updates.instructorId) {
-    updateData.instructorId = new Types.ObjectId(updates.instructorId);
+  if (updateData.instructorId) {
+    updateData.instructorId = new Types.ObjectId(updateData.instructorId);
   }
 
   const updatedBatch = await Batch.findByIdAndUpdate(batchId, { $set: updateData }, { new: true })
@@ -427,10 +477,12 @@ export const updateBatchInstructor = async (
     throw new Error("Batch not found or you are not authorized for this batch");
   }
 
-  if (updates.schedule !== undefined) batch.schedule = updates.schedule;
-  if (updates.zoomLink !== undefined) batch.zoomLink = updates.zoomLink;
-  if (updates.whatsappGroupUrl !== undefined) batch.whatsappGroupUrl = updates.whatsappGroupUrl;
-  if (updates.notes !== undefined) batch.notes = updates.notes;
+  const safeUpdates = pickDefined(updates, BATCH_INSTRUCTOR_UPDATE_FIELDS);
+
+  if (safeUpdates.schedule !== undefined) batch.schedule = safeUpdates.schedule;
+  if (safeUpdates.zoomLink !== undefined) batch.zoomLink = safeUpdates.zoomLink;
+  if (safeUpdates.whatsappGroupUrl !== undefined) batch.whatsappGroupUrl = safeUpdates.whatsappGroupUrl;
+  if (safeUpdates.notes !== undefined) batch.notes = safeUpdates.notes;
 
   await batch.save();
   return batch;

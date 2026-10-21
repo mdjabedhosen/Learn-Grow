@@ -134,6 +134,81 @@ export const checkCourseAccess = async (
 };
 
 /**
+ * Middleware to check access to COURSE CONTENT (lessons and modules).
+ *
+ * The lesson endpoints are addressed by module id or lesson id, not by
+ * course id, so `checkCourseAccess` could not be mounted on them as-is.
+ * This middleware resolves the owning course first and then applies exactly
+ * the same access rules.
+ *
+ * Without this, `GET /api/course/get-lessons/:moduleId` returned every
+ * lesson's `contentUrl` and `contentLinks` - the paid video/PDF links - to
+ * anyone who knew a module id, and module ids are enumerable from the
+ * public `GET /api/course/get-modules/:courseId`.
+ */
+export const checkContentAccess = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const moduleId = req.params.moduleId;
+    const lessonId = req.params.id || req.params.lessonId;
+
+    let courseId: string | undefined;
+    let isFreePreview = false;
+
+    const { Module } = await import("../modules/course/model/module.model");
+    const { Lesson } = await import("../modules/course/model/lesson.model");
+
+    if (moduleId && mongoose.Types.ObjectId.isValid(moduleId)) {
+      const module = await Module.findById(moduleId).select("courseId").lean();
+      courseId = module?.courseId?.toString();
+    } else if (lessonId && mongoose.Types.ObjectId.isValid(lessonId)) {
+      const lesson = await Lesson.findById(lessonId)
+        .select("moduleId isFreePreview")
+        .lean();
+      isFreePreview = !!lesson?.isFreePreview;
+      if (lesson?.moduleId) {
+        const module = await Module.findById(lesson.moduleId)
+          .select("courseId")
+          .lean();
+        courseId = module?.courseId?.toString();
+      }
+    }
+
+    if (!courseId) {
+      return res.status(404).json({
+        success: false,
+        message: "Content not found",
+      });
+    }
+
+    // A lesson explicitly marked as a free preview stays public.
+    if (isFreePreview) {
+      return next();
+    }
+
+    // Re-use the course access rules by faking the courseId parameter.
+    req.params.courseId = courseId;
+    return checkCourseAccess(req, res, next);
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to verify course access",
+    });
+  }
+};
+
+/**
  * Middleware to check if user has an active subscription
  * Used for features that require quarterly subscription only
  */

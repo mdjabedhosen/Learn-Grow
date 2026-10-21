@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Card,
   CardBody,
@@ -14,16 +14,10 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Badge,
   Divider,
   Spinner,
   Alert,
-  Tooltip,
 } from "@nextui-org/react";
 import {
   useSetAccessDurationMutation,
@@ -31,83 +25,105 @@ import {
   useReduceAccessMutation,
   useGetUserCourseAccessQuery,
 } from "@/redux/api/accessManagementApi";
-import { hasValidAccess, getRemainingDays, formatDate, getAccessStatus } from "@/lib/access-control";
+import { hasValidAccess, getRemainingDays, formatDate } from "@/lib/access-control";
 import toast from "react-hot-toast";
+
+/** The access windows the backend accepts for an enrollment. */
+type AccessDuration = "1-month" | "2-months" | "3-months" | "lifetime";
+
+const DURATION_OPTIONS: { key: AccessDuration; label: string }[] = [
+  { key: "1-month", label: "1 Month" },
+  { key: "2-months", label: "2 Months" },
+  { key: "3-months", label: "3 Months" },
+  { key: "lifetime", label: "Lifetime" },
+];
 
 export default function AccessDurationManager() {
   const [userId, setUserId] = useState("");
-  const [courseId, setCourseId] = useState("");
-  const [duration, setDuration] = useState<"1-month" | "2-months" | "3-months" | "lifetime">("lifetime");
-  const [daysToAdd, setDaysToAdd] = useState("0");
-  const [daysToReduce, setDaysToReduce] = useState("0");
+  const [enrollmentId, setEnrollmentId] = useState("");
+  const [duration, setDuration] = useState<AccessDuration>("lifetime");
+  const [extendDuration, setExtendDuration] = useState<AccessDuration>("lifetime");
+  const [reduceDuration, setReduceDuration] = useState<AccessDuration>("lifetime");
 
   const [setAccessDuration] = useSetAccessDurationMutation();
   const [extendAccess] = useExtendAccessMutation();
   const [reduceAccess] = useReduceAccessMutation();
 
-  const { data: accessData, isLoading } = useGetUserCourseAccessQuery(
-    { userId },
-    { skip: !userId }
+  const { data: accessData, isLoading } = useGetUserCourseAccessQuery(userId, {
+    skip: !userId,
+  });
+
+  // The endpoint reports active and expired access separately; this manager
+  // shows both in a single list.
+  const accesses = useMemo(
+    () => [
+      ...(accessData?.data?.activeAccess ?? []),
+      ...(accessData?.data?.expiredAccess ?? []),
+    ],
+    [accessData]
   );
 
-  const accesses = accessData?.data || [];
-
   const handleSetDuration = async () => {
-    if (!userId.trim() || !courseId.trim()) {
-      toast.error("Please select user and course");
+    if (!userId.trim() || !enrollmentId) {
+      toast.error("Please select a course");
       return;
     }
 
     try {
-      await setAccessDuration({
-        userId,
-        courseId,
-        duration,
-      }).unwrap();
+      await setAccessDuration({ enrollmentId, duration }).unwrap();
       toast.success("Access duration set!");
-      setCourseId("");
+      setEnrollmentId("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to set access");
     }
   };
 
   const handleExtend = async () => {
-    if (!userId.trim() || !courseId.trim() || !daysToAdd || parseInt(daysToAdd) <= 0) {
-      toast.error("Please fill in all fields with valid numbers");
+    if (!userId.trim() || !enrollmentId) {
+      toast.error("Please select a course");
       return;
     }
 
     try {
-      await extendAccess({
-        userId,
-        courseId,
-        days: parseInt(daysToAdd),
-      }).unwrap();
-      toast.success(`Extended access by ${daysToAdd} days!`);
-      setDaysToAdd("0");
+      await extendAccess({ enrollmentId, newDuration: extendDuration }).unwrap();
+      toast.success(`Access extended to ${extendDuration}!`);
+      setEnrollmentId("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to extend access");
     }
   };
 
   const handleReduce = async () => {
-    if (!userId.trim() || !courseId.trim() || !daysToReduce || parseInt(daysToReduce) <= 0) {
-      toast.error("Please fill in all fields with valid numbers");
+    if (!userId.trim() || !enrollmentId) {
+      toast.error("Please select a course");
       return;
     }
 
     try {
-      await reduceAccess({
-        userId,
-        courseId,
-        days: parseInt(daysToReduce),
-      }).unwrap();
-      toast.success(`Reduced access by ${daysToReduce} days!`);
-      setDaysToReduce("0");
+      await reduceAccess({ enrollmentId, newDuration: reduceDuration }).unwrap();
+      toast.success(`Access reduced to ${reduceDuration}!`);
+      setEnrollmentId("");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to reduce access");
     }
   };
+
+  const renderCourseSelect = (selectedKeys: Set<string>, onChange: (id: string) => void) => (
+    <Select
+      label="Select Course"
+      selectedKeys={selectedKeys}
+      onSelectionChange={(keys) => {
+        const next = Array.from(keys)[0];
+        if (typeof next === "string") onChange(next);
+      }}
+    >
+      {accesses.map((access) => (
+        <SelectItem key={access._id} value={access._id}>
+          {access.courseId?.title || "Unknown Course"}
+        </SelectItem>
+      ))}
+    </Select>
+  );
 
   return (
     <div className="w-full space-y-6">
@@ -169,15 +185,15 @@ export default function AccessDurationManager() {
                           <TableColumn>PURCHASE TYPE</TableColumn>
                         </TableHeader>
                         <TableBody>
-                          {accesses.map((access: any) => {
-                            const isValid = hasValidAccess(access);
+                          {accesses.map((access) => {
+                            const isValid = hasValidAccess(access.accessEndDate);
                             const remaining = getRemainingDays(access.accessEndDate);
 
                             return (
                               <TableRow key={access._id}>
                                 <TableCell>
                                   <p className="font-semibold text-foreground">
-                                    {access.course?.title || "Unknown Course"}
+                                    {access.courseId?.title || "Unknown Course"}
                                   </p>
                                 </TableCell>
                                 <TableCell>
@@ -221,42 +237,29 @@ export default function AccessDurationManager() {
                       </CardHeader>
                       <Divider />
                       <CardBody className="gap-4">
+                        {renderCourseSelect(
+                          enrollmentId ? new Set([enrollmentId]) : new Set(),
+                          setEnrollmentId
+                        )}
+
                         <Select
-                          label="Select Course"
-                          value={courseId}
-                          onChange={(e) => setCourseId(e.target.value)}
+                          label="Duration"
+                          selectedKeys={new Set([duration])}
+                          onSelectionChange={(keys) => {
+                            const next = Array.from(keys)[0] as AccessDuration;
+                            if (next) setDuration(next);
+                          }}
                         >
-                          {accesses.map((access: any) => (
-                            <SelectItem key={access.course._id} value={access.course._id}>
-                              {access.course.title}
+                          {DURATION_OPTIONS.map((option) => (
+                            <SelectItem key={option.key} value={option.key}>
+                              {option.label}
                             </SelectItem>
                           ))}
                         </Select>
 
-                        <Select
-                          label="Duration"
-                          value={duration}
-                          onChange={(e) =>
-                            setDuration(e.target.value as any)
-                          }
-                        >
-                          <SelectItem key="1-month" value="1-month">
-                            1 Month
-                          </SelectItem>
-                          <SelectItem key="2-months" value="2-months">
-                            2 Months
-                          </SelectItem>
-                          <SelectItem key="3-months" value="3-months">
-                            3 Months
-                          </SelectItem>
-                          <SelectItem key="lifetime" value="lifetime">
-                            Lifetime
-                          </SelectItem>
-                        </Select>
-
                         <Button
                           color="primary"
-                          onClick={handleSetDuration}
+                          onPress={handleSetDuration}
                           fullWidth
                         >
                           Set Duration
@@ -271,30 +274,29 @@ export default function AccessDurationManager() {
                       </CardHeader>
                       <Divider />
                       <CardBody className="gap-4">
+                        {renderCourseSelect(
+                          enrollmentId ? new Set([enrollmentId]) : new Set(),
+                          setEnrollmentId
+                        )}
+
                         <Select
-                          label="Select Course"
-                          value={courseId}
-                          onChange={(e) => setCourseId(e.target.value)}
+                          label="New Duration"
+                          selectedKeys={new Set([extendDuration])}
+                          onSelectionChange={(keys) => {
+                            const next = Array.from(keys)[0] as AccessDuration;
+                            if (next) setExtendDuration(next);
+                          }}
                         >
-                          {accesses.map((access: any) => (
-                            <SelectItem key={access.course._id} value={access.course._id}>
-                              {access.course.title}
+                          {DURATION_OPTIONS.map((option) => (
+                            <SelectItem key={option.key} value={option.key}>
+                              {option.label}
                             </SelectItem>
                           ))}
                         </Select>
 
-                        <Input
-                          type="number"
-                          label="Days to Add"
-                          placeholder="e.g., 30"
-                          value={daysToAdd}
-                          onChange={(e) => setDaysToAdd(e.target.value)}
-                          min="1"
-                        />
-
                         <Button
                           color="success"
-                          onClick={handleExtend}
+                          onPress={handleExtend}
                           fullWidth
                         >
                           Extend Access
@@ -309,30 +311,29 @@ export default function AccessDurationManager() {
                       </CardHeader>
                       <Divider />
                       <CardBody className="gap-4">
+                        {renderCourseSelect(
+                          enrollmentId ? new Set([enrollmentId]) : new Set(),
+                          setEnrollmentId
+                        )}
+
                         <Select
-                          label="Select Course"
-                          value={courseId}
-                          onChange={(e) => setCourseId(e.target.value)}
+                          label="New Duration"
+                          selectedKeys={new Set([reduceDuration])}
+                          onSelectionChange={(keys) => {
+                            const next = Array.from(keys)[0] as AccessDuration;
+                            if (next) setReduceDuration(next);
+                          }}
                         >
-                          {accesses.map((access: any) => (
-                            <SelectItem key={access.course._id} value={access.course._id}>
-                              {access.course.title}
+                          {DURATION_OPTIONS.map((option) => (
+                            <SelectItem key={option.key} value={option.key}>
+                              {option.label}
                             </SelectItem>
                           ))}
                         </Select>
 
-                        <Input
-                          type="number"
-                          label="Days to Remove"
-                          placeholder="e.g., 7"
-                          value={daysToReduce}
-                          onChange={(e) => setDaysToReduce(e.target.value)}
-                          min="1"
-                        />
-
                         <Button
                           color="danger"
-                          onClick={handleReduce}
+                          onPress={handleReduce}
                           fullWidth
                         >
                           Reduce Access

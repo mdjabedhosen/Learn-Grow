@@ -17,11 +17,11 @@ router.post(
 // Get all blogs (public - only published & approved, with optional filters)
 router.get("/", optionalAuth, controller.getAllBlogs);
 
-// Get blog by ID (public)
-router.get("/:id", controller.getBlogById);
+// Get blog by ID (public - drafts are filtered out server side)
+router.get("/:id", optionalAuth, controller.getBlogById);
 
-// Get blog by slug (public)
-router.get("/slug/:slug", controller.getBlogBySlug);
+// Get blog by slug (public - drafts are filtered out server side)
+router.get("/slug/:slug", optionalAuth, controller.getBlogBySlug);
 
 // Update blog (authenticated: owner or admin)
 router.patch(

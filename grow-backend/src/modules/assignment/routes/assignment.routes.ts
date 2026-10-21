@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "@/middleware/auth";
+import { requireAuth, requireRoles } from "@/middleware/auth";
 import { validate } from "@/middleware/validate";
 import * as assignmentController from "../controller/assignment.controller";
 import * as assignmentSchema from "../schema/assignment.schema";
@@ -7,9 +7,12 @@ import * as assignmentSchema from "../schema/assignment.schema";
 const router = Router();
 
 // Create assignment (instructor only)
+// SECURITY: the route had `requireAuth` only, despite the "instructor only"
+// comment, so any student could create assignments.
 router.post(
   "/create",
   requireAuth,
+  requireRoles("instructor", "admin", "manager"),
   validate(assignmentSchema.createAssignmentSchema),
   assignmentController.createAssignment
 );

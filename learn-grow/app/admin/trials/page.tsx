@@ -314,11 +314,9 @@ function TrialsContent() {
 
     try {
       const selectedBatch = batches.find((b: any) => b._id === scheduleForm.assignedBatchId);
-      const selectedCourse = courses.find((c: any) => c._id === scheduleForm.courseId);
       await updateTrialBooking({
         id: selectedBookingForSchedule._id,
         status: "scheduled",
-        trackInterest: selectedCourse?.title || scheduleForm.trackInterest,
         assignedInstructorId: scheduleForm.assignedInstructorId,
         scheduledDate: scheduleForm.scheduledDate,
         scheduledTime: scheduleForm.scheduledTime,

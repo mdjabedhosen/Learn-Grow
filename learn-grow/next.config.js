@@ -5,7 +5,10 @@ const nextConfig = {
   trailingSlash: true,
 
   typescript: {
-    ignoreBuildErrors: true,
+    // SECURITY/CI: type errors must FAIL the build. With this set to true the
+    // build shipped every type error silently - which is how 140 type errors
+    // (including the Next 16 `params` Promise breakage) reached production.
+    ignoreBuildErrors: false,
   },
   
   // Turbopack is enabled by default in Next.js 16

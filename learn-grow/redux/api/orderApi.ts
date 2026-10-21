@@ -24,6 +24,13 @@ export interface Order {
   comboId?: {
     _id: string;
     name: string;
+    duration?: string;
+    /**
+     * The combo's courses. `GET /orders/my` populates them with
+     * `{ _id, title }`; the admin order list only populates
+     * `name`/`duration`, so this is optional.
+     */
+    courses?: Array<{ _id: string; title: string } | string>;
   };
   paymentMethodId: {
     _id: string;
@@ -52,7 +59,14 @@ export interface CreateOrderPayload {
   senderNumber: string;
   paymentNote?: string;
   deliveryAddress?: DeliveryAddress;
+  /**
+   * The price the customer is shown. NOTE: the backend does NOT trust this
+   * value - it re-derives the price from the course/combo record and applies
+   * the coupon server-side. It is sent only for display consistency.
+   */
   price: number;
+  /** Coupon code to apply on top of the discounted price. Validated server-side. */
+  couponCode?: string;
 }
 
 export const orderApi = baseApi.injectEndpoints({
@@ -69,6 +83,8 @@ export const orderApi = baseApi.injectEndpoints({
     getMyOrders: builder.query<
       {
         orders: Order[];
+        /** Legacy alias the backend still returns alongside `orders`. */
+        data?: Order[];
         pagination?: { total: number; page: number; limit: number; totalPages: number };
       },
       { page?: number; limit?: number } | void
@@ -86,6 +102,8 @@ export const orderApi = baseApi.injectEndpoints({
     getAllOrders: builder.query<
       {
         orders: Order[];
+        /** Legacy alias the backend still returns alongside `orders`. */
+        data?: Order[];
         pagination: {
           total: number;
           page: number;

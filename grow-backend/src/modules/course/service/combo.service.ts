@@ -3,6 +3,23 @@ import { Combo } from "../model/combo.model";
 import { Enrollment } from "../../enrollment/model/enrollment.model";
 import { Order } from "../../order/model/order.model";
 import { Course } from "../model/course.model";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable combo fields. `createdBy` is the ownership id set when the combo is
+ * created and the timestamps belong to Mongoose.
+ */
+const COMBO_UPDATABLE_FIELDS = [
+  "name",
+  "description",
+  "courses",
+  "price",
+  "discountPrice",
+  "duration",
+  "thumbnail",
+  "isActive",
+  "featured",
+] as const;
 
 /**
  * Calculate access end date based on duration
@@ -202,9 +219,12 @@ export const updateComboService = async (
   }>
 ) => {
   try {
+    // Drop every key that is not explicitly editable (mass-assignment guard).
+    const safeUpdates = pickDefined(updates, COMBO_UPDATABLE_FIELDS);
+
     // Validate course count if updating courses
-    if (updates.courses) {
-      if (updates.courses.length === 0 || updates.courses.length > 100) {
+    if (safeUpdates.courses) {
+      if (safeUpdates.courses.length === 0 || safeUpdates.courses.length > 100) {
         return {
           success: false,
           message: "Combo must contain between 1 and 100 courses",
@@ -213,20 +233,20 @@ export const updateComboService = async (
 
       // Validate all courses exist
       const validCourses = await Course.find({
-        _id: { $in: updates.courses.map((id) => new mongoose.Types.ObjectId(id)) },
+        _id: { $in: safeUpdates.courses.map((id) => new mongoose.Types.ObjectId(id)) },
       });
 
-      if (validCourses.length !== updates.courses.length) {
+      if (validCourses.length !== safeUpdates.courses.length) {
         return {
           success: false,
           message: "One or more courses not found",
         };
       }
 
-      updates.courses = updates.courses.map((id) => id) as any;
+      safeUpdates.courses = safeUpdates.courses.map((id) => id) as any;
     }
 
-    const combo = await Combo.findByIdAndUpdate(comboId, updates, {
+    const combo = await Combo.findByIdAndUpdate(comboId, safeUpdates, {
       new: true,
       runValidators: true,
     })
@@ -371,6 +391,26 @@ export const enrollUserInComboService = async (
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const accessEndDate = calculateAccessEndDate(combo.duration);
 
+    // SECURITY: this endpoint granted access to every course in a PAID combo
+    // to any registered student, with no order and no payment. A single
+    // request was worth the full price of the bundle.
+    // Access now requires an approved, active order for this combo.
+    const paidOrder = await Order.findOne({
+      userId: userObjectId,
+      planType: "combo",
+      comboId: new mongoose.Types.ObjectId(comboId),
+      paymentStatus: "approved",
+      isActive: true,
+    });
+
+    if (!paidOrder) {
+      return {
+        success: false,
+        message:
+          "No active purchase found for this combo. Please purchase the combo first.",
+      };
+    }
+
     // Create enrollments for each course in the combo
     const enrollments = await Promise.all(
       combo.courses.map((courseId) =>
@@ -380,16 +420,25 @@ export const enrollUserInComboService = async (
             courseId,
           },
           {
-            studentId: userObjectId,
-            courseId,
-            progress: 0,
-            completionPercentage: 0,
-            isCompleted: false,
-            accessDuration: combo.duration,
-            accessStartDate: new Date(),
-            accessEndDate,
-            purchaseType: "combo",
-            comboId: new mongoose.Types.ObjectId(comboId),
+            $set: {
+              accessDuration: combo.duration,
+              accessStartDate: new Date(),
+              accessEndDate,
+              purchaseType: "combo",
+              comboId: new mongoose.Types.ObjectId(comboId),
+            },
+            $setOnInsert: {
+              studentId: userObjectId,
+              courseId,
+              progress: 0,
+              completionPercentage: 0,
+              isCompleted: false,
+              completedLessons: [],
+              completedModules: [],
+              completedAssignments: [],
+              completedQuizzes: [],
+              completedProjects: [],
+            },
           },
           { upsert: true, new: true }
         )

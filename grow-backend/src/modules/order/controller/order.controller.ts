@@ -648,6 +648,49 @@ export const sendOrderEmail = async (req: Request, res: Response) => {
       });
     }
 
+    // SECURITY: this endpoint used to be reachable without authentication, so
+    // anyone could send arbitrary mail from the organisation's SMTP account
+    // to any address - a phishing relay on the brand's own domain. The
+    // recipient is now pinned to the user the order actually belongs to.
+    const recipient = String(to).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid recipient address"
+      });
+    }
+
+    const orderId = (orderDetails as any)?.orderId;
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "orderDetails.orderId is required"
+      });
+    }
+
+    const { Order } = await import("@/modules/order/model/order.model");
+    const order = await Order.findById(orderId).select("userId email user").lean();
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    const orderUser = await (await import("@/modules/user/model/user.model")).User
+      .findById(order.userId)
+      .select("email")
+      .lean();
+
+    const orderEmail = String(orderUser?.email || (order as any)?.email || "").trim().toLowerCase();
+
+    if (!orderEmail || recipient !== orderEmail) {
+      return res.status(403).json({
+        success: false,
+        message: "Recipient must be the email address of the order's own user"
+      });
+    }
+
     const transporter = await getSMTPTransporter();
     const smtpConfig = await (await import("@/modules/settings/model/smtpConfig.model")).SMTPConfig.findOne({ isActive: true }).select("fromEmail fromName").lean();
     if (!smtpConfig) {
@@ -765,7 +808,7 @@ export const sendOrderEmail = async (req: Request, res: Response) => {
 
     const mailOptions = {
       from: fromEmail,
-      to,
+      to: recipient,
       subject,
       html: htmlContent,
     };
@@ -886,7 +929,7 @@ export const getStudentOrdersForGuardian = async (req: Request, res: Response) =
         isPublished: true,
         isAdminApproved: true,
       })
-        .select("_id title thumbnail price level")
+        .select("_id title thumbnail price discountPrice level")
         .lean();
 
       // Filter out courses already in enrollments

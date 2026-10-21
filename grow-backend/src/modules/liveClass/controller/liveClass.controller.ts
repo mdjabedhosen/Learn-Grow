@@ -260,7 +260,7 @@ export const approveLiveClass = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "Live class not found" });
     }
 
-    const updated = await LiveClassService.updateLiveClass(id, { isApproved: true });
+    const updated = await LiveClassService.setLiveClassApproval(id, true);
 
     res.status(200).json({
       success: true,

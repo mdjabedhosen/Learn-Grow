@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import {
     Card,
     CardBody,
@@ -13,7 +13,7 @@ import {
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { FaClock, FaCheck, FaTimes, FaTrophy, FaArrowLeft, FaInfoCircle } from "react-icons/fa";
-import { useGetQuizByIdQuery } from "@/redux/api/quizApi";
+import { useGetQuizByIdQuery, useSubmitQuizMutation } from "@/redux/api/quizApi";
 
 interface Question {
     _id?: string;
@@ -31,18 +31,39 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
     const router = useRouter();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState<{ [key: number]: number | string }>({});
+    // The timer auto-submits from inside a `setInterval` callback. Without a
+    // ref the submit handler closes over the `answers` captured when the timer
+    // effect last ran - an empty object on the first render - so hitting
+    // 0:00 scored 0 and threw away every answer the student had selected.
+    // The ref always holds the latest selections.
+    const answersRef = useRef<{ [key: number]: number | string }>({});
     const [timeLeft, setTimeLeft] = useState(0);
     const [quizSubmitted, setQuizSubmitted] = useState(false);
     const [score, setScore] = useState(0);
     const [previousAttempt, setPreviousAttempt] = useState<any>(null);
+    /** The authoritative result, graded by the server. */
+    const [serverResult, setServerResult] = useState<any>(null);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitQuiz] = useSubmitQuizMutation();
 
     // Fetch quiz data from API
     const { data: quizData, isLoading, error } = useGetQuizByIdQuery(resolvedParams.id);
     const quiz = quizData?.data;
 
-    // Check if student has already taken this quiz
+    // Keep the ref in sync with the latest answers (this also covers the
+    // restore of a previous attempt below).
     useEffect(() => {
-        if (quiz) {
+        answersRef.current = answers;
+    }, [answers]);
+
+    // Check if student has already taken this quiz.
+    // Runs ONCE per quiz: the ref stops it from re-reading the attempt the
+    // student has just submitted and announcing it as a previous attempt.
+    const previousAttemptChecked = useRef(false);
+    useEffect(() => {
+        if (quiz && !previousAttemptChecked.current) {
+            previousAttemptChecked.current = true;
             const attemptKey = `quiz_attempt_${resolvedParams.id}`;
             const savedAttempt = localStorage.getItem(attemptKey);
             if (savedAttempt) {
@@ -89,48 +110,72 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
     };
 
     const handleAnswerSelect = (questionIndex: number, answer: number | string) => {
-        setAnswers({ ...answers, [questionIndex]: answer });
+        const nextAnswers = { ...answersRef.current, [questionIndex]: answer };
+        answersRef.current = nextAnswers;
+        setAnswers(nextAnswers);
     };
 
-    const handleSubmitQuiz = () => {
-        if (!quiz?.questions) return;
+    const handleSubmitQuiz = async () => {
+        if (!quiz?.questions || isSubmitting) return;
 
-        // Calculate score automatically
-        let totalScore = 0;
-        let correctCount = 0;
+        // Always submit the CURRENT answers, whether the submit was triggered
+        // by the student or by the timer running out.
+        const submittedAnswers = answersRef.current;
+        const totalPoints = quiz.questions.reduce(
+            (sum: number, q: Question) => sum + q.points,
+            0
+        );
 
+        setIsSubmitting(true);
+        setSubmitError(null);
+
+        // The quiz is graded by the SERVER against the stored answer key.
+        // The client never receives the key, so the score cannot be forged,
+        // and the server learns that the quiz was completed.
+        const serverAnswers: Record<string, string | number> = {};
         quiz.questions.forEach((question: Question, index: number) => {
-            const userAnswer = answers[index];
-            
-            if (question.questionType === "multiple-choice" && question.options) {
-                // Find correct option index
-                const correctIndex = question.options.findIndex(opt => opt.isCorrect);
-                if (userAnswer === correctIndex) {
-                    totalScore += question.points;
-                    correctCount++;
-                }
-            } else if (question.questionType === "true-false" || question.questionType === "short-answer") {
-                if (userAnswer?.toString().toLowerCase() === question.correctAnswer?.toLowerCase()) {
-                    totalScore += question.points;
-                    correctCount++;
-                }
+            const key = question._id || question.id;
+            if (key !== undefined && submittedAnswers[index] !== undefined) {
+                serverAnswers[String(key)] = submittedAnswers[index];
             }
         });
 
-        setScore(totalScore);
+        try {
+            const response: any = await submitQuiz({
+                id: String(resolvedParams.id),
+                answers: serverAnswers,
+            }).unwrap();
+
+            const graded = response?.data;
+            if (graded) {
+                setServerResult(graded);
+                setScore(graded.score ?? 0);
+            }
+        } catch (err: any) {
+            const message =
+                err?.data?.message ||
+                err?.message ||
+                "Could not submit the quiz. Please try again.";
+            setSubmitError(message);
+            setIsSubmitting(false);
+            return;
+        }
+
+        setIsSubmitting(false);
         setQuizSubmitted(true);
 
-        // Save attempt to localStorage
+        // Save the attempt locally for the "you already took this quiz" hint.
+        // The values are the SERVER's grade, not a locally computed one.
         const attemptKey = `quiz_attempt_${resolvedParams.id}`;
         const attemptData = {
             quizId: resolvedParams.id,
-            score: totalScore,
-            totalPoints,
-            answers,
-            correctCount,
+            score: serverResult?.score ?? 0,
+            totalPoints: serverResult?.totalPoints ?? totalPoints,
+            answers: submittedAnswers,
+            correctCount: (serverResult?.results ?? []).filter((r: any) => r.correct).length,
             totalQuestions: quiz.questions.length,
             submittedAt: new Date().toISOString(),
-            percentage: (totalScore / totalPoints) * 100,
+            percentage: serverResult?.percentage ?? 0,
         };
         localStorage.setItem(attemptKey, JSON.stringify(attemptData));
     };
@@ -160,23 +205,44 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
         );
     }
 
+    // Submission failed (for example the student is not enrolled, or the
+    // server could not be reached). Say so instead of showing a result.
+    if (submitError) {
+        return (
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+                <Card className="border-2 border-danger">
+                    <CardBody className="text-center py-12">
+                        <FaTimes className="text-5xl text-danger mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold mb-3">Could not submit the quiz</h2>
+                        <p className="text-gray-600 mb-6">{submitError}</p>
+                        <div className="flex gap-3 justify-center">
+                            <Button color="primary" onPress={() => setSubmitError(null)}>
+                                Try again
+                            </Button>
+                            <Button variant="light" onPress={() => router.back()}>
+                                Go Back
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            </div>
+        );
+    }
+
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
     const answeredCount = Object.keys(answers).length;
     const totalPoints = quiz.questions.reduce((sum: number, q: Question) => sum + q.points, 0);
 
     if (quizSubmitted) {
-        const correctAnswers = quiz.questions.filter((q: Question, i: number) => {
-            const userAnswer = answers[i];
-            if (q.questionType === "multiple-choice" && q.options) {
-                const correctIndex = q.options.findIndex(opt => opt.isCorrect);
-                return userAnswer === correctIndex;
-            } else {
-                return userAnswer?.toString().toLowerCase() === q.correctAnswer?.toLowerCase();
-            }
-        }).length;
-        const percentage = (score / totalPoints) * 100;
-        const passed = percentage >= (quiz.passingScore || 60);
+        // The server grades the attempt, so the client never sees the answer
+        // key. Everything shown here comes from the server's result.
+        const gradedResults: Array<{ questionId: string; correct: boolean; earned: number; points: number }> =
+            serverResult?.results ?? [];
+        const correctAnswers = gradedResults.filter((r) => r.correct).length;
+        const percentage = Number(serverResult?.percentage ?? 0);
+        const passed = serverResult?.passed ?? false;
+        const serverTotalPoints = serverResult?.totalPoints ?? totalPoints;
         const submittedDate = previousAttempt ? new Date(previousAttempt.submittedAt).toLocaleString() : new Date().toLocaleString();
 
         return (
@@ -222,7 +288,7 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
                             <div className="p-6 bg-blue-50 rounded-lg">
                                 <p className="text-sm text-gray-600 mb-1">Your Score</p>
                                 <p className="text-4xl font-bold text-primary">
-                                    {score}/{totalPoints}
+                                    {serverResult?.score ?? score}/{serverTotalPoints}
                                 </p>
                             </div>
 
@@ -246,15 +312,16 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
                                 <div className="space-y-4">
                                     {quiz.questions.map((question: Question, index: number) => {
                                         const userAnswer = answers[index];
-                                        let isCorrect = false;
-                                        let correctIndex = -1;
-
-                                        if (question.questionType === "multiple-choice" && question.options) {
-                                            correctIndex = question.options.findIndex(opt => opt.isCorrect);
-                                            isCorrect = userAnswer === correctIndex;
-                                        } else {
-                                            isCorrect = userAnswer?.toString().toLowerCase() === question.correctAnswer?.toLowerCase();
-                                        }
+                                        // The verdict comes from the server - the
+                                        // client is not given the answer key.
+                                        const graded = gradedResults.find(
+                                            (r) => r.questionId === String(question._id || question.id)
+                                        );
+                                        const isCorrect = graded?.correct ?? false;
+                                        const correctIndex = question.options?.findIndex(
+                                            (_opt, optIndex) =>
+                                                String(userAnswer) === String(optIndex) && isCorrect
+                                        ) ?? -1;
 
                                         return (
                                             <Card key={question._id || question.id || index} className={`border-2 ${isCorrect ? "border-green-500" : "border-red-500"}`}>
@@ -534,7 +601,9 @@ export default function TakeQuizPage({ params }: { params: Promise<{ id: string 
                         <Button
                             color="primary"
                             onPress={handleSubmitQuiz}
-                            startContent={<FaCheck />}
+                            isLoading={isSubmitting}
+                            isDisabled={isSubmitting}
+                            startContent={!isSubmitting ? <FaCheck /> : undefined}
                         >
                             Submit Quiz
                         </Button>

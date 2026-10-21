@@ -25,7 +25,10 @@ interface ContactData {
   info: {
     email: string;
     phone: string;
+    /** Keyed exactly like the shipped content in `lib/contactData.ts`. */
+    whatsapp: string;
     address: string;
+    hours?: string;
   };
   form: {
     title: string;
@@ -161,11 +164,11 @@ export default function ContactPageTab() {
             <Input
               label="WhatsApp Number"
               placeholder="+880 1706 276447"
-              value={contactData.info.WhatsApp}
+              value={contactData.info.whatsapp}
               onChange={(e) => {
                 setContactData({
                   ...contactData,
-                  info: { ...contactData.info, WhatsApp: e.target.value },
+                  info: { ...contactData.info, whatsapp: e.target.value },
                 });
                 setHasChanges(true);
               }}

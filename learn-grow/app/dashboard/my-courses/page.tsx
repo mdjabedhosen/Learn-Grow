@@ -18,16 +18,16 @@ export default function MyCoursesPage() {
         const matchesSearch = course.courseName?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter =
             filter === "all" ||
-            (filter === "inprogress" && course.progress < 100) ||
-            (filter === "completed" && course.progress === 100);
+            (filter === "inprogress" && course.completionPercentage < 100) ||
+            (filter === "completed" && course.completionPercentage === 100);
 
         return matchesSearch && matchesFilter;
     });
 
     const stats = {
         all: enrolledCourses.length,
-        inprogress: enrolledCourses.filter((c: any) => c.progress < 100).length,
-        completed: enrolledCourses.filter((c: any) => c.progress === 100).length,
+        inprogress: enrolledCourses.filter((c: any) => c.completionPercentage < 100).length,
+        completed: enrolledCourses.filter((c: any) => c.completionPercentage === 100).length,
     };
 
     return (
@@ -130,13 +130,13 @@ export default function MyCoursesPage() {
                                 {/* Course Status Badge */}
                                 <div className="flex justify-between items-start mb-3">
                                     <Chip
-                                        color={course.progress === 100 ? "success" : "warning"}
+                                        color={course.completionPercentage === 100 ? "success" : "warning"}
                                         size="sm"
                                         variant="flat"
                                     >
-                                        {course.progress === 100 ? "Completed" : "In Progress"}
+                                        {course.completionPercentage === 100 ? "Completed" : "In Progress"}
                                     </Chip>
-                                    {course.progress === 100 && (
+                                    {course.completionPercentage === 100 && (
                                         <FaCheckCircle className="text-green-500 text-xl" />
                                     )}
                                 </div>
@@ -156,19 +156,19 @@ export default function MyCoursesPage() {
                                     <div className="flex justify-between text-sm mb-2">
                                         <span className="text-gray-600">Progress</span>
                                         <span className="font-semibold text-primary">
-                                            {course.progress || 0}%
+                                            {course.completionPercentage || 0}%
                                         </span>
                                     </div>
                                     <Progress
-                                        value={course.progress || 0}
-                                        color={course.progress === 100 ? "success" : "primary"}
+                                        value={course.completionPercentage || 0}
+                                        color={course.completionPercentage === 100 ? "success" : "primary"}
                                         size="sm"
                                         className="mb-2"
                                     />
                                     <p className="text-xs text-gray-500">
-                                        {course.progress === 100
+                                        {course.completionPercentage === 100
                                             ? "Course completed!"
-                                            : `${100 - (course.progress || 0)}% remaining`}
+                                            : `${100 - (course.completionPercentage || 0)}% remaining`}
                                     </p>
                                 </div>
                             </CardBody>
@@ -179,9 +179,9 @@ export default function MyCoursesPage() {
                                     className="flex-1"
                                     onPress={() => router.push(`/courses/${course.courseId}`)}
                                 >
-                                    {course.progress === 100 ? "Review" : "Continue"}
+                                    {course.completionPercentage === 100 ? "Review" : "Continue"}
                                 </Button>
-                                {course.progress === 100 && (
+                                {course.completionPercentage === 100 && (
                                     <Button
                                         color="success"
                                         variant="bordered"

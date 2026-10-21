@@ -64,6 +64,35 @@ const quizQuestionSchema = new Schema<IQuizQuestion>(
   { _id: true }
 );
 
+export interface IQuizSubmission extends Document {
+  quizId: Types.ObjectId;
+  studentId: Types.ObjectId;
+  answers: Record<string, string | number>;
+  score: number;
+  totalPoints: number;
+  percentage: number;
+  passed: boolean;
+  submittedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const quizSubmissionSchema = new Schema<IQuizSubmission>(
+  {
+    quizId: { type: Types.ObjectId, ref: "Quiz", required: true, index: true },
+    studentId: { type: Types.ObjectId, ref: "User", required: true, index: true },
+    answers: { type: Map, of: Schema.Types.Mixed, default: {} },
+    score: { type: Number, default: 0, min: 0 },
+    totalPoints: { type: Number, default: 0, min: 0 },
+    percentage: { type: Number, default: 0, min: 0, max: 100 },
+    passed: { type: Boolean, default: false },
+    submittedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
+
+quizSubmissionSchema.index({ quizId: 1, studentId: 1 });
+
 const quizSchema = new Schema<IQuiz>(
   {
     assessmentId: { type: Schema.Types.ObjectId, ref: "Assessment", required: true },
@@ -92,3 +121,4 @@ quizSchema.index({ courseId: 1, status: 1 });
 quizSchema.index({ createdBy: 1 });
 
 export const Quiz = model<IQuiz>("Quiz", quizSchema);
+export const QuizSubmission = model<IQuizSubmission>("QuizSubmission", quizSubmissionSchema);

@@ -1,6 +1,28 @@
 import { TeamMember, ITeamMember } from "../model/team.model";
 import { User } from "../../user/model/user.model";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/utils/cloudinary";
+import { pickDefined } from "@/utils/pickFields";
+import { safeFetch } from "@/utils/safeFetch";
+
+/**
+ * Editable team member fields.
+ *
+ * `showOnHome` and `position` are owned by their dedicated endpoints
+ * (toggle-home / reorder / position), `userId` is the ownership link to the
+ * User collection and `imagePublicId`/`imageSize` are Cloudinary bookkeeping
+ * that the service writes itself.
+ */
+const TEAM_MEMBER_UPDATABLE_FIELDS = [
+    "name",
+    "role",
+    "domain",
+    "yearsOfExperience",
+    "expertise",
+    "image",
+    "linkedIn",
+    "twitter",
+    "bio",
+] as const;
 
 const extractCloudinaryPublicId = (url?: string) => {
     if (!url || !url.includes("res.cloudinary.com")) return "";
@@ -28,16 +50,20 @@ const uploadTeamImageIfNeeded = async (image?: string, filePrefix: string = "tea
         // Keep existing Cloudinary URLs, but migrate external URLs into Cloudinary.
         if (!image.includes("res.cloudinary.com")) {
             try {
-                const response = await fetch(image);
-                if (response.ok) {
-                    const buffer = Buffer.from(await response.arrayBuffer());
-                    const uploaded = await uploadToCloudinary(
-                        buffer,
-                        `${filePrefix}-${Date.now()}`,
-                        "team/members"
-                    );
-                    return { image: uploaded.url, imagePublicId: uploaded.publicId };
-                }
+                // SECURITY: this used to `fetch(image)` on any URL the caller
+                // supplied, then uploaded the response body to Cloudinary and
+                // returned the public URL. That is a blind SSRF with full
+                // response exfiltration - the cloud metadata endpoint
+                // (169.254.169.254) and every other internal host were
+                // reachable. safeFetch refuses private/loopback/link-local
+                // targets, caps the size and re-validates every redirect.
+                const { buffer } = await safeFetch(image);
+                const uploaded = await uploadToCloudinary(
+                    buffer,
+                    `${filePrefix}-${Date.now()}`,
+                    "team/members"
+                );
+                return { image: uploaded.url, imagePublicId: uploaded.publicId };
             } catch (error) {
                 console.log("Could not migrate external image URL to Cloudinary:", error);
             }
@@ -167,7 +193,7 @@ class TeamService {
                 nextImagePublicId = uploadedPublicId;
             }
 
-            const updatePayload: any = { ...data };
+            const updatePayload: any = { ...pickDefined(data, TEAM_MEMBER_UPDATABLE_FIELDS) };
             if (typeof updatePayload.expertise === "string") {
                 updatePayload.expertise = updatePayload.expertise
                     .split(",")

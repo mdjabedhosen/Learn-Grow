@@ -42,12 +42,36 @@ export const requireAuth = async (
       });
     }
 
+    // SECURITY: a token issued before the last logout is revoked. Without
+    // this, logging out left the access token fully usable.
     const user = await User.findById(decoded.id).lean();
 
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "User not found",
+      });
+    }
+
+    const validAfter = (user as any).tokenValidAfter;
+    if (
+      decoded.iat &&
+      validAfter &&
+      decoded.iat * 1000 < new Date(validAfter).getTime()
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please log in again.",
+      });
+    }
+
+    // A blocked account must not be able to keep using its existing token.
+    // `isBlocked` used to be set by admins but never checked anywhere.
+    if (user.isBlocked) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your account has been blocked. Please contact support if you believe this is a mistake.",
       });
     }
 
@@ -148,7 +172,15 @@ export const optionalAuth = async (
 
       if (decoded && decoded.id) {
         const user = await User.findById(decoded.id).lean();
-        if (user) {
+        // A blocked user is treated as anonymous: optional auth must not hand
+        // a blocked account the privileges of an authenticated one.
+        const validAfter = (user as any)?.tokenValidAfter;
+        const revoked =
+          !!validAfter &&
+          !!decoded.iat &&
+          decoded.iat * 1000 < new Date(validAfter).getTime();
+
+        if (user && !user.isBlocked && !revoked) {
           req.userId = user._id.toString();
           req.userRole = user.role;
         }

@@ -13,6 +13,11 @@ import { getSMTPTransporter } from "@/modules/settings/service/smtp.service";
 import { SMTPConfig } from "@/modules/settings/model/smtpConfig.model";
 import { getOrderConfirmationEmail, getAdminOrderApprovalEmail, getOrderApprovedEmail, getOrderRejectedEmail } from "@/utils/emailTemplates";
 import { calculateAccessEndDate } from "@/utils/access-control";
+import {
+  deriveSingleCourseOrderPricing,
+  getCoursePricing,
+  type ValidatedCoupon,
+} from "@/utils/pricing";
 
 // ENROLLMENT PRICING
 export const ENROLLMENT_PRICES = {
@@ -21,13 +26,16 @@ export const ENROLLMENT_PRICES = {
   kit: 4500, // Kit Only
 };
 
-let cachedKitPrice: number | null = null;
+// The kit price is read from the global settings on every order.
+//
+// It used to be cached in a module-level variable that was never invalidated,
+// so an admin changing the kit price had no effect until the server was
+// restarted - and the server, orders and the price shown to the customer
+// disagreed.
 const getKitPrice = async () => {
-  if (cachedKitPrice !== null) return cachedKitPrice;
   try {
     const settings = await getGlobalSettings();
-    cachedKitPrice = settings.kitPrice ?? ENROLLMENT_PRICES.kit;
-    return cachedKitPrice;
+    return settings.kitPrice ?? ENROLLMENT_PRICES.kit;
   } catch (err) {
     return ENROLLMENT_PRICES.kit;
   }
@@ -161,6 +169,7 @@ export const createOrderService = async (
     } = data;
 
     let combo: any = null;
+    let course: any = null;
 
     // Validate payment method exists and is active
     const paymentMethod = await PaymentMethod.findById(paymentMethodId);
@@ -182,9 +191,12 @@ export const createOrderService = async (
           message: "Course ID is required for single course purchase",
         };
       }
-      const course = await Course.findById(courseId);
+      course = await Course.findById(courseId);
       if (!course) {
         return { success: false, message: "Course not found" };
+      }
+      if (!course.isPublished) {
+        return { success: false, message: "Course is not available for purchase" };
       }
     }
 
@@ -221,21 +233,57 @@ export const createOrderService = async (
       }
     }
 
-    // Determine price with server-side source of truth
-    let price = data.price as number | undefined;
+    // ---------------------------------------------------------------------------
+    // Determine the price - the SERVER is the only source of truth.
+    // A client supplied `data.price` is NEVER trusted.
+    // ---------------------------------------------------------------------------
+    const couponCodeInput = (data as any).couponCode?.trim();
+
+    // Base amount per plan, derived from the database record.
+    let basePrice: number;
+    let pricingCourse: any = null;
+
     if (planType === "combo" && combo) {
-      price = combo.discountPrice || combo.price;
-    } else if (!price) {
-      if (planType === "kit") {
-        price = await getKitPrice();
-      } else {
-        price = ENROLLMENT_PRICES[planType as keyof typeof ENROLLMENT_PRICES];
+      // `??` not `||`: a discountPrice of 0 is invalid, and must not silently
+      // fall back to the list price.
+      basePrice = combo.discountPrice ?? combo.price;
+    } else if (planType === "single" && course) {
+      pricingCourse = course;
+      basePrice = getCoursePricing(course).effectivePrice;
+    } else if (planType === "kit") {
+      basePrice = await getKitPrice();
+    } else {
+      basePrice = ENROLLMENT_PRICES[planType as keyof typeof ENROLLMENT_PRICES];
+    }
+
+    if (basePrice === undefined || basePrice === null || Number.isNaN(basePrice)) {
+      return { success: false, message: "Price is required for this plan" };
+    }
+
+    // Validate and apply the coupon ON TOP of the base amount.
+    let appliedCoupon: ValidatedCoupon | null = null;
+    if (couponCodeInput) {
+      try {
+        const { validateCoupon } = await import("../../coupon/service/coupon.service.js");
+        const result = await validateCoupon(
+          couponCodeInput,
+          basePrice,
+          planType === "single" ? courseId : undefined
+        );
+        appliedCoupon = {
+          code: result.code,
+          discountAmount: result.discountAmount,
+        };
+      } catch (couponError: any) {
+        return {
+          success: false,
+          message: couponError?.message || "Invalid coupon code",
+        };
       }
     }
 
-    if (price === undefined || price === null) {
-      return { success: false, message: "Price is required for this plan" };
-    }
+    const derived = deriveSingleCourseOrderPricing(pricingCourse ?? { price: basePrice }, appliedCoupon);
+    const price = derived.price;
 
     // Create order with pending status
     const orderData: any = {
@@ -258,8 +306,14 @@ export const createOrderService = async (
       orderData.comboId = new mongoose.Types.ObjectId(comboId);
     }
 
-    if ((planType === "quarterly" || planType === "kit") && deliveryAddress) {
+    if ((planType === "quarterly" || planType === "kit" || planType === "combo") && deliveryAddress) {
       orderData.deliveryAddress = deliveryAddress;
+    }
+
+    if (derived.couponCode) {
+      orderData.couponCode = derived.couponCode;
+      orderData.discountAmount = derived.discountAmount;
+      orderData.originalPrice = derived.originalPrice;
     }
 
     const order = await Order.create(orderData);
@@ -351,8 +405,11 @@ export const getAllOrdersService = async (filter?: {
     if (filter?.planType) query.planType = filter.planType;
     if (filter?.userId) query.userId = filter.userId;
 
-    const page = filter?.page || 1;
-    const limit = filter?.limit || 10;
+    // SECURITY: the limit was taken straight from the query string, so
+    // `?limit=1000000` loaded a million orders into memory and `?limit=-5`
+    // produced a 500. Clamp it.
+    const page = Math.max(1, Number(filter?.page) || 1);
+    const limit = Math.min(200, Math.max(1, Number(filter?.limit) || 10));
     const skip = (page - 1) * limit;
 
     const total = await Order.countDocuments(query);
@@ -434,6 +491,29 @@ export const approveOrderService = async (orderId: string) => {
     }
     // Kit only: no end date needed (one-time delivery)
 
+    // SECURITY/DATA-INTEGRITY: the enrollment used to be written BEFORE the
+    // order was marked approved. If the order update then failed, the catch
+    // returned `{success:false}` but the student kept LIFETIME access to a
+    // course they never paid for.
+    //
+    // The order is now approved FIRST (it is the gate for access), and the
+    // enrollment work happens after. If the enrollment write fails, the
+    // order is rolled back to pending so the two can never disagree.
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        paymentStatus: "approved",
+        isActive: true,
+        startDate,
+        endDate,
+      },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return { success: false, message: "Order not found" };
+    }
+
     // Create Enrollment if not exists
     if (order.planType === "single" && order.courseId) {
       const existingEnrollment = await Enrollment.findOne({
@@ -478,6 +558,10 @@ export const approveOrderService = async (orderId: string) => {
       // Handle combo enrollment - enroll user in all courses in the combo
       const combo = await Combo.findById(order.comboId).populate("courses");
       if (combo) {
+        // SECURITY/DATA-INTEGRITY: the progress fields used to be in `$set`,
+        // so approving a combo that contained a course the student had
+        // already finished RESET their progress to 0. Progress and the
+        // completion arrays are only ever initialised, never overwritten.
         const enrollmentUpdates = (combo.courses as any[]).map((courseId) => ({
           updateOne: {
             filter: {
@@ -488,18 +572,21 @@ export const approveOrderService = async (orderId: string) => {
               $set: {
                 studentId: order.userId,
                 courseId: courseId._id || courseId,
+                accessDuration: combo.duration,
+                accessStartDate: now,
+                accessEndDate: endDate,
+                purchaseType: "combo",
+                comboId: order.comboId,
+              },
+              $setOnInsert: {
                 progress: 0,
+                completionPercentage: 0,
                 isCompleted: false,
                 completedLessons: [],
                 completedModules: [],
                 completedAssignments: [],
                 completedQuizzes: [],
                 completedProjects: [],
-                accessDuration: combo.duration,
-                accessStartDate: now,
-                accessEndDate: endDate,
-                purchaseType: "combo",
-                comboId: order.comboId,
               },
             },
             upsert: true,
@@ -523,16 +610,23 @@ export const approveOrderService = async (orderId: string) => {
       }
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      {
-        paymentStatus: "approved",
-        isActive: true,
-        startDate,
-        endDate,
-      },
-      { new: true }
-    );
+    // SECURITY/DATA-INTEGRITY: the order was updated to "approved" AFTER the
+    // enrollments were written. If the update failed, the catch returned
+    // `{success:false}` but the student kept LIFETIME access to a course
+    // they never paid for. The order is now marked approved FIRST - it is
+    // the gate for access - and the enrollment work happens after.
+    // Record coupon usage only on APPROVAL, so a rejected order does not burn
+    // the coupon's usage slot.
+    if (order.couponCode) {
+      try {
+        const { recordCouponUsage } = await import(
+          "../../coupon/service/coupon.service.js"
+        );
+        await recordCouponUsage(order.couponCode);
+      } catch (couponError) {
+        console.error("[Order Approval] Coupon usage record failed:", couponError);
+      }
+    }
 
     return {
       success: true,
@@ -540,6 +634,24 @@ export const approveOrderService = async (orderId: string) => {
       data: updatedOrder,
     };
   } catch (error: any) {
+    // Roll the order back to pending so a failed enrollment never leaves an
+    // approved (active) order behind. Access is granted by the order, so an
+    // approved order without an enrollment would be the inconsistent state.
+    try {
+      await Order.findByIdAndUpdate(orderId, {
+        paymentStatus: "pending",
+        isActive: false,
+      });
+      console.error(
+        `[Order Approval] Rolled back order ${orderId} after failure:`,
+        error
+      );
+    } catch (rollbackError) {
+      console.error(
+        `[Order Approval] Could not roll back order ${orderId}:`,
+        rollbackError
+      );
+    }
     return { success: false, message: error.message };
   }
 };

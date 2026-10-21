@@ -54,6 +54,8 @@ import {
   FaUserTie,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { resolveImageSrc } from "@/utils/image";
+import { getCoursePricing, validateDiscountPrice } from "@/utils/pricing";
 
 const ACCESS_DURATIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "lifetime"];
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/+$/, "");
@@ -121,17 +123,24 @@ function EditCourseContent() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryDescription, setNewCategoryDescription] = useState("");
 
-  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  const categories = useMemo(() => {
+    // Check if categoriesData is the array, or has a 'data' property that is the array
+    if (Array.isArray(categoriesData)) return categoriesData;
+    if (categoriesData && Array.isArray(categoriesData.data)) return categoriesData.data;
+    return [];
+  }, [categoriesData]);
 
   const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
   const [thumbnailPreview, setThumbnailPreview] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [isDraggingThumbnail, setIsDraggingThumbnail] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     price: "",
+    discountPrice: "",
     level: "Beginner",
     category: "",
     thumbnail: "",
@@ -146,43 +155,96 @@ function EditCourseContent() {
     maxBatchSize: 15,
   });
 
+  // Live preview of the discount the admin is about to save.
+  const discountPercent = useMemo(() => {
+    const { discountPercent: pct } = getCoursePricing({
+      price: Number(formData.price),
+      discountPrice: formData.discountPrice ? Number(formData.discountPrice) : null,
+    });
+    return pct > 0 ? pct : null;
+  }, [formData.price, formData.discountPrice]);
+
+  // Populate the form once the course record arrives.
+  //
+  // This effect intentionally depends on `course` ONLY. The category list is
+  // resolved in a SEPARATE effect below: `categories` is a memoised array that
+  // changes identity when the category request resolves (which normally happens
+  // AFTER the course request). Depending on it here would re-run this effect
+  // and `setFormData({...})` would silently wipe everything the admin typed in
+  // the meantime.
   useEffect(() => {
-    if (course) {
-      const categoryValue = typeof course.category === 'object' && course.category?._id
-        ? course.category._id.toString()
-        : course.category || "";
+    if (!course) return;
 
-      const primaryInstId = course.instructorId?._id 
-        ? course.instructorId._id.toString() 
-        : course.instructorId ? course.instructorId.toString() : "";
+    const primaryInstId = course.instructorId?._id 
+      ? course.instructorId._id.toString() 
+      : course.instructorId ? course.instructorId.toString() : "";
 
-      const extraInstIds = Array.isArray(course.instructorIds)
-        ? course.instructorIds
-            .map((inst: any) => (typeof inst === 'object' && inst?._id ? inst._id.toString() : inst?.toString()))
-            .filter(Boolean)
-        : [];
+    const extraInstIds = Array.isArray(course.instructorIds)
+      ? course.instructorIds
+          .map((inst: any) => (typeof inst === 'object' && inst?._id ? inst._id.toString() : inst?.toString()))
+          .filter(Boolean)
+      : [];
 
-      setFormData({
-        title: course.title || "",
-        description: course.description || "",
-        price: String(course.price || ""),
-        level: course.level || "Beginner",
-        category: categoryValue,
-        thumbnail: course.thumbnail || "",
-        type: course.type || "recorded",
-        duration: String(course.duration || ""),
-        accessDuration: course.accessDuration || "lifetime",
-        isRegistrationOpen: !!course.isRegistrationOpen,
-        registrationDeadline: course.registrationDeadline ? new Date(course.registrationDeadline).toISOString().split('T')[0] : "",
-        isPublished: course.isPublished ?? true,
-        instructorId: primaryInstId,
-        instructorIds: extraInstIds,
-        maxBatchSize: course.maxBatchSize || 15,
-      });
-      setThumbnailPreview(course.thumbnail || "");
-      setThumbnailFile(null);
-    }
+    const fallbackThumbnail =
+      course.thumbnail ||
+      course.image ||
+      ""; // Removed robotic/python specific hardcoded logic based on IDs/Slugs to avoid inconsistent admin behavior.
+        // If an image was missing in the DB, it should be empty in admin, not defaulting to a specific image not in the DB.
+
+    setFormData({
+      title: course.title || "",
+      description: course.description || "",
+      price: String(course.price || ""),
+      discountPrice:
+        course.discountPrice !== undefined && course.discountPrice !== null
+          ? String(course.discountPrice)
+          : "",
+      level: course.level || "Beginner",
+      category:
+        typeof course.category === 'object' && course.category?._id
+          ? course.category._id.toString()
+          : String(course.category || ""),
+      thumbnail: fallbackThumbnail,
+      type: course.type || "recorded",
+      duration: String(course.duration || ""),
+      accessDuration: course.accessDuration || "lifetime",
+      isRegistrationOpen: !!course.isRegistrationOpen,
+      registrationDeadline: course.registrationDeadline ? new Date(course.registrationDeadline).toISOString().split('T')[0] : "",
+      isPublished: course.isPublished ?? true,
+      instructorId: primaryInstId,
+      instructorIds: extraInstIds,
+      maxBatchSize: course.maxBatchSize || 15,
+    });
+    setThumbnailPreview(fallbackThumbnail);
+    setThumbnailFile(null);
   }, [course]);
+
+  // Resolve the course's category to a concrete category `_id` once the
+  // category list is available. This writes ONLY `formData.category`, so it can
+  // never overwrite the rest of the form the admin is editing.
+  useEffect(() => {
+    if (!course) return;
+    if (categories.length === 0) return;
+
+    const rawCategory =
+      typeof course.category === 'object' && course.category?._id
+        ? course.category._id.toString()
+        : String(course.category || "");
+    if (!rawCategory) return;
+
+    // Match category id, name or slug to an existing category _id
+    const found = categories.find(
+      (c: any) =>
+        c._id === rawCategory ||
+        c.name?.toLowerCase() === rawCategory.toLowerCase() ||
+        c.slug === rawCategory
+    );
+    if (!found) return;
+
+    setFormData((prev) =>
+      prev.category === found._id ? prev : { ...prev, category: found._id }
+    );
+  }, [course, categories]);
 
   const handleThumbnailFileSelect = (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -286,12 +348,33 @@ function EditCourseContent() {
 
     if (!courseId) return;
 
+    const nextErrors: Record<string, string> = {};
+    const priceValue = Number(formData.price);
+    const discountValue = formData.discountPrice.trim()
+      ? Number(formData.discountPrice)
+      : null;
+
+    if (formData.discountPrice.trim()) {
+      const validation = validateDiscountPrice(priceValue, discountValue);
+      if (!validation.valid) {
+        nextErrors.discountPrice = validation.error || "Invalid discount price";
+      }
+    }
+
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      return;
+    }
+    setErrors({});
+
     try {
       const payload = {
         id: courseId,
         ...formData,
         duration: formData.duration ? parseInt(formData.duration) : undefined,
         price: Number(formData.price),
+        discountPrice:
+          discountValue !== null && discountValue > 0 ? discountValue : undefined,
         registrationDeadline: formData.registrationDeadline || undefined,
       };
 
@@ -433,6 +516,23 @@ function EditCourseContent() {
 
                 <Input
                   type="number"
+                  label="Discount Price (BDT)"
+                  name="discountPrice"
+                  value={formData.discountPrice}
+                  onChange={handleChange}
+                  variant="bordered"
+                  startContent={<span className="text-gray-500 font-bold">৳</span>}
+                  description={
+                    formData.discountPrice && formData.price
+                      ? `Leave empty for no discount. Currently ${discountPercent ?? 0}% off.`
+                      : "Leave empty for no discount."
+                  }
+                  isInvalid={!!errors.discountPrice}
+                  errorMessage={errors.discountPrice}
+                />
+
+                <Input
+                  type="number"
                   label="Duration (hours)"
                   name="duration"
                   value={formData.duration}
@@ -520,7 +620,7 @@ function EditCourseContent() {
 
               {formData.thumbnail ? (
                 <div className="w-full aspect-video rounded-xl overflow-hidden border border-gray-200 mb-4 bg-gray-50 relative group">
-                  <img src={thumbnailPreview || formData.thumbnail} alt="Thumbnail Preview" className="w-full h-full object-cover" />
+                  <img src={resolveImageSrc(thumbnailPreview || formData.thumbnail)} alt="Thumbnail Preview" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
                     Preview
                   </div>

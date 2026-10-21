@@ -7,6 +7,12 @@ import { HiCheck, HiOutlineSparkles, HiOutlineShieldCheck, HiArrowRight } from "
 import { useGetActiveCombosQuery } from "@/redux/api/comboApi";
 import { useGetCommissionQuery } from "@/redux/api/settingsApi";
 import { pricingPlans } from "@/lib/platformData";
+import { formatLocalizedNumber } from "@/utils/bengaliNumerals";
+import { getCoursePricing } from "@/utils/pricing";
+
+/** Advertised bundle pricing used before the live combo record has loaded. */
+const DEFAULT_COMBO_PRICE = 7498;
+const DEFAULT_COMBO_DISCOUNT_PRICE = 4999;
 
 const PricingSection: React.FC = () => {
   const router = useRouter();
@@ -54,6 +60,30 @@ const PricingSection: React.FC = () => {
     }
   };
 
+  // Bundle pricing.
+  //
+  // The card shows the live combo record when the API has resolved and the
+  // advertised defaults otherwise. The savings badge is DERIVED from whichever
+  // pair of prices is actually on screen, so it can never contradict the prices
+  // printed next to it.
+  const comboPricing = (() => {
+    const live = getCoursePricing(firstCombo);
+    if (live.originalPrice > 0) {
+      return {
+        originalPrice: live.originalPrice,
+        effectivePrice: live.effectivePrice,
+        hasDiscount: live.hasDiscount,
+        savings: live.hasDiscount ? live.originalPrice - live.effectivePrice : 0,
+      };
+    }
+    return {
+      originalPrice: DEFAULT_COMBO_PRICE,
+      effectivePrice: DEFAULT_COMBO_DISCOUNT_PRICE,
+      hasDiscount: true,
+      savings: DEFAULT_COMBO_PRICE - DEFAULT_COMBO_DISCOUNT_PRICE,
+    };
+  })();
+
   // Structured professional card data
   const cards = [
     {
@@ -67,7 +97,7 @@ const PricingSection: React.FC = () => {
       originalPrice: null,
       price: language === "en" ? "2,999" : "২,৯৯৯",
       currency: language === "en" ? "BDT" : "৳",
-      period: language === "en" ? "starts from" : "শুরু থেকে",
+      period: language === "en" ? "starts from" : "থেকে শুরু",
       priceNote: language === "en" ? "Individual course access" : "প্রতিটি কোর্সে আলাদা ভর্তি",
       saveBadge: null,
       popular: false,
@@ -88,12 +118,20 @@ const PricingSection: React.FC = () => {
         language === "en"
           ? "Complete live course access plus genuine Arduino starter hardware kit"
           : "লাইভ কোর্স এবং সম্পূর্ণ Arduino রোবটিক্স কিটের পূর্ণাঙ্গ প্যাকেজ",
-      originalPrice: firstCombo?.price ? (language === "en" ? `BDT ${firstCombo.price}` : `৳ ${firstCombo.price}`) : (language === "en" ? "BDT 7,499" : "৳ ৭,৪৯৯"),
-      price: firstCombo?.discountPrice ? String(firstCombo.discountPrice) : (language === "en" ? "5,749" : "৫,৭৪৯"),
+      originalPrice: comboPricing.hasDiscount
+        ? language === "en"
+          ? `BDT ${formatLocalizedNumber(comboPricing.originalPrice, "en")}`
+          : `৳ ${formatLocalizedNumber(comboPricing.originalPrice, "bn")}`
+        : null,
+      price: formatLocalizedNumber(comboPricing.effectivePrice, language),
       currency: language === "en" ? "BDT" : "৳",
       period: language === "en" ? "complete bundle" : "এককালীন বান্ডেল",
       priceNote: language === "en" ? "Lifetime kit ownership & course access" : "কিটের আজীবন মালিকানা ও লাইভ ক্লাস",
-      saveBadge: language === "en" ? "Save ৳1,750" : "১,৭৫০ টাকা সাশ্রয়",
+      saveBadge: comboPricing.hasDiscount
+        ? language === "en"
+          ? `Save ৳${formatLocalizedNumber(comboPricing.savings, "en")}`
+          : `${formatLocalizedNumber(comboPricing.savings, "bn")} টাকা সাশ্রয়`
+        : null,
       popular: true,
       comboId: firstCombo?._id,
       features: [
@@ -114,7 +152,11 @@ const PricingSection: React.FC = () => {
           ? "Hands-on hardware components kit for self-learning and building experiments"
           : "বাড়িতে বা ক্লাবের জন্য আলাদাভাবে প্র্যাকটিক্যাল কিট কিনুন",
       originalPrice: null,
-      price: kitPriceSetting ? String(kitPriceSetting) : kitPriceEnv ? String(kitPriceEnv) : (language === "en" ? "3,999" : "৩,৯৯৯"),
+      price: kitPriceSetting 
+        ? formatLocalizedNumber(kitPriceSetting, language) 
+        : kitPriceEnv 
+        ? formatLocalizedNumber(kitPriceEnv, language) 
+        : (language === "en" ? "3,999" : "৩,৯৯৯"),
       currency: language === "en" ? "BDT" : "৳",
       period: language === "en" ? "one-time" : "এককালীন",
       priceNote: language === "en" ? "Lifetime hardware ownership" : "হার্ডওয়্যারের আজীবন মালিকানা",

@@ -11,9 +11,9 @@ export default function ProgressPage() {
 
     // Calculate overall statistics
     const totalCourses = enrolledCourses.length;
-    const completedCourses = enrolledCourses.filter((c: any) => c.progress === 100).length;
+    const completedCourses = enrolledCourses.filter((c: any) => c.completionPercentage === 100).length;
     const averageProgress = totalCourses > 0
-        ? Math.round(enrolledCourses.reduce((sum: number, c: any) => sum + (c.progress || 0), 0) / totalCourses)
+        ? Math.round(enrolledCourses.reduce((sum: number, c: any) => sum + (c.completionPercentage || 0), 0) / totalCourses)
         : 0;
 
     // Mock data for demonstration
@@ -134,11 +134,11 @@ export default function ProgressPage() {
                                                     {course.courseName || `Course ${course.courseId}`}
                                                 </h3>
                                                 <Chip
-                                                    color={course.progress === 100 ? "success" : "warning"}
+                                                    color={course.completionPercentage === 100 ? "success" : "warning"}
                                                     size="sm"
                                                     variant="flat"
                                                 >
-                                                    {course.progress === 100 ? "Completed" : "In Progress"}
+                                                    {course.completionPercentage === 100 ? "Completed" : "In Progress"}
                                                 </Chip>
                                             </div>
                                             <p className="text-sm text-gray-500">
@@ -150,19 +150,19 @@ export default function ProgressPage() {
                                             <div className="flex justify-between text-sm mb-2">
                                                 <span className="text-gray-600">Progress</span>
                                                 <span className="font-bold text-primary">
-                                                    {course.progress || 0}%
+                                                    {course.completionPercentage || 0}%
                                                 </span>
                                             </div>
                                             <Progress
-                                                value={course.progress || 0}
-                                                color={course.progress === 100 ? "success" : "primary"}
+                                                value={course.completionPercentage || 0}
+                                                color={course.completionPercentage === 100 ? "success" : "primary"}
                                                 size="lg"
                                                 className="mb-2"
                                             />
                                             <div className="flex justify-between text-xs text-gray-500">
                                                 <span>Started</span>
                                                 <span>
-                                                    {course.progress === 100 ? "Completed!" : `${100 - (course.progress || 0)}% to go`}
+                                                    {course.completionPercentage === 100 ? "Completed!" : `${100 - (course.completionPercentage || 0)}% to go`}
                                                 </span>
                                             </div>
                                         </div>

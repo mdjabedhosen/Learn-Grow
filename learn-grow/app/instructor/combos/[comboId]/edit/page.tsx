@@ -16,13 +16,30 @@ import {
 import { useUpdateComboMutation, useGetComboByIdQuery } from "@/redux/api/comboApi";
 import { useGetInstructorCoursesQuery } from "@/redux/api/courseApi";
 import { FaTimes } from "react-icons/fa";
+import { getCoursePricing } from "@/utils/pricing";
+import { formatBDT } from "@/utils/format";
 
 export default function EditComboPage() {
   const router = useRouter();
   const { comboId } = useParams();
   const [updateCombo, { isLoading }] = useUpdateComboMutation();
+  const [instructorId, setInstructorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setInstructorId(user._id || user.id || null);
+      }
+    }
+  }, []);
+
   const { data: comboData, isLoading: isLoadingCombo } = useGetComboByIdQuery(comboId as string);
-  const { data: coursesData, isLoading: isLoadingCourses } = useGetInstructorCoursesQuery(undefined);
+  const { data: coursesData, isLoading: isLoadingCourses } = useGetInstructorCoursesQuery(
+    { instructorId: instructorId ?? "", page: 1, limit: 100 },
+    { skip: !instructorId }
+  );
 
   const combo = comboData?.data;
   const courses = Array.isArray(coursesData?.data) ? coursesData.data : [];
@@ -32,7 +49,7 @@ export default function EditComboPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    discountPercentage: "",
+    discountPrice: "",
     isActive: true,
   });
 
@@ -40,8 +57,11 @@ export default function EditComboPage() {
     if (combo) {
       setForm({
         name: combo.name,
-        description: combo.description,
-        discountPercentage: combo.discountPercentage.toString(),
+        description: combo.description ?? "",
+        discountPrice:
+          combo.discountPrice !== undefined && combo.discountPrice !== null
+            ? String(combo.discountPrice)
+            : "",
         isActive: combo.isActive,
       });
       setSelectedCourses(combo.courses?.map((c: any) => c._id) || []);
@@ -62,9 +82,13 @@ export default function EditComboPage() {
 
     if (form.name.length < 3) e.name = "Min 3 characters";
     if (form.description.length < 20) e.description = "Min 20 characters";
-    if (!form.discountPercentage) e.discountPercentage = "Required";
-    if (parseInt(form.discountPercentage) < 0 || parseInt(form.discountPercentage) > 100) {
-      e.discountPercentage = "Must be between 0-100";
+    if (form.discountPrice) {
+      const discountValue = Number(form.discountPrice);
+      if (!Number.isFinite(discountValue) || discountValue < 0) {
+        e.discountPrice = "Must be 0 or more";
+      } else if (discountValue > 0 && combo && discountValue >= combo.price) {
+        e.discountPrice = "Must be less than the original price";
+      }
     }
     if (selectedCourses.length === 0) e.courses = "Select at least one course";
 
@@ -80,7 +104,7 @@ export default function EditComboPage() {
           name: form.name,
           description: form.description,
           courses: selectedCourses,
-          discountPercentage: parseInt(form.discountPercentage),
+          discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
           isActive: form.isActive,
         },
       } as any).unwrap();
@@ -139,16 +163,15 @@ export default function EditComboPage() {
               errorMessage={errors.name}
             />
             <Input
-              label="Discount Percentage"
+              label="Discount Price (BDT)"
               type="number"
               min="0"
-              max="100"
-              placeholder="e.g., 20"
-              value={form.discountPercentage}
-              onChange={(e) => setForm({ ...form, discountPercentage: e.target.value })}
-              isInvalid={!!errors.discountPercentage}
-              errorMessage={errors.discountPercentage}
-              endContent={<span className="text-sm text-gray-500">%</span>}
+              placeholder="e.g., 4999"
+              value={form.discountPrice}
+              onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
+              isInvalid={!!errors.discountPrice}
+              errorMessage={errors.discountPrice}
+              startContent={<span className="text-sm text-gray-500">৳</span>}
             />
           </div>
 
@@ -212,7 +235,7 @@ export default function EditComboPage() {
                               {course.level}
                             </Chip>
                             <Chip size="sm" variant="flat" color="success">
-                              ৳{course.price}
+                              {formatBDT(course.price)}
                             </Chip>
                           </div>
                         </div>

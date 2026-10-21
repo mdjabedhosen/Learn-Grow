@@ -31,6 +31,7 @@ import certificateRoutes from "./modules/certificate/routes/certificate.routes.j
 import trialBookingRoutes from "./modules/trialBooking/routes/trialBooking.route.js";
 import batchRoutes from "./modules/batch/routes/batch.route.js";
 import trackingRoutes from "./modules/tracking/routes/tracking.route.js";
+import couponRoutes from "./modules/coupon/routes/coupon.route.js";
 import { ENV } from "./config/env.js";
 import "./config/passport.js";
 // Security middleware imports
@@ -224,6 +225,8 @@ export const createApp = () => {
   mountApiRoute("/trials", trialBookingRoutes);
   mountApiRoute("/batches", batchRoutes);
   mountApiRoute("/tracking", trackingRoutes);
+  mountApiRoute("/coupon", couponRoutes);
+  mountApiRoute("/coupons", couponRoutes);
 
   // 404 handler - Ensure CORS headers on 404
   app.use((_req, res) => {

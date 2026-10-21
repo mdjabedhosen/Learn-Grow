@@ -1,6 +1,29 @@
+import { escapeRegex } from "@/utils/sanitizeSearch";
 import { LiveClass, ILiveClass } from "../model/liveClass.model";
 import { Types } from "mongoose";
 import { Order } from "@/modules/order/model/order.model";
+import { pickDefined } from "@/utils/pickFields";
+
+/**
+ * Editable live class fields.
+ *
+ * `courseId` and `instructorId` are ownership ids fixed at creation time and
+ * the timestamps belong to Mongoose.
+ *
+ * `isApproved` is NOT editable here: this function is reachable by the
+ * instructor who owns the class through `PATCH /live-classes/:id`, so
+ * keeping the flag in the whitelist would let an instructor approve their
+ * OWN live class. Approval goes through `setLiveClassApproval` instead.
+ */
+const LIVE_CLASS_UPDATABLE_FIELDS = [
+  "title",
+  "scheduledAt",
+  "duration",
+  "platform",
+  "meetingLink",
+  "status",
+  "recordedLink",
+] as const;
 
 export class LiveClassService {
   static async createLiveClass(data: Partial<ILiveClass> & { instructorId: string; courseId: string }) {
@@ -33,7 +56,7 @@ export class LiveClassService {
     }
 
     if (options?.platform) {
-      query.platform = new RegExp(options.platform, "i");
+      query.platform = new RegExp(escapeRegex(options.platform), "i");
     }
 
     if (options?.isApproved !== undefined) {
@@ -42,7 +65,7 @@ export class LiveClassService {
 
     if (options?.search) {
       query.$or = [
-        { title: new RegExp(options.search, "i") },
+        { title: new RegExp(escapeRegex(options.search), "i") },
       ];
     }
 
@@ -72,7 +95,24 @@ export class LiveClassService {
   }
 
   static async updateLiveClass(id: string, updates: Partial<ILiveClass>) {
-    return await LiveClass.findByIdAndUpdate(id, updates, { new: true })
+    const safeUpdates = pickDefined(updates, LIVE_CLASS_UPDATABLE_FIELDS);
+    return await LiveClass.findByIdAndUpdate(id, safeUpdates, { new: true })
+      .populate("courseId", "title")
+      .populate("instructorId", "name email");
+  }
+
+  /**
+   * Set the approval flag.
+   *
+   * Kept separate from `updateLiveClass` so the approval state can only be
+   * changed through the admin/manager approve and reject routes.
+   */
+  static async setLiveClassApproval(id: string, isApproved: boolean) {
+    return await LiveClass.findByIdAndUpdate(
+      id,
+      { $set: { isApproved } },
+      { new: true }
+    )
       .populate("courseId", "title")
       .populate("instructorId", "name email");
   }
@@ -175,14 +215,14 @@ export class LiveClassService {
       query.status = filters.status;
     }
     if (filters?.platform) {
-      query.platform = new RegExp(filters.platform, 'i');
+      query.platform = new RegExp(escapeRegex(filters.platform), 'i');
     }
     if (filters?.isApproved !== undefined) {
       query.isApproved = filters.isApproved;
     }
     if (filters?.search) {
       query.$or = [
-        { title: new RegExp(filters.search, 'i') },
+        { title: new RegExp(escapeRegex(filters.search), 'i') },
       ];
     }
 
