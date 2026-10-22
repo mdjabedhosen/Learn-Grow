@@ -302,7 +302,7 @@ export default function BlogDetailPage({
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold text-gray-500">
                 <span className="inline-flex items-center gap-1.5">
                   <FaMapMarkerAlt className="text-blue-500" />
-                  <span>লেভেল ৪, ৩৫ গ্রিন রোড, ধানমন্ডি, ঢাকা</span>
+                  <span>ঢাকা, বাংলাদেশ</span>
                 </span>
                 <span>•</span>
                 <a
