@@ -4,6 +4,9 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Cookie Policy',
   description: 'Learn about how we use cookies on our platform',
+  alternates: {
+    canonical: "https://learnandgrow.io/cookie-policy",
+  },
 };
 
 async function fetchCookiePolicyHtml() {

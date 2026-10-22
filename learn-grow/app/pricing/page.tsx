@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <div className="mt-2">
-      <PricingSection />
+      <PricingSection headingLevel="h1" />
     </div>
   );
 }

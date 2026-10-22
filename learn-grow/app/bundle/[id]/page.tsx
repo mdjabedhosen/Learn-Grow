@@ -1,14 +1,37 @@
 import React from "react";
+import { Metadata } from "next";
 import ComboDetails from "@/components/combo/ComboDetails";
 
 interface BundleDetailsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export const metadata = {
-  title: "Bundle Details | Learn Grow",
-  description: "See what's included in this bundle and purchase.",
-};
+// The canonical must be per-bundle. A single static canonical pointing at
+// /bundle tells search engines every detail page is a duplicate of the
+// listing, which de-indexes them all.
+export async function generateMetadata({
+  params,
+}: BundleDetailsPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const safeId = typeof id === "string" ? id.split("?")[0] : "";
+  const canonical = `https://learnandgrow.io/bundle/${encodeURIComponent(safeId)}`;
+
+  return {
+    title: "Course Bundle Details",
+    description:
+      "See exactly what is included in this course bundle - the courses, the robotics kit, the live classes and the price - and enroll in one step.",
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title: "Course Bundle Details | Learn & Grow",
+      description:
+        "See exactly what is included in this course bundle - the courses, the robotics kit, the live classes and the price - and enroll in one step.",
+      url: canonical,
+      type: "website",
+    },
+  };
+}
 
 export default async function BundleDetailsPage({ params }: BundleDetailsPageProps) {
   const resolvedParams = await params;

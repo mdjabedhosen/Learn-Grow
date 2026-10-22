@@ -14,9 +14,16 @@ import { getCoursePricing } from "@/utils/pricing";
 const DEFAULT_COMBO_PRICE = 7498;
 const DEFAULT_COMBO_DISCOUNT_PRICE = 4999;
 
-const PricingSection: React.FC = () => {
+const PricingSection: React.FC<{ headingLevel?: "h1" | "h2" }> = ({
+  headingLevel = "h2",
+}) => {
   const router = useRouter();
   const [language, setLanguage] = useState<"en" | "bn">("bn");
+
+  // /pricing has no other top-level heading, so it renders this section as
+  // the page <h1>. The homepage already has an <h1> in its hero, so there the
+  // section stays an <h2>.
+  const HeadingTag = headingLevel;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -211,13 +218,13 @@ const PricingSection: React.FC = () => {
             {language === "en" ? "Pricing Plans" : "সহজ ও স্বচ্ছ প্রাইসিং"}
           </span>
 
-          <h2
+          <HeadingTag
             className={`text-3xl sm:text-5xl lg:text-6xl font-black text-[#2C2C2C] tracking-tight leading-tight mb-4 ${
               language === "bn" ? "font-siliguri" : ""
             }`}
           >
             {pricing.title}
-          </h2>
+          </HeadingTag>
 
           <p
             className={`text-base sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed ${

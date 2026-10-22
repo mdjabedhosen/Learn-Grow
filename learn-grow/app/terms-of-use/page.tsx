@@ -7,8 +7,11 @@ import { DEFAULT_TERMS_OF_USE_HTML } from "@/lib/legalPolicies";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Learn & Grow",
+  title: "Terms of Service",
   description: "Terms and conditions for using Learn & Grow platform, live STEM courses, hardware kits, and educational services.",
+  alternates: {
+    canonical: "https://learnandgrow.io/terms-of-use",
+  },
 };
 
 async function fetchTermsHtml() {

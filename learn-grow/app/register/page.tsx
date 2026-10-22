@@ -5,6 +5,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Register",
   description: "Create your Learn Grow account and start your learning journey today.",
+  alternates: {
+    canonical: "https://learnandgrow.io/register",
+  },
 };
 
 export default function RegisterPage() {

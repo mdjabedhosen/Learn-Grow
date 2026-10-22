@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo-helpers";
 import React from "react";
 
 type Status = "online" | "healthy" | "degraded" | "down" | "active" | "inactive" | "unknown";
@@ -26,6 +28,19 @@ const Dot = ({ status }: { status: Status }) => {
   })();
   return <span className={`inline-block w-3 h-3 rounded-full ${color} mr-2`} />;
 };
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "System Status - Learn & Grow Platform",
+  description:
+    "Live availability and health status for the Learn & Grow platform, online courses, live classes and learning kit services.",
+  keywords: [
+    "Learn and Grow status",
+    "platform availability",
+    "service health",
+    "course uptime",
+  ],
+  canonical: "https://learnandgrow.io/status",
+});
 
 export default async function StatusPage() {
   const data = await getStatus();

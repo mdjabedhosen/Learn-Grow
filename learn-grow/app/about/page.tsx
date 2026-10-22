@@ -1,26 +1,21 @@
-"use client";
+import { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo-helpers";
+import AboutPage from "./page-client";
 
-import React from "react";
-import { Spinner } from "@nextui-org/react";
-import { defaultAboutData } from "@/lib/aboutData";
-import AboutClient from "@/components/AboutClient";
-import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
+export const metadata: Metadata = generatePageMetadata({
+  title: "About Learn & Grow - STEM & Robotics Education Academy",
+  description:
+    "Learn & Grow is a STEM education academy in Bangladesh offering robotics, Arduino and coding courses for kids and teens, plus hands-on learning kits and live mentor-led classes.",
+  keywords: [
+    "about Learn and Grow",
+    "STEM education academy Bangladesh",
+    "robotics academy",
+    "robotics education for kids",
+    "coding school Bangladesh",
+  ],
+  canonical: "https://learnandgrow.io/about",
+});
 
-export default function AboutPage() {
-    const { data: apiData, isLoading } = useGetSiteContentQuery("about");
-
-    // Use API data if available, otherwise default
-    const content = (apiData?.data?.content && typeof apiData.data.content === "object" && Object.keys(apiData.data.content).length > 0)
-        ? apiData.data.content
-        : defaultAboutData;
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Spinner size="lg" label="Loading About content..." />
-            </div>
-        );
-    }
-
-    return <AboutClient content={content} />;
+export default function AboutPageWrapper() {
+  return <AboutPage />;
 }

@@ -4,6 +4,9 @@ import ComboManagement from "@/components/admin/ComboManagement";
 export const metadata = {
   title: "Combo Management | Admin | Learn Grow",
   description: "Manage course combos for your learning platform.",
+  alternates: {
+    canonical: "https://learnandgrow.io/admin/combos",
+  },
 };
 
 export default function ComboManagementPage() {

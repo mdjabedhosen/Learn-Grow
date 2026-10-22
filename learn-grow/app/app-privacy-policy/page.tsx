@@ -6,6 +6,9 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: "App Privacy Policy",
   description: "Privacy policy for Learn & Grow mobile application.",
+  alternates: {
+    canonical: "https://learnandgrow.io/app-privacy-policy",
+  },
 };
 
 async function fetchAppPrivacyPolicyHtml() {

@@ -4,6 +4,9 @@ import AccessDurationManager from "@/components/admin/AccessDurationManager";
 export const metadata = {
   title: "Access Duration Manager | Admin | Learn Grow",
   description: "Manage student course access durations.",
+  alternates: {
+    canonical: "https://learnandgrow.io/admin/access-duration",
+  },
 };
 
 export default function AccessManagementPage() {

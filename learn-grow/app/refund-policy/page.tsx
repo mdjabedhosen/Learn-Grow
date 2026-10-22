@@ -7,8 +7,11 @@ import { DEFAULT_REFUND_POLICY_HTML } from "@/lib/legalPolicies";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Refund Policy | Learn & Grow",
+  title: "Refund Policy",
   description: "Learn & Grow 100% Satisfaction Guarantee and Refund Policy - Clear, fair, and transparent cancellation guidelines.",
+  alternates: {
+    canonical: "https://learnandgrow.io/refund-policy",
+  },
 };
 
 async function fetchRefundHtml() {

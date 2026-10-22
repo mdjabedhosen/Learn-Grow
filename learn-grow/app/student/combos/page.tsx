@@ -4,8 +4,11 @@ import ComboListing from "@/components/combo/ComboListing";
 import { Package, Sparkles, ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Course Bundles & Combos | Learn & Grow",
+  title: "Course Bundles & Combos",
   description: "Browse our course combo bundles and save up to 40% on multiple courses with hardware kits.",
+  alternates: {
+    canonical: "https://learnandgrow.io/student/combos",
+  },
 };
 
 export default function CombosPage() {

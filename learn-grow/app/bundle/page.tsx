@@ -4,6 +4,9 @@ import ComboListing from "@/components/combo/ComboListing";
 export const metadata = {
   title: "Bundles | Learn Grow",
   description: "Browse all course bundles and save more.",
+  alternates: {
+    canonical: "https://learnandgrow.io/bundle",
+  },
 };
 
 export default function BundlesPage() {

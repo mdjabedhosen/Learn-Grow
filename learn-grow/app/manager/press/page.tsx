@@ -2,8 +2,11 @@ import React from "react";
 import PressManagementTab from "@/components/admin/PressManagementTab";
 
 export const metadata = {
-  title: "Press & Media Management | Manager | Learn & Grow",
+  title: "Press & Media Management | Manager",
   description: "Manage public news coverage, official press releases, and media desk contact information.",
+  alternates: {
+    canonical: "https://learnandgrow.io/manager/press",
+  },
 };
 
 export default function ManagerPressPage() {

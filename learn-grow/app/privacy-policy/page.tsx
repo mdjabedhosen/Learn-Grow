@@ -7,8 +7,11 @@ import { DEFAULT_PRIVACY_POLICY_HTML } from "@/lib/legalPolicies";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Learn & Grow",
+  title: "Privacy Policy",
   description: "Learn & Grow Privacy Policy - Clear, transparent explanation of how we collect, protect, and respect your family and student data.",
+  alternates: {
+    canonical: "https://learnandgrow.io/privacy-policy",
+  },
 };
 
 async function fetchPolicyHtml() {

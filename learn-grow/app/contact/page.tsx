@@ -1,26 +1,21 @@
-"use client";
+import { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo-helpers";
+import ContactPage from "./page-client";
 
-import React from "react";
-import { Spinner } from "@nextui-org/react";
-import { defaultContactData } from "@/lib/contactData";
-import ContactClient from "@/components/ContactClient";
-import { useGetSiteContentQuery } from "@/redux/api/siteContentApi";
+export const metadata: Metadata = generatePageMetadata({
+  title: "Contact Learn & Grow - Talk to Our STEM & Robotics Team",
+  description:
+    "Get in touch with Learn & Grow. Call, WhatsApp or email our team about robotics courses, STEM kits, free trial classes and school or institutional programmes in Bangladesh.",
+  keywords: [
+    "contact Learn and Grow",
+    "robotics course enquiry",
+    "STEM education contact",
+    "free trial class Bangladesh",
+    "robotics kit order",
+  ],
+  canonical: "https://learnandgrow.io/contact",
+});
 
-export default function ContactPage() {
-    const { data: apiData, isLoading } = useGetSiteContentQuery("contact");
-
-    // Use API data if available, otherwise default
-    const content = (apiData?.data?.content && typeof apiData.data.content === "object" && Object.keys(apiData.data.content).length > 0)
-        ? apiData.data.content
-        : defaultContactData;
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Spinner size="lg" label="Loading Contact info..." />
-            </div>
-        );
-    }
-
-    return <ContactClient content={content} />;
+export default function ContactPageWrapper() {
+  return <ContactPage />;
 }

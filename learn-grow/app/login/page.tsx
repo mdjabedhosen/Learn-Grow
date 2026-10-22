@@ -5,6 +5,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Login",
   description: "Login to your Learn Grow account to access courses and learning materials.",
+  alternates: {
+    canonical: "https://learnandgrow.io/login",
+  },
 };
 
 export default function LoginPage() {
