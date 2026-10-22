@@ -14,11 +14,24 @@ import { SMTPConfig } from "@/modules/settings/model/smtpConfig.model";
 import { getOrderConfirmationEmail, getAdminOrderApprovalEmail, getOrderApprovedEmail, getOrderRejectedEmail } from "@/utils/emailTemplates";
 import { calculateAccessEndDate } from "@/utils/access-control";
 import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
+
+
+
 import {
   deriveSingleCourseOrderPricing,
   getCoursePricing,
   type ValidatedCoupon,
 } from "@/utils/pricing";
+
+/**
+ * True when a payment method is a bank transfer.
+ *
+ * The checkout page uses the same rule to decide when the payment
+ * screenshot becomes mandatory.
+ */
+export const isBankTransferName = (name?: string | null): boolean =>
+  !!name && /bank|transfer|npsb/i.test(name);
+
 
 // ENROLLMENT PRICING
 export const ENROLLMENT_PRICES = {
@@ -71,8 +84,20 @@ const sendOrderEmail = async (order: any) => {
       transactionId: order.transactionId,
       paymentMethod: paymentMethod.name || undefined,
       paymentAccount: paymentMethod.accountNumber || undefined,
+      paymentScreenshot: order.paymentScreenshot || undefined,
       deliveryAddress: order.deliveryAddress || undefined,
-      bankDetails: paymentMethod.bankDetails || undefined,
+      // The bank details are flat fields on the payment method now.
+      bankDetails:
+        paymentMethod.bankName || paymentMethod.accountName
+          ? {
+              bankName: paymentMethod.bankName || "",
+              accountHolder: paymentMethod.accountName || "",
+              accountNumber: paymentMethod.accountNumber || "",
+              routingNumber: paymentMethod.routingNumber || undefined,
+              branchName: paymentMethod.branchName || undefined,
+              swiftCode: paymentMethod.swiftCode || undefined,
+            }
+          : undefined,
       createdAt: new Date(order.createdAt || Date.now()).toLocaleString("en-US", { timeZone: "Asia/Dhaka" }),
     };
 
@@ -134,6 +159,12 @@ export const createOrderService = async (
     paymentMethodId: string;
     transactionId: string;
     senderNumber: string;
+    /**
+     * Cloudinary URL of the payment screenshot. Sent by the checkout page for
+     * bank transfers, where the screenshot is mandatory evidence for the
+     * admin. It used to be dropped here, so the upload was thrown away.
+     */
+    paymentScreenshot?: string;
     price?: number;
     paymentNote?: string;
     deliveryAddress?: {
@@ -165,6 +196,7 @@ export const createOrderService = async (
       paymentMethodId,
       transactionId,
       senderNumber,
+      paymentScreenshot,
       paymentNote,
       deliveryAddress,
     } = data;
@@ -311,6 +343,13 @@ export const createOrderService = async (
       orderData.deliveryAddress = deliveryAddress;
     }
 
+    // Payment screenshot - the admin needs it to verify a bank transfer.
+    // Only trusted for a method that actually is one: a screenshot attached
+    // to a bKash order is not evidence of anything.
+    if (paymentScreenshot && isBankTransferName(paymentMethod?.name)) {
+      orderData.paymentScreenshot = paymentScreenshot;
+    }
+
     if (derived.couponCode) {
       orderData.couponCode = derived.couponCode;
       orderData.discountAmount = derived.discountAmount;
@@ -324,7 +363,7 @@ export const createOrderService = async (
     const populatedOrder = await Order.findById(createdOrder._id)
       .populate("courseId", "title thumbnail")
       .populate("comboId", "name duration")
-      .populate("paymentMethodId", "name accountNumber")
+      .populate("paymentMethodId", "name accountNumber accountName bankName branchName routingNumber swiftCode paymentNote")
       .populate("userId", "name email");
 
     await sendOrderEmail(populatedOrder);
@@ -366,7 +405,7 @@ export const getUserOrdersService = async (
             select: "_id title"
           }
         })
-        .populate("paymentMethodId", "name")
+        .populate("paymentMethodId", "name accountNumber accountName bankName branchName routingNumber swiftCode paymentNote")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(safeLimit),
@@ -419,7 +458,7 @@ export const getAllOrdersService = async (filter?: {
       .populate("userId", "name email phone")
       .populate("courseId", "title")
       .populate("comboId", "name duration")
-      .populate("paymentMethodId", "name accountNumber")
+      .populate("paymentMethodId", "name accountNumber accountName bankName branchName routingNumber swiftCode paymentNote")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

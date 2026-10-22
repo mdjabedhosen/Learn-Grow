@@ -54,9 +54,19 @@ interface Order {
     _id: string;
     name: string;
     accountNumber: string;
+    accountName?: string;
+    bankName?: string;
+    branchName?: string;
+    routingNumber?: string;
+    swiftCode?: string;
   };
   transactionId: string;
   senderNumber: string;
+  /**
+   * Cloudinary URL of the payment screenshot the student uploaded.
+   * Present for bank transfers.
+   */
+  paymentScreenshot?: string;
   paymentStatus: "pending" | "approved" | "rejected";
   deliveryAddress?: DeliveryAddress;
   startDate?: string;
@@ -764,10 +774,48 @@ export default function OrdersAdminPage() {
                       <div className="space-y-2 text-sm">
                         <p><span className="text-gray-600">Method:</span> <span className="font-medium">{selectedOrder.paymentMethodId.name}</span></p>
                         <p><span className="text-gray-600">Account:</span> <span className="font-medium">{selectedOrder.paymentMethodId.accountNumber}</span></p>
+                        {selectedOrder.paymentMethodId.accountName && (
+                          <p><span className="text-gray-600">Account Name:</span> <span className="font-medium">{selectedOrder.paymentMethodId.accountName}</span></p>
+                        )}
+                        {selectedOrder.paymentMethodId.bankName && (
+                          <p><span className="text-gray-600">Bank:</span> <span className="font-medium">{selectedOrder.paymentMethodId.bankName}</span></p>
+                        )}
+                        {selectedOrder.paymentMethodId.branchName && (
+                          <p><span className="text-gray-600">Branch:</span> <span className="font-medium">{selectedOrder.paymentMethodId.branchName}</span></p>
+                        )}
+                        {selectedOrder.paymentMethodId.routingNumber && (
+                          <p><span className="text-gray-600">Routing:</span> <span className="font-medium">{selectedOrder.paymentMethodId.routingNumber}</span></p>
+                        )}
                         <p><span className="text-gray-600">Transaction:</span> <span className="font-medium">{selectedOrder.transactionId}</span></p>
                         <p><span className="text-gray-600">Sender:</span> <span className="font-medium">{selectedOrder.senderNumber}</span></p>
                       </div>
                     </div>
+
+                    {/* Payment screenshot - the evidence the admin needs to
+                        verify a bank transfer. Click to open it full size. */}
+                    {selectedOrder.paymentScreenshot && (
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h3 className="font-semibold mb-3 text-sm">
+                          Payment Screenshot
+                        </h3>
+                        <a
+                          href={selectedOrder.paymentScreenshot}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={selectedOrder.paymentScreenshot}
+                            alt="Payment screenshot"
+                            className="max-h-96 w-auto rounded-lg border border-gray-200 object-contain bg-white hover:opacity-90 transition-opacity"
+                          />
+                        </a>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Click the image to open the full-size screenshot.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Delivery Address - Show for Kit and Quarterly */}
                     {selectedOrder.deliveryAddress && (selectedOrder.planType === "kit" || selectedOrder.planType === "quarterly") && (

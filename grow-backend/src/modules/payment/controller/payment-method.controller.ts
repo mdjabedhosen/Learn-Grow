@@ -93,7 +93,17 @@ export const getPaymentMethodById = async (req: Request, res: Response) => {
  */
 export const createPaymentMethod = async (req: Request, res: Response) => {
   try {
-    const { name, accountNumber, paymentNote, isActive } = req.body;
+    const {
+      name,
+      accountNumber,
+      paymentNote,
+      accountName,
+      bankName,
+      branchName,
+      routingNumber,
+      swiftCode,
+      isActive,
+    } = req.body;
 
     // Validation
     if (!name || !accountNumber || !paymentNote) {
@@ -120,6 +130,11 @@ export const createPaymentMethod = async (req: Request, res: Response) => {
       name,
       accountNumber,
       paymentNote,
+      accountName: accountName || "",
+      bankName: bankName || "",
+      branchName: branchName || "",
+      routingNumber: routingNumber || "",
+      swiftCode: swiftCode || "",
       isActive: isActive ?? true,
       order,
     });
@@ -143,7 +158,18 @@ export const createPaymentMethod = async (req: Request, res: Response) => {
 export const updatePaymentMethod = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, accountNumber, paymentNote, isActive, order } = req.body;
+    const {
+      name,
+      accountNumber,
+      paymentNote,
+      accountName,
+      bankName,
+      branchName,
+      routingNumber,
+      swiftCode,
+      isActive,
+      order,
+    } = req.body;
 
     const paymentMethod = await PaymentMethod.findById(id);
 
@@ -172,6 +198,11 @@ export const updatePaymentMethod = async (req: Request, res: Response) => {
     if (name) paymentMethod.name = name;
     if (accountNumber) paymentMethod.accountNumber = accountNumber;
     if (paymentNote) paymentMethod.paymentNote = paymentNote;
+    if (accountName !== undefined) paymentMethod.accountName = accountName;
+    if (bankName !== undefined) paymentMethod.bankName = bankName;
+    if (branchName !== undefined) paymentMethod.branchName = branchName;
+    if (routingNumber !== undefined) paymentMethod.routingNumber = routingNumber;
+    if (swiftCode !== undefined) paymentMethod.swiftCode = swiftCode;
     if (typeof isActive === "boolean") paymentMethod.isActive = isActive;
     if (typeof order === "number") paymentMethod.order = order;
 

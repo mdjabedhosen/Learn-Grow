@@ -373,6 +373,67 @@ export default function AdminPaymentMethodsPage() {
                             {method.accountNumber}
                           </code>
                         </div>
+
+                        {/* Bank transfer details, kept as their own fields so
+                            they are visible at a glance. */}
+                        {(method.accountName ||
+                          method.bankName ||
+                          method.branchName ||
+                          method.routingNumber) && (
+                          <div className="text-sm space-y-1.5 pt-1">
+                            {method.accountName && (
+                              <p>
+                                <span className="text-gray-500 font-medium">
+                                  Account Name:
+                                </span>{" "}
+                                <span className="font-semibold text-gray-800">
+                                  {method.accountName}
+                                </span>
+                              </p>
+                            )}
+                            {method.bankName && (
+                              <p>
+                                <span className="text-gray-500 font-medium">
+                                  Bank:
+                                </span>{" "}
+                                <span className="font-semibold text-gray-800">
+                                  {method.bankName}
+                                </span>
+                              </p>
+                            )}
+                            {method.branchName && (
+                              <p>
+                                <span className="text-gray-500 font-medium">
+                                  Branch:
+                                </span>{" "}
+                                <span className="font-semibold text-gray-800">
+                                  {method.branchName}
+                                </span>
+                              </p>
+                            )}
+                            {method.routingNumber && (
+                              <p>
+                                <span className="text-gray-500 font-medium">
+                                  Routing Number:
+                                </span>{" "}
+                                <code className="font-mono font-semibold text-gray-800">
+                                  {method.routingNumber}
+                                </code>
+                              </p>
+                            )}
+                            {method.swiftCode && (
+                              <p>
+                                <span className="text-gray-500 font-medium">
+                                  SWIFT:
+                                </span>{" "}
+                                <code className="font-mono font-semibold text-gray-800">
+                                  {method.swiftCode}
+                                </code>
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         {method.paymentNote && (
                           <div className="text-sm">
                             <span className="text-gray-500 font-medium">Note:</span>

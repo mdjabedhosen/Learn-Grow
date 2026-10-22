@@ -21,6 +21,11 @@ interface OrderDetails {
   transactionId: string;
   paymentMethod?: string;
   paymentAccount?: string;
+  /**
+   * Cloudinary URL of the payment screenshot the student uploaded.
+   * Only present for bank transfers, where it is mandatory.
+   */
+  paymentScreenshot?: string;
   deliveryAddress?: {
     name: string;
     phone: string;
@@ -33,6 +38,8 @@ interface OrderDetails {
     accountHolder: string;
     accountNumber: string;
     routingNumber?: string;
+    branchName?: string;
+    swiftCode?: string;
   };
   createdAt: string;
 }
@@ -304,6 +311,49 @@ export const getAdminOrderApprovalEmail = (
               ? `<p style="margin: 5px 0; color: ${TEXT_LIGHT}; font-size: 12px;">${order.paymentAccount}</p>`
               : ""
           }
+        </div>
+        `
+            : ""
+        }
+
+        ${
+          order.bankDetails
+            ? `
+        <h3 style="margin: 20px 0 15px 0; color: ${TEXT_DARK}; font-size: 16px; font-weight: 600;">🏦 Bank Transfer Details</h3>
+        <div style="background: ${BG_LIGHT}; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;">
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Account Name:</strong> ${order.bankDetails.accountHolder}</p>
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Account Number:</strong> ${order.bankDetails.accountNumber}</p>
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Bank Name:</strong> ${order.bankDetails.bankName}</p>
+          ${
+            order.bankDetails.branchName
+              ? `<p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Branch Name:</strong> ${order.bankDetails.branchName}</p>`
+              : ""
+          }
+          ${
+            order.bankDetails.routingNumber
+              ? `<p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Routing Number:</strong> ${order.bankDetails.routingNumber}</p>`
+              : ""
+          }
+          ${
+            order.bankDetails.swiftCode
+              ? `<p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>SWIFT Code:</strong> ${order.bankDetails.swiftCode}</p>`
+              : ""
+          }
+        </div>
+        `
+            : ""
+        }
+
+        ${
+          order.paymentScreenshot
+            ? `
+        <h3 style="margin: 20px 0 15px 0; color: ${TEXT_DARK}; font-size: 16px; font-weight: 600;">📸 Payment Screenshot</h3>
+        <div style="background: ${BG_LIGHT}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <p style="margin: 0 0 10px 0; color: ${TEXT_LIGHT}; font-size: 12px;">The student uploaded this as proof of the bank transfer.</p>
+          <img src="${order.paymentScreenshot}" alt="Payment screenshot" style="max-width: 100%; max-height: 420px; border: 1px solid #e5e7eb; border-radius: 6px; display: block;" />
+          <p style="margin: 10px 0 0 0; font-size: 12px;">
+            <a href="${order.paymentScreenshot}" style="color: #3b82f6;">Open the full-size screenshot</a>
+          </p>
         </div>
         `
             : ""

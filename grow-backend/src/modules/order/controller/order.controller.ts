@@ -65,7 +65,7 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     // Validate required fields
-    const { planType, paymentMethodId, transactionId, senderNumber } = req.body;
+    const { planType, paymentMethodId, transactionId, senderNumber, paymentScreenshot } = req.body;
     const allowedPlans = ["single", "quarterly", "kit", "combo"];
 
     if (!planType || !paymentMethodId || !transactionId || !senderNumber) {
@@ -73,6 +73,23 @@ export const createOrder = async (req: Request, res: Response) => {
         success: false, 
         message: "Missing required fields: planType, paymentMethodId, transactionId, senderNumber" 
       });
+    }
+
+    // The payment screenshot is a Cloudinary URL uploaded by the checkout
+    // page. Validate the shape so nothing else can be stored in the field.
+    if (paymentScreenshot !== undefined) {
+      if (typeof paymentScreenshot !== "string" || !/^https?:\/\/\S+$/i.test(paymentScreenshot.trim())) {
+        return res.status(400).json({
+          success: false,
+          message: "paymentScreenshot must be a valid image URL",
+        });
+      }
+      if (paymentScreenshot.length > 2000) {
+        return res.status(400).json({
+          success: false,
+          message: "paymentScreenshot URL is too long",
+        });
+      }
     }
 
     if (!allowedPlans.includes(planType)) {
@@ -183,7 +200,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       .populate("userId", "name email role phone")
       .populate("courseId", "title thumbnail instructor")
       .populate("comboId", "name duration")
-      .populate("paymentMethodId", "name accountNumber paymentNote");
+      .populate("paymentMethodId", "name accountNumber accountName bankName branchName routingNumber swiftCode paymentNote");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -927,7 +944,7 @@ export const getStudentOrdersForGuardian = async (req: Request, res: Response) =
     // Get student's orders
     const orders = await Order.find({ userId: studentIdToFetch })
       .populate("courseId", "title thumbnail price")
-      .populate("paymentMethodId", "name accountNumber")
+      .populate("paymentMethodId", "name accountNumber accountName bankName branchName routingNumber swiftCode paymentNote")
       .sort({ createdAt: -1 })
       .lean();
 

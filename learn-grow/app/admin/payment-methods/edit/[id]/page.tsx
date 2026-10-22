@@ -35,6 +35,11 @@ export default function EditPaymentMethodPage() {
     customName: "",
     accountNumber: "",
     paymentNote: "",
+    accountName: "",
+    bankName: "",
+    branchName: "",
+    routingNumber: "",
+    swiftCode: "",
     isActive: true,
   });
 
@@ -53,6 +58,11 @@ export default function EditPaymentMethodPage() {
         customName: isCustom ? paymentMethod.name : "",
         accountNumber: paymentMethod.accountNumber || "",
         paymentNote: paymentMethod.paymentNote || "",
+        accountName: paymentMethod.accountName || "",
+        bankName: paymentMethod.bankName || "",
+        branchName: paymentMethod.branchName || "",
+        routingNumber: paymentMethod.routingNumber || "",
+        swiftCode: paymentMethod.swiftCode || "",
         isActive: paymentMethod.isActive ?? true,
       });
     }
@@ -183,6 +193,70 @@ export default function EditPaymentMethodPage() {
                 minRows={3}
                 description="Instructions for users on how to complete the payment"
               />
+
+              {/* Bank transfer details - these are shown to the customer as a
+                  labelled block on the checkout page, so they are managed as
+                  their own fields rather than inside the payment note. */}
+              <div className="border-t border-gray-200 pt-5 mt-2">
+                <h3 className="font-semibold text-gray-800 mb-1">
+                  Bank Transfer Details
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Only used for bank transfers. Leave blank for mobile wallets.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Account Name"
+                    placeholder="e.g. MD. JABED HOSEN"
+                    value={formData.accountName}
+                    onValueChange={(val) => setFormData({ ...formData, accountName: val })}
+                    variant="bordered"
+                    size="lg"
+                  />
+                  <Input
+                    label="Account Number"
+                    placeholder="e.g. 1070448410001"
+                    value={formData.accountNumber}
+                    onValueChange={(val) => setFormData({ ...formData, accountNumber: val })}
+                    variant="bordered"
+                    size="lg"
+                    isRequired
+                  />
+                  <Input
+                    label="Bank Name"
+                    placeholder="e.g. BRAC Bank PLC"
+                    value={formData.bankName}
+                    onValueChange={(val) => setFormData({ ...formData, bankName: val })}
+                    variant="bordered"
+                    size="lg"
+                  />
+                  <Input
+                    label="Branch Name"
+                    placeholder="e.g. ASHULIA BRANCH"
+                    value={formData.branchName}
+                    onValueChange={(val) => setFormData({ ...formData, branchName: val })}
+                    variant="bordered"
+                    size="lg"
+                  />
+                  <Input
+                    label="Routing Number"
+                    placeholder="e.g. 060260222"
+                    value={formData.routingNumber}
+                    onValueChange={(val) => setFormData({ ...formData, routingNumber: val })}
+                    variant="bordered"
+                    size="lg"
+                  />
+                  <Input
+                    label="SWIFT Code"
+                    placeholder="e.g. BRAKBDDH"
+                    value={formData.swiftCode}
+                    onValueChange={(val) => setFormData({ ...formData, swiftCode: val })}
+                    variant="bordered"
+                    size="lg"
+                  />
+                </div>
+              </div>
 
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>

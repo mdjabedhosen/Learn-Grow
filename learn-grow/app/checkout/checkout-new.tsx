@@ -57,8 +57,25 @@ interface PaymentMethod {
   name: string;
   accountNumber: string;
   paymentNote: string;
+  // Bank transfer details, shown as a labelled block when a bank transfer is
+  // selected.
+  accountName?: string;
+  bankName?: string;
+  branchName?: string;
+  routingNumber?: string;
+  swiftCode?: string;
   isActive?: boolean;
 }
+
+/**
+ * True when a payment method is a bank transfer.
+ *
+ * A bank transfer shows the account details and makes the payment
+ * screenshot mandatory. The backend applies the same rule before it
+ * stores a screenshot on an order.
+ */
+const isBankTransferMethod = (method?: PaymentMethod | null): boolean =>
+  !!method && /bank|transfer|npsb/i.test(method.name || "");
 
 interface OrderData {
   _id: string;
@@ -227,6 +244,15 @@ export default function CheckoutPage() {
   const [transactionId, setTransactionId] = useState<string>("");
   const [paymentScreenshot, setPaymentScreenshot] = useState<string | null>(null);
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
+
+  // The payment method the customer picked, and whether it is a bank
+  // transfer. A bank transfer shows the account details and requires a
+  // payment screenshot.
+  const selectedMethod = React.useMemo(
+    () => paymentMethods.find((m) => m._id === selectedPaymentMethod),
+    [paymentMethods, selectedPaymentMethod]
+  );
+  const isBankTransfer = isBankTransferMethod(selectedMethod);
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
     name: "",
     phone: "",
@@ -537,8 +563,6 @@ export default function CheckoutPage() {
       }
 
       // For bank transfers, payment screenshot is mandatory
-      const selectedMethod = paymentMethods.find(m => m._id === selectedPaymentMethod);
-      const isBankTransfer = selectedMethod?.name?.toLowerCase().includes("bank");
       if (isBankTransfer && !paymentScreenshot) {
         toast.error(language === "bn" ? "অনুগ্রহ করে পেমেন্ট স্ক্রিনশট আপলোড করুন" : "Please upload a payment screenshot for bank transfers");
         setSubmitting(false);
@@ -1325,22 +1349,22 @@ export default function CheckoutPage() {
               {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod) && (
                 <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
                   <div className="flex items-center gap-3 mb-1">
-                    {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("rocket") && (
+                    {selectedMethod?.name?.toLowerCase().includes("rocket") && (
                       <CreditCard size={20} className="text-blue-600" />
                     )}
-                    {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("bkash") && (
+                    {selectedMethod?.name?.toLowerCase().includes("bkash") && (
                       <Smartphone size={20} className="text-pink-600" />
                     )}
-                    {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("bank") && (
+                    {selectedMethod?.name?.toLowerCase().includes("bank") && (
                       <Banknote size={20} className="text-green-600" />
                     )}
                     <div>
                       <h3 className="font-bold text-slate-900">
-                        {paymentMethods.find(m => m._id === selectedPaymentMethod)?.name}
+                        {selectedMethod?.name}
                       </h3>
-                      {paymentMethods.find(m => m._id === selectedPaymentMethod)?.accountNumber && (
+                      {selectedMethod?.accountNumber && (
                         <p className="text-sm font-semibold text-slate-700">
-                          {language === "bn" ? "অ্যাকাউন্ট নম্বর:" : "Account Number:"} {paymentMethods.find(m => m._id === selectedPaymentMethod)?.accountNumber}
+                          {language === "bn" ? "অ্যাকাউন্ট নম্বর:" : "Account Number:"} {selectedMethod?.accountNumber}
                         </p>
                       )}
                     </div>
@@ -1349,8 +1373,100 @@ export default function CheckoutPage() {
                 </div>
               )}
 
+              {/* Bank Transfer Details - only for a bank transfer.
+                  These are OUR account details: the customer reads them here
+                  so they know where to send the money, then fills in the
+                  transaction details below. */}
+              {selectedPaymentMethod &&
+                isBankTransferMethod(selectedMethod) && (
+                  <div className="mt-4 p-5 bg-emerald-50 border-2 border-emerald-300 rounded-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-emerald-600 text-white rounded-full p-2 flex-shrink-0">
+                        <Banknote size={20} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-emerald-900 text-base">
+                          {language === "bn"
+                            ? "ব্যাংক ট্রান্সফারের তথ্য"
+                            : "Bank Transfer Details"}
+                        </h3>
+                        <p className="text-xs text-emerald-800">
+                          {language === "bn"
+                            ? "নিচের অ্যাকাউন্টে টাকা পাঠান, তারপর নিচে লিখুন।"
+                            : "Send the money to this account, then fill in the details below."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                      {selectedMethod?.accountName && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            {language === "bn" ? "অ্যাকাউন্ট নাম" : "Account Name"}
+                          </dt>
+                          <dd className="font-bold text-emerald-950 break-words">
+                            {selectedMethod.accountName}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedMethod?.accountNumber && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            {language === "bn"
+                              ? "অ্যাকাউন্ট নম্বর"
+                              : "Account Number"}
+                          </dt>
+                          <dd className="font-bold text-emerald-950 font-mono break-all">
+                            {selectedMethod.accountNumber}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedMethod?.bankName && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            {language === "bn" ? "ব্যাংকের নাম" : "Bank Name"}
+                          </dt>
+                          <dd className="font-bold text-emerald-950 break-words">
+                            {selectedMethod.bankName}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedMethod?.branchName && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            {language === "bn" ? "শাখার নাম" : "Branch Name"}
+                          </dt>
+                          <dd className="font-bold text-emerald-950 break-words">
+                            {selectedMethod.branchName}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedMethod?.routingNumber && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            {language === "bn" ? "রাউটিং নম্বর" : "Routing Number"}
+                          </dt>
+                          <dd className="font-bold text-emerald-950 font-mono break-all">
+                            {selectedMethod.routingNumber}
+                          </dd>
+                        </div>
+                      )}
+                      {selectedMethod?.swiftCode && (
+                        <div>
+                          <dt className="text-xs text-emerald-700 font-semibold uppercase tracking-wide">
+                            SWIFT Code
+                          </dt>
+                          <dd className="font-bold text-emerald-950 font-mono break-all">
+                            {selectedMethod.swiftCode}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                )}
+
               {/* Show detailed payment note when method selected */}
-              {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod)?.paymentNote && (
+              {selectedPaymentMethod && selectedMethod?.paymentNote && (
                 <div className="mt-6 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl">
                   <div className="flex items-start gap-3">
                     <div className="bg-blue-600 text-white rounded-full p-2 flex-shrink-0">
@@ -1361,7 +1477,7 @@ export default function CheckoutPage() {
                         {language === "bn" ? "পেমেন্ট নির্দেশনা" : "Payment Instructions"}
                       </h3>
                       <div className="text-sm text-slate-700 space-y-2 whitespace-pre-line leading-relaxed">
-                        {paymentMethods.find(m => m._id === selectedPaymentMethod)?.paymentNote}
+                        {selectedMethod?.paymentNote}
                       </div>
                     </div>
                   </div>
@@ -1415,7 +1531,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Payment Screenshot Upload (Mandatory for Bank Transfers) */}
-                  {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("bank") && (
+                  {selectedPaymentMethod && isBankTransfer && (
                     <div className="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl">
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         {language === "bn" ? "পেমেন্ট স্ক্রিনশট আপলোড করুন *" : "Upload Payment Screenshot *"}

@@ -37,7 +37,8 @@
     "create-admin": "tsx src/scripts/createAdmin.ts",
     "invalidate:default-passwords": "tsx src/scripts/invalidateDefaultPasswords.ts",
     "verify:security": "tsx src/scripts/verifySecurityFixes.ts",
-    "verify:quiz-flow": "tsx src/scripts/verifyQuizFlowUi.ts"
+    "verify:quiz-flow": "tsx src/scripts/verifyQuizFlowUi.ts",
+    "verify:payment": "tsx src/scripts/verifyPaymentScreenshot.ts"
   },
   "author": "",
   "license": "MIT",
