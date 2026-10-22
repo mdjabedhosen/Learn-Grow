@@ -72,7 +72,7 @@ function EditCourseContent() {
     }
   );
 
-  const course = courseData?.data;
+  const course = courseData?.data || courseData;
   const { data: categoriesData, isLoading: isCategoriesLoading } = useGetAllCategoriesQuery(undefined);
   const [createCategory, { isLoading: isCreatingCategory }] = useCreateCategoryMutation();
   const { data: allInstructorsData } = useGetAllInstructorsQuery({ limit: 100 });

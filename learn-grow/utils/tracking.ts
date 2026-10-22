@@ -2,6 +2,8 @@
 
 // Client-side tracking utility for Meta Pixel & CAPI, TikTok Events API, and Google Ads / GA4
 
+import { API_CONFIG } from "@/config/apiConfig";
+
 export const getCookie = (name: string): string => {
   if (typeof document === "undefined") return "";
   const match = document.cookie.match(new RegExp("(^|;\\s*)(" + name + ")=([^;]*)"));
@@ -121,9 +123,12 @@ export const trackEvent = async (
     }
   } catch {}
 
-  // 5. Server-Side: Dispatch directly to Next.js API route (/api/tracking)
+  // 5. Server-Side: Dispatch to the backend tracking endpoint.
+  // Must be an absolute backend URL: in production nginx proxies every /api/* path
+  // to the backend, so a relative "/api/tracking" never reaches the Next.js route
+  // and 404s, silently dropping every server-side CAPI event.
   try {
-    fetch("/api/tracking", {
+    fetch(`${API_CONFIG.BASE_URL}/tracking/event`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

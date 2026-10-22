@@ -225,6 +225,8 @@ export default function CheckoutPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [senderNumber, setSenderNumber] = useState<string>("");
   const [transactionId, setTransactionId] = useState<string>("");
+  const [paymentScreenshot, setPaymentScreenshot] = useState<string | null>(null);
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
     name: "",
     phone: "",
@@ -495,7 +497,7 @@ export default function CheckoutPage() {
     }
 
     // Validate delivery address for kit and quarterly plans
-    if ((planType === "kit" || planType === "quarterly") && 
+    if ((planType === "kit" || planType === "quarterly") &&
         (!deliveryAddress.name || !deliveryAddress.phone || !deliveryAddress.fullAddress || !deliveryAddress.city)) {
       toast.error("Please fill in delivery address");
       return;
@@ -534,6 +536,15 @@ export default function CheckoutPage() {
         return;
       }
 
+      // For bank transfers, payment screenshot is mandatory
+      const selectedMethod = paymentMethods.find(m => m._id === selectedPaymentMethod);
+      const isBankTransfer = selectedMethod?.name?.toLowerCase().includes("bank");
+      if (isBankTransfer && !paymentScreenshot) {
+        toast.error(language === "bn" ? "অনুগ্রহ করে পেমেন্ট স্ক্রিনশট আপলোড করুন" : "Please upload a payment screenshot for bank transfers");
+        setSubmitting(false);
+        return;
+      }
+
       // Create order
       const orderPayload: any = {
         planType,
@@ -551,6 +562,11 @@ export default function CheckoutPage() {
       // Add comboId for combo plan
       if (planType === "combo") {
         orderPayload.comboId = effectiveComboId;
+      }
+
+      // Add payment screenshot if available
+      if (paymentScreenshot) {
+        orderPayload.paymentScreenshot = paymentScreenshot;
       }
 
       // Add the coupon code. The backend re-validates it and re-derives the
@@ -593,6 +609,45 @@ export default function CheckoutPage() {
       toast.error(msg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(language === "bn" ? "ফাইলটি খুব বড়। ৫ মেগাবাইটের কম ফাইল আপলোড করুন।" : "File too large. Please upload a file smaller than 5MB.");
+      return;
+    }
+
+    setUploadingScreenshot(true);
+    const formData = new FormData();
+    formData.append("screenshot", file);
+
+    try {
+      const token = getAuthToken();
+      const response = await axios.post(
+        `${API_CONFIG.BASE_URL}/orders/upload-screenshot`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data?.success && response.data?.data?.url) {
+        setPaymentScreenshot(response.data.data.url);
+        toast.success(language === "bn" ? "স্ক্রিনশট আপলোড সফল হয়েছে!" : "Screenshot uploaded successfully!");
+      } else {
+        toast.error(language === "bn" ? "আপলোড ব্যর্থ হয়েছে" : "Upload failed");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || (language === "bn" ? "আপলোড করতে সমস্যা হয়েছে" : "Problem uploading screenshot"));
+    } finally {
+      setUploadingScreenshot(false);
     }
   };
 
@@ -1358,6 +1413,53 @@ export default function CheckoutPage() {
                       {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন" : "Enter the transaction ID from your confirmation SMS"}
                     </p>
                   </div>
+
+                  {/* Payment Screenshot Upload (Mandatory for Bank Transfers) */}
+                  {selectedPaymentMethod && paymentMethods.find(m => m._id === selectedPaymentMethod)?.name?.toLowerCase().includes("bank") && (
+                    <div className="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        {language === "bn" ? "পেমেন্ট স্ক্রিনশট আপলোড করুন *" : "Upload Payment Screenshot *"}
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <div className="relative flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleScreenshotUpload}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            disabled={uploadingScreenshot}
+                          />
+                          <div className={`w-full px-4 py-2.5 border-2 border-dashed rounded-lg text-sm text-center transition ${
+                            paymentScreenshot
+                              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                              : "border-slate-300 bg-white text-slate-500 hover:border-blue-400"
+                          }`}>
+                            {uploadingScreenshot
+                              ? (language === "bn" ? "আপলোড হচ্ছে..." : "Uploading...")
+                              : paymentScreenshot
+                                ? (language === "bn" ? "✅ আপলোড সম্পন্ন হয়েছে" : "✅ Uploaded successfully")
+                                : (language === "bn" ? "ছবি নির্বাচন করুন" : "Select Image")}
+                          </div>
+                        </div>
+                        {paymentScreenshot && (
+                          <button
+                            type="button"
+                            onClick={() => setPaymentScreenshot(null)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                            title={language === "bn" ? "মুছে ফেলুন" : "Remove"}
+                          >
+                            <RotateCw size={18} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                        <Shield size={12} />
+                        {language === "bn"
+                          ? "শুধুমাত্র ইমেজ ফাইল (JPG, PNG, WebP) সমর্থিত। সর্বোচ্চ ৫ মেগাবাইট।"
+                          : "Only image files (JPG, PNG, WebP) supported. Max 5MB."}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Security Note */}

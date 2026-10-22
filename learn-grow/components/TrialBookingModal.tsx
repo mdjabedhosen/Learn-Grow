@@ -23,8 +23,17 @@ export const TrialBookingModal: React.FC = () => {
   const [source, setSource] = useState("website");
   const [createTrialBooking, { isLoading: isSubmitting }] = useCreateTrialBookingMutation();
 
-  const { data: publishedCoursesData } = useGetPublishedCoursesQuery({ limit: 100 });
-  const { data: allCoursesData } = useGetAllCoursesQuery({ limit: 100 });
+  // Only fetch the course list once the modal is actually opened.
+  // These queries used to run on every page load (the modal is mounted globally
+  // in layout-wrapper), pulling ~200 course records on even /login.
+  const { data: publishedCoursesData } = useGetPublishedCoursesQuery(
+    { limit: 100 },
+    { skip: !isOpen }
+  );
+  const { data: allCoursesData } = useGetAllCoursesQuery(
+    { limit: 100 },
+    { skip: !isOpen }
+  );
 
   const courses = React.useMemo(() => {
     const rawA =
