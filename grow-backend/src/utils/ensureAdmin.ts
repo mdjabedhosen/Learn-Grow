@@ -187,34 +187,64 @@ export const ensureEvents = async () => {
     if (!adminUser) return;
 
     // 1. Ensure Event Guests
-    let guestTanvir = await EventGuest.findOne({ fullName: { $regex: /Tanvir/i } });
-    if (!guestTanvir) {
-      guestTanvir = await EventGuest.create({
-        fullName: "Md. Tanvir Hassan",
-        role: "Lead Mentor & Judge",
-        organization: "Daffodil International University (DIU)",
-        designation: "Senior Robotics Lead",
-        bio: "রোবটিক্স ও মেকাট্রনিক্স বিশেষজ্ঞ। দীর্ঘ সময় ধরে শিশু-কিশোরদের রোবটিক্স অলিম্পিয়াডের জাতীয় বিচারক হিসেবে দায়িত্ব পালন করছেন।",
-        profileImage: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1775260928/team/tanvir.jpg",
-        email: "tanvir.lead@learngrow.io",
-      });
-    } else if (/buet/i.test(guestTanvir.organization || "")) {
-      guestTanvir.organization = "Daffodil International University (DIU)";
-      await guestTanvir.save();
-    }
+    //
+    // These used to be findOne-then-create. Several backend servers can boot
+    // at the same time (a `tsx watch` plus a plain `tsx src/server.ts` is
+    // enough), and each one passed the findOne check before any of them had
+    // inserted - so the same guest was created two or three times and the
+    // events list showed every event three times.
+    //
+    // The upsert below is atomic and the unique index on EventGuest.email
+    // makes a second insert impossible. A duplicate-key error means another
+    // process won the race, so we simply re-read the row.
+    const upsertGuest = async (doc: any) => {
+      const filter = { email: doc.email };
+      try {
+        return await EventGuest.findOneAndUpdate(
+          filter,
+          { $set: doc },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true,
+            runValidators: true,
+          }
+        );
+      } catch (err: any) {
+        if (err?.code === 11000) {
+          const existing = await EventGuest.findOne(filter);
+          if (existing) return existing;
+        }
+        throw err;
+      }
+    };
 
-    let guestTonni = await EventGuest.findOne({ fullName: { $regex: /Tonni/i } });
-    if (!guestTonni) {
-      guestTonni = await EventGuest.create({
-        fullName: "Tasnim Jahan Tonni",
-        role: "Mentor",
-        organization: "University of Asia Pacific (UAP)",
-        designation: "Lead AI & Coding Mentor",
-        bio: "কম্পিউটার সায়েন্স গ্র্যাজুয়েট ও অভিজ্ঞ প্রোগ্রামিং মেন্টর। শিশুদের এআই ও পাইথন কোডিং সহজ ভাষায় শেখাতে পারদর্শী।",
-        profileImage: "https://res.cloudinary.com/daq7v0wmf/image/upload/v1775260928/team/tonni.jpg",
-        email: "tonni.mentor@learngrow.io",
-      });
-    }
+    const guestTanvir = await upsertGuest({
+      fullName: "Md. Tanvir Hassan",
+      // Must be one of the EventGuest.role enum values
+      // ("Guest" | "Host" | "Speaker" | "Mentor" | "Judge").
+      // "Lead Mentor & Judge" was not, so the whole event seed failed
+      // validation and neither guest was ever created. His title
+      // ("Senior Robotics Lead") lives in `designation`.
+      role: "Judge",
+      organization: "Daffodil International University (DIU)",
+      designation: "Senior Robotics Lead",
+      bio: "রোবটিক্স ও মেকাট্রনিক্স বিশেষজ্ঞ। দীর্ঘ সময় ধরে শিশু-কিশোরদের রোবটিক্স অলিম্পিয়াডের জাতীয় বিচারক হিসেবে দায়িত্ব পালন করছেন।",
+      profileImage:
+        "https://res.cloudinary.com/daq7v0wmf/image/upload/v1775260928/team/tanvir.jpg",
+      email: "tanvir.lead@learngrow.io",
+    });
+
+    const guestTonni = await upsertGuest({
+      fullName: "Tasnim Jahan Tonni",
+      role: "Mentor",
+      organization: "University of Asia Pacific (UAP)",
+      designation: "Lead AI & Coding Mentor",
+      bio: "কম্পিউটার সায়েন্স গ্র্যাজুয়েট ও অভিজ্ঞ প্রোগ্রামিং মেন্টর। শিশুদের এআই ও পাইথন কোডিং সহজ ভাষায় শেখাতে পারদর্শী।",
+      profileImage:
+        "https://res.cloudinary.com/daq7v0wmf/image/upload/v1775260928/team/tonni.jpg",
+      email: "tonni.mentor@learngrow.io",
+    });
 
     // 2. Real STEM Events
     const realEvents = [
@@ -430,17 +460,31 @@ export const ensureEvents = async () => {
       },
     ];
 
+    // Atomic upsert on the title (which carries a unique index). The old
+    // findOne-then-create let two servers booting together insert the same
+    // event twice.
     for (const item of realEvents) {
-      const existing = await Event.findOne({
-        $or: [
-          { title: item.title },
-          { title: { $regex: new RegExp(item.title.split(" ")[0] + ".*" + item.title.split(" ")[1], "i") } }
-        ]
-      });
-      if (existing) {
-        await Event.updateOne({ _id: existing._id }, { $set: item });
-      } else {
-        await Event.create(item);
+      const filter = { title: item.title };
+      try {
+        await Event.findOneAndUpdate(
+          filter,
+          { $set: item },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true,
+            runValidators: true,
+          }
+        );
+      } catch (err: any) {
+        if (err?.code === 11000) {
+          const existing = await Event.findOne(filter);
+          if (existing) {
+            await Event.updateOne({ _id: existing._id }, { $set: item });
+            continue;
+          }
+        }
+        throw err;
       }
     }
 

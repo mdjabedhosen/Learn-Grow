@@ -140,6 +140,10 @@ const eventSchema = new Schema<IEvent>(
 
 // Indexes for search and filtering
 eventSchema.index({ title: "text" });
+// One event per title. The seeder used to do findOne-then-create, so two
+// servers booting together created the same event twice and the events list
+// showed it three times.
+eventSchema.index({ title: 1 }, { unique: true });
 eventSchema.index({ type: 1 });
 eventSchema.index({ mode: 1 });
 eventSchema.index({ status: 1 });

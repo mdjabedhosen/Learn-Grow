@@ -20,6 +20,7 @@ import {
   useUpdateEventMutation,
   useGetAllGuestsQuery,
 } from "@/redux/api/eventApi";
+import CreateGuestModal, { CreatedGuest } from "@/components/admin/CreateGuestModal";
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -29,6 +30,7 @@ import {
   FaUsers,
   FaImage,
   FaSave,
+  FaUserPlus,
   FaTimes,
   FaInfoCircle,
   FaGlobe,
@@ -58,6 +60,7 @@ export default function EditEventPage() {
 
   const [updateEvent, { isLoading: updating }] = useUpdateEventMutation();
 
+  const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     type: "Workshop",
@@ -107,6 +110,20 @@ export default function EditEventPage() {
       });
     }
   }, [event]);
+
+  // A guest created in the modal is selected straight away.
+  const handleGuestCreated = (guest: CreatedGuest) => {
+    setFormData((prev) => {
+      const hosts = [...prev.hosts];
+      const firstEmpty = hosts.findIndex((h) => !h);
+      if (firstEmpty >= 0) {
+        hosts[firstEmpty] = guest._id;
+      } else {
+        hosts.push(guest._id);
+      }
+      return { ...prev, hosts };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -392,14 +409,25 @@ export default function EditEventPage() {
                   <FaUsers className="text-indigo-600" />
                   Event Hosts
                 </h2>
-                <Button
-                  size="sm"
-                  color="secondary"
-                  variant="flat"
-                  onPress={() => setFormData({ ...formData, hosts: [...formData.hosts, ""] })}
-                >
-                  + Add New Host
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    color="primary"
+                    variant="bordered"
+                    startContent={<FaUserPlus />}
+                    onPress={() => setIsGuestModalOpen(true)}
+                  >
+                    New Guest
+                  </Button>
+                  <Button
+                    size="sm"
+                    color="secondary"
+                    variant="flat"
+                    onPress={() => setFormData({ ...formData, hosts: [...formData.hosts, ""] })}
+                  >
+                    + Add New Host
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -568,6 +596,12 @@ export default function EditEventPage() {
         </div>
 
       </form>
+
+      <CreateGuestModal
+        isOpen={isGuestModalOpen}
+        onClose={() => setIsGuestModalOpen(false)}
+        onCreated={handleGuestCreated}
+      />
     </div>
   );
 }

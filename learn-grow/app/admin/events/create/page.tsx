@@ -15,7 +15,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useCreateEventMutation } from "@/redux/api/eventApi";
 import { useGetAllGuestsQuery } from "@/redux/api/eventApi";
-import { FaArrowLeft, FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaCheckCircle, FaTimes, FaPlus, FaTrash, FaInfoCircle } from "react-icons/fa";
+import CreateGuestModal, { CreatedGuest } from "@/components/admin/CreateGuestModal";
+import { FaArrowLeft, FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaCheckCircle, FaTimes, FaPlus, FaTrash, FaInfoCircle, FaUserPlus } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 export default function CreateEventPage() {
@@ -23,6 +24,7 @@ export default function CreateEventPage() {
   const [createEvent, { isLoading }] = useCreateEventMutation();
   const { data: guestsResponse, isLoading: loadingGuests } = useGetAllGuestsQuery({ limit: 1000 });
   const guests: any[] = guestsResponse?.data || [];
+  const [isGuestModalOpen, setIsGuestModalOpen] = React.useState(false);
   const allowedPlatformTypes = ["Zoom", "Google Meet", "Microsoft Teams", "Custom"];
   const guestsMap = React.useMemo(() => {
     return guests.reduce((acc: Record<string, any>, g: any) => {
@@ -50,6 +52,21 @@ export default function CreateEventPage() {
     status: "Upcoming",
     hosts: [""],
   });
+
+  // A guest created in the modal is selected straight away, so the admin
+  // does not have to hunt for it in the dropdown.
+  const handleGuestCreated = (guest: CreatedGuest) => {
+    setFormData((prev) => {
+      const hosts = [...prev.hosts];
+      const firstEmpty = hosts.findIndex((h) => !h);
+      if (firstEmpty >= 0) {
+        hosts[firstEmpty] = guest._id;
+      } else {
+        hosts.push(guest._id);
+      }
+      return { ...prev, hosts };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,16 +229,28 @@ export default function CreateEventPage() {
                   <FaUsers className="text-indigo-500" />
                   Event Hosts
                 </h2>
-                <Button
-                  size="md"
-                  variant="flat"
-                  color="primary"
-                  startContent={<FaPlus />}
-                  onPress={() => setFormData({ ...formData, hosts: [...formData.hosts, ""] })}
-                  className="min-h-[44px] font-semibold"
-                >
-                  Add Host
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="md"
+                    variant="bordered"
+                    color="primary"
+                    startContent={<FaUserPlus />}
+                    onPress={() => setIsGuestModalOpen(true)}
+                    className="min-h-[44px] font-semibold"
+                  >
+                    New Guest
+                  </Button>
+                  <Button
+                    size="md"
+                    variant="flat"
+                    color="primary"
+                    startContent={<FaPlus />}
+                    onPress={() => setFormData({ ...formData, hosts: [...formData.hosts, ""] })}
+                    className="min-h-[44px] font-semibold"
+                  >
+                    Add Host
+                  </Button>
+                </div>
               </div>
 
               {loadingGuests ? (
@@ -510,6 +539,12 @@ export default function CreateEventPage() {
           </form>
         </CardBody>
       </Card>
+
+      <CreateGuestModal
+        isOpen={isGuestModalOpen}
+        onClose={() => setIsGuestModalOpen(false)}
+        onCreated={handleGuestCreated}
+      />
     </div>
   );
 }

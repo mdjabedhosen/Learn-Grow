@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as service from "../service/event.service";
 import * as notificationService from "../service/event-notification.service";
+import { EVENT_GUEST_ROLES } from "../model/event-guest.model";
 import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // ===== EVENT CONTROLLERS =====
@@ -194,8 +195,16 @@ export const updateMeetingLink = async (req: Request, res: Response) => {
 
 export const createGuest = async (req: Request, res: Response) => {
   try {
+    const role = req.body?.role;
+    if (!role || !EVENT_GUEST_ROLES.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: `Role is required and must be one of: ${EVENT_GUEST_ROLES.join(", ")}`,
+      });
+    }
+
     const guest = await service.createGuest(req.body);
-    
+
     res.status(201).json({
       success: true,
       message: "Guest created successfully",

@@ -1,6 +1,7 @@
 import { Event, IEvent } from "../model/event.model";
 import { EventGuest } from "../model/event-guest.model";
 import { EventRegistration } from "../model/event-registration.model";
+import { User } from "@/modules/user/model/user.model";
 import { Types } from "mongoose";
 import { parsePagination } from "@/utils/pagination";
 import { escapeRegex } from "@/utils/sanitizeSearch";
@@ -194,8 +195,77 @@ export const updateMeetingLink = async (eventId: string, meetingLink: string, pl
 
 // ===== GUEST SERVICES =====
 
+/**
+ * Creates an event guest.
+ *
+ * The body is whitelisted - previously the whole request body went straight
+ * into `EventGuest.create()`, so a caller could set any field on the model.
+ *
+ * When `userId` is supplied the guest is one of our own instructors: the
+ * instructor's name, email, phone and profile image are copied over (any
+ * explicitly supplied value wins) and the guest row is linked to that user.
+ */
 export const createGuest = async (data: any) => {
-  return EventGuest.create(data);
+  const safeData = pickDefined(data, EVENT_GUEST_UPDATABLE_FIELDS);
+
+  if (data?.userId) {
+    if (!Types.ObjectId.isValid(data.userId)) {
+      throw new Error("Invalid userId format");
+    }
+
+    const instructor = await User.findById(data.userId).lean();
+    if (!instructor) {
+      throw new Error("Instructor not found");
+    }
+    if (!["instructor", "admin", "manager"].includes(instructor.role)) {
+      throw new Error("That user cannot be an event guest");
+    }
+
+    const linked: Record<string, any> = {
+      ...safeData,
+      userId: instructor._id,
+      fullName: safeData.fullName ?? instructor.name,
+      email: safeData.email ?? instructor.email,
+      phoneNumber: safeData.phoneNumber ?? instructor.phone,
+      profileImage: safeData.profileImage ?? instructor.profileImage,
+    };
+    // Do not store an empty email - the unique sparse index is on email and
+    // an empty string would collide for every guest without one.
+    if (!linked.email) delete linked.email;
+
+    try {
+      return await EventGuest.findOneAndUpdate(
+        { userId: instructor._id },
+        { $set: linked },
+        { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
+      );
+    } catch (err: any) {
+      // The instructor already has a guest row that was created before the
+      // link existed, so the email unique index rejected the insert. Merge
+      // into that row instead of failing.
+      if (err?.code === 11000 && linked.email) {
+        const merged = await EventGuest.findOneAndUpdate(
+          { email: linked.email },
+          { $set: linked },
+          { new: true, runValidators: true }
+        );
+        if (merged) return merged;
+      }
+      throw err;
+    }
+  }
+
+  if (!safeData.email) {
+    // No email means no stable key to upsert on.
+    return EventGuest.create(safeData);
+  }
+
+  // Upsert on the email so creating the same guest twice does not duplicate.
+  return EventGuest.findOneAndUpdate(
+    { email: safeData.email },
+    { $set: safeData },
+    { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
+  );
 };
 
 export const getAllGuests = async (filters: any = {}) => {
@@ -243,7 +313,33 @@ export const getGuestById = async (id: string) => {
 };
 
 export const updateGuest = async (id: string, data: any) => {
-  const safeData = pickDefined(data, EVENT_GUEST_UPDATABLE_FIELDS);
+  const safeData: Record<string, any> = {
+    ...pickDefined(data, EVENT_GUEST_UPDATABLE_FIELDS),
+  };
+
+  // Linking a guest to an instructor account is allowed on update too, but
+  // the target has to be a real instructor/admin/manager.
+  if (data?.userId !== undefined) {
+    if (data.userId === null) {
+      safeData.userId = undefined;
+    } else {
+      if (!Types.ObjectId.isValid(data.userId)) {
+        throw new Error("Invalid userId format");
+      }
+      const instructor = await User.findById(data.userId).lean();
+      if (!instructor) {
+        throw new Error("Instructor not found");
+      }
+      if (!["instructor", "admin", "manager"].includes(instructor.role)) {
+        throw new Error("That user cannot be an event guest");
+      }
+      safeData.userId = instructor._id;
+      safeData.fullName = safeData.fullName ?? instructor.name;
+      safeData.email = safeData.email ?? instructor.email;
+      safeData.profileImage = safeData.profileImage ?? instructor.profileImage;
+    }
+  }
+
   return EventGuest.findByIdAndUpdate(id, safeData, {
     new: true,
     runValidators: true,

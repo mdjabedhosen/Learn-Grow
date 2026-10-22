@@ -1,8 +1,18 @@
 import { Schema, model, Types } from "mongoose";
 
+export const EVENT_GUEST_ROLES = [
+  "Guest",
+  "Host",
+  "Speaker",
+  "Mentor",
+  "Judge",
+] as const;
+
+export type EventGuestRole = (typeof EVENT_GUEST_ROLES)[number];
+
 export interface IEventGuest {
   fullName: string;
-  role: "Guest" | "Host" | "Speaker" | "Mentor" | "Judge";
+  role: EventGuestRole;
   email?: string;
   phoneNumber?: string;
   bio?: string;
@@ -12,6 +22,12 @@ export interface IEventGuest {
   linkedinUrl?: string;
   twitterUrl?: string;
   websiteUrl?: string;
+  /**
+   * Optional link to a platform account. Set when the guest is one of our
+   * own instructors - it lets the admin panel offer "pick an instructor" and
+   * keeps the guest tied to the real user.
+   */
+  userId?: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,13 +41,19 @@ const eventGuestSchema = new Schema<IEventGuest>(
     },
     role: {
       type: String,
-      enum: ["Guest", "Host", "Speaker", "Mentor", "Judge"],
+      enum: EVENT_GUEST_ROLES,
       required: true,
     },
     email: {
       type: String,
-      sparse: true,
       lowercase: true,
+      // One guest row per email. Several servers can boot at the same time
+      // and the seeder used to do findOne-then-create, which produced
+      // duplicate rows for the same person. The unique index makes the
+      // duplicate impossible; sparse still allows several guests without an
+      // email.
+      unique: true,
+      sparse: true,
     },
     phoneNumber: {
       type: String,
@@ -46,6 +68,14 @@ const eventGuestSchema = new Schema<IEventGuest>(
     linkedinUrl: String,
     twitterUrl: String,
     websiteUrl: String,
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      // One guest row per linked instructor account.
+      unique: true,
+      sparse: true,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
