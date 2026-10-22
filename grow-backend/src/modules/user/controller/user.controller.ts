@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as service from "../service/user.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 /**
  * Send OTP for email or phone
@@ -15,9 +16,9 @@ export const sendOtp = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to send OTP",
+      message: publicErrorMessage(error, "Failed to send OTP"),
     });
   }
 };
@@ -36,9 +37,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to verify OTP",
+      message: publicErrorMessage(error, "Failed to verify OTP"),
     });
   }
 };
@@ -56,9 +57,9 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Registration failed",
+      message: publicErrorMessage(error, "Registration failed"),
     });
   }
 };
@@ -92,9 +93,9 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Login failed",
+      message: publicErrorMessage(error, "Login failed"),
     });
   }
 };
@@ -124,9 +125,9 @@ export const refreshToken = async (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to refresh token",
+      message: publicErrorMessage(error, "Failed to refresh token"),
     });
   }
 };
@@ -152,9 +153,9 @@ export const logout = async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Logout failed",
+      message: publicErrorMessage(error, "Logout failed"),
     });
   }
 };
@@ -181,9 +182,9 @@ export const getProfile = async (req: Request, res: Response) => {
       return res.status(404).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to get profile",
+      message: publicErrorMessage(error, "Failed to get profile"),
     });
   }
 };
@@ -211,9 +212,9 @@ export const changePassword = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to change password",
+      message: publicErrorMessage(error, "Failed to change password"),
     });
   }
 };
@@ -238,9 +239,9 @@ export const sendPasswordChangeOtp = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to send OTP",
+      message: publicErrorMessage(error, "Failed to send OTP"),
     });
   }
 };
@@ -265,9 +266,9 @@ export const verifyPasswordChangeOtp = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to change password",
+      message: publicErrorMessage(error, "Failed to change password"),
     });
   }
 };
@@ -292,9 +293,9 @@ export const updatePhoneNumber = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update phone number",
+      message: publicErrorMessage(error, "Failed to update phone number"),
     });
   }
 };
@@ -315,9 +316,9 @@ export const getAllInstructors = async (req: Request, res: Response) => {
     
     return res.status(200).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to get instructors",
+      message: publicErrorMessage(error, "Failed to get instructors"),
     });
   }
 };
@@ -330,9 +331,9 @@ export const getApprovedInstructorsPublic = async (_req: Request, res: Response)
     const result = await service.getApprovedInstructorsPublic();
     return res.status(200).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to get approved instructors",
+      message: publicErrorMessage(error, "Failed to get approved instructors"),
     });
   }
 };
@@ -351,9 +352,9 @@ export const approveInstructor = async (req: Request, res: Response) => {
       return res.status(404).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to approve instructor",
+      message: publicErrorMessage(error, "Failed to approve instructor"),
     });
   }
 };
@@ -372,9 +373,9 @@ export const rejectInstructor = async (req: Request, res: Response) => {
       return res.status(404).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to reject instructor",
+      message: publicErrorMessage(error, "Failed to reject instructor"),
     });
   }
 };
@@ -391,7 +392,7 @@ export const listUsers = async (req: Request, res: Response) => {
     });
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message || "Failed to list users" });
+    return res.status(publicErrorStatus(error)).json({ success: false, message: publicErrorMessage(error, "Failed to list users") });
   }
 };
 
@@ -441,7 +442,7 @@ export const getInstructorStudents = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message || "Failed to get students" });
+    return res.status(publicErrorStatus(error)).json({ success: false, message: publicErrorMessage(error, "Failed to get students") });
   }
 };
 
@@ -464,7 +465,7 @@ export const getInstructorStudentById = async (req: Request, res: Response) => {
     const result = await service.getInstructorStudentById(instructorId, studentId);
     return res.status(result.success ? 200 : 404).json(result);
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message || "Failed to get student details" });
+    return res.status(publicErrorStatus(error)).json({ success: false, message: publicErrorMessage(error, "Failed to get student details") });
   }
 };
 
@@ -486,9 +487,9 @@ export const getInstructorDashboardStats = async (req: Request, res: Response) =
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch instructor stats",
+      message: publicErrorMessage(error, "Failed to fetch instructor stats"),
     });
   }
 };
@@ -526,9 +527,9 @@ export const selectRoleForGoogleUser = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to select role",
+      message: publicErrorMessage(error, "Failed to select role"),
     });
   }
 };
@@ -547,9 +548,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to process forgot password",
+      message: publicErrorMessage(error, "Failed to process forgot password"),
     });
   }
 };
@@ -568,9 +569,9 @@ export const verifyForgotPasswordOtp = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to verify OTP",
+      message: publicErrorMessage(error, "Failed to verify OTP"),
     });
   }
 };
@@ -592,9 +593,9 @@ export const resetPassword = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to reset password",
+      message: publicErrorMessage(error, "Failed to reset password"),
     });
   }
 };
@@ -623,9 +624,9 @@ export const updateProfile = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update profile",
+      message: publicErrorMessage(error, "Failed to update profile"),
     });
   }
 };
@@ -653,9 +654,9 @@ export const guardianConnectChild = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to connect student",
+      message: publicErrorMessage(error, "Failed to connect student"),
     });
   }
 };
@@ -690,9 +691,9 @@ export const studentAcceptGuardian = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to accept guardian",
+      message: publicErrorMessage(error, "Failed to accept guardian"),
     });
   }
 };
@@ -720,9 +721,9 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update profile photo",
+      message: publicErrorMessage(error, "Failed to update profile photo"),
     });
   }
 };
@@ -735,9 +736,9 @@ export const getAdminDashboardStats = async (req: Request, res: Response) => {
     const result = await service.getAdminDashboardStats();
     return res.status(result.success ? 200 : 500).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to get dashboard stats",
+      message: publicErrorMessage(error, "Failed to get dashboard stats"),
     });
   }
 };

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as batchService from "../service/batch.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const getAllBatchesAdmin = async (req: Request, res: Response) => {
   try {
@@ -17,9 +18,9 @@ export const getAllBatchesAdmin = async (req: Request, res: Response) => {
       data: batches,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to retrieve batches",
+      message: publicErrorMessage(error, "Failed to retrieve batches"),
     });
   }
 };
@@ -35,7 +36,7 @@ export const createBatchAdmin = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to create batch",
+      message: publicErrorMessage(error, "Failed to create batch"),
     });
   }
 };
@@ -51,7 +52,7 @@ export const updateBatchAdmin = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to update batch",
+      message: publicErrorMessage(error, "Failed to update batch"),
     });
   }
 };
@@ -72,7 +73,7 @@ export const assignStudentAdmin = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to assign student to batch",
+      message: publicErrorMessage(error, "Failed to assign student to batch"),
     });
   }
 };
@@ -89,7 +90,7 @@ export const removeStudentAdmin = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to remove student from batch",
+      message: publicErrorMessage(error, "Failed to remove student from batch"),
     });
   }
 };
@@ -101,7 +102,7 @@ export const deleteBatchAdmin = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to delete batch",
+      message: publicErrorMessage(error, "Failed to delete batch"),
     });
   }
 };
@@ -127,9 +128,9 @@ export const getInstructorBatches = async (req: Request, res: Response) => {
       data: batches,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to retrieve instructor batches",
+      message: publicErrorMessage(error, "Failed to retrieve instructor batches"),
     });
   }
 };
@@ -152,7 +153,7 @@ export const updateBatchInstructor = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to update batch details",
+      message: publicErrorMessage(error, "Failed to update batch details"),
     });
   }
 };
@@ -173,9 +174,9 @@ export const getStudentBatch = async (req: Request, res: Response) => {
       data: batch,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to retrieve student batch",
+      message: publicErrorMessage(error, "Failed to retrieve student batch"),
     });
   }
 };
@@ -188,9 +189,9 @@ export const syncBatches = async (_req: Request, res: Response) => {
       message: "Existing enrollments synced into batches successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to sync batches",
+      message: publicErrorMessage(error, "Failed to sync batches"),
     });
   }
 };

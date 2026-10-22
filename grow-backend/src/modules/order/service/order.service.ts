@@ -13,6 +13,7 @@ import { getSMTPTransporter } from "@/modules/settings/service/smtp.service";
 import { SMTPConfig } from "@/modules/settings/model/smtpConfig.model";
 import { getOrderConfirmationEmail, getAdminOrderApprovalEmail, getOrderApprovedEmail, getOrderRejectedEmail } from "@/utils/emailTemplates";
 import { calculateAccessEndDate } from "@/utils/access-control";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 import {
   deriveSingleCourseOrderPricing,
   getCoursePricing,
@@ -336,7 +337,7 @@ export const createOrderService = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to create order",
+      message: publicErrorMessage(error, "Failed to create order"),
     };
   }
 };
@@ -948,7 +949,7 @@ export const getEnrolledStudentsService = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to fetch enrolled students",
+      message: publicErrorMessage(error, "Failed to fetch enrolled students"),
     };
   }
 };
@@ -987,7 +988,7 @@ export const setCourseAccessDurationService = async (
     return {
       success: false,
       message: "Failed to set access duration",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -1027,7 +1028,7 @@ export const extendCourseAccessService = async (
     return {
       success: false,
       message: "Failed to extend course access",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -1096,7 +1097,7 @@ export const reduceCourseAccessService = async (
     return {
       success: false,
       message: "Failed to reduce course access",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -1143,7 +1144,7 @@ export const getUserActiveCourseAccessService = async (userId: string) => {
     return {
       success: false,
       message: "Failed to fetch user course access",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };

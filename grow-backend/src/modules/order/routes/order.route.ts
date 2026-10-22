@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   createOrder,
   getAllOrders,
@@ -17,14 +18,22 @@ import {
   reduceAccess,
   getUserCourseAccess,
     deleteOrder,
+  uploadPaymentScreenshot,
 } from "../controller/order.controller";
 import { requireAuth, requireRoles } from "../../../middleware/auth";
 import { validateGuardianStudentAccess } from "../../../middleware/guardian-validation";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 const router = express.Router();
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit for screenshots
+});
+
 // Student routes (require authentication)
 router.post("/", requireAuth, createOrder);
+router.post("/upload-screenshot", requireAuth, upload.single("screenshot"), uploadPaymentScreenshot);
 router.get("/my", requireAuth, getUserOrders);
 router.get("/subscription/check", requireAuth, checkActiveSubscription);
 router.get("/purchased-courses", requireAuth, getUserPurchasedCourses);
@@ -83,7 +92,7 @@ router.get("/guardian/children", requireAuth, async (req, res) => {
       }
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(publicErrorStatus(error)).json({ success: false, error: publicErrorMessage(error) });
   }
 });
 
@@ -130,7 +139,7 @@ router.patch("/:id/extend", requireAuth, requireRoles("admin", "manager"), async
       data: order,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to extend subscription", error: error.message });
+    res.status(publicErrorStatus(error)).json({ success: false, message: "Failed to extend subscription", error: publicErrorMessage(error) });
   }
 });
 
@@ -175,7 +184,7 @@ router.patch("/:id/extend-days", requireAuth, requireRoles("admin", "manager"), 
       data: order,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to extend access", error: error.message });
+    res.status(publicErrorStatus(error)).json({ success: false, message: "Failed to extend access", error: publicErrorMessage(error) });
   }
 });
 
@@ -244,7 +253,7 @@ router.get("/debug/enrollments/:studentId", requireAuth, requireRoles("admin"), 
       }))
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(publicErrorStatus(error)).json({ success: false, error: publicErrorMessage(error) });
   }
 });
 

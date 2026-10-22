@@ -8,6 +8,7 @@ export interface IOrder extends Document {
   paymentMethodId: mongoose.Types.ObjectId;
   transactionId: string;
   senderNumber: string;
+  paymentScreenshot?: string;
   paymentNote?: string;
   paymentStatus: "pending" | "approved" | "rejected";
   deliveryAddress?: {
@@ -68,6 +69,10 @@ const orderSchema = new Schema<IOrder>(
     senderNumber: {
       type: String,
       required: true,
+      trim: true,
+    },
+    paymentScreenshot: {
+      type: String,
       trim: true,
     },
     paymentNote: {

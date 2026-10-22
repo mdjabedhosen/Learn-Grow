@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as assignmentService from "../service/assignment.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createAssignment = async (req: Request, res: Response) => {
   try {
@@ -12,9 +13,9 @@ export const createAssignment = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 201 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -33,9 +34,9 @@ export const getAssignmentsByCourse = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -47,9 +48,9 @@ export const getAssignmentById = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 404).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -62,9 +63,9 @@ export const updateAssignment = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -77,9 +78,9 @@ export const deleteAssignment = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -101,9 +102,9 @@ export const submitAssignment = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -116,9 +117,9 @@ export const getAssignmentSubmissions = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -131,9 +132,9 @@ export const getMySubmission = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };
@@ -155,9 +156,9 @@ export const gradeSubmission = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: publicErrorMessage(error, "Internal server error"),
     });
   }
 };

@@ -4,6 +4,7 @@ import { Enrollment } from "../../enrollment/model/enrollment.model";
 import { Order } from "../../order/model/order.model";
 import { Course } from "../model/course.model";
 import { pickDefined } from "@/utils/pickFields";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 /**
  * Editable combo fields. `createdBy` is the ownership id set when the combo is
@@ -94,7 +95,7 @@ export const createComboService = async (
     return {
       success: false,
       message: "Failed to create combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -130,7 +131,7 @@ export const getActiveCombosService = async (page = 1, limit = 10) => {
     return {
       success: false,
       message: "Failed to fetch combos",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -166,7 +167,7 @@ export const getAllCombosService = async (page = 1, limit = 10) => {
     return {
       success: false,
       message: "Failed to fetch combos",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -196,7 +197,7 @@ export const getComboByIdService = async (comboId: string) => {
     return {
       success: false,
       message: "Failed to fetch combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -269,7 +270,7 @@ export const updateComboService = async (
     return {
       success: false,
       message: "Failed to update combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -301,7 +302,7 @@ export const disableComboService = async (comboId: string) => {
     return {
       success: false,
       message: "Failed to disable combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -332,7 +333,7 @@ export const toggleComboStatusService = async (comboId: string) => {
     return {
       success: false,
       message: "Failed to toggle combo status",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -359,7 +360,7 @@ export const deleteComboService = async (comboId: string) => {
     return {
       success: false,
       message: "Failed to delete combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -460,7 +461,7 @@ export const enrollUserInComboService = async (
     return {
       success: false,
       message: "Failed to enroll user in combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -520,7 +521,7 @@ export const extendComboAccessService = async (
     return {
       success: false,
       message: "Failed to extend access",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -560,7 +561,7 @@ export const getUserComboPurchasesService = async (userId: string) => {
     return {
       success: false,
       message: "Failed to fetch combo purchases",
-      error: error.message,
+      error: publicErrorMessage(error),
     };
   }
 };

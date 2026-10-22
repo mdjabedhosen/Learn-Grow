@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { TrackingSettings } from "../model/trackingSettings.model.js";
 import { TrackingService } from "../service/tracking.service.js";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // Public: Get public pixel IDs for browser SDK initialization
 export const getPublicConfig = async (_req: Request, res: Response) => {
@@ -18,7 +19,7 @@ export const getPublicConfig = async (_req: Request, res: Response) => {
       },
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(publicErrorStatus(err)).json({ success: false, message: publicErrorMessage(err) });
   }
 };
 
@@ -31,7 +32,7 @@ export const getAdminConfig = async (_req: Request, res: Response) => {
       data: config,
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(publicErrorStatus(err)).json({ success: false, message: publicErrorMessage(err) });
   }
 };
 
@@ -90,7 +91,7 @@ export const updateAdminConfig = async (req: Request, res: Response) => {
       data: settings,
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(publicErrorStatus(err)).json({ success: false, message: publicErrorMessage(err) });
   }
 };
 
@@ -131,7 +132,7 @@ export const trackEvent = async (req: Request, res: Response) => {
       eventId,
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(publicErrorStatus(err)).json({ success: false, message: publicErrorMessage(err) });
   }
 };
 
@@ -197,6 +198,6 @@ export const sendTestEvent = async (req: Request, res: Response) => {
       results,
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(publicErrorStatus(err)).json({ success: false, message: publicErrorMessage(err) });
   }
 };

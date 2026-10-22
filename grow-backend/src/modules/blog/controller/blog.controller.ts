@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as service from "../service/blog.service";
 import { Blog } from "../model/blog.model";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // ===== BLOG CONTROLLERS =====
 
@@ -16,10 +17,10 @@ export const createBlog = async (req: Request, res: Response) => {
       data: blog,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -45,10 +46,10 @@ export const getBlogById = async (req: Request, res: Response) => {
       data: blog,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -72,10 +73,10 @@ export const getBlogBySlug = async (req: Request, res: Response) => {
       data: blog,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -106,10 +107,10 @@ export const getAllBlogs = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve blogs",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -148,10 +149,10 @@ export const updateBlog = async (req: Request, res: Response) => {
       data: updated,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -188,10 +189,10 @@ export const deleteBlog = async (req: Request, res: Response) => {
       message: "Blog deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -206,10 +207,10 @@ export const approveBlog = async (req: Request, res: Response) => {
       data: blog,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to approve blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -224,10 +225,10 @@ export const rejectBlog = async (req: Request, res: Response) => {
       data: blog,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to reject blog",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -242,10 +243,10 @@ export const getApprovalPendingBlogs = async (req: Request, res: Response) => {
       data: blogs,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve pending blogs",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -261,10 +262,10 @@ export const createCategory = async (req: Request, res: Response) => {
       data: category,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create category",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -278,10 +279,10 @@ export const getAllCategories = async (req: Request, res: Response) => {
       data: categories,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve categories",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -295,10 +296,10 @@ export const updateCategory = async (req: Request, res: Response) => {
       data: category,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update category",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -311,10 +312,10 @@ export const deleteCategory = async (req: Request, res: Response) => {
       message: "Category deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete category",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

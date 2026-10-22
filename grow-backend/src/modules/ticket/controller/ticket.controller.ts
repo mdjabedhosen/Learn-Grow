@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Ticket } from "../model/ticket.model.js";
 import { User } from "../../user/model/user.model.js";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // Create ticket
 export const createTicket = async (req: Request, res: Response) => {
@@ -44,9 +45,9 @@ export const createTicket = async (req: Request, res: Response) => {
       data: populatedTicket,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to create ticket",
+      message: publicErrorMessage(error, "Failed to create ticket"),
     });
   }
 };
@@ -100,9 +101,9 @@ export const getAllTickets = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch tickets",
+      message: publicErrorMessage(error, "Failed to fetch tickets"),
     });
   }
 };
@@ -151,9 +152,9 @@ export const getTicketById = async (req: Request, res: Response) => {
       data: ticket,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch ticket",
+      message: publicErrorMessage(error, "Failed to fetch ticket"),
     });
   }
 };
@@ -222,9 +223,9 @@ export const addReply = async (req: Request, res: Response) => {
       data: updatedTicket,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to add reply",
+      message: publicErrorMessage(error, "Failed to add reply"),
     });
   }
 };
@@ -275,9 +276,9 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
       data: ticket,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update ticket status",
+      message: publicErrorMessage(error, "Failed to update ticket status"),
     });
   }
 };
@@ -319,9 +320,9 @@ export const assignTicket = async (req: Request, res: Response) => {
       data: ticket,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to assign ticket",
+      message: publicErrorMessage(error, "Failed to assign ticket"),
     });
   }
 };
@@ -353,9 +354,9 @@ export const deleteTicket = async (req: Request, res: Response) => {
       message: "Ticket deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to delete ticket",
+      message: publicErrorMessage(error, "Failed to delete ticket"),
     });
   }
 };
@@ -399,9 +400,9 @@ export const getTicketStats = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch ticket statistics",
+      message: publicErrorMessage(error, "Failed to fetch ticket statistics"),
     });
   }
 };

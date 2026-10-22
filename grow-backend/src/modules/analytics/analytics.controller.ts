@@ -5,6 +5,7 @@ import { User } from '../user/model/user.model.js';
 import { Enrollment } from '../enrollment/model/enrollment.model.js';
 import { Quiz } from '../quiz/model/quiz.model.js';
 import { LiveClass } from '../liveClass/model/liveClass.model.js';
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const getAnalytics = async (req: Request, res: Response) => {
   try {
@@ -197,7 +198,7 @@ export const getAnalytics = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve analytics',
-      error: error.message
+      error: publicErrorMessage(error)
     });
   }
 };

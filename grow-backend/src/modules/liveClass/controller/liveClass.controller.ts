@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { LiveClassService } from "../service/liveClass.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createLiveClass = async (req: Request, res: Response) => {
   try {
@@ -29,10 +30,10 @@ export const createLiveClass = async (req: Request, res: Response) => {
       data: liveClass,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -51,10 +52,10 @@ export const getLiveClassById = async (req: Request, res: Response) => {
       data: liveClass,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -87,10 +88,10 @@ export const getLiveClassesByInstructor = async (req: Request, res: Response) =>
       ...result,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get live classes",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -105,10 +106,10 @@ export const getLiveClassesByCourse = async (req: Request, res: Response) => {
       data: classes,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get live classes",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -149,10 +150,10 @@ export const updateLiveClass = async (req: Request, res: Response) => {
       data: updated,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -192,10 +193,10 @@ export const deleteLiveClass = async (req: Request, res: Response) => {
       message: "Live class deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -210,10 +211,10 @@ export const getUpcomingClasses = async (req: Request, res: Response) => {
       data: classes,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get upcoming classes",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -243,10 +244,10 @@ export const getAllLiveClasses = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get live classes",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -268,10 +269,10 @@ export const approveLiveClass = async (req: Request, res: Response) => {
       data: updated,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to approve live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -292,10 +293,10 @@ export const rejectLiveClass = async (req: Request, res: Response) => {
       message: "Live class rejected and deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to reject live class",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -327,10 +328,10 @@ export const getPendingLiveClasses = async (req: Request, res: Response) => {
       ...result,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to get pending live classes",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };
@@ -372,10 +373,10 @@ export const updateRecordedLink = async (req: Request, res: Response) => {
       data: updated,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update recorded link",
-      error: (error as Error).message,
+      error: publicErrorMessage(error as Error),
     });
   }
 };

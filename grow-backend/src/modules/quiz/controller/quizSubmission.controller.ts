@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 import * as submissionService from "../service/quizSubmission.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const submit = async (req: Request, res: Response) => {
   try {
@@ -29,9 +30,9 @@ export const submit = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to submit quiz",
+      message: publicErrorMessage(error, "Failed to submit quiz"),
     });
   }
 };
@@ -53,9 +54,9 @@ export const mySubmissions = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch submissions",
+      message: publicErrorMessage(error, "Failed to fetch submissions"),
     });
   }
 };

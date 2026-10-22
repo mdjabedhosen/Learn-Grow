@@ -21,6 +21,7 @@ import {
   sendGuardianCredentialsEmail,
 } from "@/utils/otp";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 interface RegisterInput {
   name: string;
@@ -121,7 +122,7 @@ export const sendOtp = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to send OTP",
+      message: publicErrorMessage(error, "Failed to send OTP"),
     };
   }
 };
@@ -179,7 +180,7 @@ export const verifyOtp = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to verify OTP",
+      message: publicErrorMessage(error, "Failed to verify OTP"),
     };
   }
 };
@@ -332,8 +333,8 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Registration failed",
-      error: error.message,
+      message: publicErrorMessage(error, "Registration failed"),
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -435,8 +436,8 @@ export const login = async (input: LoginInput): Promise<AuthResponse> => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Login failed",
-      error: error.message,
+      message: publicErrorMessage(error, "Login failed"),
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -528,8 +529,8 @@ export const refreshAccessToken = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to refresh token",
-      error: error.message,
+      message: publicErrorMessage(error, "Failed to refresh token"),
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -553,7 +554,7 @@ export const logout = async (userId: string): Promise<{ success: boolean; messag
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Logout failed",
+      message: publicErrorMessage(error, "Logout failed"),
     };
   }
 };
@@ -594,7 +595,7 @@ export const changePassword = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to change password",
+      message: publicErrorMessage(error, "Failed to change password"),
     };
   }
 };
@@ -656,7 +657,7 @@ export const sendPasswordChangeOtp = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to send OTP",
+      message: publicErrorMessage(error, "Failed to send OTP"),
     };
   }
 };
@@ -699,7 +700,7 @@ export const verifyPasswordChangeOtp = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to change password",
+      message: publicErrorMessage(error, "Failed to change password"),
     };
   }
 };
@@ -729,7 +730,7 @@ export const updatePhoneNumber = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to update phone number",
+      message: publicErrorMessage(error, "Failed to update phone number"),
     };
   }
 };
@@ -800,7 +801,7 @@ export const getAllInstructors = async (params?: {
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to get instructors",
+      message: publicErrorMessage(error, "Failed to get instructors"),
     };
   }
 };
@@ -832,7 +833,7 @@ export const getApprovedInstructorsPublic = async (): Promise<{
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to get approved instructors",
+      message: publicErrorMessage(error, "Failed to get approved instructors"),
     };
   }
 };
@@ -878,7 +879,7 @@ export const approveInstructor = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to approve instructor",
+      message: publicErrorMessage(error, "Failed to approve instructor"),
     };
   }
 };
@@ -924,7 +925,7 @@ export const rejectInstructor = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to reject instructor",
+      message: publicErrorMessage(error, "Failed to reject instructor"),
     };
   }
 };
@@ -994,8 +995,8 @@ export const getUserProfile = async (userId: string): Promise<AuthResponse> => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to get profile",
-      error: error.message,
+      message: publicErrorMessage(error, "Failed to get profile"),
+      error: publicErrorMessage(error),
     };
   }
 };
@@ -1078,7 +1079,7 @@ export const connectChildAsGuardian = async (
       },
     };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to connect child", error: error.message };
+    return { success: false, message: publicErrorMessage(error, "Failed to connect child"), error: publicErrorMessage(error) };
   }
 };
 
@@ -1135,7 +1136,7 @@ export const listUsersAdmin = async (params: { page?: number; limit?: number; se
       counts,
     };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to list users" };
+    return { success: false, message: publicErrorMessage(error, "Failed to list users") };
   }
 };
 
@@ -1161,7 +1162,7 @@ export const createUserAdmin = async (input: { name: string; email?: string; pho
     const safe = await User.findById(user._id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "User created", data: safe };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to create user" };
+    return { success: false, message: publicErrorMessage(error, "Failed to create user") };
   }
 };
 
@@ -1172,7 +1173,7 @@ export const getUserByIdAdmin = async (id: string) => {
     if (!user) return { success: false, message: "User not found" };
     return { success: true, message: "User retrieved", data: user };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to get user" };
+    return { success: false, message: publicErrorMessage(error, "Failed to get user") };
   }
 };
 
@@ -1189,7 +1190,7 @@ export const updateUserAdmin = async (id: string, updates: Partial<{ name: strin
     const safe = await User.findById(id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "User updated", data: safe };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to update user" };
+    return { success: false, message: publicErrorMessage(error, "Failed to update user") };
   }
 };
 
@@ -1199,7 +1200,7 @@ export const deleteUserAdmin = async (id: string) => {
     await User.findByIdAndDelete(id);
     return { success: true, message: "User deleted" };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to delete user" };
+    return { success: false, message: publicErrorMessage(error, "Failed to delete user") };
   }
 };
 
@@ -1221,7 +1222,7 @@ export const updateUserRoleAdmin = async (id: string, role: UserRole | string) =
     const safe = await User.findById(id).select("-password -otp -otpExpiresAt -refreshToken -verificationToken");
     return { success: true, message: "Role updated", data: safe };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to update user role" };
+    return { success: false, message: publicErrorMessage(error, "Failed to update user role") };
   }
 };
 
@@ -1457,7 +1458,7 @@ export const getInstructorStudents = async (
     };
   } catch (error: any) {
     console.error("Error in getInstructorStudents:", error);
-    return { success: false, message: error.message || "Failed to get students" };
+    return { success: false, message: publicErrorMessage(error, "Failed to get students") };
   }
 };
 
@@ -1549,7 +1550,7 @@ export const getInstructorStudentById = async (instructorId: string, studentId: 
       },
     };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to get student details" };
+    return { success: false, message: publicErrorMessage(error, "Failed to get student details") };
   }
 };
 
@@ -1669,7 +1670,7 @@ export const getInstructorDashboardStats = async (instructorId: string) => {
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to fetch instructor stats",
+      message: publicErrorMessage(error, "Failed to fetch instructor stats"),
     };
   }
 };
@@ -1750,7 +1751,7 @@ export const selectRoleForGoogleUser = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to select role",
+      message: publicErrorMessage(error, "Failed to select role"),
     };
   }
 };
@@ -1790,7 +1791,7 @@ export const forgotPassword = async (email: string): Promise<{ success: boolean;
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to send OTP",
+      message: publicErrorMessage(error, "Failed to send OTP"),
     };
   }
 };
@@ -1845,7 +1846,7 @@ export const verifyForgotPasswordOtp = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to verify OTP",
+      message: publicErrorMessage(error, "Failed to verify OTP"),
     };
   }
 };
@@ -1909,7 +1910,7 @@ export const resetPassword = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to reset password",
+      message: publicErrorMessage(error, "Failed to reset password"),
     };
   }
 };
@@ -2008,7 +2009,7 @@ export const updateProfile = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to update profile",
+      message: publicErrorMessage(error, "Failed to update profile"),
     };
   }
 };
@@ -2039,7 +2040,7 @@ export const updateProfilePhoto = async (
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "Failed to update profile photo",
+      message: publicErrorMessage(error, "Failed to update profile photo"),
     };
   }
 };
@@ -2110,7 +2111,7 @@ export const studentAcceptGuardian = async (studentId: string, guardianId: strin
       },
     };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to accept guardian" };
+    return { success: false, message: publicErrorMessage(error, "Failed to accept guardian") };
   }
 };
 
@@ -2198,6 +2199,6 @@ export const getAdminDashboardStats = async () => {
       },
     };
   } catch (error: any) {
-    return { success: false, message: error.message || "Failed to get stats" };
+    return { success: false, message: publicErrorMessage(error, "Failed to get stats") };
   }
 };

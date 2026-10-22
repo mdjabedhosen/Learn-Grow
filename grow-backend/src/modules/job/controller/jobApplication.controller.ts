@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as service from "../service/jobApplication.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const applyForJob = async (req: Request, res: Response) => {
   try {
@@ -27,10 +28,10 @@ export const applyForJob = async (req: Request, res: Response) => {
         message: error.message,
       });
     }
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to submit application",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -45,10 +46,10 @@ export const getApplications = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve applications",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -68,10 +69,10 @@ export const getApplicationById = async (req: Request, res: Response) => {
       data: application,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve application",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -85,10 +86,10 @@ export const getApplicationsByJobId = async (req: Request, res: Response) => {
       data: applications,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve applications",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -111,10 +112,10 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
       data: application,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update application status",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -133,10 +134,10 @@ export const deleteApplication = async (req: Request, res: Response) => {
       message: "Application deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete application",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -150,10 +151,10 @@ export const getApplicationStats = async (_: Request, res: Response) => {
       data: stats,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve application stats",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

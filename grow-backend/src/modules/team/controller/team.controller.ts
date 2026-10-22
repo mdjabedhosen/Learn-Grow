@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import teamService from "../service/team.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 class TeamController {
     async getAllTeamMembers(req: Request, res: Response) {
@@ -7,7 +8,7 @@ class TeamController {
             const result = await teamService.getAllTeamMembers();
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -16,7 +17,7 @@ class TeamController {
             const result = await teamService.getHomeTeamMembers();
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -30,7 +31,7 @@ class TeamController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -51,7 +52,7 @@ class TeamController {
                 res.status(201).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -65,7 +66,7 @@ class TeamController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -80,7 +81,7 @@ class TeamController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -94,7 +95,7 @@ class TeamController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -108,7 +109,7 @@ class TeamController {
                 res.status(201).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -117,7 +118,7 @@ class TeamController {
             const result = await teamService.getApprovedInstructors();
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -127,7 +128,7 @@ class TeamController {
             const result = await teamService.reorderMembers(memberOrders);
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -142,7 +143,7 @@ class TeamController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 }

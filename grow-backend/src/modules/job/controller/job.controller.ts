@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as service from "../service/job.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createJobPost = async (req: Request, res: Response) => {
   try {
@@ -10,10 +11,10 @@ export const createJobPost = async (req: Request, res: Response) => {
       data: jobPost,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -28,10 +29,10 @@ export const getAllJobPosts = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve job posts",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -45,10 +46,10 @@ export const getPublishedJobPosts = async (_: Request, res: Response) => {
       data: jobs,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve published job posts",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -68,10 +69,10 @@ export const getJobPostById = async (req: Request, res: Response) => {
       data: jobPost,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -91,10 +92,10 @@ export const updateJobPost = async (req: Request, res: Response) => {
       data: jobPost,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -113,10 +114,10 @@ export const deleteJobPost = async (req: Request, res: Response) => {
       message: "Job post deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -136,10 +137,10 @@ export const publishJobPost = async (req: Request, res: Response) => {
       data: jobPost,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to publish job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -159,10 +160,10 @@ export const unpublishJobPost = async (req: Request, res: Response) => {
       data: jobPost,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to unpublish job post",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -176,10 +177,10 @@ export const getJobPostsByDepartment = async (req: Request, res: Response) => {
       data: jobs,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve job posts",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -193,10 +194,10 @@ export const getRemoteJobPosts = async (_: Request, res: Response) => {
       data: jobs,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve remote job posts",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

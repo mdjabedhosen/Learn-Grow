@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as service from "../service/event.service";
 import * as notificationService from "../service/event-notification.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // ===== EVENT CONTROLLERS =====
 
@@ -15,10 +16,10 @@ export const createEvent = async (req: Request, res: Response) => {
       data: event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create event",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -34,10 +35,10 @@ export const getAllEvents = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve events",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -60,10 +61,10 @@ export const getEventById = async (req: Request, res: Response) => {
       data: event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve event",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -85,10 +86,10 @@ export const updateEvent = async (req: Request, res: Response) => {
       data: event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update event",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -109,10 +110,10 @@ export const deleteEvent = async (req: Request, res: Response) => {
       message: "Event deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete event",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -127,10 +128,10 @@ export const addGuestsToEvent = async (req: Request, res: Response) => {
       data: event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to add guests",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -145,10 +146,10 @@ export const removeGuestFromEvent = async (req: Request, res: Response) => {
       data: event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to remove guest",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -181,10 +182,10 @@ export const updateMeetingLink = async (req: Request, res: Response) => {
       data: result.event,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update meeting link",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -201,10 +202,10 @@ export const createGuest = async (req: Request, res: Response) => {
       data: guest,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create guest",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -220,10 +221,10 @@ export const getAllGuests = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve guests",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -245,10 +246,10 @@ export const getGuestById = async (req: Request, res: Response) => {
       data: guest,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve guest",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -270,10 +271,10 @@ export const updateGuest = async (req: Request, res: Response) => {
       data: guest,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update guest",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -294,10 +295,10 @@ export const deleteGuest = async (req: Request, res: Response) => {
       message: "Guest deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete guest",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -341,7 +342,7 @@ export const registerForEvent = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to register for event",
+      message: publicErrorMessage(error, "Failed to register for event"),
     });
   }
 };
@@ -357,10 +358,10 @@ export const getEventRegistrations = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve registrations",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -376,10 +377,10 @@ export const getAllRegistrations = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve registrations",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -400,10 +401,10 @@ export const deleteRegistration = async (req: Request, res: Response) => {
       message: "Registration deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete registration",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -439,10 +440,10 @@ export const updateRegistration = async (req: Request, res: Response) => {
       data: registration,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update registration",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -471,9 +472,9 @@ export const sendRegistrationEmail = async (req: Request, res: Response) => {
       data: { sent },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to send emails",
+      message: publicErrorMessage(error, "Failed to send emails"),
     });
   }
 };
@@ -495,10 +496,10 @@ export const getEmailHistory = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve email history",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

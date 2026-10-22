@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { TrialBooking } from "../model/trialBooking.model.js";
 import { TrackingService } from "../../tracking/service/tracking.service.js";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // Public: Submit a new free trial booking
 export const createTrialBooking = async (req: Request, res: Response) => {
@@ -43,9 +44,9 @@ export const createTrialBooking = async (req: Request, res: Response) => {
       eventId: eventId || `lead_${booking._id}`,
     });
   } catch (err: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(err)).json({
       success: false,
-      message: err.message || "Failed to create free trial booking",
+      message: publicErrorMessage(err, "Failed to create free trial booking"),
     });
   }
 };
@@ -106,9 +107,9 @@ export const getTrialBookings = async (req: Request, res: Response) => {
       data: bookings,
     });
   } catch (err: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(err)).json({
       success: false,
-      message: err.message || "Failed to fetch trial bookings",
+      message: publicErrorMessage(err, "Failed to fetch trial bookings"),
     });
   }
 };
@@ -170,9 +171,9 @@ export const updateTrialBookingStatus = async (req: Request, res: Response) => {
       data: updated,
     });
   } catch (err: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(err)).json({
       success: false,
-      message: err.message || "Failed to update trial booking",
+      message: publicErrorMessage(err, "Failed to update trial booking"),
     });
   }
 };
@@ -187,9 +188,9 @@ export const deleteTrialBooking = async (req: Request, res: Response) => {
     }
     return res.status(200).json({ success: true, message: "Trial booking deleted" });
   } catch (err: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(err)).json({
       success: false,
-      message: err.message || "Failed to delete trial booking",
+      message: publicErrorMessage(err, "Failed to delete trial booking"),
     });
   }
 };

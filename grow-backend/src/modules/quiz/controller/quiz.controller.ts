@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as service from "../service/quiz.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -26,9 +27,9 @@ export const create = async (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to create quiz",
+      message: publicErrorMessage(error, "Failed to create quiz"),
     });
   }
 };
@@ -45,9 +46,9 @@ export const listByCourse = async (req: Request, res: Response) => {
 
     return res.status(result.success ? 200 : 400).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch quizzes",
+      message: publicErrorMessage(error, "Failed to fetch quizzes"),
     });
   }
 };
@@ -67,9 +68,9 @@ export const getById = async (req: Request, res: Response) => {
       return res.status(404).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to fetch quiz",
+      message: publicErrorMessage(error, "Failed to fetch quiz"),
     });
   }
 };
@@ -87,9 +88,9 @@ export const update = async (req: Request, res: Response) => {
       return res.status(result.message === "You don't have permission to update this quiz" ? 403 : 400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update quiz",
+      message: publicErrorMessage(error, "Failed to update quiz"),
     });
   }
 };
@@ -107,9 +108,9 @@ export const remove = async (req: Request, res: Response) => {
       return res.status(result.message === "You don't have permission to delete this quiz" ? 403 : 400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to delete quiz",
+      message: publicErrorMessage(error, "Failed to delete quiz"),
     });
   }
 };
@@ -128,9 +129,9 @@ export const publish = async (req: Request, res: Response) => {
       return res.status(result.message === "You don't have permission to update this quiz" ? 403 : 400).json(result);
     }
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to publish quiz",
+      message: publicErrorMessage(error, "Failed to publish quiz"),
     });
   }
 };

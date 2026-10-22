@@ -7,6 +7,7 @@ import { Module } from "../model/module.model";
 import { Lesson } from "../model/lesson.model";
 import { deleteFromCloudinary } from "@/utils/cloudinary";
 import { escapeRegex } from "@/utils/sanitizeSearch";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 // Helpers to enforce instructor ownership
 const ensureCourseAccess = async (
@@ -105,10 +106,10 @@ export const createCourse = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create course",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -188,10 +189,10 @@ export const getAllCourses = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve courses",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -233,10 +234,10 @@ export const getCoursesCount = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve course count",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -250,10 +251,10 @@ export const getPublishedCourses = async (req: Request, res: Response) => {
       data: courses,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve published courses",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -267,10 +268,10 @@ export const getFeaturedCourses = async (_: Request, res: Response) => {
       data: courses,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve featured courses",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -293,10 +294,10 @@ export const getCourseById = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve course",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -325,10 +326,10 @@ export const getCourseStats = async (req: Request, res: Response) => {
       data: stats,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve course statistics",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -357,10 +358,10 @@ export const updateCourse = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update course",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -399,10 +400,10 @@ export const deleteCourse = async (req: Request, res: Response) => {
       message: "Course deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete course",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -428,10 +429,10 @@ export const getCoursesByInstructor = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve instructor courses",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -445,10 +446,10 @@ export const getCoursesByCategory = async (req: Request, res: Response) => {
       data: courses,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve category courses",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -473,10 +474,10 @@ export const createModule = async (req: Request, res: Response) => {
       data: module,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create module",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -499,10 +500,10 @@ export const getModulesByCourse = async (req: Request, res: Response) => {
       data: modules,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve modules",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -531,10 +532,10 @@ export const getModuleById = async (req: Request, res: Response) => {
       data: module,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve module",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -557,10 +558,10 @@ export const updateModule = async (req: Request, res: Response) => {
       data: module,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update module",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -582,10 +583,10 @@ export const deleteModule = async (req: Request, res: Response) => {
       message: "Module deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete module",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -631,10 +632,10 @@ export const createLesson = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create lesson",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -657,10 +658,10 @@ export const getLessonsByModule = async (req: Request, res: Response) => {
       data: lessons,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve lessons",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -694,10 +695,10 @@ export const getLessonById = async (req: Request, res: Response) => {
       });
     }
 
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve lesson",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -748,10 +749,10 @@ export const updateLesson = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update lesson",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -773,10 +774,10 @@ export const deleteLesson = async (req: Request, res: Response) => {
       message: "Lesson deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete lesson",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -792,10 +793,10 @@ export const completeLesson = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to complete lesson",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -810,10 +811,10 @@ export const getFreeLessons = async (_: Request, res: Response) => {
       data: lessons,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to retrieve free lessons",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -833,7 +834,7 @@ export const publishCourse = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(error.message.includes("Unauthorized") ? 403 : 500).json({
       success: false,
-      message: error.message || "Failed to publish course",
+      message: publicErrorMessage(error, "Failed to publish course"),
     });
   }
 };
@@ -851,7 +852,7 @@ export const unpublishCourse = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(error.message.includes("Unauthorized") ? 403 : 500).json({
       success: false,
-      message: error.message || "Failed to unpublish course",
+      message: publicErrorMessage(error, "Failed to unpublish course"),
     });
   }
 };
@@ -867,9 +868,9 @@ export const approveCourse = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to approve course",
+      message: publicErrorMessage(error, "Failed to approve course"),
     });
   }
 };
@@ -885,9 +886,9 @@ export const rejectCourseApproval = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to rejected course approval",
+      message: publicErrorMessage(error, "Failed to rejected course approval"),
     });
   }
 };
@@ -902,9 +903,9 @@ export const getPendingApprovalCourses = async (_: Request, res: Response) => {
       data: courses,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to get pending approval courses",
+      message: publicErrorMessage(error, "Failed to get pending approval courses"),
     });
   }
 };
@@ -925,7 +926,7 @@ export const setRegistrationOpen = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(error.message.includes("Unauthorized") ? 403 : 500).json({
       success: false,
-      message: error.message || "Failed to update registration status",
+      message: publicErrorMessage(error, "Failed to update registration status"),
     });
   }
 };
@@ -944,7 +945,7 @@ export const setRegistrationDeadline = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(error.message.includes("Unauthorized") ? 403 : 500).json({
       success: false,
-      message: error.message || "Failed to update registration deadline",
+      message: publicErrorMessage(error, "Failed to update registration deadline"),
     });
   }
 };
@@ -961,9 +962,9 @@ export const adminSetRegistration = async (req: Request, res: Response) => {
       data: course,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to update registration settings",
+      message: publicErrorMessage(error, "Failed to update registration settings"),
     });
   }
 };

@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
 import mongoose from "mongoose";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 const execAsync = promisify(exec);
 
@@ -108,9 +109,9 @@ export const backupDatabase = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to create database backup",
+      message: publicErrorMessage(error, "Failed to create database backup"),
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }

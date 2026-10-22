@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import roleService from "../service/role.service";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 class RoleController {
     async getAllRoles(req: Request, res: Response) {
@@ -7,7 +8,7 @@ class RoleController {
             const result = await roleService.getAllRoles();
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -21,7 +22,7 @@ class RoleController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -35,7 +36,7 @@ class RoleController {
                 res.status(201).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -49,7 +50,7 @@ class RoleController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -59,7 +60,7 @@ class RoleController {
             const result = await roleService.reorderRoles(roleOrders);
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -73,7 +74,7 @@ class RoleController {
                 res.status(200).json(result);
             }
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 
@@ -82,7 +83,7 @@ class RoleController {
             const result = await roleService.seedDefaultRoles();
             res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ success: false, message: (error as Error).message });
+            res.status(publicErrorStatus(error as Error)).json({ success: false, message: publicErrorMessage(error as Error) });
         }
     }
 }

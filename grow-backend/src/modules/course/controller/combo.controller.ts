@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as comboService from "../service/combo.service";
 import { parsePagination } from "@/utils/pagination";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 /**
  * Create a new combo (Admin only)
@@ -36,10 +37,10 @@ export const createCombo = async (req: Request, res: Response) => {
 
     return res.status(201).json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to create combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -59,10 +60,10 @@ export const getActiveCombos = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to fetch combos",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -82,10 +83,10 @@ export const getAllCombos = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to fetch combos",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -105,10 +106,10 @@ export const getComboById = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to fetch combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -129,10 +130,10 @@ export const updateCombo = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to update combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -152,10 +153,10 @@ export const disableCombo = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to disable combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -175,10 +176,10 @@ export const toggleComboStatus = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to toggle combo status",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -198,10 +199,10 @@ export const deleteCombo = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -229,10 +230,10 @@ export const enrollInCombo = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to enroll in combo",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -263,10 +264,10 @@ export const extendComboAccess = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to extend combo access",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -289,10 +290,10 @@ export const getUserComboPurchases = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to fetch combo purchases",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { uploadToCloudinary, deleteFromCloudinary } from "@/utils/cloudinary";
 import { Course } from "../model/course.model";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 type RequestWithFile = Request & {
   file?: {
@@ -68,10 +69,10 @@ export const uploadCourseThumbnail = async (req: RequestWithFile, res: Response)
       },
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to upload thumbnail",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -117,10 +118,10 @@ export const deleteCourseThumbnail = async (req: Request, res: Response) => {
       message: "Thumbnail deleted successfully",
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete thumbnail",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

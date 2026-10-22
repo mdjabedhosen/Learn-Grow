@@ -7,6 +7,7 @@ import { Course } from "../../course/model/course.model";
 import { Enrollment } from "../../enrollment/model/enrollment.model";
 import { getSMTPTransporter } from "../../settings/service/smtp.service";
 import { ENV } from "@/config/env";
+import { uploadToCloudinary } from "@/utils/cloudinary";
 import {
   createOrderService,
   getUserOrdersService,
@@ -22,6 +23,37 @@ import {
   getUserActiveCourseAccessService,
 } from "../service/order.service";
 import { TrackingService } from "../../tracking/service/tracking.service.js";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
+
+// Define a type for requests with files (multer)
+type RequestWithFile = Request & {
+  file?: {
+    buffer: Buffer;
+  };
+};
+
+// Upload payment screenshot to Cloudinary
+export const uploadPaymentScreenshot = async (req: RequestWithFile, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file provided" });
+    }
+
+    const { url } = await uploadToCloudinary(
+      req.file.buffer,
+      `payment-screenshot-${req.userId}-${Date.now()}`,
+      "payments/screenshots"
+    );
+
+    res.json({
+      success: true,
+      message: "Screenshot uploaded successfully",
+      data: { url },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: "Failed to upload screenshot", error: publicErrorMessage(error) });
+  }
+};
 
 // Create new order
 export const createOrder = async (req: Request, res: Response) => {
@@ -102,10 +134,10 @@ export const createOrder = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error: any) {
-    res.status(500).json({ 
+    res.status(publicErrorStatus(error)).json({
       success: false, 
       message: "Failed to create order", 
-      error: error.message 
+      error: publicErrorMessage(error) 
     });
   }
 };
@@ -134,7 +166,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to fetch orders", error: error.message });
+    res.status(500).json({ success: false, message: "Failed to fetch orders", error: publicErrorMessage(error) });
   }
 };
 
@@ -159,7 +191,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 
     res.json({ order });
   } catch (error: any) {
-    res.status(500).json({ message: "Failed to fetch order", error: error.message });
+    res.status(500).json({ message: "Failed to fetch order", error: publicErrorMessage(error) });
   }
 };
 
@@ -182,7 +214,7 @@ export const getUserOrders = async (req: Request, res: Response) => {
 
     return res.json({ success: true, orders: result.data, data: result.data, pagination: result.pagination });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to fetch orders", error: error.message });
+    res.status(500).json({ success: false, message: "Failed to fetch orders", error: publicErrorMessage(error) });
   }
 };
 
@@ -203,7 +235,7 @@ export const approveOrder = async (req: Request, res: Response) => {
 
     return res.json({ success: true, message: result.message, order: result.data, data: result.data });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to approve order", error: error.message });
+    res.status(500).json({ success: false, message: "Failed to approve order", error: publicErrorMessage(error) });
   }
 };
 
@@ -249,7 +281,7 @@ export const rejectOrder = async (req: Request, res: Response) => {
       data: order,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: "Failed to reject order", error: error.message });
+    res.status(500).json({ success: false, message: "Failed to reject order", error: publicErrorMessage(error) });
   }
 };
 
@@ -283,10 +315,10 @@ export const deleteOrder = async (req: Request, res: Response) => {
       data: { id },
     });
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to delete order",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -446,7 +478,7 @@ export const checkActiveSubscription = async (req: Request, res: Response) => {
       expired: false,
     });
   } catch (error: any) {
-    res.status(500).json({ message: "Failed to check subscription", error: error.message });
+    res.status(500).json({ message: "Failed to check subscription", error: publicErrorMessage(error) });
   }
 };
 
@@ -600,7 +632,7 @@ export const getUserPurchasedCourses = async (req: Request, res: Response) => {
       hasQuarterlyAccess: !!quarterlyOrder,
     });
   } catch (error: any) {
-    res.status(500).json({ message: "Failed to fetch purchased courses", error: error.message });
+    res.status(500).json({ message: "Failed to fetch purchased courses", error: publicErrorMessage(error) });
   }
 };
 
@@ -628,10 +660,10 @@ export const getEnrolledStudents = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    res.status(500).json({ 
+    res.status(publicErrorStatus(error)).json({
       success: false, 
       message: "Failed to fetch enrolled students", 
-      error: error.message 
+      error: publicErrorMessage(error) 
     });
   }
 };
@@ -820,10 +852,10 @@ export const sendOrderEmail = async (req: Request, res: Response) => {
       message: "Email sent successfully"
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to send email",
-      error: error.message
+      error: publicErrorMessage(error)
     });
   }
 };
@@ -1026,10 +1058,10 @@ export const getStudentOrdersForGuardian = async (req: Request, res: Response) =
       }
     });
   } catch (error: any) {
-    res.status(500).json({ 
+    res.status(publicErrorStatus(error)).json({
       success: false, 
       message: "Failed to fetch student data", 
-      error: error.message 
+      error: publicErrorMessage(error) 
     });
   }
 };
@@ -1064,10 +1096,10 @@ export const setAccessDuration = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to set access duration",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -1101,10 +1133,10 @@ export const extendAccess = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to extend access",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -1138,10 +1170,10 @@ export const reduceAccess = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to reduce access",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };
@@ -1164,10 +1196,10 @@ export const getUserCourseAccess = async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    return res.status(500).json({
+    return res.status(publicErrorStatus(error)).json({
       success: false,
       message: "Failed to fetch user course access",
-      error: error.message,
+      error: publicErrorMessage(error),
     });
   }
 };

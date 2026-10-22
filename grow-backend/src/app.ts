@@ -49,6 +49,7 @@ import {
   securityLogger,
 } from "./middleware/security.middleware.js";
 import { verifyToken, optionalAuth } from "./middleware/auth.middleware.js";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createApp = () => {
   const app = express();
@@ -263,10 +264,17 @@ export const createApp = () => {
         "Content-Type,Authorization,X-CSRF-Token,X-Requested-With,Accept"
       );
 
-      res.status(err.status || 500).json({
+      // Never forward the raw driver message: a Mongoose CastError reads
+      // `Cast to ObjectId failed for value "x" ... for model "Event"`, which
+      // leaks the model name and collection path and turns a client mistake
+      // into a 500.
+      res.status(publicErrorStatus(err)).json({
         success: false,
-        message: err.message || "Internal Server Error",
-        error: process.env.NODE_ENV === "development" ? err.message : undefined,
+        message: publicErrorMessage(err),
+        error:
+          process.env.NODE_ENV === "development"
+            ? publicErrorMessage(err, err.message)
+            : undefined,
       });
     }
   );

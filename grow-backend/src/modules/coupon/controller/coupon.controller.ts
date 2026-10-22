@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as service from "../service/coupon.service.js";
+import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createCoupon = async (req: Request, res: Response) => {
   try {
@@ -13,7 +14,7 @@ export const createCoupon = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to create coupon",
+      message: publicErrorMessage(error, "Failed to create coupon"),
     });
   }
 };
@@ -27,9 +28,9 @@ export const getAllCoupons = async (req: Request, res: Response) => {
       data: coupons,
     });
   } catch (error: any) {
-    res.status(500).json({
+    res.status(publicErrorStatus(error)).json({
       success: false,
-      message: error.message || "Failed to retrieve coupons",
+      message: publicErrorMessage(error, "Failed to retrieve coupons"),
     });
   }
 };
@@ -50,7 +51,7 @@ export const getCouponById = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to get coupon",
+      message: publicErrorMessage(error, "Failed to get coupon"),
     });
   }
 };
@@ -66,7 +67,7 @@ export const updateCoupon = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to update coupon",
+      message: publicErrorMessage(error, "Failed to update coupon"),
     });
   }
 };
@@ -78,7 +79,7 @@ export const deleteCoupon = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Failed to delete coupon",
+      message: publicErrorMessage(error, "Failed to delete coupon"),
     });
   }
 };
@@ -96,7 +97,7 @@ export const validateCoupon = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(400).json({
       success: false,
-      message: error.message || "Invalid coupon",
+      message: publicErrorMessage(error, "Invalid coupon"),
     });
   }
 };

@@ -138,15 +138,7 @@ export const getAllCourses = async (filters: any = {}) => {
     const total = await Course.countDocuments(query);
 
     const mappedCourses = courses.map((c: any) => {
-      let thumb = c.thumbnail;
-      if (!thumb) {
-        if (c._id?.toString() === "69ca5603e9e96ed80529474a" || c.slug?.includes("robot")) {
-          thumb = "/courses/robotics-course-banner.jpg";
-        } else if (c._id?.toString() === "69ce553ce9e96ed805295101" || c.slug?.includes("python")) {
-          thumb = "/courses/python-course-banner.jpg";
-        }
-      }
-      return { ...c, thumbnail: thumb };
+      return { ...c, thumbnail: c.thumbnail };
     });
 
     return {
@@ -181,15 +173,7 @@ export const getPublishedCourses = async (filters: any = {}) => {
     const total = await Course.countDocuments(query);
 
     const mappedCourses = courses.map((c: any) => {
-      let thumb = c.thumbnail;
-      if (!thumb) {
-        if (c._id?.toString() === "69ca5603e9e96ed80529474a" || c.slug?.includes("robot")) {
-          thumb = "/courses/robotics-course-banner.jpg";
-        } else if (c._id?.toString() === "69ce553ce9e96ed805295101" || c.slug?.includes("python")) {
-          thumb = "/courses/python-course-banner.jpg";
-        }
-      }
-      return { ...c, thumbnail: thumb };
+      return { ...c, thumbnail: c.thumbnail };
     });
 
     return {
@@ -535,6 +519,7 @@ export const getCourseById = async (
 
   const courseObj = course.toObject();
   if (!courseObj.thumbnail) {
+    // Fallback to basic generic thumbnails if none provided in DB
     if (courseObj._id.toString() === "69ca5603e9e96ed80529474a" || courseObj.slug?.includes("robot")) {
       courseObj.thumbnail = "/courses/robotics-course-banner.jpg";
     } else if (courseObj._id.toString() === "69ce553ce9e96ed805295101" || courseObj.slug?.includes("python")) {
