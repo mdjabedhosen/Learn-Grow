@@ -1012,8 +1012,9 @@ export const ensureAdminUsers = async () => {
       if (!activeSMTP) {
         // The Gmail app password must come from the environment. It used to be
         // hardcoded here, which put a live mail credential in the repository.
-        const smtpUser = process.env.SMTP_USER || "";
-        const smtpPassword = process.env.SMTP_APP_PASSWORD || "";
+        const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || "";
+        const smtpPassword =
+          process.env.SMTP_APP_PASSWORD || process.env.EMAIL_PASS || "";
 
         if (!smtpUser || !smtpPassword) {
           console.warn(
@@ -1022,17 +1023,47 @@ export const ensureAdminUsers = async () => {
               "the admin settings panel or set the environment variables."
           );
         } else {
-          await SMTPConfig.create({
-            host: process.env.SMTP_HOST || "smtp.gmail.com",
-            port: Number(process.env.SMTP_PORT || 465),
-            secure: true,
+          // Reuse an existing (inactive) config rather than creating a second
+          // row, so the admin panel still shows exactly one SMTP config.
+          const existingSMTP = await SMTPConfig.findOne({});
+
+          // EMAIL_FROM is often a formatted address such as
+          //   "Learn & Grow" <noreply@learnandgrow.io>
+          // but `fromEmail` has to hold a plain address - the display name is
+          // added when the mail is sent, and a formatted value would produce
+          // a broken From header.
+          const rawFrom =
+            process.env.SMTP_FROM_EMAIL || process.env.EMAIL_FROM || "";
+          const plainFrom = (rawFrom.match(/<([^>]+)>/)?.[1] || rawFrom).trim();
+
+          const smtpDoc = {
+            host:
+              process.env.SMTP_HOST ||
+              process.env.EMAIL_HOST ||
+              "smtp.gmail.com",
+            port: Number(process.env.SMTP_PORT || process.env.EMAIL_PORT || 465),
+            secure:
+              (process.env.SMTP_SECURE || process.env.EMAIL_SECURE || "true") !==
+              "false",
             user: smtpUser,
             password: smtpPassword,
-            fromName: "Learn & Grow STEM Academy",
-            fromEmail: "noreply@learnandgrow.io",
+            fromName:
+              process.env.SMTP_FROM_NAME ||
+              process.env.EMAIL_FROM_NAME ||
+              "Learn & Grow STEM Academy",
+            fromEmail: plainFrom || smtpUser,
             replyTo: "info@learnandgrow.io",
             isActive: true,
-          });
+          };
+
+          if (existingSMTP) {
+            await SMTPConfig.updateOne(
+              { _id: existingSMTP._id },
+              { $set: smtpDoc }
+            );
+          } else {
+            await SMTPConfig.create(smtpDoc);
+          }
           console.log("[SMTP Seeder] Configured active SMTP configuration from the environment");
         }
       }

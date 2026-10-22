@@ -20,7 +20,15 @@ export const getSMTPConfig = async () => {
             secure: process.env.EMAIL_SECURE === "true",
             user: process.env.EMAIL_USER,
             fromName: process.env.EMAIL_FROM_NAME || "Learn & Grow",
-            fromEmail: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            // EMAIL_FROM may be a formatted address such as
+            //   "Learn & Grow" <noreply@learnandgrow.io>
+            // but `fromEmail` has to hold a plain address - the display name
+            // is added when the mail is sent, and a formatted value would
+            // produce a broken From header.
+            fromEmail:
+              (process.env.EMAIL_FROM || "").match(/<([^>]+)>/)?.[1] ||
+              process.env.EMAIL_FROM ||
+              process.env.EMAIL_USER,
             replyTo: process.env.EMAIL_REPLY_TO,
             source: "environment",
           },
