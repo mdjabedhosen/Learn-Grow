@@ -241,6 +241,14 @@ export default function CheckoutPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [senderNumber, setSenderNumber] = useState<string>("");
+  // For a bank transfer the customer pays FROM a bank account, so these
+  // four fields replace the mobile sender number.
+  const [senderBankDetails, setSenderBankDetails] = useState({
+    accountName: "",
+    accountNumber: "",
+    bankName: "",
+    branchName: "",
+  });
   const [transactionId, setTransactionId] = useState<string>("");
   const [paymentScreenshot, setPaymentScreenshot] = useState<string | null>(null);
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
@@ -549,17 +557,33 @@ export default function CheckoutPage() {
     try {
       setSubmitting(true);
 
-      // Validate payment details
-      if (!senderNumber.trim()) {
+      // Validate payment details.
+      // A bank transfer is paid FROM a bank account, so the four account
+      // fields replace the mobile sender number for that method.
+      if (isBankTransfer) {
+        const missing = [
+          senderBankDetails.accountName.trim() && "account name",
+          senderBankDetails.accountNumber.trim() && "account number",
+          senderBankDetails.bankName.trim() && "bank name",
+        ].filter((v) => !v);
+
+        if (missing.length > 0) {
+          toast.error(
+            language === "bn"
+              ? "যে ব্যাংক অ্যাকাউন্ট থেকে টাকা পাঠিয়েছেন তার তথ্য দিন"
+              : `Please enter the ${missing.join(", ")} you sent the money from`
+          );
+          setSubmitting(false);
+          return;
+        }
+      } else if (!senderNumber.trim()) {
         toast.error("Please enter the account number/mobile you sent payment from");
         setSubmitting(false);
         return;
       }
 
       if (!transactionId.trim()) {
-        toast.error("Please enter your transaction ID");
-        setSubmitting(false);
-        return;
+        // TrxID is now optional, so no error thrown if empty.
       }
 
       // For bank transfers, payment screenshot is mandatory
@@ -591,6 +615,22 @@ export default function CheckoutPage() {
       // Add payment screenshot if available
       if (paymentScreenshot) {
         orderPayload.paymentScreenshot = paymentScreenshot;
+      }
+
+      // Bank transfer only: the account the customer paid FROM. The backend
+      // matches it against the bank statement.
+      if (isBankTransfer) {
+        orderPayload.senderBankDetails = {
+          accountName: senderBankDetails.accountName.trim(),
+          accountNumber: senderBankDetails.accountNumber.trim(),
+          bankName: senderBankDetails.bankName.trim(),
+          branchName: senderBankDetails.branchName.trim(),
+        };
+        // The sender number is what the admin column shows and searches by.
+        // For a bank transfer the account number identifies the payer.
+        if (!orderPayload.senderNumber) {
+          orderPayload.senderNumber = senderBankDetails.accountNumber.trim();
+        }
       }
 
       // Add the coupon code. The backend re-validates it and re-derives the
@@ -1496,27 +1536,124 @@ export default function CheckoutPage() {
                 </p>
 
                 <div className="space-y-4">
-                  {/* Sender Number/Account Field */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      {language === "bn" ? "যে নম্বর থেকে পেমেন্ট করেছেন *" : "Sender Account / Mobile Number *"}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={language === "bn" ? "যেমন: ০১৭১২-৩৪৫৬৭৮" : "e.g., 01712345678"}
-                      value={senderNumber}
-                      onChange={(e) => setSenderNumber(e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900"
-                    />
-                    <p className="text-xs text-slate-500 mt-1">
-                      {language === "bn" ? "যে বিকাশ / নগদ / রকেট নম্বর থেকে টাকা পাঠিয়েছেন তা লিখুন" : "Enter the mobile or bank account you sent money from"}
-                    </p>
-                  </div>
+                  {/* Mobile wallet: the customer sends from a bKash / Nagad /
+                      Rocket number. */}
+                  {!isBankTransfer && (
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        {language === "bn" ? "যে নম্বর থেকে পেমেন্ট করেছেন *" : "Sender Account / Mobile Number *"}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={language === "bn" ? "যেমন: ০১৭১২-৩৪৫৬৭৮" : "e.g., 01712345678"}
+                        value={senderNumber}
+                        onChange={(e) => setSenderNumber(e.target.value)}
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">
+                        {language === "bn" ? "যে বিকাশ / নগদ / রকেট নম্বর থেকে টাকা পাঠিয়েছেন তা লিখুন" : "Enter the mobile number you sent the money from"}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Bank transfer: the money comes from a bank account, so
+                      the account fields replace the mobile number. The admin
+                      matches them against the bank statement. */}
+                  {isBankTransfer && (
+                    <div className="space-y-4 p-4 bg-emerald-50/60 border-2 border-emerald-200 rounded-xl">
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-900">
+                          {language === "bn"
+                            ? "যে ব্যাংক অ্যাকাউন্ট থেকে টাকা পাঠিয়েছেন"
+                            : "The bank account you sent the money from"}
+                        </p>
+                        <p className="text-xs text-emerald-800 mt-0.5">
+                          {language === "bn"
+                            ? "যে ব্যাংক অ্যাকাউন্ট থেকে টাকা পাঠিয়েছেন তার তথ্য দিন।"
+                            : "Give us the account you paid from so we can match it on the bank statement."}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            {language === "bn" ? "অ্যাকাউন্ট নাম *" : "Account Name *"}
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={language === "bn" ? "যেমন: মোহাম্মদ হাসান" : "e.g., MD. JABED HOSEN"}
+                            value={senderBankDetails.accountName}
+                            onChange={(e) =>
+                              setSenderBankDetails({
+                                ...senderBankDetails,
+                                accountName: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-slate-900"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            {language === "bn" ? "অ্যাকাউন্ট নম্বর *" : "Account Number *"}
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={language === "bn" ? "যেমন: ১০৭০৪৪৮৪১০০০১" : "e.g., 1070448410001"}
+                            value={senderBankDetails.accountNumber}
+                            onChange={(e) =>
+                              setSenderBankDetails({
+                                ...senderBankDetails,
+                                accountNumber: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-slate-900"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            {language === "bn" ? "ব্যাংকের নাম *" : "Bank Name *"}
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={language === "bn" ? "যেমন: ব্র্যাঙ্ক ব্যাংক পিএলসি" : "e.g., BRAC Bank PLC"}
+                            value={senderBankDetails.bankName}
+                            onChange={(e) =>
+                              setSenderBankDetails({
+                                ...senderBankDetails,
+                                bankName: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-slate-900"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">
+                            {language === "bn" ? "শাখার নাম" : "Branch Name"}
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={language === "bn" ? "যেমন: আশুলিয়া শাখা" : "e.g., ASHULIA BRANCH"}
+                            value={senderBankDetails.branchName}
+                            onChange={(e) =>
+                              setSenderBankDetails({
+                                ...senderBankDetails,
+                                branchName: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-slate-900"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Transaction ID Field */}
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}
+                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) (ঐচ্ছিক)" : "Transaction ID (TrxID) (Optional)"}
                     </label>
                     <input
                       type="text"
@@ -1526,7 +1663,7 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900 uppercase"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন" : "Enter the transaction ID from your confirmation SMS"}
+                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন (যদি থাকে)" : "Enter the transaction ID from your confirmation SMS if available"}
                     </p>
                   </div>
 
@@ -1670,9 +1807,9 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !senderNumber.trim() || !transactionId.trim()}
+                  disabled={hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !(isBankTransfer ? senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() : senderNumber.trim())}
                   className={`w-full py-3.5 px-4 rounded-xl font-bold text-white text-base transition flex items-center justify-center gap-2 shadow-md ${
-                    hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !senderNumber.trim() || !transactionId.trim()
+                    hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !(isBankTransfer ? senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() : senderNumber.trim())
                       ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
                       : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-blue-500/20"
                   }`}

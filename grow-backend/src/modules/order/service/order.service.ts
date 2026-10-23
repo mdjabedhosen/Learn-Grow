@@ -85,6 +85,16 @@ const sendOrderEmail = async (order: any) => {
       paymentMethod: paymentMethod.name || undefined,
       paymentAccount: paymentMethod.accountNumber || undefined,
       paymentScreenshot: order.paymentScreenshot || undefined,
+      // The account the student paid FROM - the admin matches it against
+      // the bank statement.
+      senderBankDetails: order.senderBankDetails?.accountNumber
+        ? {
+            accountName: order.senderBankDetails.accountName || "",
+            accountNumber: order.senderBankDetails.accountNumber || "",
+            bankName: order.senderBankDetails.bankName || "",
+            branchName: order.senderBankDetails.branchName || "",
+          }
+        : undefined,
       deliveryAddress: order.deliveryAddress || undefined,
       // The bank details are flat fields on the payment method now.
       bankDetails:
@@ -160,6 +170,17 @@ export const createOrderService = async (
     transactionId: string;
     senderNumber: string;
     /**
+     * The bank account the customer paid FROM. A bank transfer is made from
+     * a bank account, not from a mobile wallet number, so the customer
+     * fills these in instead of the sender number.
+     */
+    senderBankDetails?: {
+      accountName?: string;
+      accountNumber?: string;
+      bankName?: string;
+      branchName?: string;
+    };
+    /**
      * Cloudinary URL of the payment screenshot. Sent by the checkout page for
      * bank transfers, where the screenshot is mandatory evidence for the
      * admin. It used to be dropped here, so the upload was thrown away.
@@ -196,6 +217,7 @@ export const createOrderService = async (
       paymentMethodId,
       transactionId,
       senderNumber,
+      senderBankDetails,
       paymentScreenshot,
       paymentNote,
       deliveryAddress,
@@ -343,11 +365,36 @@ export const createOrderService = async (
       orderData.deliveryAddress = deliveryAddress;
     }
 
-    // Payment screenshot - the admin needs it to verify a bank transfer.
-    // Only trusted for a method that actually is one: a screenshot attached
-    // to a bKash order is not evidence of anything.
-    if (paymentScreenshot && isBankTransferName(paymentMethod?.name)) {
-      orderData.paymentScreenshot = paymentScreenshot;
+    // Bank transfer only: the account the customer paid FROM. The admin
+    // matches it against the bank statement, so it is only kept for a
+    // method that really is a bank transfer.
+    if (isBankTransferName(paymentMethod?.name)) {
+      const bank = senderBankDetails || {};
+      const accountName = (bank.accountName || "").trim();
+      const accountNumber = (bank.accountNumber || "").trim();
+      const bankName = (bank.bankName || "").trim();
+      const branchName = (bank.branchName || "").trim();
+
+      if (accountName || accountNumber || bankName || branchName) {
+        orderData.senderBankDetails = {
+          accountName,
+          accountNumber,
+          bankName,
+          branchName,
+        };
+        // The sender number is what the admin column shows and searches by.
+        // For a bank transfer the account number identifies the payer.
+        if (!orderData.senderNumber && accountNumber) {
+          orderData.senderNumber = accountNumber;
+        }
+      }
+
+      // Payment screenshot - the admin needs it to verify a bank transfer.
+      // Only trusted for a method that actually is one: a screenshot
+      // attached to a bKash order is not evidence of anything.
+      if (paymentScreenshot) {
+        orderData.paymentScreenshot = paymentScreenshot;
+      }
     }
 
     if (derived.couponCode) {

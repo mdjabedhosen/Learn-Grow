@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { Order } from "../model/order.model";
+import { PaymentMethod } from "../../payment/model/payment-method.model";
+import { isBankTransferName } from "../service/order.service";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
@@ -65,13 +67,62 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 
     // Validate required fields
-    const { planType, paymentMethodId, transactionId, senderNumber, paymentScreenshot } = req.body;
+    const {
+      planType,
+      paymentMethodId,
+      transactionId,
+      senderNumber,
+      senderBankDetails,
+      paymentScreenshot,
+    } = req.body;
     const allowedPlans = ["single", "quarterly", "kit", "combo"];
 
-    if (!planType || !paymentMethodId || !transactionId || !senderNumber) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Missing required fields: planType, paymentMethodId, transactionId, senderNumber" 
+    if (!planType || !paymentMethodId || !transactionId) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required fields: planType, paymentMethodId, transactionId",
+      });
+    }
+
+    // A bank transfer is paid from a bank account, so the customer fills in
+    // the four account fields instead of a mobile sender number. Which set
+    // of fields is required depends on the method.
+    const method = await PaymentMethod.findById(paymentMethodId).lean();
+    const isBankTransfer = isBankTransferName(method?.name);
+
+    if (isBankTransfer) {
+      const bank = senderBankDetails || {};
+      const accountName = (bank.accountName || "").toString().trim();
+      const accountNumber = (bank.accountNumber || "").toString().trim();
+      const bankName = (bank.bankName || "").toString().trim();
+      const branchName = (bank.branchName || "").toString().trim();
+
+      if (!accountName || !accountNumber || !bankName) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Account name, account number and bank name are required for a bank transfer",
+        });
+      }
+      for (const [label, value] of [
+        ["account name", accountName],
+        ["account number", accountNumber],
+        ["bank name", bankName],
+        ["branch name", branchName],
+      ] as const) {
+        if (value.length > 200) {
+          return res.status(400).json({
+            success: false,
+            message: `The ${label} is too long`,
+          });
+        }
+      }
+    } else if (!senderNumber) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required fields: planType, paymentMethodId, transactionId, senderNumber",
       });
     }
 

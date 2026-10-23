@@ -92,7 +92,15 @@ const login = async (email: string, password: string) => {
       courseId,
       paymentMethodId: bank!._id.toString(),
       transactionId: "SHOTTXN12345",
-      senderNumber: "01700000000",
+      // A bank transfer is paid from a bank account, so there is no mobile
+      // sender number - the account fields identify the payer.
+      senderNumber: "",
+      senderBankDetails: {
+        accountName: "MD. JABED HOSEN",
+        accountNumber: "1070448410001",
+        bankName: "BRAC Bank PLC",
+        branchName: "Ashulia Branch",
+      },
       price: 1799,
       paymentScreenshot: SCREENSHOT,
     }),
@@ -109,11 +117,32 @@ const login = async (email: string, password: string) => {
     String(createdJson?.data?.paymentScreenshot)
   );
 
+  check(
+    "the sender bank details came back on the created order",
+    createdJson?.data?.senderBankDetails?.accountName === "MD. JABED HOSEN" &&
+      createdJson?.data?.senderBankDetails?.accountNumber === "1070448410001" &&
+      createdJson?.data?.senderBankDetails?.bankName === "BRAC Bank PLC" &&
+      createdJson?.data?.senderBankDetails?.branchName === "Ashulia Branch",
+    JSON.stringify(createdJson?.data?.senderBankDetails)
+  );
+  check(
+    "the account number became the sender number",
+    createdJson?.data?.senderNumber === "1070448410001",
+    String(createdJson?.data?.senderNumber)
+  );
+
   const stored = await Order.findById(createdJson?.data?._id).lean();
   check(
     "the payment screenshot is actually stored in the database",
     stored?.paymentScreenshot === SCREENSHOT,
     String(stored?.paymentScreenshot)
+  );
+  check(
+    "the sender bank details are actually stored in the database",
+    stored?.senderBankDetails?.accountNumber === "1070448410001" &&
+      stored?.senderBankDetails?.bankName === "BRAC Bank PLC" &&
+      stored?.senderBankDetails?.branchName === "Ashulia Branch",
+    JSON.stringify(stored?.senderBankDetails)
   );
 
   // ---- the admin order list returns it ----
@@ -148,6 +177,12 @@ const login = async (email: string, password: string) => {
         !!found?.paymentMethodId?.routingNumber,
       `accountName="${found?.paymentMethodId?.accountName}" routing="${found?.paymentMethodId?.routingNumber}"`
     );
+    check(
+      "the admin order list returns the account the student paid from",
+      found?.senderBankDetails?.accountNumber === "1070448410001" &&
+        found?.senderBankDetails?.bankName === "BRAC Bank PLC",
+      JSON.stringify(found?.senderBankDetails)
+    );
   } else {
     console.log("  (skipped the admin list check - could not log in as admin)");
   }
@@ -178,6 +213,29 @@ const login = async (email: string, password: string) => {
       String(walletJson?.data?.paymentScreenshot)
     );
   }
+
+  // ---- a bank transfer without the account details is rejected ----
+  const noBankDetails = await fetch(`${BASE}/orders`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      planType: "single",
+      courseId,
+      paymentMethodId: bank!._id.toString(),
+      transactionId: "SHOTTXNNOBANK",
+      senderNumber: "01700000000",
+      price: 1799,
+    }),
+  });
+  const noBankJson: any = await noBankDetails.json();
+  check(
+    "a bank transfer without the account details is rejected",
+    noBankDetails.status === 400,
+    `status=${noBankDetails.status} ${noBankJson?.message || ""}`
+  );
 
   // ---- a non-URL screenshot is rejected ----
   const badOrder = await fetch(`${BASE}/orders`, {
