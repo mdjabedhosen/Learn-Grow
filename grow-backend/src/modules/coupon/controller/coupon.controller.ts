@@ -4,7 +4,7 @@ import { publicErrorMessage, publicErrorStatus } from "@/utils/publicError";
 
 export const createCoupon = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?._id;
+    const userId = (req as any).user?._id || (req as any).user?.id || req.userId;
     const coupon = await service.createCoupon(req.body, userId);
     res.status(201).json({
       success: true,

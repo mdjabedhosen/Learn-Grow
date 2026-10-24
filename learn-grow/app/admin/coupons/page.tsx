@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
-
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://learnandgrow.io/api").replace(/\/+$/, "");
 import {
   Tag,
   Plus,
@@ -19,6 +16,12 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
+import {
+  useGetAllCouponsQuery,
+  useCreateCouponMutation,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
+} from "@/redux/api/couponApi";
 
 interface Coupon {
   _id: string;
@@ -36,12 +39,15 @@ interface Coupon {
 }
 
 export default function AdminCouponsPage() {
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: resData, isLoading, isFetching, refetch } = useGetAllCouponsQuery(undefined);
+  const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation();
+  const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
+  const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
+
+  const coupons: Coupon[] = resData?.data || [];
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
-  const [saving, setSaving] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -55,26 +61,6 @@ export default function AdminCouponsPage() {
     expiryDate: "",
     isActive: true,
   });
-
-  const fetchCoupons = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/coupon`, {
-        withCredentials: true,
-      });
-      if (res.data?.success) {
-        setCoupons(res.data.data || []);
-      }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to load coupons");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
 
   const handleOpenCreate = () => {
     setEditingCoupon(null);
@@ -110,48 +96,38 @@ export default function AdminCouponsPage() {
 
   const handleToggleStatus = async (coupon: Coupon) => {
     try {
-      const res = await axios.patch(
-        `${API_BASE_URL}/coupon/${coupon._id}`,
-        { isActive: !coupon.isActive },
-        { withCredentials: true }
-      );
-      if (res.data?.success) {
-        toast.success(`Coupon ${!coupon.isActive ? "activated" : "deactivated"}`);
-        fetchCoupons();
-      }
+      const res: any = await updateCoupon({
+        id: coupon._id,
+        isActive: !coupon.isActive,
+      }).unwrap();
+      toast.success(res?.message || `কুপন ${!coupon.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"} করা হয়েছে`);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Could not update coupon status");
+      toast.error(err?.data?.message || err?.message || "স্ট্যাটাস পরিবর্তন করা সম্ভব হয়নি");
     }
   };
 
   const handleDelete = async (id: string, code: string) => {
-    if (!confirm(`Are you sure you want to delete coupon "${code}"?`)) return;
+    if (!confirm(`আপনি কি নিশ্চিত যে "${code}" কুপনটি ডিলিট করতে চান?`)) return;
     try {
-      const res = await axios.delete(`${API_BASE_URL}/coupon/${id}`, {
-        withCredentials: true,
-      });
-      if (res.data?.success) {
-        toast.success("Coupon deleted successfully");
-        setCoupons((prev) => prev.filter((c) => c._id !== id));
-      }
+      const res: any = await deleteCoupon(id).unwrap();
+      toast.success(res?.message || "কুপন সফলভাবে ডিলিট হয়েছে");
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Could not delete coupon");
+      toast.error(err?.data?.message || err?.message || "কুপন ডিলিট করা যায়নি");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.code.trim()) {
-      toast.error("Coupon code is required");
+      toast.error("কুপন কোড প্রদান করা আবশ্যক");
       return;
     }
     if (formData.discountValue <= 0) {
-      toast.error("Discount value must be greater than 0");
+      toast.error("ছাড়ের পরিমাণ ০ এর বেশি হতে হবে");
       return;
     }
 
     try {
-      setSaving(true);
       const payload: any = {
         code: formData.code.trim().toUpperCase(),
         description: formData.description.trim(),
@@ -173,30 +149,19 @@ export default function AdminCouponsPage() {
       }
 
       if (editingCoupon) {
-        const res = await axios.patch(
-          `${API_BASE_URL}/coupon/${editingCoupon._id}`,
-          payload,
-          { withCredentials: true }
-        );
-        if (res.data?.success) {
-          toast.success("Coupon updated successfully");
-          setModalOpen(false);
-          fetchCoupons();
-        }
+        const res: any = await updateCoupon({
+          id: editingCoupon._id,
+          ...payload,
+        }).unwrap();
+        toast.success(res?.message || "কুপন সফলভাবে আপডেট হয়েছে");
+        setModalOpen(false);
       } else {
-        const res = await axios.post(`${API_BASE_URL}/coupon`, payload, {
-          withCredentials: true,
-        });
-        if (res.data?.success) {
-          toast.success("Coupon created successfully");
-          setModalOpen(false);
-          fetchCoupons();
-        }
+        const res: any = await createCoupon(payload).unwrap();
+        toast.success(res?.message || "কুপন সফলভাবে তৈরি হয়েছে");
+        setModalOpen(false);
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to save coupon");
-    } finally {
-      setSaving(false);
+      toast.error(err?.data?.message || err?.message || "কুপন সংরক্ষণ করা যায়নি");
     }
   };
 
@@ -205,6 +170,8 @@ export default function AdminCouponsPage() {
       c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.description && c.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const saving = isCreating || isUpdating;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -239,16 +206,16 @@ export default function AdminCouponsPage() {
           />
         </div>
         <button
-          onClick={fetchCoupons}
+          onClick={() => refetch()}
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> রিফ্রেশ
+          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} /> রিফ্রেশ
         </button>
       </div>
 
       {/* Coupons Table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        {loading ? (
+        {isLoading ? (
           <div className="py-20 text-center text-slate-500">
             <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
             <p>কুপন লোড হচ্ছে...</p>
@@ -353,11 +320,12 @@ export default function AdminCouponsPage() {
                       <td className="py-4 px-4">
                         <button
                           onClick={() => handleToggleStatus(coupon)}
+                          disabled={isUpdating}
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${
                             coupon.isActive
                               ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
+                          } disabled:opacity-50`}
                         >
                           {coupon.isActive ? (
                             <>
@@ -381,7 +349,8 @@ export default function AdminCouponsPage() {
                           </button>
                           <button
                             onClick={() => handleDelete(coupon._id, coupon.code)}
-                            className="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                            disabled={isDeleting}
+                            className="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-50"
                             title="ডিলিট করুন"
                           >
                             <Trash2 className="w-4 h-4" />

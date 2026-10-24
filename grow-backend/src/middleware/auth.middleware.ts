@@ -25,9 +25,13 @@ declare global {
 // 1. JWT Verification Middleware
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Get token from headers
+    // Get token from headers or cookies
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+    const bearerToken = authHeader && (authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader.split(' ')[1]);
+    const cookieToken = (req as any).cookies?.accessToken as string | undefined;
+    const cookieTokenHttpOnly = (req as any).cookies?.accessTokenHttpOnly as string | undefined;
+    const cookieTokenGeneral = (req as any).cookies?.token as string | undefined;
+    const token = bearerToken || cookieToken || cookieTokenHttpOnly || cookieTokenGeneral;
 
     if (!token) {
       return res.status(401).json({
@@ -95,7 +99,11 @@ export const authorize = (...allowedRoles: string[]) => {
 export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    const bearerToken = authHeader && (authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader.split(' ')[1]);
+    const cookieToken = (req as any).cookies?.accessToken as string | undefined;
+    const cookieTokenHttpOnly = (req as any).cookies?.accessTokenHttpOnly as string | undefined;
+    const cookieTokenGeneral = (req as any).cookies?.token as string | undefined;
+    const token = bearerToken || cookieToken || cookieTokenHttpOnly || cookieTokenGeneral;
 
     if (token) {
       const decoded = jwt.verify(token, ENV.JWT_SECRET) as JwtPayload;

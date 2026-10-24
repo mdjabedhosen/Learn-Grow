@@ -1,7 +1,7 @@
 import { publicFormRateLimiter } from "@/middleware/security.middleware";
 import { Router } from "express";
 import * as controller from "../controller/coupon.controller.js";
-import { verifyToken, authorize } from "../../../middleware/auth.middleware.js";
+import { requireAuth, requireRoles } from "../../../middleware/auth.js";
 
 const router = Router();
 
@@ -9,8 +9,8 @@ const router = Router();
 router.post("/validate", publicFormRateLimiter, controller.validateCoupon);
 
 // Protected routes for Admin and Manager
-router.use(verifyToken);
-router.use(authorize("admin", "manager"));
+router.use(requireAuth);
+router.use(requireRoles("admin", "manager"));
 
 router.get("/", controller.getAllCoupons);
 router.get("/:id", controller.getCouponById);
