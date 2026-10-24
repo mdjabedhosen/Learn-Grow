@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_CONFIG } from "@/config/api";
 import { toast } from "react-hot-toast";
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://learnandgrow.io/api").replace(/\/+$/, "");
 import {
   Tag,
   Plus,
@@ -58,7 +59,7 @@ export default function AdminCouponsPage() {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_CONFIG.BASE_URL}/coupon`, {
+      const res = await axios.get(`${API_BASE_URL}/coupon`, {
         withCredentials: true,
       });
       if (res.data?.success) {
@@ -110,7 +111,7 @@ export default function AdminCouponsPage() {
   const handleToggleStatus = async (coupon: Coupon) => {
     try {
       const res = await axios.patch(
-        `${API_CONFIG.BASE_URL}/coupon/${coupon._id}`,
+        `${API_BASE_URL}/coupon/${coupon._id}`,
         { isActive: !coupon.isActive },
         { withCredentials: true }
       );
@@ -126,7 +127,7 @@ export default function AdminCouponsPage() {
   const handleDelete = async (id: string, code: string) => {
     if (!confirm(`Are you sure you want to delete coupon "${code}"?`)) return;
     try {
-      const res = await axios.delete(`${API_CONFIG.BASE_URL}/coupon/${id}`, {
+      const res = await axios.delete(`${API_BASE_URL}/coupon/${id}`, {
         withCredentials: true,
       });
       if (res.data?.success) {
@@ -173,7 +174,7 @@ export default function AdminCouponsPage() {
 
       if (editingCoupon) {
         const res = await axios.patch(
-          `${API_CONFIG.BASE_URL}/coupon/${editingCoupon._id}`,
+          `${API_BASE_URL}/coupon/${editingCoupon._id}`,
           payload,
           { withCredentials: true }
         );
@@ -183,7 +184,7 @@ export default function AdminCouponsPage() {
           fetchCoupons();
         }
       } else {
-        const res = await axios.post(`${API_CONFIG.BASE_URL}/coupon`, payload, {
+        const res = await axios.post(`${API_BASE_URL}/coupon`, payload, {
           withCredentials: true,
         });
         if (res.data?.success) {
