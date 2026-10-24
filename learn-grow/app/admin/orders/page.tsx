@@ -63,6 +63,18 @@ interface Order {
   transactionId: string;
   senderNumber: string;
   /**
+   * The bank account the customer paid FROM. A bank transfer comes from a
+   * bank account, not a mobile wallet, so the student fills these in
+   * instead of the sender number. The admin matches them against the bank
+   * statement.
+   */
+  senderBankDetails?: {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    branchName: string;
+  };
+  /**
    * Cloudinary URL of the payment screenshot the student uploaded.
    * Present for bank transfers.
    */
@@ -790,6 +802,23 @@ export default function OrdersAdminPage() {
                         <p><span className="text-gray-600">Sender:</span> <span className="font-medium">{selectedOrder.senderNumber}</span></p>
                       </div>
                     </div>
+
+                    {/* The account the student paid FROM. The admin matches
+                        this against the bank statement, so it is shown next
+                        to the screenshot. */}
+                    {selectedOrder.senderBankDetails && (
+                      <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                        <h3 className="font-semibold mb-3 text-sm">
+                          Paid From (Student Bank Account)
+                        </h3>
+                        <div className="space-y-2 text-sm bg-white p-3 rounded">
+                          <p><span className="text-gray-600">Account Name:</span> <span className="ml-1 font-medium">{selectedOrder.senderBankDetails.accountName || "-"}</span></p>
+                          <p><span className="text-gray-600">Account Number:</span> <span className="ml-1 font-medium font-mono">{selectedOrder.senderBankDetails.accountNumber || "-"}</span></p>
+                          <p><span className="text-gray-600">Bank:</span> <span className="ml-1 font-medium">{selectedOrder.senderBankDetails.bankName || "-"}</span></p>
+                          <p><span className="text-gray-600">Branch:</span> <span className="ml-1 font-medium">{selectedOrder.senderBankDetails.branchName || "-"}</span></p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Payment screenshot - the evidence the admin needs to
                         verify a bank transfer. Click to open it full size. */}

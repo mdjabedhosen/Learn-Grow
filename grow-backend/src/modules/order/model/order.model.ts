@@ -8,6 +8,19 @@ export interface IOrder extends Document {
   paymentMethodId: mongoose.Types.ObjectId;
   transactionId: string;
   senderNumber: string;
+  /**
+   * The bank account the customer paid FROM.
+   *
+   * A bank transfer is made from a bank account, not from a mobile wallet
+   * number, so the customer fills in these four fields instead of the
+   * sender number. The admin matches them against the bank statement.
+   */
+  senderBankDetails?: {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    branchName?: string;
+  };
   paymentScreenshot?: string;
   paymentNote?: string;
   paymentStatus: "pending" | "approved" | "rejected";
@@ -70,6 +83,28 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: true,
       trim: true,
+    },
+    senderBankDetails: {
+      accountName: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      accountNumber: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      bankName: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      branchName: {
+        type: String,
+        trim: true,
+        default: "",
+      },
     },
     paymentScreenshot: {
       type: String,

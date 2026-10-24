@@ -26,6 +26,17 @@ interface OrderDetails {
    * Only present for bank transfers, where it is mandatory.
    */
   paymentScreenshot?: string;
+  /**
+   * The bank account the student paid FROM. Only present for bank
+   * transfers, where the student fills in the four account fields instead
+   * of a mobile sender number.
+   */
+  senderBankDetails?: {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    branchName?: string;
+  };
   deliveryAddress?: {
     name: string;
     phone: string;
@@ -339,6 +350,25 @@ export const getAdminOrderApprovalEmail = (
               ? `<p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>SWIFT Code:</strong> ${order.bankDetails.swiftCode}</p>`
               : ""
           }
+        </div>
+        `
+            : ""
+        }
+
+        ${
+          order.senderBankDetails
+            ? `
+        <h3 style="margin: 20px 0 15px 0; color: ${TEXT_DARK}; font-size: 16px; font-weight: 600;">🏦 Paid From (Student Bank Account)</h3>
+        <div style="background: ${BG_LIGHT}; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;">
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Account Name:</strong> ${order.senderBankDetails.accountName || "-"}</p>
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Account Number:</strong> ${order.senderBankDetails.accountNumber || "-"}</p>
+          <p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Bank Name:</strong> ${order.senderBankDetails.bankName || "-"}</p>
+          ${
+            order.senderBankDetails.branchName
+              ? `<p style="margin: 5px 0; color: ${TEXT_DARK};"><strong>Branch Name:</strong> ${order.senderBankDetails.branchName}</p>`
+              : ""
+          }
+          <p style="margin: 8px 0 0 0; color: ${TEXT_LIGHT}; font-size: 12px;">Match these against the bank statement to verify the transfer.</p>
         </div>
         `
             : ""
