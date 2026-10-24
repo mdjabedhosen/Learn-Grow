@@ -77,11 +77,10 @@ export const createOrder = async (req: Request, res: Response) => {
     } = req.body;
     const allowedPlans = ["single", "quarterly", "kit", "combo"];
 
-    if (!planType || !paymentMethodId || !transactionId) {
+    if (!planType || !paymentMethodId) {
       return res.status(400).json({
         success: false,
-        message:
-          "Missing required fields: planType, paymentMethodId, transactionId",
+        message: "Missing required fields: planType, paymentMethodId",
       });
     }
 
@@ -118,12 +117,15 @@ export const createOrder = async (req: Request, res: Response) => {
           });
         }
       }
-    } else if (!senderNumber) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Missing required fields: planType, paymentMethodId, transactionId, senderNumber",
-      });
+    } else {
+      // For mobile wallets (bKash, Nagad, etc.), both senderNumber and transactionId are mandatory
+      if (!senderNumber || !transactionId || !transactionId.toString().trim()) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Missing required fields: senderNumber and transactionId are required for mobile wallet payments",
+        });
+      }
     }
 
     // The payment screenshot is a Cloudinary URL uploaded by the checkout

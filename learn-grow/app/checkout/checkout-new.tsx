@@ -582,8 +582,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (!transactionId.trim()) {
-        // TrxID is now optional, so no error thrown if empty.
+      if (!isBankTransfer && !transactionId.trim()) {
+        toast.error(language === "bn" ? "অনুগ্রহ করে ট্রানজেকশন আইডি (TrxID) প্রদান করুন" : "Please enter the Transaction ID (TrxID)");
+        setSubmitting(false);
+        return;
       }
 
       // For bank transfers, payment screenshot is mandatory
@@ -1653,7 +1655,9 @@ export default function CheckoutPage() {
                   {/* Transaction ID Field */}
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) (ঐচ্ছিক)" : "Transaction ID (TrxID) (Optional)"}
+                      {isBankTransfer
+                        ? (language === "bn" ? "ট্রানজেকশন আইডি (TrxID) / রেফারেন্স (ঐচ্ছিক)" : "Transaction ID / Reference (Optional)")
+                        : (language === "bn" ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *")}
                     </label>
                     <input
                       type="text"
@@ -1663,7 +1667,9 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900 uppercase"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন (যদি থাকে)" : "Enter the transaction ID from your confirmation SMS if available"}
+                      {isBankTransfer
+                        ? (language === "bn" ? "ব্যাংক ডিপোজিট বা ট্রান্সফার রেফারেন্স থাকলে দিতে পারেন" : "Enter bank deposit or transfer reference if available")
+                        : (language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন" : "Enter the transaction ID from your confirmation SMS")}
                     </p>
                   </div>
 
@@ -1807,9 +1813,23 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={handlePlaceOrder}
-                  disabled={hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !transactionId.trim() || !(isBankTransfer ? senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() : senderNumber.trim())}
+                  disabled={
+                    hasPurchasedCombo ||
+                    submitting ||
+                    !agreeTerms ||
+                    !selectedPaymentMethod ||
+                    (isBankTransfer
+                      ? !(senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() && paymentScreenshot)
+                      : !(senderNumber.trim() && transactionId.trim()))
+                  }
                   className={`w-full py-3.5 px-4 rounded-xl font-bold text-white text-base transition flex items-center justify-center gap-2 shadow-md ${
-                    hasPurchasedCombo || submitting || !agreeTerms || !selectedPaymentMethod || !transactionId.trim() || !(isBankTransfer ? senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() : senderNumber.trim())
+                    hasPurchasedCombo ||
+                    submitting ||
+                    !agreeTerms ||
+                    !selectedPaymentMethod ||
+                    (isBankTransfer
+                      ? !(senderBankDetails.accountName.trim() && senderBankDetails.accountNumber.trim() && senderBankDetails.bankName.trim() && paymentScreenshot)
+                      : !(senderNumber.trim() && transactionId.trim()))
                       ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
                       : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-blue-500/20"
                   }`}

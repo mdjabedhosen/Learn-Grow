@@ -76,7 +76,8 @@ const orderSchema = new Schema<IOrder>(
     },
     transactionId: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
       trim: true,
     },
     senderNumber: {

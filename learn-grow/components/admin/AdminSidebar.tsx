@@ -28,7 +28,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Newspaper
+  Newspaper,
+  Tag
 } from "lucide-react";
 
 interface NavItem {
@@ -83,6 +84,7 @@ export default function AdminSidebar() {
     { labelEn: "Courses", labelBn: "কোর্স কারিকুলাম", icon: BookOpen, href: "/admin/courses" },
     { labelEn: "Batches & Cohorts", labelBn: "কোর্স ব্যাচ ও কোহোর্ট", icon: Users, href: "/admin/batches" },
     { labelEn: "Bundles & Combos", labelBn: "কম্বো ও বান্ডেল", icon: Layers, href: "/admin/combos" },
+    { labelEn: "Coupons & Discounts", labelBn: "কুপন ও ডিসকাউন্ট", icon: Tag, href: "/admin/coupons" },
     { labelEn: "Orders & Kits", labelBn: "অর্ডার ও কিট", icon: Package, href: "/admin/orders" },
     { labelEn: "Payment Methods", labelBn: "পেমেন্ট মাধ্যম", icon: CreditCard, href: "/admin/payment-methods" },
     { labelEn: "Live Classes", labelBn: "লাইভ ক্লাস শিডিউল", icon: Video, href: "/admin/live-classes" },
