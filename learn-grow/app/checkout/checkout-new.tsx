@@ -583,9 +583,7 @@ export default function CheckoutPage() {
       }
 
       if (!transactionId.trim()) {
-        toast.error("Please enter your transaction ID");
-        setSubmitting(false);
-        return;
+        // TrxID is now optional, so no error thrown if empty.
       }
 
       // For bank transfers, payment screenshot is mandatory
@@ -1655,7 +1653,7 @@ export default function CheckoutPage() {
                   {/* Transaction ID Field */}
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) *" : "Transaction ID (TrxID) *"}
+                      {language === "bn" ? "ট্রানজেকশন আইডি (TrxID) (ঐচ্ছিক)" : "Transaction ID (TrxID) (Optional)"}
                     </label>
                     <input
                       type="text"
@@ -1665,7 +1663,7 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-slate-900 uppercase"
                     />
                     <p className="text-xs text-slate-500 mt-1">
-                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন" : "Enter the transaction ID from your confirmation SMS"}
+                      {language === "bn" ? "পেমেন্ট কনফার্মেশন এসএমএস থেকে TrxID টি দিন (যদি থাকে)" : "Enter the transaction ID from your confirmation SMS if available"}
                     </p>
                   </div>
 
