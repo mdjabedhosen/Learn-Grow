@@ -19,9 +19,11 @@ export NODE_OPTIONS="--max-old-space-size=2560"
 npm install --legacy-peer-deps
 npm run build
 
-echo "🔄 [4/4] Reloading PM2 cluster with zero-downtime..."
+echo "🔄 [4/4] Starting/Reloading PM2 services..."
 cd ..
-pm2 reload ecosystem.config.js || pm2 restart all
+pm2 delete learn-grow 2>/dev/null || true
+pm2 startOrReload ecosystem.config.js
+pm2 save
 
 echo "=========================================="
 echo "✅ Deployment Successful! Current PM2 Status:"
